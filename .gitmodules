@@ -1,0 +1,3 @@
+[submodule "system"]
+	path = system
+	url = https://dev.kaijia.me/open-source-submodules/codeigniter.git
