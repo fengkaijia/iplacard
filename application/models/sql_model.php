@@ -31,7 +31,7 @@ class Sql_model extends CI_Model
 	
 	/**
 	 * 集成查询功能
-	 * @return array|false 符合查询条件的ID
+	 * @return array|false 符合查询条件的ID，如不存在返回FALSE
 	 */
 	function get_ids()
 	{
