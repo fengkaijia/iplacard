@@ -3,7 +3,7 @@
 /**
  * 数据库通用功能模块
  * @package iPlacard
- * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @since 2.0
  */
 class Sql_model extends CI_Model
 {
