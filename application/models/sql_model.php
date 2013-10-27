@@ -14,7 +14,7 @@ class Sql_model extends CI_Model
 	
 	/**
 	 * 集成查询并返回单个结果
-	 * @return int|false
+	 * @return int|false 查询条件的地一个ID，如不存在返回FALSE
 	 */
 	function get_id()
 	{
