@@ -10,6 +10,11 @@
  */
 
 /**
+ * 设置环境模式（development、testing、production）
+ */
+define('IP_ENVIRONMENT', 'development');
+
+/**
  * 数据库服务器
  */
 define('IP_DB_HOSTNAME', '');
