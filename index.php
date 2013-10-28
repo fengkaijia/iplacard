@@ -9,6 +9,11 @@
  * @since 2.0
  */
 
+/**
+ * iPlacard版本
+ */
+define('IP_VERSION', '2.0Dev');
+
 require_once 'config.php';
 require_once 'instance.php';
 
