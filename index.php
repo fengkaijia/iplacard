@@ -36,41 +36,56 @@ if(isset($_SERVER['HTTPS']))
 if(!defined('IP_SSL'))
 	define('IP_SSL', false);
 
-foreach($iplacard_instances as $instance_id => $instance)
+//选择模式，开发模式可能不使用多站点支持
+if(IP_MULTISITE)
 {
-	//存在站点并且启用
-	if($instance['domain'] == IP_REQUEST_DOMAIN && $instance['enabled'])
+	foreach($iplacard_instances as $instance_id => $instance)
 	{
-		//如果站点需要HTTPS但通过HTTP访问
-		if($instance['ssl'] == true && !IP_SSL)
+		//存在站点并且启用
+		if($instance['domain'] == IP_REQUEST_DOMAIN && $instance['enabled'])
 		{
-			header("Location: https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
-			exit;
-		}
+			//如果站点需要HTTPS但通过HTTP访问
+			if($instance['ssl'] == true && !IP_SSL)
+			{
+				header("Location: https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
+				exit;
+			}
 
-		/**
-		 * 实例ID
-		 */
-		define('IP_INSTANCE_ID', $instance_id);
-		
-		/**
-		 * 实例名字空间
-		 */
-		define('IP_INSTANCE_NAMESPACE', $instance['namespace']);
-		
-		/**
-		 * 实例主域名
-		 */
-		define('IP_INSTANCE_DOMAIN', $instance['domain']);
-		break;
+			/**
+			 * 实例ID
+			 */
+			define('IP_INSTANCE_ID', $instance_id);
+
+			/**
+			 * 实例名字空间
+			 */
+			define('IP_INSTANCE_NAMESPACE', $instance['namespace']);
+
+			/**
+			 * 实例主域名
+			 */
+			define('IP_INSTANCE_DOMAIN', $instance['domain']);
+			break;
+		}
+	}
+
+	//如不存在站点
+	if(!defined('IP_INSTANCE_ID'))
+	{
+		include_once 'application/views/raw/nonsite.php';
+		exit;
 	}
 }
-
-//如不存在站点
-if(!defined('IP_INSTANCE_ID'))
+else
 {
-	include_once 'application/views/raw/nonsite.php';
-	exit;
+	//不使用多站点模式情况下使用默认名字空间
+	define('IP_INSTANCE_NAMESPACE', IP_DB_PREFIX);
+	
+	//不设置ID
+	define('IP_INSTANCE_ID', 0);
+	
+	//默认使用访问请求的域名
+	define('IP_INSTANCE_DOMAIN', IP_REQUEST_DOMAIN);
 }
 
 /* End of iPlacard Instances initialization */
