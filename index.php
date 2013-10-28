@@ -1,4 +1,96 @@
-<?php
+<?php define('IPLACARD', 'Developed by Kaijia Feng');
+
+/**
+ * iPlacard
+ * 下一代模拟联合国会议管理系统
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright (c) 2013, Kaijia Feng
+ * @link http://iplacard.com/
+ * @since 2.0
+ */
+
+require_once 'config.php';
+require_once 'instance.php';
+
+//维护模式
+if(IP_MAINTENANCE)
+{
+	include_once 'application/views/raw/maintenance.php';
+	exit;
+}
+
+/**
+ * 当前访问请求的域名
+ * @todo 支持Alias
+ */
+define('IP_REQUEST_DOMAIN', $_SERVER["HTTP_HOST"]);
+
+//是否使用访问SSL
+if(isset($_SERVER['HTTPS']))
+{
+	if('on' == strtolower($_SERVER['HTTPS']))
+		define('IP_SSL', true);
+	if('1' == $_SERVER['HTTPS'])
+		define('IP_SSL', true);
+}
+if(!defined('IP_SSL'))
+	define('IP_SSL', false);
+
+//选择模式，开发模式可能不使用多站点支持
+if(IP_MULTISITE)
+{
+	foreach($iplacard_instances as $instance_id => $instance)
+	{
+		//存在站点并且启用
+		if($instance['domain'] == IP_REQUEST_DOMAIN && $instance['enabled'])
+		{
+			//如果站点需要HTTPS但通过HTTP访问
+			if($instance['ssl'] == true && !IP_SSL)
+			{
+				header("Location: https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
+				exit;
+			}
+
+			/**
+			 * 实例ID
+			 */
+			define('IP_INSTANCE_ID', $instance_id);
+
+			/**
+			 * 实例名字空间
+			 */
+			define('IP_INSTANCE_NAMESPACE', $instance['namespace']);
+
+			/**
+			 * 实例主域名
+			 */
+			define('IP_INSTANCE_DOMAIN', $instance['domain']);
+			break;
+		}
+	}
+
+	//如不存在站点
+	if(!defined('IP_INSTANCE_ID'))
+	{
+		include_once 'application/views/raw/nonsite.php';
+		exit;
+	}
+}
+else
+{
+	//不使用多站点模式情况下使用默认名字空间
+	define('IP_INSTANCE_NAMESPACE', IP_DB_PREFIX);
+	
+	//不设置ID
+	define('IP_INSTANCE_ID', 0);
+	
+	//默认使用访问请求的域名
+	define('IP_INSTANCE_DOMAIN', IP_REQUEST_DOMAIN);
+}
+
+/* End of iPlacard Instances initialization */
+
+//---------------------------------------------------------------
 
 /*
  *---------------------------------------------------------------
@@ -18,7 +110,7 @@
  * NOTE: If you change these, also change the error_reporting() code below
  *
  */
-	define('ENVIRONMENT', 'development');
+	define('ENVIRONMENT', IP_ENVIRONMENT);
 /*
  *---------------------------------------------------------------
  * ERROR REPORTING
