@@ -8,7 +8,7 @@
 
 /**
  * 用户ID
- * @param boolean $sudoer 如为TRUE显示当前使用Sudo模式的管理员ID，如Sudo模式未开启则参数不生效
+ * @param boolean $sudoer 如为TRUE显示当前使用sudo模式的管理员ID，如sudo模式未开启则参数不生效
  * @return int|false 用户ID，如未登录返回FALSE
  */
 function uid($sudoer = false)
@@ -44,7 +44,7 @@ function is_logged_in()
 }
 
 /**
- * 检查是否处于Sudo状态
+ * 检查是否处于sudo状态
  * @return boolean
  */
 function is_sudo()
