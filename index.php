@@ -14,8 +14,8 @@
  */
 define('IP_VERSION', '2.0Dev');
 
+//配置文件
 require_once 'config.php';
-require_once 'instance.php';
 
 //维护模式
 if(IP_MAINTENANCE)
@@ -44,6 +44,9 @@ if(!defined('IP_SSL'))
 //选择模式，开发模式可能不使用多站点支持
 if(IP_MULTISITE)
 {
+	//实例JSON数据文件
+	require_once 'instance.php';
+	
 	foreach($iplacard_instances as $instance_id => $instance)
 	{
 		//存在站点并且启用
