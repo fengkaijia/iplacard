@@ -18,7 +18,7 @@ class System_model extends CI_Model
 	 * @param mixed $default 默认值
 	 * @return array|false 值，如不存在返回FALSE
 	 */
-	function option($name, $default = '')
+	function option($name, $default = NULL)
 	{
 		//获取设置
 		$this->db->where('name', $name);
