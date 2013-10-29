@@ -189,6 +189,90 @@ class User_model extends CI_Model
 	}
 	
 	/**
+	 * 获取用户设置
+	 * @param int $user 用户ID
+	 * @param string $name 项目
+	 * @param mixed $default 默认值，如为空将首先尝试调用系统默认设置
+	 * @return array|false 值，如不存在返回FALSE
+	 */
+	function user_option($user, $name, $default = NULL)
+	{
+		//获取设置
+		$this->db->where('user', $user);
+		$this->db->where('name', $name);
+		$query = $this->db->get('user_option');
+		
+		//如果设置不存在
+		if($query->num_rows() == 0)
+		{
+			//如果存在默认值
+			if(!is_null($default))
+				return $default;
+			return $this->system_model->option("user_option_{$name}");
+		}
+		
+		//返回结果
+		$data = $query->row_array();
+		return json_decode($data['value'], true);
+	}
+	
+	/**
+	 * user_option的同名函数
+	 * @param int $user 用户ID
+	 * @param string $name 项目
+	 * @param mixed $default 默认值，如为空将首先尝试调用系统默认设置
+	 * @return array|false 值，如不存在返回FALSE
+	 */
+	function get_user_option($user, $name, $default = NULL)
+	{
+		return $this->option($name, $default);
+	}
+	
+	/**
+	 * 编辑/添加用户设置
+	 * @param int $user 用户ID
+	 * @param string $name 项目
+	 * @param array $value 值
+	 */
+	function edit_user_option($user, $name, $value)
+	{
+		//检查用户是否存在
+		if(!$this->user_exists($user))
+			return false;
+		
+		$value = json_encode($value);
+		
+		//如不存在项目将添加
+		if(!$this->user_option($user, $name))
+		{
+			$data = array(
+				'user' => $user,
+				'name' => $name,
+				'value' => $value
+			);
+			return $this->db->insert('user_option', $data);
+		}
+		
+		//更新设置
+		$this->db->where('user', $user);
+		$this->db->where('name', $name);
+		return $this->db->update('user_option', array('value' => $value));
+	}
+	
+	/**
+	 * 删除用户设置
+	 * @param int $user 用户ID
+	 * @param string $name 项目
+	 * @return boolean 是否完成删除
+	 */
+	function delete_user_option($user, $name)
+	{
+		$this->db->where('user', $user);
+		$this->db->where('name', $name);
+		return $this->db->delete('user_option');
+	}
+	
+	/**
 	 * 使用Blowfish算法加密密码
 	 * @param string $password 密码
 	 * @param string $salt 盐
