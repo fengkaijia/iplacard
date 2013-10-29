@@ -190,13 +190,23 @@ class User_model extends CI_Model
 	
 	/**
 	 * 获取用户设置
-	 * @param int $user 用户ID
 	 * @param string $name 项目
 	 * @param mixed $default 默认值，如为空将首先尝试调用系统默认设置
+	 * @param int $user 用户ID
 	 * @return array|false 值，如不存在返回FALSE
 	 */
-	function user_option($user, $name, $default = NULL)
+	function user_option($name, $default = NULL, $user = '')
 	{
+		//未登录且未指定UID情况下视为系统操作
+		if($user == '')
+		{
+			//未登录用户没有用户设置
+			if(!uid())
+				return false;
+			$user = uid();
+		}
+		$user = intval($user);
+		
 		//获取设置
 		$this->db->where('user', $user);
 		$this->db->where('name', $name);
@@ -230,12 +240,22 @@ class User_model extends CI_Model
 	
 	/**
 	 * 编辑/添加用户设置
-	 * @param int $user 用户ID
 	 * @param string $name 项目
 	 * @param array $value 值
+	 * @param int $user 用户ID
 	 */
-	function edit_user_option($user, $name, $value)
+	function edit_user_option($name, $value, $user = '')
 	{
+		//未登录且未指定UID情况下视为系统操作
+		if($user == '')
+		{
+			//未登录用户没有用户设置
+			if(!uid())
+				return false;
+			$user = uid();
+		}
+		$user = intval($user);
+		
 		//检查用户是否存在
 		if(!$this->user_exists($user))
 			return false;

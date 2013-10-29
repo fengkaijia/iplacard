@@ -61,5 +61,32 @@ function is_sudo()
 	return false;
 }
 
+/**
+ * 获取站点设置
+ * $this->system_model->option 简单路径
+ * @param string $name 项目
+ * @param mixed $default 默认值
+ * @return array|false 值，如不存在返回FALSE
+ */
+function option($name, $default = NULL)
+{
+	$CI =& get_instance();
+	return $CI->system_model->option($name, $default);
+}
+
+/**
+ * 获取用户设置
+ * $this->user_model->user_option 简单路径
+ * @param string $name 项目
+ * @param mixed $default 默认值，如为空将首先尝试调用系统默认设置
+ * @param int $user 用户ID
+ * @return array|false 值，如不存在返回FALSE
+ */
+function user_option($name, $default = NULL, $user = '')
+{
+	$CI =& get_instance();
+	return $CI->user_model->user_option($name, $default, $user);
+}
+
 /* End of file core_helper.php */
 /* Location: ./application/helpers/core_helper.php */
