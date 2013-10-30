@@ -143,8 +143,12 @@ class UI
 	 */
 	function alert($message, $type = 'warning', $flashdata = false)
 	{
-		if(!in_array($type, array('warning', 'error', 'info', 'success')))
+		if(!in_array($type, array('warning', 'danger', 'error', 'info', 'success')))
 			$type = 'warning';
+		
+		//Bootstrap 3移除了alert-error属性
+		if($type == 'error')
+			$type = 'danger';
 		
 		$alert = array(
 			'type' => $type,
