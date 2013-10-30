@@ -68,6 +68,11 @@ if(IP_MULTISITE)
 			 * 实例名字空间
 			 */
 			define('IP_INSTANCE_NAMESPACE', $instance['namespace']);
+			
+			/**
+			 * 加密密钥
+			 */
+			define('IP_INSTANCE_KEY', $instance['encryption_key']);
 
 			/**
 			 * 实例主域名
@@ -88,6 +93,9 @@ else
 {
 	//不使用多站点模式情况下使用默认名字空间
 	define('IP_INSTANCE_NAMESPACE', IP_DB_PREFIX);
+	
+	//不使用多站点模式情况下使用默认加密密钥
+	define('IP_INSTANCE_KEY', IP_ENCRYPTION_KEY);
 	
 	//不设置ID
 	define('IP_INSTANCE_ID', 0);

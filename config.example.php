@@ -45,6 +45,11 @@ define('IP_DB_DRIVER', 'mysql');
 define('IP_DB_PREFIX', 'ip');
 
 /**
+ * 加密密钥（多站点模式启用情况下被IP_INSTANCE_KEY代替）
+ */
+define('IP_ENCRYPTION_KEY', 'iplacard');
+
+/**
  * 是否启用多站点模式
  */
 define('IP_MULTISITE', false);
