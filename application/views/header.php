@@ -75,7 +75,7 @@
 								<li><a href="<?php echo base_url('account/recover');?>">帐号恢复</a></li>
 								<li><a href="<?php echo base_url('help/knowledgebase');?>">知识库</a></li>
 								<li class="divider"></li>
-								<li><?php echo safe_mailto(option('site_contact_email'), '联系管理员');?></li>
+								<li><?php echo safe_mailto(option('site_contact_email', 'contact@iplacard.com'), '联系管理员');?></li>
 								<li><a href="<?php echo base_url('about/iplacard');?>">关于</a></li>
 							</ul><?php } ?>
 						</li>
