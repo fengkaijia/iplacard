@@ -62,6 +62,17 @@ function is_sudo()
 }
 
 /**
+ * 检查当前是否处于开发模式
+ * @return boolean
+ */
+function is_dev()
+{
+	if(IP_ENVIRONMENT == 'development')
+		return true;
+	return false;
+}
+
+/**
  * 获取站点设置
  * $this->system_model->option 简单路径
  * @param string $name 项目
