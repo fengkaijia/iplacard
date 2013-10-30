@@ -15,7 +15,7 @@
 	
 	<?php if(!empty($this->ui->js['header'])) { ?><script language="javascript"><?php echo $this->ui->js['header'];?></script><?php } ?>
 
-	<!--[if lt IE 9]><script src="<?php echo base_url('static/js/html5.min.js');?>"></script><![endif]-->
+	<!--[if lt IE 9]><script src="<?php echo base_url('static/js/html5shiv.min.js');?>"></script><![endif]-->
 
 	<link href="<?php echo base_url('static/img/favicon.ico');?>" rel="shortcut icon" />
 
