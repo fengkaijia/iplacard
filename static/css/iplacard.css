@@ -1,9 +1,12 @@
 /* 
 	Document   : iPlacard
+	Since      : 2.0
+	Website    : iplacard.com
 	Description:
-		Main CSS File of iPlacard Project
+		CSS File of iPlacard Project
 */
 
+/* 保持页面全屏 */
 html,
 body {
 	height: 100%;
@@ -17,4 +20,40 @@ body {
 #push,
 #footer {
 	height: 80px;
+}
+
+/* 登录帐户操作框 */
+.form-auth {
+	max-width: 360px;
+	padding: 19px 29px 29px;
+    margin: 0 auto 20px;
+	background-color: #fff;
+    border: 1px solid #e5e5e5;
+}
+.form-auth .form-auth-heading,
+.form-auth .checkbox {
+	margin-bottom: 14px;
+}
+.form-auth .checkbox {
+	font-weight: normal;
+}
+.form-auth .form-control {
+	position: relative;
+	font-size: 16px;
+	height: auto;
+	margin-bottom: 14px;
+	padding: 8px 10px;
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+			box-sizing: border-box;
+}
+.form-auth .form-control:focus {
+	z-index: 2;
+}
+.form-auth .alert {
+	margin-bottom: 18px;
+}
+.form-auth .alert-block {
+	padding-top: 10px;
+	padding-bottom: 10px;
 }
