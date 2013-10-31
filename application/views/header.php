@@ -7,6 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 	<link href="<?php echo base_url(is_dev() ? 'static/css/bootstrap.css' : 'static/css/bootstrap.min.css');?>" rel="stylesheet">
+	<link href="<?php echo base_url(is_dev() ? 'static/css/font-awesome.css' : 'static/css/font-awesome.min.css');?>" rel="stylesheet">
 	<link href="<?php echo base_url(is_dev() ? 'static/css/iplacard.css' : 'static/css/iplacard.min.css');?>" rel="stylesheet">
 	
 	<script src="<?php echo base_url(is_dev() ? 'static/js/jquery.js' : 'static/js/jquery.min.js');?>"></script>
@@ -75,7 +76,7 @@
 								<li><a href="<?php echo base_url('account/recover');?>">帐号恢复</a></li>
 								<li><a href="<?php echo base_url('help/knowledgebase');?>">知识库</a></li>
 								<li class="divider"></li>
-								<li><?php echo safe_mailto(option('site_contact_email'), '联系管理员');?></li>
+								<li><?php echo safe_mailto(option('site_contact_email', 'contact@iplacard.com'), '联系管理员');?></li>
 								<li><a href="<?php echo base_url('about/iplacard');?>">关于</a></li>
 							</ul><?php } ?>
 						</li>
