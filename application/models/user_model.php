@@ -75,7 +75,7 @@ class User_model extends CI_Model
 			if(isset($data['pin_password']) && !empty($data['pin_password']))
 				$pin = $data['pin_password'];
 			elseif(empty($id))
-				$pin = $this->system->option('default_pin_password', 'iPlacard');
+				$pin = option('default_pin_password', 'iPlacard');
 			else
 				$pin = $this->get_user($id, 'pin_password');
 			
@@ -218,7 +218,7 @@ class User_model extends CI_Model
 			//如果存在默认值
 			if(!is_null($default))
 				return $default;
-			return $this->system_model->option("user_option_{$name}");
+			return option("user_option_{$name}");
 		}
 		
 		//返回结果
