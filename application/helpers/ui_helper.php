@@ -12,7 +12,7 @@ function icon($icon, $space = true, $fixed = true)
 	$fixed = $fixed ? ' fa-fw' : '';
 	$space = $space ? ' ' : '';
 	
-	return "<i class=\"fa-{$icon}{$fixed}\"></i>{$space}";
+	return "<i class=\"fa fa-{$icon}{$fixed}\"></i>{$space}";
 }
 
 /* End of file ui_helper.php */
