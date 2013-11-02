@@ -37,7 +37,9 @@ class Sql_model extends CI_Model
 	{
 		//获取传入参数数量
 		$num = func_num_args();
-		if(is_numeric(($num & 1)))
+		
+		//检查是否缺少参数
+		if($num % 2 == 0)
 			return false;
 		
 		//输入查询
