@@ -43,8 +43,9 @@ class Admin_model extends CI_Model
 	function get_admin_id()
 	{
 		$args = func_get_args();
+		array_unshift($args, 'admin');
 		//将参数传递给get_id方法
-		return call_user_func_array(array($this->sql_model, 'get_id'), array_unshift($args, 'admin'));
+		return call_user_func_array(array($this->sql_model, 'get_id'), $args);
 	}
 	
 	/**
@@ -54,8 +55,9 @@ class Admin_model extends CI_Model
 	function get_admin_ids()
 	{
 		$args = func_get_args();
+		array_unshift($args, 'admin');
 		//将参数传递给get_ids方法
-		return call_user_func_array(array($this->sql_model, 'get_ids'), array_unshift($args, 'admin'));
+		return call_user_func_array(array($this->sql_model, 'get_ids'), $args);
 	}
 	
 	/**
