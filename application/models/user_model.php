@@ -233,9 +233,9 @@ class User_model extends CI_Model
 	 * @param mixed $default 默认值，如为空将首先尝试调用系统默认设置
 	 * @return array|false 值，如不存在返回FALSE
 	 */
-	function get_user_option($user, $name, $default = NULL)
+	function get_user_option($name, $default = NULL, $user = '')
 	{
-		return $this->option($name, $default);
+		return $this->user_option($name, $default, $user);
 	}
 	
 	/**
@@ -300,7 +300,7 @@ class User_model extends CI_Model
 	 */
 	private function _encode_password($password, $salt)
 	{
-		$encoded_string = crypt($password, '$2a$20$'.$salt.'$');
+		$encoded_string = crypt(sha1($password), '$2a$20$'.sha1($salt).'$');
 		
 		//检查crypt加密是否出错
 		if(!$encoded_string)
