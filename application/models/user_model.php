@@ -302,7 +302,7 @@ class User_model extends CI_Model
 	 */
 	private function _encode_password($password, $salt)
 	{
-		$encoded_string = crypt(sha1($password), '$2a$20$'.sha1($salt).'$');
+		$encoded_string = crypt(sha1($password), '$2a$12$'.sha1($salt).'$');
 		
 		//检查crypt加密是否出错
 		if(!$encoded_string)
