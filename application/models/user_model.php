@@ -133,7 +133,7 @@ class User_model extends CI_Model
 	function check_password($key, $input_password)
 	{
 		//获取储存的密码和盐
-		$user = $this->get_user($key, 'password');
+		$user = $this->get_user($key);
 		
 		if(!$user)
 			return false;
