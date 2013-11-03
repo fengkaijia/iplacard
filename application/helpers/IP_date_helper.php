@@ -4,9 +4,10 @@
  * 时间优化函数
  * @link http://php.net/manual/en/function.time.php
  * @param int $date UNIX时间戳
+ * @param boolean $space 是否在数字和文字前增加空格
  * @return string 经过优化的时间（如几天前）
  */
-function nicetime($date)
+function nicetime($date, $space = false)
 {
 	if(empty($date))
 	{
@@ -36,6 +37,8 @@ function nicetime($date)
 
 	$difference = round($difference);
 	
+	if($space)
+		return " $difference $periods[$j]{$tense}";
 	return "$difference$periods[$j]{$tense}";
 }
 
