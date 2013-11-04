@@ -194,7 +194,8 @@ class Account extends CI_Controller
 		{
 			$this->load->helper('date');
 			$this->ui->alert(sprintf('您的本次登录已于%s被强制登录，请重新登录。', nicetime($this->session->userdata('halt_time'), true)));
-			$this->session->unset_userdata(array('halt', 'halt_time'));
+			$this->session->unset_userdata('halt');
+			$this->session->unset_userdata('halt_time');
 		}
 		if($this->session->userdata('login_try') == 10)
 			$this->ui->alert(sprintf('这将会是您的最后一次登录尝试，如果仍然登录失败您将会被暂停登录 10 分钟，如果您忘记了密码请<a href="%s" class="alert-link">重置密码</a>。', base_url('account/recover')));
