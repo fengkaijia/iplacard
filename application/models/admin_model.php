@@ -71,7 +71,7 @@ class Admin_model extends CI_Model
 			$id = uid(true);
 		
 		//权限
-		$roles = array('reviewer', 'interviewer', 'cashier', 'administrator', 'bureaucrat');
+		$roles = array('reviewer', 'dais', 'interviewer', 'cashier', 'administrator', 'bureaucrat');
 		
 		if(!in_array($role, $roles))
 			return false;

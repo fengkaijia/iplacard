@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}admin` (
   `title` text COMMENT '职位',
   `committee` int(11) DEFAULT NULL COMMENT '委员会ID',
   `role_reviewer` int(11) NOT NULL DEFAULT '0' COMMENT '申请审核员权限',
+  `role_dais` int(11) NOT NULL DEFAULT '0' COMMENT '主席权限',
   `role_interviewer` int(11) NOT NULL DEFAULT '0' COMMENT '面试官权限',
   `role_cashier` int(11) NOT NULL DEFAULT '0' COMMENT '出纳员权限',
   `role_administrator` int(11) NOT NULL DEFAULT '0' COMMENT '站点管理员权限',
