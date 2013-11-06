@@ -12,6 +12,7 @@ class Account extends CI_Controller
 		parent::__construct();
 		$this->load->library('session');
 		$this->load->library('form_validation');
+		$this->load->library('user_agent');
 		$this->load->library('ui', array('side' => 'account'));
 		$this->load->helper('form');
 		$this->load->helper('ui');
@@ -64,119 +65,37 @@ class Account extends CI_Controller
 		
 		if($this->form_validation->run() == true)
 		{
-			//如果成功登录则重定向
-			$redirect = $this->session->flashdata('redirect');
-			
 			//获取用户ID
 			$id = $this->user_model->login($this->input->post('email'), $this->input->post('password'));
 			if($id != false)
 			{
-				$this->load->library('user_agent');
-				
-				$user = $this->user_model->get_user($id);
-				
-				//检查是否设置安全码
-				if(option('check_pin', false) && $user['pin_password'] == option('default_pin_password', 'iPlacard'))
-					$this->ui->alert(sprintf('您尚未更改您的初始安全码，请在您的<a href="%s" class="alert-link">帐号管理</a>页面设置新的安全码。', base_url('account/pin')), 'info', true);
-				
-				//设置Session数据
-				$this->session->set_userdata(array(
-					'uid' => intval($user['id']),
-					'sudo' => false,
-					'email' => $user['email'],
-					'type' => $user['type'],
-					'logged_in' => true));
-				
-				//获取Session信息
-				$session_id = $this->session->userdata('session_id');
-				$system_sess_id = $this->system_model->get_session_id($session_id);
-				
-				//写入日志
-				$is_mobile = $this->agent->is_mobile();
-				$this->system_model->log('logged_in', array(
-					'ip' => $this->input->ip_address(),
-					'session' => $system_sess_id,
-					'type' => ($is_mobile) ? 'mobile' : 'desktop',
-					'browser' => ($is_mobile) ? $this->agent->mobile() : $this->agent->browser(),
-					'ua' => $this->agent->agent_string()
-				), $id);
-				
-				//发送登录通知
-				if(user_option('account_login_notice', false))
+				//两步验证
+				if(user_option('twostep_enabled', false, $id))
 				{
-					//生成链接
-					$halt = (string) $system_sess_id.(string) rand(1000, 9999);
-					$md5_sess_id = strtoupper(md5($session_id));
+					$this->load->model('twostep_model');
+					$this->load->library('twostep');
 					
-					//发送邮件
-					$this->load->library('email');
-					$this->load->library('parser');
-					$this->load->helper('date');
-					
-					$data = array(
-						'uid' => $id,
-						'name' => $user['name'],
-						'email' => $user['email'],
-						'time' => unix_to_human(time()),
-						'ip' => $this->input->ip_address(),
-						'url' => base_url("account/halt/$halt/$md5_sess_id"),
-					);
-					
-					$this->email->to($user['email']);
-					$this->email->subject('iPlacard 帐户登录提示');
-					$this->email->html($this->parser->parse_string(option('email_account_login_notice', "您的 iPlacard 帐户 {email} 已经于 {time} 在 IP {ip} 登录。如非本人操作，请立即访问：\n\n"
-							. "\t{url}\n\n"
-							. "强制退出此次登录，如果您持续收到此通知，请考虑修改密码。"), $data, true));
-					$this->email->send();
-				}
-				
-				//根据不同用户类型执行不同操作
-				//如果是管理员
-				if($this->user_model->is_admin($id))
-				{
-					//页面跳转
-					if(!empty($redirect))
+					//需要验证
+					if(!$this->twostep->safe_exists($id, $this->input->cookie('iplacardtwostepsafecode', true), $this->agent->agent_string(), 30 * 24 * 60 * 60))
 					{
-						redirect(urldecode($redirect));
-						return;
+						$this->session->set_userdata('uid_twostep', $id);
+						redirect('account/twostep');
 					}
-					
-					redirect('manage/dashboard');
-					return;
 				}
 				
-				//如果是用户
-				$this->load->model('delegate_model');
-				
-				$delegate = $this->delegate_model->get_delegate($id);
-				
-				if($delegate['status'] == 'seat_assigned' && option('notice_check_status_seat_assigned', false))
-					$this->ui->alert(sprintf('面试官已经为您分配了席位，请在<a href="%s" class="alert-link">席位信息页面</a>确认您的席位。', base_url('seat/placard')), 'info', true);
-				
-				if($delegate['status'] == 'invoice_issued' && option('notice_check_status_invoice_issued', false))
-					$this->ui->alert(sprintf('您有<a href="%s" class="alert-link">帐单</a>需要支付，请在帐单到期之前完成支付。', base_url('apply/invoice')), 'info', true);
-
-				$addition = option('additional_information_all', array());
-				if(!empty($addition) && !$this->delegate_model->get_editable_profile_ids($delegate['id'], 'delegate'))
-				{
-					$this->ui->alert(sprintf('您有<a href="%s" class="alert-link">附加信息</a>需要补充。', base_url('apply/profile')), 'info', true);
-				}
-
-				if(!empty($redirect))
-				{
-					redirect(urldecode($redirect));
-					return;
-				}
-				
-				redirect('apply/status');
+				//执行登录操作
+				$this->_do_login($id);
 				return;
+			}
+			else
+			{
+				$this->ui->alert('非常抱歉，我们遇到了一个未知的错误无法获取您的帐户信息，请重新尝试登录。', 'danger');
 			}
 		}
 		
 		//IE 10 Postback提示
 		if($this->session->userdata('dismiss_internet_explorer_postback_notice') != true && option('check_internet_explorer_postback', false))
 		{
-			$this->load->library('user_agent');
 			if($this->agent->is_browser('Internet Explorer') && $this->agent->version() == '10.0')
 				$this->ui->alert(sprintf('您的浏览器被报告存在一个缺陷可能导致无法登录iPlacard，如果您长时间无法正常登录请尝试使用其他浏览器，例如 %1$s 和 %2$s。', anchor('https://www.google.com/chrome/', 'Google Chrome'), anchor('http://www.firefox.com/', 'Mozilla Firefox')), 'info');	
 		}
@@ -209,7 +128,7 @@ class Account extends CI_Controller
 	 */
 	function logout()
 	{
-		if(!is_logged_in())
+		if(!is_logged_in() && !is_pending_twostep())
 		{
 			login_redirect();
 			return;
@@ -239,6 +158,57 @@ class Account extends CI_Controller
 			return;
 		}
 		redirect('account/login');
+	}
+	
+	function twostep()
+	{
+		if(is_logged_in() || !is_pending_twostep())
+		{
+			redirect('');
+			return;
+		}
+		
+		//不在此页面重定向
+		$this->session->keep_flashdata('redirect');
+		
+		$this->form_validation->set_rules('code', '验证码', 'trim|required|integer|exact_length[6]|callback__check_twostep_code');
+		$this->form_validation->set_message('exact_length', '验证码必须是六位数字。');
+		$this->form_validation->set_error_delimiters('<div class="alert alert-dismissable alert-warning alert-block">'
+				. '<button type="button" class="close" data-dismiss="alert">×</button>'
+				. '<strong>错误</strong>：', '</div>');
+		
+		if($this->form_validation->run() == true)
+		{
+			//获取用户ID
+			$id = $this->session->userdata('uid_twostep');
+			$this->session->unset_userdata('uid_twostep');
+			if($this->user_model->user_exists($id))
+			{
+				//30天内不再验证
+				if($this->input->post('safe'))
+				{
+					$this->load->helper('string');
+					$cookie_code = random_string('alnum', 32);
+					
+					$this->twostep->add_safe($id, $cookie_code, $this->input->ip_address(), $this->agent->agent_string());
+					
+					$this->input->set_cookie(array(
+						'name' => 'iplacardtwostepsafecode',
+						'value' => $cookie_code,
+						'expire' => 30 * 24 * 60 * 60,
+						'secure' => true
+					));
+				}
+				$this->_do_login($id);
+				return;
+			}
+			else
+			{
+				$this->ui->alert('非常抱歉，我们遇到了一个未知的错误无法获取您的帐户信息，请重新尝试登录。', 'danger');
+			}
+		}
+		
+		$this->load->view('account/auth/twostep');
 	}
 	
 	/**
@@ -445,6 +415,113 @@ class Account extends CI_Controller
 		$this->ui->title('强制登出');
 		$this->load->view('account/auth/halt', array('no_action' => $no_action));
 	}
+		
+	/**
+	 * 执行登录操作
+	 * @param int $id 用户ID
+	 */
+	function _do_login($id)
+	{
+		//如果成功登录则重定向
+		$redirect = $this->session->flashdata('redirect');
+		
+		$user = $this->user_model->get_user($id);
+
+		//检查是否设置安全码
+		if(option('check_pin', false) && $user['pin_password'] == option('default_pin_password', 'iPlacard'))
+			$this->ui->alert(sprintf('您尚未更改您的初始安全码，请在您的<a href="%s" class="alert-link">帐号管理</a>页面设置新的安全码。', base_url('account/pin')), 'info', true);
+
+		//设置Session数据
+		$this->session->set_userdata(array(
+			'uid' => intval($user['id']),
+			'sudo' => false,
+			'email' => $user['email'],
+			'type' => $user['type'],
+			'logged_in' => true));
+
+		//获取Session信息
+		$session_id = $this->session->userdata('session_id');
+		$system_sess_id = $this->system_model->get_session_id($session_id);
+
+		//写入日志
+		$is_mobile = $this->agent->is_mobile();
+		$this->system_model->log('logged_in', array(
+			'ip' => $this->input->ip_address(),
+			'session' => $system_sess_id,
+			'type' => ($is_mobile) ? 'mobile' : 'desktop',
+			'browser' => ($is_mobile) ? $this->agent->mobile() : $this->agent->browser(),
+			'ua' => $this->agent->agent_string()
+		), $id);
+
+		//发送登录通知
+		if(user_option('account_login_notice_enabled', false))
+		{
+			//生成链接
+			$halt = (string) $system_sess_id.(string) rand(1000, 9999);
+			$md5_sess_id = strtoupper(md5($session_id));
+
+			//发送邮件
+			$this->load->library('email');
+			$this->load->library('parser');
+			$this->load->helper('date');
+
+			$data = array(
+				'uid' => $id,
+				'name' => $user['name'],
+				'email' => $user['email'],
+				'time' => unix_to_human(time()),
+				'ip' => $this->input->ip_address(),
+				'url' => base_url("account/halt/$halt/$md5_sess_id"),
+			);
+
+			$this->email->to($user['email']);
+			$this->email->subject('iPlacard 帐户登录提示');
+			$this->email->html($this->parser->parse_string(option('email_account_login_notice', "您的 iPlacard 帐户 {email} 已经于 {time} 在 IP {ip} 登录。如非本人操作，请立即访问：\n\n"
+					. "\t{url}\n\n"
+					. "强制退出此次登录，如果您持续收到此通知，请考虑修改密码。"), $data, true));
+			$this->email->send();
+		}
+
+		//根据不同用户类型执行不同操作
+		//如果是管理员
+		if($this->user_model->is_admin($id))
+		{
+			//页面跳转
+			if(!empty($redirect))
+			{
+				redirect(urldecode($redirect));
+				return;
+			}
+
+			redirect('manage/dashboard');
+			return;
+		}
+
+		//如果是用户
+		$this->load->model('delegate_model');
+
+		$delegate = $this->delegate_model->get_delegate($id);
+
+		if($delegate['status'] == 'seat_assigned' && option('notice_check_status_seat_assigned', false))
+			$this->ui->alert(sprintf('面试官已经为您分配了席位，请在<a href="%s" class="alert-link">席位信息页面</a>确认您的席位。', base_url('seat/placard')), 'info', true);
+
+		if($delegate['status'] == 'invoice_issued' && option('notice_check_status_invoice_issued', false))
+			$this->ui->alert(sprintf('您有<a href="%s" class="alert-link">帐单</a>需要支付，请在帐单到期之前完成支付。', base_url('apply/invoice')), 'info', true);
+
+		$addition = option('additional_information_all', array());
+		if(!empty($addition) && !$this->delegate_model->get_editable_profile_ids($delegate['id'], 'delegate'))
+		{
+			$this->ui->alert(sprintf('您有<a href="%s" class="alert-link">附加信息</a>需要补充。', base_url('apply/profile')), 'info', true);
+		}
+
+		if(!empty($redirect))
+		{
+			redirect(urldecode($redirect));
+			return;
+		}
+
+		redirect('apply/status');
+	}
 	
 	/**
 	 * 登录验证回调函数
@@ -518,6 +595,46 @@ class Account extends CI_Controller
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * 验证码检查回调函数
+	 */
+	function _check_twostep_code()
+	{
+		$this->load->model('twostep_model');
+		$this->load->library('twostep');
+		
+		$code = $this->input->post('code');
+		
+		$uid = $this->session->userdata('uid_twostep');
+		
+		//如未开启两步验证自动通过
+		if(!user_option('twostep_enabled', false, $uid))
+			return true;
+		
+		//如未设置验证密钥自动通过
+		$secret = user_option('twostep_secret', false, $uid);
+		if(!$secret)
+			return true;
+		
+		if($this->twostep->check_code($secret, $code))
+		{
+			if($this->twostep->recode_exists($uid, $code, option('twostep_time_range', 60)))
+			{
+				$this->form_validation->set_message('_check_twostep_code', '此验证码已经失效，请等待 Google Authenticator 生成新的验证码后重试。');
+				return false;
+			}
+			
+			//记录验证码
+			$this->twostep->add_recode($uid, $code);
+			return true;
+		}
+		else
+		{
+			$this->form_validation->set_message('_check_twostep_code', '验证码错误。');
+		}
+		return false;
 	}
 }
 
