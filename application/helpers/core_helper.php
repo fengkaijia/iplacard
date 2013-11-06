@@ -44,6 +44,23 @@ function is_logged_in()
 }
 
 /**
+ * 检查正在两步验证阶段
+ * @return boolean
+ */
+function is_pending_twostep()
+{
+	$CI =& get_instance();
+	
+	//命令行模式
+	if(!isset($CI->session))
+		return false;
+	
+	if($CI->session->userdata('uid_twostep'))
+		return true;
+	return false;
+}
+
+/**
  * 检查是否处于sudo状态
  * @return boolean
  */

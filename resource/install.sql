@@ -46,6 +46,24 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}session` (
   KEY `last_activity_idx` (`last_activity`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}twostep_recode` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '记录ID',
+  `user` int(11) NOT NULL COMMENT '用户ID',
+  `code` text NOT NULL COMMENT '使用的验证码',
+  `time` int(11) NOT NULL COMMENT '使用时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='已经使用两步验证码' AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}twostep_safe` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '代码ID',
+  `code` text NOT NULL COMMENT '授权不再两步验证代码',
+  `user` int(11) NOT NULL COMMENT '授权用户ID',
+  `auth_time` int(11) NOT NULL COMMENT '授权时间',
+  `auth_ip` text NOT NULL COMMENT '授权IP',
+  `ua` text NOT NULL COMMENT '授权User Agent',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='授权不再要求两步验证记录' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}user` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `name` text NOT NULL COMMENT '姓名',
