@@ -61,7 +61,7 @@ class Account extends CI_Controller
 		$this->form_validation->set_message('valid_email', '电子邮箱地址无效。');
 		$this->form_validation->set_error_delimiters('<div class="alert alert-dismissable alert-warning alert-block">'
 				. '<button type="button" class="close" data-dismiss="alert">×</button>'
-				. '<strong>错误</strong>：', '</div>');
+				. '<strong>错误</strong> ', '</div>');
 		
 		if($this->form_validation->run() == true)
 		{
@@ -175,7 +175,7 @@ class Account extends CI_Controller
 		$this->form_validation->set_message('exact_length', '验证码必须是六位数字。');
 		$this->form_validation->set_error_delimiters('<div class="alert alert-dismissable alert-warning alert-block">'
 				. '<button type="button" class="close" data-dismiss="alert">×</button>'
-				. '<strong>错误</strong>：', '</div>');
+				. '<strong>错误</strong> ', '</div>');
 		
 		if($this->form_validation->run() == true)
 		{
@@ -228,7 +228,7 @@ class Account extends CI_Controller
 		$this->form_validation->set_message('valid_email', '电子邮箱地址无效。');
 		$this->form_validation->set_error_delimiters('<div class="alert alert-dismissable alert-warning alert-block">'
 				. '<button type="button" class="close" data-dismiss="alert">×</button>'
-				. '<strong>错误</strong>：', '</div>');
+				. '<strong>错误</strong> ', '</div>');
 		
 		if($this->form_validation->run() == true)
 		{
@@ -318,7 +318,7 @@ class Account extends CI_Controller
 		$this->form_validation->set_rules('password_repeat', '确认密码', 'trim|required|matches[password]');
 		$this->form_validation->set_error_delimiters('<div class="alert alert-block">'
 				. '<button type="button" class="close" data-dismiss="alert">×</button>'
-				. '<strong>错误</strong>：', '</div>');
+				. '<strong>错误</strong> ', '</div>');
 		
 		if($this->form_validation->run() == true)
 		{
