@@ -61,7 +61,7 @@ class Account extends CI_Controller
 		$this->form_validation->set_message('valid_email', '电子邮箱地址无效。');
 		$this->form_validation->set_error_delimiters('<div class="alert alert-dismissable alert-warning alert-block">'
 				. '<button type="button" class="close" data-dismiss="alert">×</button>'
-				. '<strong>错误</strong>：', '</div>');
+				. '<strong>错误</strong> ', '</div>');
 		
 		if($this->form_validation->run() == true)
 		{
@@ -175,7 +175,7 @@ class Account extends CI_Controller
 		$this->form_validation->set_message('exact_length', '验证码必须是六位数字。');
 		$this->form_validation->set_error_delimiters('<div class="alert alert-dismissable alert-warning alert-block">'
 				. '<button type="button" class="close" data-dismiss="alert">×</button>'
-				. '<strong>错误</strong>：', '</div>');
+				. '<strong>错误</strong> ', '</div>');
 		
 		if($this->form_validation->run() == true)
 		{
@@ -208,6 +208,7 @@ class Account extends CI_Controller
 			}
 		}
 		
+		$this->ui->title('两步验证');
 		$this->load->view('account/auth/twostep');
 	}
 	
@@ -227,7 +228,7 @@ class Account extends CI_Controller
 		$this->form_validation->set_message('valid_email', '电子邮箱地址无效。');
 		$this->form_validation->set_error_delimiters('<div class="alert alert-dismissable alert-warning alert-block">'
 				. '<button type="button" class="close" data-dismiss="alert">×</button>'
-				. '<strong>错误</strong>：', '</div>');
+				. '<strong>错误</strong> ', '</div>');
 		
 		if($this->form_validation->run() == true)
 		{
@@ -240,10 +241,8 @@ class Account extends CI_Controller
 			$recover_key = strtoupper(substr(sha1($uid.$recover_time), 20));
 			
 			//记录重置信息
-			$this->user_model->edit_user(array(
-				'recover_key' => $recover_key,
-				'recover_time' => $recover_time
-			), $uid);
+			$this->user_model->edit_user_option('recover_key', $recover_key, $uid);
+			$this->user_model->edit_user_option('recover_time', $recover_time, $uid);
 			
 			//发送邮件
 			$this->load->library('email');
@@ -296,9 +295,11 @@ class Account extends CI_Controller
 		}
 		
 		$user = $this->user_model->get_user($uid);
+		$recover_key = user_option('recover_key', false, $uid);
+		$recover_time = user_option('recover_time', false, $uid);
 		
 		//验证用户
-		if(!$user || $user['recover_key'] != $key)
+		if(!$user || $recover_key != $key)
 		{
 			$this->ui->alert('无效的密码重置请求。', 'danger', true);
 			redirect('account/recover');
@@ -306,7 +307,7 @@ class Account extends CI_Controller
 		}
 
 		//验证链接有效性
-		if(time() > $user['recover_time'] + 60 * 60 * 24)
+		if(time() > $recover_time + 60 * 60 * 24)
 		{
 			$this->ui->alert('您的密码重置链接已经失效，请重新请求重置并在 24 小时内完成操作。', 'danger', true);
 			redirect('account/recover');
@@ -317,7 +318,7 @@ class Account extends CI_Controller
 		$this->form_validation->set_rules('password_repeat', '确认密码', 'trim|required|matches[password]');
 		$this->form_validation->set_error_delimiters('<div class="alert alert-block">'
 				. '<button type="button" class="close" data-dismiss="alert">×</button>'
-				. '<strong>错误</strong>：', '</div>');
+				. '<strong>错误</strong> ', '</div>');
 		
 		if($this->form_validation->run() == true)
 		{
@@ -326,9 +327,10 @@ class Account extends CI_Controller
 			
 			$this->user_model->edit_user(array(
 				'password' => trim($this->input->post('password')),
-				'recover_key' => NULL,
-				'recover_time' => NULL
 			), $uid);
+			
+			$this->user_model->delete_user_option('recover_key', $uid);
+			$this->user_model->delete_user_option('recover_time', $uid);
 			
 			$this->ui->alert('您的密码已经重置，现在您可以使用新的密码登录。', 'success', true);
 			
@@ -632,7 +634,7 @@ class Account extends CI_Controller
 		}
 		else
 		{
-			$this->form_validation->set_message('_check_twostep_code', '验证码错误。');
+			$this->form_validation->set_message('_check_twostep_code', '验证码错误，请重新尝试。如果错误持续，请校正安装有 Google Authenticator 设备的时间。');
 		}
 		return false;
 	}
