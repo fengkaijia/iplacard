@@ -208,6 +208,7 @@ class Account extends CI_Controller
 			}
 		}
 		
+		$this->ui->title('两步验证');
 		$this->load->view('account/auth/twostep');
 	}
 	
