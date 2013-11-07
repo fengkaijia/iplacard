@@ -71,8 +71,6 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}user` (
   `password` text COMMENT '密码',
   `phone` text NOT NULL COMMENT '电话',
   `type` text NOT NULL COMMENT '用户类型',
-  `recover_key` text COMMENT '密码重置密钥',
-  `recover_time` text COMMENT '密码重置请求发送时间',
   `pin_password` text COMMENT '安全码',
   `last_login` int(11) DEFAULT NULL COMMENT '最近登录时间',
   `last_ip` int(11) DEFAULT NULL COMMENT '最近登录IP',
