@@ -265,7 +265,7 @@ class User_model extends CI_Model
 		$value = json_encode($value);
 		
 		//如不存在项目将添加
-		if(!$this->user_option($user, $name))
+		if(!$this->user_option_exists($name, $user))
 		{
 			$data = array(
 				'user' => $user,
@@ -283,15 +283,53 @@ class User_model extends CI_Model
 	
 	/**
 	 * 删除用户设置
-	 * @param int $user 用户ID
 	 * @param string $name 项目
+	 * @param int $user 用户ID
 	 * @return boolean 是否完成删除
 	 */
-	function delete_user_option($user, $name)
+	function delete_user_option($name, $user = '')
 	{
+		//未登录且未指定UID情况下视为系统操作
+		if($user == '')
+		{
+			//未登录用户没有用户设置
+			if(!uid())
+				return false;
+			$user = uid();
+		}
+		$user = intval($user);
+		
 		$this->db->where('user', $user);
 		$this->db->where('name', $name);
 		return $this->db->delete('user_option');
+	}
+	
+	/**
+	 * 检查用户设置是否存在
+	 * @param string $name 项目
+	 * @param int $user 用户ID
+	 */
+	function user_option_exists($name, $user = '')
+	{
+		//未登录且未指定UID情况下视为系统操作
+		if($user == '')
+		{
+			//未登录用户没有用户设置
+			if(!uid())
+				return false;
+			$user = uid();
+		}
+		$user = intval($user);
+		
+		//获取设置
+		$this->db->where('user', $user);
+		$this->db->where('name', $name);
+		$query = $this->db->get('user_option');
+		
+		//如果设置不存在
+		if($query->num_rows() == 0)
+			return false;
+		return true;
 	}
 	
 	/**
