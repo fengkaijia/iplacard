@@ -633,7 +633,7 @@ class Account extends CI_Controller
 		}
 		else
 		{
-			$this->form_validation->set_message('_check_twostep_code', '验证码错误。');
+			$this->form_validation->set_message('_check_twostep_code', '验证码错误，请重新尝试。如果错误持续，请校正安装有 Google Authenticator 设备的时间。');
 		}
 		return false;
 	}
