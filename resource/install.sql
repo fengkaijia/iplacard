@@ -46,6 +46,18 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}session` (
   KEY `last_activity_idx` (`last_activity`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}sms` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '短信ID',
+  `user` int(11) NOT NULL COMMENT '接收用户',
+  `phone` text COMMENT '接收手机号码',
+  `message` text NOT NULL COMMENT '短信内容',
+  `status` text NOT NULL COMMENT '发送状态',
+  `time_in` int(11) NOT NULL COMMENT '加入队列时间',
+  `time_out` int(11) DEFAULT NULL COMMENT '发送时间',
+  `response` text COMMENT 'API接口响应',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='短信通知队列' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}twostep_recode` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '记录ID',
   `user` int(11) NOT NULL COMMENT '用户ID',
