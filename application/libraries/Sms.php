@@ -149,17 +149,27 @@ class Sms extends Sms_model
 		
 		//获取结果
 		$api_return = $this->curl->simple_post($this->api, $data);
-		$return = json_decode($api_return);
+		
+		if(!$api_return)
+		{
+			$result = false;
+			$api_return = NULL;
+		}
+		else
+		{
+			$return = json_decode($api_return);
+			$result = $return->result ? true : false;
+		}
 		
 		//记录数据
 		$store_data = array(
 			'time_out' => time(),
 			'response' => $api_return,
-			'status' => $return->result ? 'sent' : 'failed'
+			'status' => $result ? 'sent' : 'failed'
 		);
 		$this->edit_sms($store_data, $id);
 		
-		return $return->result ? true : false;
+		return $result;
 	}
 	
 	/**
