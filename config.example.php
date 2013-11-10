@@ -50,6 +50,16 @@ define('IP_DB_PREFIX', 'ip');
 define('IP_ENCRYPTION_KEY', 'iplacard');
 
 /**
+ * API Access Key（多站点模式启用情况下被IP_INSTANCE_API_ACCESS_KEY代替）
+ */
+define('IP_DEFAULT_API_ACCESS_KEY', '');
+
+/**
+ * API Secret Key（多站点模式启用情况下被IP_INSTANCE_API_SECRET_KEY代替）
+ */
+define('IP_DEFAULT_API_SECRET_KEY', '');
+
+/**
  * 是否启用多站点模式
  */
 define('IP_MULTISITE', false);

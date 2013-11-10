@@ -73,6 +73,12 @@ if(IP_MULTISITE)
 			 * 加密密钥
 			 */
 			define('IP_INSTANCE_KEY', $instance['encryption_key']);
+			
+			/**
+			 * API密钥
+			 */
+			define('IP_INSTANCE_API_ACCESS_KEY', $instance['api_access_key']);
+			define('IP_INSTANCE_API_SECRET_KEY', $instance['api_secret_key']);
 
 			/**
 			 * 实例主域名
@@ -96,6 +102,10 @@ else
 	
 	//不使用多站点模式情况下使用默认加密密钥
 	define('IP_INSTANCE_KEY', IP_ENCRYPTION_KEY);
+	
+	//使用默认API密钥
+	define('IP_INSTANCE_API_ACCESS_KEY', IP_DEFAULT_API_ACCESS_KEY);
+	define('IP_INSTANCE_API_SECRET_KEY', IP_DEFAULT_API_SECRET_KEY);
 	
 	//不设置ID
 	define('IP_INSTANCE_ID', 0);
