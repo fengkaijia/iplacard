@@ -21,8 +21,14 @@ $this->load->view('header');?>
 		'content' => '确认',
 		'type' => 'submit',
 		'class' => 'btn btn-primary'
-	));?>
-	<span style="padding-left: 8px; vertical-align: middle;"><?php echo anchor('account/sms', '无法接收验证码？');?></span>
+	));
+	echo form_button(array(
+		'content' => '无法接收验证码？',
+		'type' => 'button',
+		'class' => 'btn btn-link',
+		'onclick' => 'location.href=\''.base_url('account/sms/request').'\'',
+	)); ?>
+	
 <?php echo form_close();?>
 
 <?php

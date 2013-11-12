@@ -26,8 +26,14 @@
 		'content' => '登录',
 		'type' => 'submit',
 		'class' => 'btn btn-primary'
-	));?>
-	<span style="padding-left: 8px; vertical-align: middle;"><?php echo anchor('account/recover', '忘记密码？');?></span>
+	));
+	echo form_button(array(
+		'content' => '忘记密码？',
+		'type' => 'button',
+		'class' => 'btn btn-link',
+		'onclick' => 'location.href=\''.base_url('account/recover').'\'',
+	)); ?>
+	
 <?php echo form_close();?>
 
 <?php if($this->session->userdata('dismiss_browser_notice') != true) { ?><!--[if lt IE 8]>

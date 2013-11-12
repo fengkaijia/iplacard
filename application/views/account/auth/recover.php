@@ -33,8 +33,13 @@
 		'content' => '确认重置',
 		'type' => 'submit',
 		'class' => 'btn btn-primary'
-	));?>
-	<span style="padding-left: 8px; vertical-align: middle;"><?php echo anchor('account/login', '登录');?></span>
+	));
+	echo form_button(array(
+		'content' => '登录',
+		'type' => 'button',
+		'class' => 'btn btn-link',
+		'onclick' => 'location.href=\''.base_url('account/login').'\'',
+	)); ?>
 <?php }
 echo form_close();?>
 

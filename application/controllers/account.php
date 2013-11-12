@@ -160,6 +160,9 @@ class Account extends CI_Controller
 		redirect('account/login');
 	}
 	
+	/**
+	 * 两步验证
+	 */
 	function twostep()
 	{
 		if(is_logged_in() || !is_pending_twostep())
@@ -210,6 +213,138 @@ class Account extends CI_Controller
 		
 		$this->ui->title('两步验证');
 		$this->load->view('account/auth/twostep');
+	}
+	
+	/**
+	 * 短信验证
+	 */
+	function sms($action = 'request')
+	{
+		if(is_logged_in() || !is_pending_twostep())
+		{
+			redirect('');
+			return;
+		}
+		
+		//不在此页面重定向
+		$this->session->keep_flashdata('redirect');
+		
+		//获取用户ID
+		$id = $this->session->userdata('uid_twostep');
+		$user = $this->user_model->get_user($id);
+		
+		$this->ui->title('短信验证');
+		
+		//验证页面
+		if($action == 'validate')
+		{
+			//检查是否有效
+			if(!user_option('sms_validate_time', false, $id) || user_option('sms_validate_time', 0, $id) < time() - 60 * 60)
+			{
+				$this->ui->alert('您的验证码不存在或者已经超过 1 小时有效期，请重新发送验证码。', 'warning', true);
+				redirect('account/sms/request');
+				return;
+			}
+			
+			$this->form_validation->set_rules('code', '短信验证码', 'trim|required|integer|exact_length[6]|callback__check_sms_code');
+			$this->form_validation->set_message('exact_length', '短信验证码必须是六位数字。');
+			$this->form_validation->set_error_delimiters('<div class="alert alert-dismissable alert-warning alert-block">'
+					. '<button type="button" class="close" data-dismiss="alert">×</button>'
+					. '<strong>错误</strong> ', '</div>');
+
+			if($this->form_validation->run() == true)
+			{
+				//取消验证码
+				$this->user_model->delete_user_option('sms_validate_code', $id);
+				$this->user_model->delete_user_option('sms_validate_time', $id);
+				
+				//关闭两步验证
+				if($this->input->post('close'))
+				{
+					$this->user_model->edit_user_option('twostep_enabled', false, $id);
+					
+					//发送邮件
+					$this->load->library('email');
+					$this->load->library('parser');
+					$this->load->helper('date');
+
+					$data = array(
+						'uid' => $id,
+						'name' => $user['name'],
+						'email' => $user['email'],
+						'time' => unix_to_human(time()),
+						'ip' => $this->input->ip_address(),
+						'url' => base_url('account/recover')
+					);
+
+					$this->email->to($user['email']);
+					$this->email->subject('您的 iPlacard 两步验证已经关闭');
+					$this->email->html($this->parser->parse_string(option('email_account_login_notice', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户通过短信验证方式关闭。如非本人操作，请立即访问：\n\n"
+							. "\t{url}\n\n"
+							. "并修改密码。"), $data, true));
+					
+					if(!$this->email->send())
+					{
+						$this->system_model->log('notice_failed', array('id' => $id, 'type' => 'email', 'content' => 'twostep_disabled_via_sms'));
+					}	
+					
+					//记录日志
+					$this->system_model->log('twostep_disabled', array('ip' => $this->input->ip_address(), 'via' => 'sms_validate'), $id);
+				}
+				
+				//记录日志
+				$this->system_model->log('sms_validate_passed', array('ip' => $this->input->ip_address()), $id);
+				
+				$this->_do_login($id);
+				return;
+			}
+			
+			//上次发送时间
+			$code_time = user_option('sms_validate_time', 0, $id);
+			
+			$data = array(
+				'phone_number' => $user['phone'],
+				'expire_time' => 3599 - time() + $code_time,
+				'resend_time' => 180 - time() + $code_time
+			);
+			
+			$this->load->view('account/auth/sms_validate', $data);
+			return;
+		}
+		
+		//发送验证码
+		if($this->input->post('request'))
+		{
+			//检查是否允许发送
+			if(!user_option('sms_validate_time', false, $id) || user_option('sms_validate_time', 0, $id) < time() - 3 * 60)
+			{
+				//生成六位随机数字
+				$this->load->helper('string');
+				$code = random_string('numeric', 6);
+
+				//记录验证码
+				$this->user_model->edit_user_option('sms_validate_code', $code, $id);
+				$this->user_model->edit_user_option('sms_validate_time', time(), $id);
+
+				//发送短信通知
+				$this->load->model('sms_model');
+				$this->load->library('sms');
+
+				$this->sms->to($id);
+				$this->sms->message(sprintf('您的 iPlacard 短信验证码为 %s。一小时内有效。', $code));
+				$this->sms->send();
+
+				//记录日志
+				$this->system_model->log('sms_validate_requested', array('ip' => $this->input->ip_address()), $id);
+				
+				redirect('account/sms/validate');
+				return;
+			}
+
+			$this->ui->alert('您已于稍早前请求短信验证，验证码已经发送，请等待 3 分钟后再次请求重新发送验证码。', 'danger');
+		}
+		
+		$this->load->view('account/auth/sms_request');
 	}
 	
 	/**
@@ -637,6 +772,33 @@ class Account extends CI_Controller
 			$this->form_validation->set_message('_check_twostep_code', '验证码错误，请重新尝试。如果错误持续，请校正安装有 Google Authenticator 设备的时间。');
 		}
 		return false;
+	}
+	
+	/**
+	 * 短信验证码检查回调函数
+	 */
+	function _check_sms_code()
+	{
+		$code = $this->input->post('code');
+		
+		$uid = $this->session->userdata('uid_twostep');
+		
+		$true_code = user_option('sms_validate_code', false, $uid);
+		$send_time = user_option('sms_validate_time', false, $uid);
+		
+		if(!$true_code || !$send_time || $send_time < time() - 60 * 60)
+		{
+			$this->form_validation->set_message('_check_sms_code', '短信验证码已经失效，请尝试重新发送验证码。');
+			return false;
+		}
+		
+		if($code != $true_code)
+		{
+			$this->form_validation->set_message('_check_sms_code', '验证码错误，请重新尝试。');
+			return false;
+		}
+		
+		return true;
 	}
 }
 
