@@ -6,7 +6,7 @@ $this->load->view('header');?>
 <?php echo form_open("account/sms/validate", array('class' => 'form-auth'));?>
 	<h2 class="form-auth-heading">短信验证</h2>
 	<?php echo validation_errors();?>
-	<p>我们已经向 <?php echo substr($phone_number, 0, 3).'****'.substr($phone_number, -4, 4);?> 发送验证短信。请在 <span id="clock_expire">00:00</span> 内输入短信中提供的六位数验证码。</p>
+	<p>我们已经向 <?php echo substr($phone_number, 0, 3).'****'.substr($phone_number, -4, 4);?> 发送验证短信。请在 <span id="clock_expire">00:00</span> 内输入短信中的六位数验证码。</p>
 	<?php echo form_input(array(
 		'name' => 'code',
 		'class' => 'form-control',
