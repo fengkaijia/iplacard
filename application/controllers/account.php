@@ -160,6 +160,9 @@ class Account extends CI_Controller
 		redirect('account/login');
 	}
 	
+	/**
+	 * 两步验证
+	 */
 	function twostep()
 	{
 		if(is_logged_in() || !is_pending_twostep())
@@ -212,6 +215,9 @@ class Account extends CI_Controller
 		$this->load->view('account/auth/twostep');
 	}
 	
+	/**
+	 * 短信验证
+	 */
 	function sms($action = 'request')
 	{
 		if(is_logged_in() || !is_pending_twostep())
