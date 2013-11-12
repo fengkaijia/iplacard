@@ -92,6 +92,7 @@
 					<button type="button" class="close" data-dismiss="alert">×</button>
 					<span class="alert-notice"><strong><?php switch($alert['type'])
 					{
+						case 'danger':
 						case 'error':
 							echo '错误';
 							break;
