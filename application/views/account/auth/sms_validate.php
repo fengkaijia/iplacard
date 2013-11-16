@@ -1,6 +1,6 @@
 <?php
-$this->ui->html('header', '<script src="'.base_url(is_dev() ? 'static/js/jquery.numeric.js' : 'static/js/jquery.numeric.min.js').'"></script>');
-$this->ui->html('header', '<script src="'.base_url(is_dev() ? 'static/js/jquery.countdown.js': 'static/js/jquery.countdown.min.js').'"></script>');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.numeric.js' : 'static/js/jquery.numeric.min.js').'"></script>');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.countdown.js': 'static/js/jquery.countdown.min.js').'"></script>');
 $this->load->view('header');?>
 
 <?php echo form_open("account/sms/validate", array('class' => 'form-auth'));?>
