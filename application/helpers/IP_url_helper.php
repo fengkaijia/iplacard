@@ -10,5 +10,13 @@ function login_redirect()
 	redirect("account/login");
 }
 
+/**
+ * 静态文件CDN地址
+ */
+function static_url($uri)
+{
+	return base_url(IP_STATIC_CDN.$uri);
+}
+
 /* End of file IP_url_helper.php */
 /* Location: ./application/helpers/IP_url_helper.php */

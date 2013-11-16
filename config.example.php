@@ -65,6 +65,11 @@ define('IP_DEFAULT_API_SECRET_KEY', '');
 define('IP_MULTISITE', false);
 
 /**
+ * 静态文件CDN
+ */
+define('IP_STATIC_CDN', '');
+
+/**
  * 是否启用维护模式
  */
 define('IP_MAINTENANCE', false);
