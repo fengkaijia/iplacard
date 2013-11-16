@@ -1,9 +1,9 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
- * 帐户
+ * 帐户控制器
  * @package iPlacard
- * @subpackage Client
+ * @since 2.0
  */
 class Account extends CI_Controller
 {
