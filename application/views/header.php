@@ -6,22 +6,22 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-	<link href="<?php echo base_url(is_dev() ? 'static/css/bootstrap.css' : 'static/css/bootstrap.min.css');?>" rel="stylesheet">
-	<link href="<?php echo base_url(is_dev() ? 'static/css/font-awesome.css' : 'static/css/font-awesome.min.css');?>" rel="stylesheet">
-	<link href="<?php echo base_url(is_dev() ? 'static/css/iplacard.css' : 'static/css/iplacard.min.css');?>" rel="stylesheet">
+	<link href="<?php echo static_url(is_dev() ? 'static/css/bootstrap.css' : 'static/css/bootstrap.min.css');?>" rel="stylesheet">
+	<link href="<?php echo static_url(is_dev() ? 'static/css/font-awesome.css' : 'static/css/font-awesome.min.css');?>" rel="stylesheet">
+	<link href="<?php echo static_url(is_dev() ? 'static/css/iplacard.css' : 'static/css/iplacard.min.css');?>" rel="stylesheet">
 	
-	<script src="<?php echo base_url(is_dev() ? 'static/js/jquery.js' : 'static/js/jquery.min.js');?>"></script>
-	<script src="<?php echo base_url(is_dev() ? 'static/js/bootstrap.js' : 'static/js/bootstrap.min.js');?>"></script>
-	<script src="<?php echo base_url(is_dev() ? 'static/js/iplacard.js' : 'static/js/iplacard.min.js');?>"></script>
+	<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.js' : 'static/js/jquery.min.js');?>"></script>
+	<script src="<?php echo static_url(is_dev() ? 'static/js/bootstrap.js' : 'static/js/bootstrap.min.js');?>"></script>
+	<script src="<?php echo static_url(is_dev() ? 'static/js/iplacard.js' : 'static/js/iplacard.min.js');?>"></script>
 	
 	<?php if(!empty($this->ui->js['header'])) { ?><script language="javascript"><?php echo $this->ui->js['header'];?></script><?php } ?>
 
 	<!--[if lt IE 9]>
-		<script src="<?php echo base_url(is_dev() ? 'static/js/html5shiv.js' : 'static/js/html5shiv.min.js');?>"></script>
-		<script src="<?php echo base_url(is_dev() ? 'static/js/respond.js' : 'static/js/respond.min.js');?>"></script>
+		<script src="<?php echo static_url(is_dev() ? 'static/js/html5shiv.js' : 'static/js/html5shiv.min.js');?>"></script>
+		<script src="<?php echo static_url(is_dev() ? 'static/js/respond.js' : 'static/js/respond.min.js');?>"></script>
 	<![endif]-->
 
-	<link href="<?php echo base_url('static/img/favicon.ico');?>" rel="shortcut icon" />
+	<link href="<?php echo static_url('static/img/favicon.ico');?>" rel="shortcut icon" />
 
 	<?php if(!option('robots_allow', false)) { ?><meta name="robots" content="noallow" /><?php } ?>
 	<meta name="description" content="iPlacard is the Next-Gen Model United Nations Conference Management Service Provider backed by IMUNC." />
