@@ -153,7 +153,7 @@ class User_model extends CI_Model
 	 */
 	function change_password($id, $new_password)
 	{
-		return $this->edit_profile(array('password' => $new_password), $id);
+		return $this->edit_user(array('password' => $new_password), $id);
 	}
 	
 	/**
