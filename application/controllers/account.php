@@ -537,20 +537,97 @@ class Account extends CI_Controller
 				return;
 			}
 			
-			//写入强制登出
-			$new_userdata = $this->session->_serialize(array(
-				'halt' => true,
-				'halt_time' => time()
-			));
-			$this->db->where('id', $halt_id);
-			$this->db->update('session', array('user_data' => $new_userdata));
-
-			//记录日志
-			$this->system_model->log('session_halted', array('ip' => $this->input->ip_address(), 'session' => $halt_id, 'userdata' => $sess_data['user_data']), 0);
+			//强制退出
+			$this->_do_halt($halt_id);
+			$this->system_model->log('session_halted', array('ip' => $this->input->ip_address(), 'session' => $halt_id, 'userdata' => $sess_data['user_data'], 'panel' => false), 0);
 		}
 		
 		$this->ui->title('强制登出');
 		$this->load->view('account/auth/halt', array('no_action' => $no_action));
+	}
+	
+	/**
+	 * 当前活动情况
+	 */
+	function activity()
+	{
+		if(!is_logged_in())
+		{
+			login_redirect();
+			return;
+		}
+		
+		$this->load->helper('ip');
+		$this->load->helper('date');
+		
+		//获取记录
+		$this->db->where('operator', uid());
+		$this->db->where('operation', 'logged_in');
+		$this->db->order_by('time', 'desc');
+		$this->db->limit(20);
+		$query = $this->db->get('log');
+		
+		if($query->num_rows() != 0)
+		{
+			$data = array();
+			foreach($query->result_array() as $data)
+			{
+				//检查是否仍然在线
+				$data['value'] = json_decode($data['value'], true);
+				$this->db->where('id', $data['value']['session']);
+				$check = $this->db->get('session');
+				
+				if($check->num_rows() != 0)
+				{
+					$session = $check->row_array();
+					
+					if($this->input->post('halt') && $session['session_id'] != $this->session->userdata('session_id'))
+					{
+						//确认退出其他所有会话
+						$this->_do_halt($data['value']['session']);
+						$this->system_model->log('session_halted', array('ip' => $this->input->ip_address(), 'session' => $session['session_id'], 'userdata' => $session['user_data'], 'panel' => true), uid());
+					}
+					else
+					{
+						//仅显示数据
+						$data['last_activity'] = $session['last_activity'];
+						$data['value']['place'] = ip_lookup($data['value']['ip']);
+						
+						//是否是当前位置
+						if($session['session_id'] == $this->session->userdata('session_id'))
+							$data['current'] = true;
+						
+						//是否已经关闭
+						$user_data = $this->session->_unserialize($session['user_data']);
+						if(!isset($user_data['halt']) || !$user_data['halt'])
+							$active[] = $data;
+					}
+				}
+				$check->free_result();
+			}
+			$query->free_result();
+			
+			if($this->input->post('halt'))
+			{
+				$this->ui->alert('已经强制登出位于其他位置的会话活动。', 'success');
+			}
+			
+			$vars = array();
+			
+			//根据登录时间排序
+			if(!empty($active))
+			{
+				foreach($active as $one)
+				{
+					$time[] = $one['time'];
+				}
+				array_multisort($time, SORT_DESC, $active);
+				$vars['active'] = $active;
+			}
+		}
+		
+		$this->ui->title('当前会话活动');
+		$this->load->view('account/manage/activity', $vars);
 	}
 		
 	/**
@@ -658,6 +735,19 @@ class Account extends CI_Controller
 		}
 
 		redirect('apply/status');
+	}
+	
+	/**
+	 * 写入强制登出
+	 */
+	function _do_halt($halt_id)
+	{
+		$new_userdata = $this->session->_serialize(array(
+			'halt' => true,
+			'halt_time' => time()
+		));
+		$this->db->where('id', $halt_id);
+		$this->db->update('session', array('user_data' => $new_userdata));
 	}
 	
 	/**
