@@ -46,7 +46,7 @@
 				</table><?php } ?>
 			<?php echo form_fieldset_close();?>
 
-			<div class="form-action">
+			<div class="form-group">
 				<p>如果您认为在其他位置登录的会话存在异常活动，可以退出这些会话。</p>
 				<?php echo form_button(array(
 					'name' => 'submit',
