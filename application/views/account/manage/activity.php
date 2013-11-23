@@ -47,13 +47,15 @@
 			<?php echo form_fieldset_close();?>
 
 			<div class="form-group">
-				<p>如果您认为在其他位置登录的会话存在异常活动，可以退出这些会话。</p>
-				<?php echo form_button(array(
-					'name' => 'submit',
-					'content' => '退出其他所有会话',
-					'type' => 'submit',
-					'class' => 'btn btn-primary'
-				));?>
+				<div class="col-lg-12">
+					<p>如果您认为在其他位置登录的会话存在异常活动，可以退出这些会话。</p>
+					<?php echo form_button(array(
+						'name' => 'submit',
+						'content' => '退出其他所有会话',
+						'type' => 'submit',
+						'class' => 'btn btn-primary'
+					));?>
+				</div>
 			</div>
 		<?php echo form_close();?>
 	</div>
