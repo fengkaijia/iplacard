@@ -6,7 +6,7 @@
 
 <div class="row">
 	<div class="col-md-3">
-		<?php $this->load->view('account/manage/sidebar', array('now' => 'pin'));?>
+		<?php $this->load->view('account/manage/sidebar', array('now' => 'twostep'));?>
 	</div>
 	
 	<div class="col-md-9">
