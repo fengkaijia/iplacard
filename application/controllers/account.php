@@ -629,7 +629,112 @@ class Account extends CI_Controller
 		$this->ui->title('当前会话活动');
 		$this->load->view('account/manage/activity', $vars);
 	}
+	
+	/**
+	 * 帐户设置
+	 */
+	function settings($setting = 'home')
+	{
+		if(!is_logged_in())
+		{
+			login_redirect();
+			return;
+		}
 		
+		$this->load->library('email');
+		$this->load->library('parser');
+		$this->load->helper('date');
+		
+		if(!in_array($setting, array('home', 'security', 'password', 'pin', 'admin')))
+			$setting = 'home';
+		
+		//当前用户信息
+		$uid = uid();
+		$user = $this->user_model->get_user($uid);
+		
+		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+		
+		//修改密码
+		if($setting == 'password')
+		{
+			$this->form_validation->set_rules('old_password', '旧密码', 'trim|required|callback__check_password');
+			$this->form_validation->set_rules('password', '新密码', 'trim|required|not[matches.old_password]|min_length[8]');
+			$this->form_validation->set_rules('password_repeat', '重复密码', 'trim|required|matches[password]');
+			$this->form_validation->set_message('_check_old_password', '旧密码有误，请重新输入。');
+			$this->form_validation->set_message('not', '新密码不能与旧密码相同。');
+
+			if($this->form_validation->run() == true)
+			{
+				//修改密码
+				$this->user_model->change_password($uid, trim($this->input->post('password')));
+				
+				//发送邮件通知
+				$data = array(
+					'uid' => $user['id'],
+					'name' => $user['name'],
+					'email' => $user['email'],
+					'time' => unix_to_human(time()),
+					'ip' => $this->input->ip_address(),
+					'url' => base_url('account/recover'),
+				);
+
+				$this->email->to($user['email']);
+				$this->email->subject('您的 iPlacard 密码已经修改');
+				$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的密码已经于 {time} 由来自 IP {ip} 的用户修改，如非本人操作请立即访问以下链接重置您的密码：\n\n\t{url}"), $data, true));
+				$this->email->send();
+				
+				$this->ui->alert('密码修改成功。', 'success');
+				$this->system_model->log('password_changed', array('ip' => $this->input->ip_address()), $uid);
+			}
+
+			$this->ui->title('修改密码');
+			$this->load->view('account/manage/password');
+			return;
+		}
+		
+		//修改安全码
+		if($setting == 'pin')
+		{
+			$this->form_validation->set_rules('password', '密码', 'trim|required|callback__check_password');
+			$this->form_validation->set_rules('pin', '安全码', 'trim|required|min_length[4]');
+			$this->form_validation->set_rules('pin_repeat', '重复安全码', 'trim|required|matches[pin]');
+			$this->form_validation->set_message('_check_password', '密码有误，请重新输入。');
+
+			if($this->form_validation->run() == true)
+			{
+				$new_pin = trim($this->input->post('pin'));
+				
+				//修改安全码
+				$this->user_model->edit_user(array('pin_password' => $new_pin), $uid);
+				
+				//由于盐变动修改密码
+				$this->user_model->change_password($uid, trim($this->input->post('password')));
+				
+				//发送邮件通知
+				$data = array(
+					'uid' => $user['id'],
+					'name' => $user['name'],
+					'email' => $user['email'],
+					'time' => unix_to_human(time()),
+					'ip' => $this->input->ip_address(),
+					'pin' => $new_pin
+				);
+
+				$this->email->to($user['email']);
+				$this->email->subject('您的 iPlacard 安全码已经修改');
+				$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的安全码已经于 {time} 由来自 IP {ip} 的用户修改，新的安全码为\n\n\t{pin}\n\n为保证您的 PIN 码安全，如非必要请勿保留此邮件。"), $data, true));
+				$this->email->send();
+				
+				$this->ui->alert('安全码修改成功。', 'success');
+				$this->system_model->log('pin_changed', array('ip' => $this->input->ip_address()), uid());
+			}
+
+			$this->ui->title('设置安全码');
+			$this->load->view('account/manage/pin_password');
+			return;
+		}
+	}
+	
 	/**
 	 * 执行登录操作
 	 * @param int $id 用户ID
@@ -889,6 +994,16 @@ class Account extends CI_Controller
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * 密码检查回调函数
+	 */
+	function _check_password($str)
+	{
+		if($this->user_model->check_password(uid(), $str))
+			return true;
+		return false;
 	}
 }
 
