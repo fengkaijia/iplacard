@@ -281,7 +281,7 @@ class Account extends CI_Controller
 					$this->email->subject('您的 iPlacard 两步验证已经关闭');
 					$this->email->html($this->parser->parse_string(option('email_account_twostep_disabled_via_sms', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户通过短信验证方式关闭。如非本人操作，请立即访问：\n\n"
 							. "\t{url}\n\n"
-							. "并修改密码。"), $data, true));
+							. "修改密码。"), $data, true));
 					
 					if(!$this->email->send())
 					{
@@ -744,6 +744,67 @@ class Account extends CI_Controller
 			$this->load->view('account/manage/pin_password');
 			return;
 		}
+		
+		//两步验证
+		if($setting == 'twostep')
+		{
+			$this->ui->title('两步验证');
+			
+			//显示操作类型
+			if(user_option('twostep_enabled', false))
+				$action = 'disable';
+			
+			//关闭两步验证
+			if($action == 'disable')
+			{
+				$this->form_validation->set_rules('password', '密码', 'trim|required|callback__check_password');
+				$this->form_validation->set_rules('confirm', '确认', 'callback__check_confirm');
+				$this->form_validation->set_message('_check_password', '密码验证有误，请重新输入。');
+				$this->form_validation->set_message('_check_confirm', '需要选中按钮以确认操作。');
+				
+				if($this->form_validation->run() == true)
+				{
+					//禁用验证
+					$this->user_model->edit_user_option('twostep_enabled', false);
+					
+					//发送邮件
+					$this->load->library('email');
+					$this->load->library('parser');
+					$this->load->helper('date');
+
+					$data = array(
+						'uid' => $user['id'],
+						'name' => $user['name'],
+						'email' => $user['email'],
+						'time' => unix_to_human(time()),
+						'ip' => $this->input->ip_address(),
+						'url' => base_url('account/recover')
+					);
+
+					$this->email->to($user['email']);
+					$this->email->subject('您的 iPlacard 两步验证已经关闭');
+					$this->email->html($this->parser->parse_string(option('email_account_login_twostep_disabled_via_panel', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户通过设置面板关闭。如非本人操作，请立即访问：\n\n"
+							. "\t{url}\n\n"
+							. "修改密码。"), $data, true));
+					
+					if(!$this->email->send())
+					{
+						$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'twostep_disabled_via_panel'));
+					}
+					
+					//记录日志
+					$this->system_model->log('twostep_disabled', array('ip' => $this->input->ip_address(), 'via' => 'panel'), $uid);
+					
+					$this->ui->alert('两步验证已经停用。', 'success', true);
+					
+					redirect('account/settings/twostep');
+					return;
+				}
+				
+				$this->load->view('account/manage/twostep_disable');
+				return;
+			}
+		}
 	}
 	
 	/**
@@ -1013,6 +1074,16 @@ class Account extends CI_Controller
 	function _check_password($str)
 	{
 		if($this->user_model->check_password(uid(), $str))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * 确认 Checkbox 检查回调函数
+	 */
+	function _check_confirm($checkbox)
+	{
+		if($checkbox == true)
 			return true;
 		return false;
 	}
