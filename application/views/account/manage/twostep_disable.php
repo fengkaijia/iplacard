@@ -45,7 +45,7 @@
 				<div class="col-lg-10 col-lg-offset-2">
 					<?php echo form_button(array(
 						'name' => 'submit',
-						'content' => '关闭两步验证',
+						'content' => '停用两步验证',
 						'type' => 'submit',
 						'class' => 'btn btn-danger'
 					));?>
