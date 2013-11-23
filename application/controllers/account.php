@@ -279,7 +279,7 @@ class Account extends CI_Controller
 
 					$this->email->to($user['email']);
 					$this->email->subject('您的 iPlacard 两步验证已经关闭');
-					$this->email->html($this->parser->parse_string(option('email_account_login_notice', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户通过短信验证方式关闭。如非本人操作，请立即访问：\n\n"
+					$this->email->html($this->parser->parse_string(option('email_account_twostep_disabled_via_sms', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户通过短信验证方式关闭。如非本人操作，请立即访问：\n\n"
 							. "\t{url}\n\n"
 							. "并修改密码。"), $data, true));
 					
@@ -633,7 +633,7 @@ class Account extends CI_Controller
 	/**
 	 * 帐户设置
 	 */
-	function settings($setting = 'home')
+	function settings($setting = 'home', $action = '')
 	{
 		if(!is_logged_in())
 		{
@@ -645,7 +645,7 @@ class Account extends CI_Controller
 		$this->load->library('parser');
 		$this->load->helper('date');
 		
-		if(!in_array($setting, array('home', 'security', 'password', 'pin', 'admin')))
+		if(!in_array($setting, array('home', 'security', 'password', 'pin', 'twostep', 'admin')))
 			$setting = 'home';
 		
 		//当前用户信息
@@ -680,8 +680,13 @@ class Account extends CI_Controller
 
 				$this->email->to($user['email']);
 				$this->email->subject('您的 iPlacard 密码已经修改');
-				$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的密码已经于 {time} 由来自 IP {ip} 的用户修改，如非本人操作请立即访问以下链接重置您的密码：\n\n\t{url}"), $data, true));
-				$this->email->send();
+				$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的密码已经于 {time} 由来自 IP {ip} 的用户修改，如非本人操作请立即访问以下链接重置您的密码：\n\n"
+						. "\t{url}"), $data, true));
+				
+				if(!$this->email->send())
+				{
+					$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'password_changed'));
+				}
 				
 				$this->ui->alert('密码修改成功。', 'success');
 				$this->system_model->log('password_changed', array('ip' => $this->input->ip_address()), $uid);
@@ -722,8 +727,14 @@ class Account extends CI_Controller
 
 				$this->email->to($user['email']);
 				$this->email->subject('您的 iPlacard 安全码已经修改');
-				$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的安全码已经于 {time} 由来自 IP {ip} 的用户修改，新的安全码为\n\n\t{pin}\n\n为保证您的 PIN 码安全，如非必要请勿保留此邮件。"), $data, true));
-				$this->email->send();
+				$this->email->html($this->parser->parse_string(option('email_account_pin_change', "您的 iPlacard 帐户 {email} 的安全码已经于 {time} 由来自 IP {ip} 的用户修改，新的安全码为\n\n"
+						. "\t{pin}\n\n"
+						. "为保证您的 PIN 码安全，如非必要请勿保留此邮件。"), $data, true));
+				
+				if(!$this->email->send())
+				{
+					$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'pin_changed'));
+				}
 				
 				$this->ui->alert('安全码修改成功。', 'success');
 				$this->system_model->log('pin_changed', array('ip' => $this->input->ip_address()), uid());
