@@ -753,6 +753,8 @@ class Account extends CI_Controller
 			//显示操作类型
 			if(user_option('twostep_enabled', false))
 				$action = 'disable';
+			elseif($action != 'enable')
+				$action = 'intro';
 			
 			//关闭两步验证
 			if($action == 'disable')
@@ -804,6 +806,16 @@ class Account extends CI_Controller
 				$this->load->view('account/manage/twostep_disable');
 				return;
 			}
+			
+			//启用两步验证
+			if($action == 'enable')
+			{
+				
+			}
+			
+			//显示两步验证功能介绍
+			$this->load->view('account/manage/twostep_intro');
+			return;
 		}
 	}
 	
