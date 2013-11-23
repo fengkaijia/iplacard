@@ -784,8 +784,8 @@ class Account extends CI_Controller
 					);
 
 					$this->email->to($user['email']);
-					$this->email->subject('您的 iPlacard 两步验证已经关闭');
-					$this->email->html($this->parser->parse_string(option('email_account_login_twostep_disabled_via_panel', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户通过设置面板关闭。如非本人操作，请立即访问：\n\n"
+					$this->email->subject('您已停用 iPlacard 两步验证');
+					$this->email->html($this->parser->parse_string(option('email_account_login_twostep_disabled_via_panel', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户通过设置面板停用。如非本人操作，请立即访问：\n\n"
 							. "\t{url}\n\n"
 							. "修改密码。"), $data, true));
 					
