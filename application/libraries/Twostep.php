@@ -44,11 +44,12 @@ class Twostep extends Twostep_model
 	 * 获取二维码
 	 * @param string $name Google Authenticator中显示的名称
 	 * @param string $secret 密钥
+	 * @param int $margin 边框
 	 * @param int $size 图像大小
 	 */
-	function get_qr_url($name, $secret, $size)
+	function get_qr_url($name, $secret, $size, $margin = 1)
 	{
-		$url = "https://chart.googleapis.com/chart?chs={$size}x{$size}&cht=qr&chl=";
+		$url = "https://chart.googleapis.com/chart?chs={$size}x{$size}&cht=qr&chld=L|{$margin}&chl=";
 		$chl = urlencode("otpauth://totp/{$name}?secret={$secret}");
 		return $url.$chl;
 	}
