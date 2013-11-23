@@ -810,7 +810,63 @@ class Account extends CI_Controller
 			//启用两步验证
 			if($action == 'enable')
 			{
+				$this->load->model('twostep_model');
+				$this->load->library('twostep');
 				
+				//保留此前生成的密钥
+				$secret = $this->input->post('secret');
+				//如不存在生成密钥
+				if(!$secret)
+					$secret = $this->twostep->generate_secret();
+				
+				$this->form_validation->set_rules('code', '验证码', 'trim|required|integer|exact_length[6]|callback__check_twostep_verify');
+				$this->form_validation->set_message('exact_length', '验证码必须是六位数字。');
+				$this->form_validation->set_message('_check_twostep_verify', '输入的验证码有误，请重新核对您的手机显示的验证码。');
+				
+				if($this->form_validation->run() == true)
+				{
+					//启用验证
+					$this->user_model->edit_user_option('twostep_enabled', true);
+					$this->user_model->edit_user_option('twostep_secret', $secret);
+					
+					//发送邮件
+					$this->load->library('email');
+					$this->load->library('parser');
+					$this->load->helper('date');
+
+					$data = array(
+						'uid' => $user['id'],
+						'name' => $user['name'],
+						'email' => $user['email'],
+						'time' => unix_to_human(time()),
+						'ip' => $this->input->ip_address(),
+					);
+
+					$this->email->to($user['email']);
+					$this->email->subject('您已启用 iPlacard 两步验证');
+					$this->email->html($this->parser->parse_string(option('email_account_login_twostep_enabled', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户启用。"), $data, true));
+					
+					if(!$this->email->send())
+					{
+						$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'twostep_enabled'));
+					}
+					
+					//记录日志
+					$this->system_model->log('twostep_enabled', array('ip' => $this->input->ip_address()), $uid);
+					
+					$this->ui->alert('两步验证已经启用。', 'success', true);
+					
+					redirect('account/settings/twostep');
+					return;
+				}
+				
+				$vars = array(
+					'secret' => $secret,
+					'qr' => $this->twostep->get_qr_url(option('site_name', 'iPlacard'), $secret, 118, 0)
+				);
+				
+				$this->load->view('account/manage/twostep_enable', $vars);
+				return;
 			}
 			
 			//显示两步验证功能介绍
@@ -1014,7 +1070,7 @@ class Account extends CI_Controller
 	}
 	
 	/**
-	 * 验证码检查回调函数
+	 * 两步验证码登录检查回调函数
 	 */
 	function _check_twostep_code()
 	{
@@ -1050,6 +1106,18 @@ class Account extends CI_Controller
 		{
 			$this->form_validation->set_message('_check_twostep_code', '验证码错误，请重新尝试。如果错误持续，请校正安装有 Google Authenticator 设备的时间。');
 		}
+		return false;
+	}
+	
+	/**
+	 * 两步验证码有效性检查回调函数
+	 */
+	function _check_twostep_verify($code)
+	{
+		$secret = $this->input->post('secret');
+		
+		if($this->twostep->check_code($secret, $code))
+			return true;
 		return false;
 	}
 	
