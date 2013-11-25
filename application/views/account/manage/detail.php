@@ -35,7 +35,7 @@
 							<?php echo form_input(array(
 								'name' => 'email',
 								'id' => 'email',
-								'value' => set_value('email', $data['email']),
+								'value' => $email_changed ? $data['email'] : set_value('email', $data['email']),
 								'disabled' => NULL,
 								'class' => 'form-control',
 							));?>

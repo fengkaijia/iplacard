@@ -956,6 +956,7 @@ class Account extends CI_Controller
 					$this->ui->alert('电子邮箱地址修改成功。我们已经向您的新邮箱发送了一封确认邮件，请按照邮件的提示在 24 小时内确认本次更改。', 'success');
 					
 					$user['email_pending'] = $new_email;
+					$email_changed = true;
 				}
 				
 				//执行修改手机
@@ -1002,6 +1003,8 @@ class Account extends CI_Controller
 			}
 			else
 			{
+				$email_changed = false;
+				
 				//默认启用编辑
 				if($this->input->post('change_email'))
 					$this->ui->js('footer', "edit_item('email');");
@@ -1011,8 +1014,13 @@ class Account extends CI_Controller
 			}
 		}
 
+		$vars = array(
+			'data' => $user,
+			'email_changed' => $email_changed
+		);
+		
 		$this->ui->title('个人信息');
-		$this->load->view('account/manage/detail', array('data' => $user));
+		$this->load->view('account/manage/detail', $vars);
 	}
 	
 	/**
