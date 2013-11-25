@@ -1309,7 +1309,10 @@ class Account extends CI_Controller
 	 */
 	function _do_logout($operation = 'user_operation')
 	{
-		$uid = $this->session->userdata('uid');
+		$uid = uid();
+		
+		if(!$uid)
+			return;
 		
 		//销毁Session
 		$this->session->unset_userdata(array(
