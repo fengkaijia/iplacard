@@ -137,20 +137,10 @@ class Account extends CI_Controller
 		//登出后重定向
 		$redirect = $this->session->flashdata('redirect');
 		
-		$uid = $this->session->userdata('uid');
+		//执行登出操作
+		$this->_do_logout();
 		
-		//销毁Session
-		$this->session->unset_userdata(array(
-			'uid' => '',
-			'sudo' => '',
-			'email' => '',
-			'type' => '',
-			'logged_in' => ''
-		));
 		$this->ui->alert('您已成功登出。', 'success', true);
-		
-		//写入日志
-		$this->system_model->log('logged_out', array('ip' => $this->input->ip_address()), $uid);
 		
 		if(!empty($redirect))
 		{
@@ -547,6 +537,193 @@ class Account extends CI_Controller
 	}
 	
 	/**
+	 * 邮箱更改验证
+	 */
+	function email($action, $uid, $key)
+	{
+		if(!in_array($action, array('confirm', 'cancel')))
+		{
+			$this->ui->alert('无效的请求。', 'danger', true);
+			redirect('');
+			return;
+		}
+		
+		$this->load->library('email');
+		$this->load->library('parser');
+		$this->load->helper('date');
+		
+		//获取信息
+		$user = $this->user_model->get_user($uid);
+		$new_email = user_option('account_email_pending', false, $uid);
+		$change_key = user_option('account_email_change_key', false, $uid);
+		$change_time = user_option('account_email_change_time', false, $uid);
+		$old_email = user_option('account_email_old', false, $uid);
+		$cancel_key = user_option('account_email_cancel_key', false, $uid);
+		
+		//验证登录情况
+		if(is_logged_in())
+		{
+			//非请求帐户登录时登出原帐户
+			if(uid() != $uid)
+			{
+				$this->ui->alert('请使用验证请求的帐户登录 iPlacard。', 'warning', true);
+				$this->_do_logout('email_change');
+				login_redirect();
+				return;
+			}
+		}
+		else
+		{
+			if($action == 'confirm')
+			{
+				$this->ui->alert('请登录 iPlacard 以完成验证。在完成验证之前，登录时您的帐户仍然为旧的电子邮箱地址。', 'info', true);
+				login_redirect();
+				return;
+			}
+		}
+		
+		//邮箱有效性确认操作
+		if($action == 'confirm')
+		{
+			//验证用户
+			if(!$user || $change_key != $key)
+			{
+				$this->ui->alert('无效的验证请求。', 'danger', true);
+				redirect('account/settings/home');
+				return;
+			}
+
+			//验证链接有效性
+			if(time() > $change_time + 60 * 60 * 24)
+			{
+				$this->ui->alert('您的邮箱确认链接已经失效，请重新更改邮箱并在 24 小时内完成确认操作。', 'danger', true);
+				redirect('account/settings/home');
+				return;
+			}
+
+			//更改邮箱
+			$this->user_model->edit_user(array(
+				'email' => $new_email
+			), $uid);
+
+			$this->user_model->delete_user_option('account_email_pending', $uid);
+			$this->user_model->delete_user_option('account_email_change_key', $uid);
+			$this->user_model->delete_user_option('account_email_change_time', $uid);
+			$this->user_model->edit_user_option('account_email_old', $user['email'], $uid);
+
+			$this->ui->alert('您的新邮箱已经完成验证，现在你可以使用新邮箱登录 iPlacard。', 'success', true);
+
+			//发送邮件通知
+			$data = array(
+				'uid' => $user['id'],
+				'name' => $user['name'],
+				'old_email' => $user['email'],
+				'new_email' => $new_email,
+				'time' => unix_to_human(time()),
+				'request_time' => unix_to_human($change_time),
+				'ip' => $this->input->ip_address(),
+				'cancel_url' => base_url("account/email/cancel/$uid/$cancel_key"),
+			);
+
+			//通知旧邮箱
+			$this->email->clear();
+			$this->email->to($user['email']);
+			$this->email->subject('此邮箱的 iPlacard 帐户绑定已经取消');
+			$this->email->html($this->parser->parse_string(option('email_account_email_verification_lost', "您的 iPlacard 帐户 {old_email} 于 {request_time} 申请将绑定电子邮箱更换为 {new_email}，新的邮箱已经于 {time} 由 IP {ip} 的用户完成验证，此邮箱的 iPlacard 帐户绑定已经取消。请立即访问：\n\n"
+					. "\t{cancel_url}\n\n"
+					. "取消本次修改，同时请考虑修改密码。"), $data, true));
+					
+			if(!$this->email->send())
+			{
+				$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'email_changed'));
+			}
+			
+			//通知新邮箱
+			$this->email->clear();
+			$this->email->to($new_email);
+			$this->email->subject('此邮箱已经通过 iPlacard 验证');
+			$this->email->html($this->parser->parse_string(option('email_account_email_verified', "您的新 iPlacard 帐户邮箱 {new_email} 已经于 {time} 由 IP {ip} 的用户完成验证，旧邮箱 {old_email} 的绑定已经取消。现在您可以通过新邮箱登录 iPlacard。"), $data, true));
+					
+			if(!$this->email->send())
+			{
+				$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'email_changed'));
+			}
+
+			$this->system_model->log('email_changed', array('ip' => $this->input->ip_address(), 'new' => $new_email, 'old' => $user['email']), $uid);
+		}
+		
+		//邮箱更改取消
+		if($action == 'cancel')
+		{
+			//验证用户
+			if(!$user || $cancel_key != $key)
+			{
+				$this->ui->alert('无效的撤销请求或者此链接已经失效。', 'danger', true);
+				redirect('account/settings/home');
+				return;
+			}
+			
+			//是否已经变更
+			if(!$new_email && $old_email)
+			{
+				$new_email = $user['email'];
+			}
+
+			//更改邮箱
+			$this->user_model->edit_user(array(
+				'email' => $old_email
+			), $uid);
+
+			$this->user_model->delete_user_option('account_email_old', $uid);
+			$this->user_model->delete_user_option('account_email_change_key', $uid);
+			$this->user_model->delete_user_option('account_email_change_time', $uid);
+			$this->user_model->delete_user_option('account_email_change_time', $uid);
+			$this->user_model->delete_user_option('account_email_cancel_key', $uid);
+
+			$this->ui->alert('您的邮箱更改已经取消。', 'success', true);
+
+			//发送邮件通知
+			$data = array(
+				'uid' => $user['id'],
+				'name' => $user['name'],
+				'email' => $user['email'],
+				'old_email' => $old_email,
+				'new_email' => $new_email,
+				'time' => unix_to_human(time()),
+				'request_time' => unix_to_human($change_time),
+				'ip' => $this->input->ip_address()
+			);
+
+			//通知旧邮箱
+			$this->email->clear();
+			$this->email->to($old_email);
+			$this->email->subject('iPlacard 帐户邮箱变更已经取消');
+			$this->email->html($this->parser->parse_string(option('email_account_email_change_cancelled', "您的 iPlacard 帐户 {email} 的电子邮箱更换请求已经于 {time} 由 IP {ip} 的用户取消。"), $data, true));
+					
+			if(!$this->email->send())
+			{
+				$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'email_changed'));
+			}
+			
+			//通知新邮箱
+			$this->email->clear();
+			$this->email->to($new_email);
+			$this->email->subject('iPlacard 帐户邮箱验证已经取消');
+			$this->email->html($this->parser->parse_string(option('email_account_email_verificaiton_cancelled', "您的 iPlacard 帐户 {email} 的电子邮箱更换请求已经于 {time} 由 IP {ip} 的用户取消，此邮箱的 iPlacard 帐户验证申请已经失效。您将需要使用旧邮箱登录 iPlacard。"), $data, true));
+					
+			if(!$this->email->send())
+			{
+				$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'email_changed'));
+			}
+
+			$this->system_model->log('email_change_cancelled', array('ip' => $this->input->ip_address(), 'request' => $new_email, 'current' => $old_email), $uid);
+		}
+		
+		redirect('account/settings/home');
+		return;
+	}
+	
+	/**
 	 * 当前活动情况
 	 */
 	function activity()
@@ -906,11 +1083,7 @@ class Account extends CI_Controller
 					$this->user_model->edit_user_option('account_email_pending', $new_email);
 					$this->user_model->edit_user_option('account_email_change_time', $change_time);
 					$this->user_model->edit_user_option('account_email_change_key', $change_key);
-					
-					//记录取消信息
-					$cancel_keys = user_option('account_email_cancel_key', array());
-					$cancel_keys[$user['email']] = $cancel_key;
-					$this->user_model->edit_user_option('account_email_cancel_key', $cancel_keys);
+					$this->user_model->edit_user_option('account_email_cancel_key', $cancel_key);
 					
 					//发送邮件
 					$data = array(
@@ -1128,6 +1301,27 @@ class Account extends CI_Controller
 		}
 
 		redirect('apply/status');
+	}
+	
+	/**
+	 * 执行登出操作
+	 * @param string $operation 登出原因
+	 */
+	function _do_logout($operation = 'user_operation')
+	{
+		$uid = $this->session->userdata('uid');
+		
+		//销毁Session
+		$this->session->unset_userdata(array(
+			'uid' => '',
+			'sudo' => '',
+			'email' => '',
+			'type' => '',
+			'logged_in' => ''
+		));
+		
+		//写入日志
+		$this->system_model->log('logged_out', array('ip' => $this->input->ip_address(), 'operation' => $operation), $uid);
 	}
 	
 	/**
