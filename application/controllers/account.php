@@ -1116,7 +1116,7 @@ class Account extends CI_Controller
 					$this->email->subject('验证您的新 iPlacard 帐户邮箱');
 					$this->email->html($this->parser->parse_string(option('email_account_request_email_confirm', "您的 iPlacard 帐户 {old_email} 的电子邮箱地址已经于 {time} 由 IP {ip} 的用户请求更改为 {new_email}。如果确认操作请点击访问以下链接：\n\n"
 							. "\t{change_url}\n\n"
-							. "确认您的新邮箱，此链接仅在 24 小时内有效并且仅限使用一次。"), $data, true));
+							. "确认您的新邮箱，此链接仅在 24 小时内有效并且仅限使用一次。当前，您的 iPlacard 邮箱仍为 {old_email}，请使用该邮箱登录 iPlacard。"), $data, true));
 					
 					if(!$this->email->send())
 					{
