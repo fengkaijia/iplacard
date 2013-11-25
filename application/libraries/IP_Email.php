@@ -15,9 +15,7 @@ class IP_Email extends CI_Email
 		
 		$this->CI =& get_instance();
 		
-		//设置默认发件地址和回复信息
-		$this->from(option('email_from', 'no-reply@iplacard.com'), option('email_from_name', 'iPlacard'));
-		$this->reply_to(option('site_contact_email', 'contact@iplacard.com'));
+		$this->_set_default();
 	}
 	
 	/**
@@ -38,6 +36,25 @@ class IP_Email extends CI_Email
 		$this->set_alt_message($body);
 		
 		return $this;
+	}
+	
+	/**
+	 * 清空设置
+	 */
+	public function clear($clear_attachments = false)
+	{
+		parent::clear($clear_attachments);
+		
+		$this->_set_default();
+	}
+	
+	/**
+	 * 设置默认发件地址和回复信息
+	 */
+	private function _set_default()
+	{
+		$this->from(option('email_from', 'no-reply@iplacard.com'), option('email_from_name', 'iPlacard'));
+		$this->reply_to(option('site_contact_email', 'contact@iplacard.com'), option('email_from_name', 'iPlacard'));
 	}
 }
 
