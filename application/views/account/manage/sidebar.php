@@ -1,6 +1,6 @@
 <div class="list-group">
 	<?php
-	echo anchor('account/settings/home', '帐户信息', array('class' => $now == 'detail' ? 'list-group-item active' : 'list-group-item'));
+	echo anchor('account/settings/home', '个人信息', array('class' => $now == 'detail' ? 'list-group-item active' : 'list-group-item'));
 	echo anchor('account/settings/security', '帐户安全设置', array('class' => $now == 'security' ? 'list-group-item active' : 'list-group-item'));
 	echo anchor('account/settings/password', '修改密码', array('class' => $now == 'password' ? 'list-group-item active' : 'list-group-item'));
 	echo anchor('account/settings/pin', '设置安全码', array('class' => $now == 'pin' ? 'list-group-item active' : 'list-group-item'));
