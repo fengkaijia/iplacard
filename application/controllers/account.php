@@ -366,8 +366,8 @@ class Account extends CI_Controller
 			$recover_key = strtoupper(substr(sha1($uid.$recover_time), 20));
 			
 			//记录重置信息
-			$this->user_model->edit_user_option('recover_key', $recover_key, $uid);
-			$this->user_model->edit_user_option('recover_time', $recover_time, $uid);
+			$this->user_model->edit_user_option('account_recover_key', $recover_key, $uid);
+			$this->user_model->edit_user_option('account_recover_time', $recover_time, $uid);
 			
 			//发送邮件
 			$this->load->library('email');
@@ -420,8 +420,8 @@ class Account extends CI_Controller
 		}
 		
 		$user = $this->user_model->get_user($uid);
-		$recover_key = user_option('recover_key', false, $uid);
-		$recover_time = user_option('recover_time', false, $uid);
+		$recover_key = user_option('account_recover_key', false, $uid);
+		$recover_time = user_option('account_recover_time', false, $uid);
 		
 		//验证用户
 		if(!$user || $recover_key != $key)
@@ -454,8 +454,8 @@ class Account extends CI_Controller
 				'password' => trim($this->input->post('password')),
 			), $uid);
 			
-			$this->user_model->delete_user_option('recover_key', $uid);
-			$this->user_model->delete_user_option('recover_time', $uid);
+			$this->user_model->delete_user_option('account_recover_key', $uid);
+			$this->user_model->delete_user_option('account_recover_time', $uid);
 			
 			$this->ui->alert('您的密码已经重置，现在您可以使用新的密码登录。', 'success', true);
 			
