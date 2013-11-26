@@ -822,7 +822,7 @@ class Account extends CI_Controller
 		$this->load->library('parser');
 		$this->load->helper('date');
 		
-		if(!in_array($setting, array('home', 'security', 'password', 'pin', 'twostep', 'admin')))
+		if(!in_array($setting, array('home', 'security', 'password', 'pin', 'twostep')))
 			$setting = 'home';
 		
 		//当前用户信息
