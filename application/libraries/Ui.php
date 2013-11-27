@@ -120,7 +120,7 @@ class UI
 		$this->CI =& get_instance();
 		
 		//设置默认标题
-		$this->title = option('site_name').' - Powered by iPlacard';
+		$this->title = option('site_name', 'iPlacard Instance').' - Powered by iPlacard';
 		
 		//显示前后台界面
 		if(!empty($data))
