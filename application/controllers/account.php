@@ -831,6 +831,116 @@ class Account extends CI_Controller
 		
 		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 		
+		//安全设置
+		if($setting == 'security')
+		{
+			//邮件通知数据
+			$notice_options = array(
+				'login' => array(
+					'name' => '帐户登录',
+					'description' => '登录时发送电子邮件通知'
+				),
+			);
+			
+			//数据值
+			foreach($notice_options as $name => $option)
+			{
+				$notice_options[$name]['value'] = user_option("account_notice_{$name}_enabled", false);
+			}
+			
+			//密码验证
+			$this->form_validation->set_rules('password', '密码', 'trim|required|callback__check_password[密码验证错误导致安全设置更改未完成，请重新尝试。]');
+			$this->form_validation->set_message('_check_password', '密码有误，请重新输入。');
+			
+			if($this->form_validation->run() == true)
+			{
+				$new_enabled = array();
+				$new_disabled = array();
+				
+				foreach($notice_options as $name => $option)
+				{
+					$set_option = $this->input->post("notice_$name");
+					
+					//执行修改
+					if($set_option != $option['value'])
+					{
+						if($set_option)
+						{
+							//启用设置
+							$this->user_model->edit_user_option("account_notice_{$name}_enabled", true);
+							$notice_options[$name]['value'] = true;
+							$new_enabled[] = $name;
+							
+							$this->ui->alert("{$option['name']}邮件通知已经启用。", 'success');
+						}
+						else
+						{
+							//停用设置
+							$this->user_model->edit_user_option("account_notice_{$name}_enabled", false);
+							$notice_options[$name]['value'] = false;
+							$new_disabled[] = $name;
+							
+							$this->ui->alert("{$option['name']}邮件通知已经停用。", 'success');
+						}
+					}
+				}
+				
+				$enable_text = '';
+				$disable_text = '';
+				if(!empty($new_enabled))
+				{
+					$this->system_model->log('security_notice_enabled', array('ip' => $this->input->ip_address(), 'enabled' => $new_enabled), $uid);
+				
+					$enable_list = "";
+					foreach($new_enabled as $option)
+					{
+						$enable_list .= "\t{$notice_options[$option]['name']}：启用{$notice_options[$option]['description']}\n";
+					}
+					$enable_text = "新近启用的邮件通知设置：\n\n{$enable_list}\n";
+				}
+				
+				if(!empty($new_disabled))
+				{
+					$this->system_model->log('security_notice_disabled', array('ip' => $this->input->ip_address(), 'disabled' => $new_disabled), $uid);
+				
+					$disable_list = "";
+					foreach($new_disabled as $option)
+					{
+						$disable_list .= "\t{$notice_options[$option]['name']}：停用{$notice_options[$option]['description']}\n";
+					}
+					$disable_text = "新近停用的邮件通知设置：\n\n{$disable_list}\n";
+				}
+				
+				//发送邮件通知
+				$data = array(
+					'uid' => $user['id'],
+					'name' => $user['name'],
+					'email' => $user['email'],
+					'time' => unix_to_human(time()),
+					'ip' => $this->input->ip_address(),
+					'enabled' => $enable_text,
+					'disabled' => $disable_text
+				);
+
+				$this->email->to($user['email']);
+				$this->email->subject('iPlacard 邮件通知设置已经变更');
+				$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的邮件通知设置已经于 {time} 由来自 IP {ip} 的用户变革。本邮件列出了变更列表，\n\n"
+						. "{enabled}"
+						. "{disabled}"
+						. "如非本人操作请立即登录 iPlacard 还原以上更改并考虑修改密码。"), $data, true));
+
+				if(!$this->email->send())
+				{
+					$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'security_settings_changed'));
+				}
+			}
+			
+			$this->ui->title('帐户安全设置');
+			$this->load->view('account/manage/security', array('notice_options' => $notice_options));
+			return;
+		}
+		
+		
 		//修改密码
 		if($setting == 'password')
 		{
@@ -1234,7 +1344,7 @@ class Account extends CI_Controller
 		), $id);
 
 		//发送登录通知
-		if(user_option('account_login_notice_enabled', false))
+		if(user_option('account_notice_login_enabled', false))
 		{
 			//生成链接
 			$halt = (string) $system_sess_id.(string) rand(1000, 9999);
