@@ -29,7 +29,9 @@ class IP_Email extends CI_Email
 		
 		$html = $body;
 		if($nl2br)
-			$html = nl2br($body);
+		{
+			$html = nl2br(str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $body));
+		}
 		
 		$message = $this->CI->load->view('email', array('text' => $html), true);
 		$this->message($message);
