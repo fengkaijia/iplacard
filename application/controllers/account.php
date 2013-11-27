@@ -57,7 +57,7 @@ class Account extends CI_Controller
 		$this->session->keep_flashdata('redirect');
 		
 		$this->form_validation->set_rules('email', '电子邮箱地址', 'trim|required|valid_email|callback__check_login');
-		$this->form_validation->set_rules('password', '密码', 'trim');
+		$this->form_validation->set_rules('password', '密码', 'trim|required');
 		$this->form_validation->set_message('valid_email', '电子邮箱地址无效。');
 		$this->form_validation->set_error_delimiters('<div class="alert alert-dismissable alert-warning alert-block">'
 				. '<button type="button" class="close" data-dismiss="alert">×</button>'
@@ -137,20 +137,10 @@ class Account extends CI_Controller
 		//登出后重定向
 		$redirect = $this->session->flashdata('redirect');
 		
-		$uid = $this->session->userdata('uid');
+		//执行登出操作
+		$this->_do_logout();
 		
-		//销毁Session
-		$this->session->unset_userdata(array(
-			'uid' => '',
-			'sudo' => '',
-			'email' => '',
-			'type' => '',
-			'logged_in' => ''
-		));
 		$this->ui->alert('您已成功登出。', 'success', true);
-		
-		//写入日志
-		$this->system_model->log('logged_out', array('ip' => $this->input->ip_address()), $uid);
 		
 		if(!empty($redirect))
 		{
@@ -279,9 +269,9 @@ class Account extends CI_Controller
 
 					$this->email->to($user['email']);
 					$this->email->subject('您的 iPlacard 两步验证已经关闭');
-					$this->email->html($this->parser->parse_string(option('email_account_login_notice', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户通过短信验证方式关闭。如非本人操作，请立即访问：\n\n"
+					$this->email->html($this->parser->parse_string(option('email_account_twostep_disabled_via_sms', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户通过短信验证方式关闭。如非本人操作，请立即访问：\n\n"
 							. "\t{url}\n\n"
-							. "并修改密码。"), $data, true));
+							. "修改密码。"), $data, true));
 					
 					if(!$this->email->send())
 					{
@@ -376,8 +366,8 @@ class Account extends CI_Controller
 			$recover_key = strtoupper(substr(sha1($uid.$recover_time), 20));
 			
 			//记录重置信息
-			$this->user_model->edit_user_option('recover_key', $recover_key, $uid);
-			$this->user_model->edit_user_option('recover_time', $recover_time, $uid);
+			$this->user_model->edit_user_option('account_recover_key', $recover_key, $uid);
+			$this->user_model->edit_user_option('account_recover_time', $recover_time, $uid);
 			
 			//发送邮件
 			$this->load->library('email');
@@ -430,8 +420,8 @@ class Account extends CI_Controller
 		}
 		
 		$user = $this->user_model->get_user($uid);
-		$recover_key = user_option('recover_key', false, $uid);
-		$recover_time = user_option('recover_time', false, $uid);
+		$recover_key = user_option('account_recover_key', false, $uid);
+		$recover_time = user_option('account_recover_time', false, $uid);
 		
 		//验证用户
 		if(!$user || $recover_key != $key)
@@ -464,8 +454,11 @@ class Account extends CI_Controller
 				'password' => trim($this->input->post('password')),
 			), $uid);
 			
-			$this->user_model->delete_user_option('recover_key', $uid);
-			$this->user_model->delete_user_option('recover_time', $uid);
+			//记录更改时间
+			$this->user_model->edit_user_option('account_change_password_time', time());
+			
+			$this->user_model->delete_user_option('account_recover_key', $uid);
+			$this->user_model->delete_user_option('account_recover_time', $uid);
 			
 			$this->ui->alert('您的密码已经重置，现在您可以使用新的密码登录。', 'success', true);
 			
@@ -537,22 +530,806 @@ class Account extends CI_Controller
 				return;
 			}
 			
-			//写入强制登出
-			$new_userdata = $this->session->_serialize(array(
-				'halt' => true,
-				'halt_time' => time()
-			));
-			$this->db->where('id', $halt_id);
-			$this->db->update('session', array('user_data' => $new_userdata));
-
-			//记录日志
-			$this->system_model->log('session_halted', array('ip' => $this->input->ip_address(), 'session' => $halt_id, 'userdata' => $sess_data['user_data']), 0);
+			//强制退出
+			$this->_do_halt($halt_id);
+			$this->system_model->log('session_halted', array('ip' => $this->input->ip_address(), 'session' => $halt_id, 'userdata' => $sess_data['user_data'], 'panel' => false), 0);
 		}
 		
 		$this->ui->title('强制登出');
 		$this->load->view('account/auth/halt', array('no_action' => $no_action));
 	}
+	
+	/**
+	 * 邮箱更改验证
+	 */
+	function email($action, $uid, $key)
+	{
+		if(!in_array($action, array('confirm', 'cancel')))
+		{
+			$this->ui->alert('无效的请求。', 'danger', true);
+			redirect('');
+			return;
+		}
 		
+		$this->load->library('email');
+		$this->load->library('parser');
+		$this->load->helper('date');
+		
+		//获取信息
+		$user = $this->user_model->get_user($uid);
+		$new_email = user_option('account_email_pending', false, $uid);
+		$change_key = user_option('account_email_change_key', false, $uid);
+		$change_time = user_option('account_email_change_time', false, $uid);
+		$old_email = user_option('account_email_old', false, $uid);
+		$cancel_key = user_option('account_email_cancel_key', false, $uid);
+		
+		//验证登录情况
+		if(is_logged_in())
+		{
+			//非请求帐户登录时登出原帐户
+			if(uid() != $uid)
+			{
+				$this->ui->alert('请使用验证请求的帐户登录 iPlacard。', 'warning', true);
+				$this->_do_logout('email_change');
+				login_redirect();
+				return;
+			}
+		}
+		else
+		{
+			if($action == 'confirm')
+			{
+				$this->ui->alert('请登录 iPlacard 以完成验证。在完成验证之前，登录时您的帐户仍然为旧的电子邮箱地址。', 'info', true);
+				login_redirect();
+				return;
+			}
+		}
+		
+		//邮箱有效性确认操作
+		if($action == 'confirm')
+		{
+			//验证用户
+			if(!$user || $change_key != $key)
+			{
+				$this->ui->alert('无效的验证请求。', 'danger', true);
+				redirect('account/settings/home');
+				return;
+			}
+
+			//验证链接有效性
+			if(time() > $change_time + 60 * 60 * 24)
+			{
+				$this->ui->alert('您的邮箱确认链接已经失效，请重新更改邮箱并在 24 小时内完成确认操作。', 'danger', true);
+				redirect('account/settings/home');
+				return;
+			}
+
+			//更改邮箱
+			$this->user_model->edit_user(array(
+				'email' => $new_email
+			), $uid);
+
+			$this->user_model->delete_user_option('account_email_pending', $uid);
+			$this->user_model->delete_user_option('account_email_change_key', $uid);
+			$this->user_model->delete_user_option('account_email_change_time', $uid);
+			$this->user_model->edit_user_option('account_email_old', $user['email'], $uid);
+
+			$this->ui->alert('您的新邮箱已经完成验证，现在你可以使用新邮箱登录 iPlacard。', 'success', true);
+
+			//发送邮件通知
+			$data = array(
+				'uid' => $user['id'],
+				'name' => $user['name'],
+				'old_email' => $user['email'],
+				'new_email' => $new_email,
+				'time' => unix_to_human(time()),
+				'request_time' => unix_to_human($change_time),
+				'ip' => $this->input->ip_address(),
+				'cancel_url' => base_url("account/email/cancel/$uid/$cancel_key"),
+			);
+
+			//通知旧邮箱
+			$this->email->clear();
+			$this->email->to($user['email']);
+			$this->email->subject('此邮箱的 iPlacard 帐户绑定已经取消');
+			$this->email->html($this->parser->parse_string(option('email_account_email_verification_lost', "您的 iPlacard 帐户 {old_email} 于 {request_time} 申请将绑定电子邮箱更换为 {new_email}，新的邮箱已经于 {time} 由 IP {ip} 的用户完成验证，此邮箱的 iPlacard 帐户绑定已经取消。请立即访问：\n\n"
+					. "\t{cancel_url}\n\n"
+					. "取消本次修改，同时请考虑修改密码。"), $data, true));
+					
+			if(!$this->email->send())
+			{
+				$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'email_changed'));
+			}
+			
+			//通知新邮箱
+			$this->email->clear();
+			$this->email->to($new_email);
+			$this->email->subject('此邮箱已经通过 iPlacard 验证');
+			$this->email->html($this->parser->parse_string(option('email_account_email_verified', "您的新 iPlacard 帐户邮箱 {new_email} 已经于 {time} 由 IP {ip} 的用户完成验证，旧邮箱 {old_email} 的绑定已经取消。现在您可以通过新邮箱登录 iPlacard。"), $data, true));
+					
+			if(!$this->email->send())
+			{
+				$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'email_changed'));
+			}
+
+			$this->system_model->log('email_changed', array('ip' => $this->input->ip_address(), 'new' => $new_email, 'old' => $user['email']), $uid);
+		}
+		
+		//邮箱更改取消
+		if($action == 'cancel')
+		{
+			//验证用户
+			if(!$user || $cancel_key != $key)
+			{
+				$this->ui->alert('无效的撤销请求或者此链接已经失效。', 'danger', true);
+				redirect('account/settings/home');
+				return;
+			}
+			
+			//是否已经变更
+			if(!$new_email && $old_email)
+			{
+				$new_email = $user['email'];
+			}
+
+			//更改邮箱
+			$this->user_model->edit_user(array(
+				'email' => $old_email
+			), $uid);
+
+			$this->user_model->delete_user_option('account_email_old', $uid);
+			$this->user_model->delete_user_option('account_email_change_key', $uid);
+			$this->user_model->delete_user_option('account_email_change_time', $uid);
+			$this->user_model->delete_user_option('account_email_change_time', $uid);
+			$this->user_model->delete_user_option('account_email_cancel_key', $uid);
+
+			$this->ui->alert('您的邮箱更改已经取消。', 'success', true);
+
+			//发送邮件通知
+			$data = array(
+				'uid' => $user['id'],
+				'name' => $user['name'],
+				'email' => $user['email'],
+				'old_email' => $old_email,
+				'new_email' => $new_email,
+				'time' => unix_to_human(time()),
+				'request_time' => unix_to_human($change_time),
+				'ip' => $this->input->ip_address()
+			);
+
+			//通知旧邮箱
+			$this->email->clear();
+			$this->email->to($old_email);
+			$this->email->subject('iPlacard 帐户邮箱变更已经取消');
+			$this->email->html($this->parser->parse_string(option('email_account_email_change_cancelled', "您的 iPlacard 帐户 {email} 的电子邮箱更换请求已经于 {time} 由 IP {ip} 的用户取消。"), $data, true));
+					
+			if(!$this->email->send())
+			{
+				$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'email_changed'));
+			}
+			
+			//通知新邮箱
+			$this->email->clear();
+			$this->email->to($new_email);
+			$this->email->subject('iPlacard 帐户邮箱验证已经取消');
+			$this->email->html($this->parser->parse_string(option('email_account_email_verificaiton_cancelled', "您的 iPlacard 帐户 {email} 的电子邮箱更换请求已经于 {time} 由 IP {ip} 的用户取消，此邮箱的 iPlacard 帐户验证申请已经失效。您将需要使用旧邮箱登录 iPlacard。"), $data, true));
+					
+			if(!$this->email->send())
+			{
+				$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'email_changed'));
+			}
+
+			$this->system_model->log('email_change_cancelled', array('ip' => $this->input->ip_address(), 'request' => $new_email, 'current' => $old_email), $uid);
+		}
+		
+		redirect('account/settings/home');
+		return;
+	}
+	
+	/**
+	 * 当前活动情况
+	 */
+	function activity()
+	{
+		if(!is_logged_in())
+		{
+			login_redirect();
+			return;
+		}
+		
+		$this->load->helper('ip');
+		$this->load->helper('date');
+		
+		//获取记录
+		$this->db->where('operator', uid());
+		$this->db->where('operation', 'logged_in');
+		$this->db->order_by('time', 'desc');
+		$this->db->limit(20);
+		$query = $this->db->get('log');
+		
+		if($query->num_rows() != 0)
+		{
+			$data = array();
+			foreach($query->result_array() as $data)
+			{
+				//检查是否仍然在线
+				$data['value'] = json_decode($data['value'], true);
+				$this->db->where('id', $data['value']['session']);
+				$check = $this->db->get('session');
+				
+				if($check->num_rows() != 0)
+				{
+					$session = $check->row_array();
+					
+					if($this->input->post('halt') && $session['session_id'] != $this->session->userdata('session_id'))
+					{
+						//确认退出其他所有会话
+						$this->_do_halt($data['value']['session']);
+						$this->system_model->log('session_halted', array('ip' => $this->input->ip_address(), 'session' => $session['session_id'], 'userdata' => $session['user_data'], 'panel' => true), uid());
+					}
+					else
+					{
+						//仅显示数据
+						$data['last_activity'] = $session['last_activity'];
+						$data['value']['place'] = ip_lookup($data['value']['ip']);
+						
+						//是否是当前位置
+						if($session['session_id'] == $this->session->userdata('session_id'))
+							$data['current'] = true;
+						
+						//是否已经关闭
+						$user_data = $this->session->_unserialize($session['user_data']);
+						if(!isset($user_data['halt']) || !$user_data['halt'])
+							$active[] = $data;
+					}
+				}
+				$check->free_result();
+			}
+			$query->free_result();
+			
+			if($this->input->post('halt'))
+			{
+				$this->ui->alert('已经强制登出位于其他位置的会话活动。', 'success');
+			}
+			
+			$vars = array();
+			
+			//根据登录时间排序
+			if(!empty($active))
+			{
+				foreach($active as $one)
+				{
+					$time[] = $one['time'];
+				}
+				array_multisort($time, SORT_DESC, $active);
+				$vars['active'] = $active;
+			}
+		}
+		
+		$this->ui->title('当前会话活动');
+		$this->load->view('account/manage/activity', $vars);
+	}
+	
+	/**
+	 * 帐户设置
+	 */
+	function settings($setting = 'home', $action = '')
+	{
+		if(!is_logged_in())
+		{
+			login_redirect();
+			return;
+		}
+		
+		$this->load->library('email');
+		$this->load->library('parser');
+		$this->load->helper('date');
+		
+		if(!in_array($setting, array('home', 'security', 'password', 'pin', 'twostep')))
+			$setting = 'home';
+		
+		//当前用户信息
+		$uid = uid();
+		$user = $this->user_model->get_user($uid);
+		
+		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+		
+		//安全设置
+		if($setting == 'security')
+		{
+			//邮件通知数据
+			$notice_options = array(
+				'login' => array(
+					'name' => '帐户登录',
+					'description' => '登录时发送电子邮件通知'
+				),
+			);
+			
+			//数据值
+			foreach($notice_options as $name => $option)
+			{
+				$notice_options[$name]['value'] = user_option("account_notice_{$name}_enabled", false);
+			}
+			
+			//密码验证
+			$this->form_validation->set_rules('password', '密码', 'trim|required|callback__check_password[密码验证错误导致安全设置更改未完成，请重新尝试。]');
+			$this->form_validation->set_message('_check_password', '密码有误，请重新输入。');
+			
+			if($this->form_validation->run() == true)
+			{
+				$new_enabled = array();
+				$new_disabled = array();
+				
+				foreach($notice_options as $name => $option)
+				{
+					$set_option = $this->input->post("notice_$name");
+					
+					//执行修改
+					if($set_option != $option['value'])
+					{
+						if($set_option)
+						{
+							//启用设置
+							$this->user_model->edit_user_option("account_notice_{$name}_enabled", true);
+							$notice_options[$name]['value'] = true;
+							$new_enabled[] = $name;
+							
+							$this->ui->alert("{$option['name']}邮件通知已经启用。", 'success');
+						}
+						else
+						{
+							//停用设置
+							$this->user_model->edit_user_option("account_notice_{$name}_enabled", false);
+							$notice_options[$name]['value'] = false;
+							$new_disabled[] = $name;
+							
+							$this->ui->alert("{$option['name']}邮件通知已经停用。", 'success');
+						}
+					}
+				}
+				
+				//检查是否存在更改
+				if(!empty($new_enabled) || !empty($new_disabled))
+				{
+					$enable_text = '';
+					$disable_text = '';
+					if(!empty($new_enabled))
+					{
+						$this->system_model->log('security_notice_enabled', array('ip' => $this->input->ip_address(), 'enabled' => $new_enabled), $uid);
+
+						$enable_list = "";
+						foreach($new_enabled as $option)
+						{
+							$enable_list .= "\t{$notice_options[$option]['name']}：启用{$notice_options[$option]['description']}\n";
+						}
+						$enable_text = "新近启用的邮件通知设置：\n\n{$enable_list}\n";
+					}
+
+					if(!empty($new_disabled))
+					{
+						$this->system_model->log('security_notice_disabled', array('ip' => $this->input->ip_address(), 'disabled' => $new_disabled), $uid);
+
+						$disable_list = "";
+						foreach($new_disabled as $option)
+						{
+							$disable_list .= "\t{$notice_options[$option]['name']}：停用{$notice_options[$option]['description']}\n";
+						}
+						$disable_text = "新近停用的邮件通知设置：\n\n{$disable_list}\n";
+					}
+
+					//发送邮件通知
+					$data = array(
+						'uid' => $user['id'],
+						'name' => $user['name'],
+						'email' => $user['email'],
+						'time' => unix_to_human(time()),
+						'ip' => $this->input->ip_address(),
+						'enabled' => $enable_text,
+						'disabled' => $disable_text
+					);
+
+					$this->email->to($user['email']);
+					$this->email->subject('iPlacard 邮件通知设置已经变更');
+					$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的邮件通知设置已经于 {time} 由来自 IP {ip} 的用户变革。本邮件列出了变更列表，\n\n"
+							. "{enabled}"
+							. "{disabled}"
+							. "如非本人操作请立即登录 iPlacard 还原以上更改并考虑修改密码。"), $data, true));
+
+					if(!$this->email->send())
+					{
+						$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'security_settings_changed'));
+					}
+				}
+				else
+				{
+					$this->ui->alert('没有设置变更。', 'info');
+				}
+			}
+			
+			
+			//显示信息部分
+			$info = array(
+				'password' => user_option('account_change_password_time', false),
+				'pin' => user_option('account_change_pin_time', false),
+				'twostep' => user_option('twostep_enabled', false)
+			);
+			
+			$this->ui->title('帐户安全设置');
+			$this->load->view('account/manage/security', array('notice_options' => $notice_options, 'info' => $info));
+			return;
+		}
+		
+		//修改密码
+		if($setting == 'password')
+		{
+			$this->form_validation->set_rules('old_password', '旧密码', 'trim|required|callback__check_password');
+			$this->form_validation->set_rules('password', '新密码', 'trim|required|not[matches.old_password]|min_length[8]');
+			$this->form_validation->set_rules('password_repeat', '重复密码', 'trim|required|matches[password]');
+			$this->form_validation->set_message('_check_old_password', '旧密码有误，请重新输入。');
+			$this->form_validation->set_message('not', '新密码不能与旧密码相同。');
+
+			if($this->form_validation->run() == true)
+			{
+				//修改密码
+				$this->user_model->change_password($uid, trim($this->input->post('password')));
+				
+				//记录更改时间
+				$this->user_model->edit_user_option('account_change_password_time', time());
+				
+				//发送邮件通知
+				$data = array(
+					'uid' => $user['id'],
+					'name' => $user['name'],
+					'email' => $user['email'],
+					'time' => unix_to_human(time()),
+					'ip' => $this->input->ip_address(),
+					'url' => base_url('account/recover'),
+				);
+
+				$this->email->to($user['email']);
+				$this->email->subject('您的 iPlacard 密码已经修改');
+				$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的密码已经于 {time} 由来自 IP {ip} 的用户修改，如非本人操作请立即访问以下链接重置您的密码：\n\n"
+						. "\t{url}"), $data, true));
+				
+				if(!$this->email->send())
+				{
+					$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'password_changed'));
+				}
+				
+				$this->ui->alert('密码修改成功。', 'success');
+				$this->system_model->log('password_changed', array('ip' => $this->input->ip_address()), $uid);
+			}
+
+			$this->ui->title('修改密码');
+			$this->load->view('account/manage/password');
+			return;
+		}
+		
+		//修改安全码
+		if($setting == 'pin')
+		{
+			$this->form_validation->set_rules('password', '密码', 'trim|required|callback__check_password');
+			$this->form_validation->set_rules('pin', '安全码', 'trim|required|min_length[4]');
+			$this->form_validation->set_rules('pin_repeat', '重复安全码', 'trim|required|matches[pin]');
+			$this->form_validation->set_message('_check_password', '密码有误，请重新输入。');
+
+			if($this->form_validation->run() == true)
+			{
+				$new_pin = trim($this->input->post('pin'));
+				
+				//修改安全码
+				$this->user_model->edit_user(array('pin_password' => $new_pin), $uid);
+				
+				//由于盐变动修改密码
+				$this->user_model->change_password($uid, trim($this->input->post('password')));
+				
+				//记录更改时间
+				$this->user_model->edit_user_option('account_change_pin_time', time());
+				
+				//发送邮件通知
+				$data = array(
+					'uid' => $user['id'],
+					'name' => $user['name'],
+					'email' => $user['email'],
+					'time' => unix_to_human(time()),
+					'ip' => $this->input->ip_address(),
+					'pin' => $new_pin
+				);
+
+				$this->email->to($user['email']);
+				$this->email->subject('您的 iPlacard 安全码已经修改');
+				$this->email->html($this->parser->parse_string(option('email_account_pin_change', "您的 iPlacard 帐户 {email} 的安全码已经于 {time} 由来自 IP {ip} 的用户修改，新的安全码为\n\n"
+						. "\t{pin}\n\n"
+						. "为保证您的 PIN 码安全，如非必要请勿保留此邮件。"), $data, true));
+				
+				if(!$this->email->send())
+				{
+					$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'pin_changed'));
+				}
+				
+				$this->ui->alert('安全码修改成功。', 'success');
+				$this->system_model->log('pin_changed', array('ip' => $this->input->ip_address()), uid());
+			}
+
+			$this->ui->title('设置安全码');
+			$this->load->view('account/manage/pin_password');
+			return;
+		}
+		
+		//两步验证
+		if($setting == 'twostep')
+		{
+			$this->ui->title('两步验证');
+			
+			//显示操作类型
+			if(user_option('twostep_enabled', false))
+				$action = 'disable';
+			elseif($action != 'enable')
+				$action = 'intro';
+			
+			//关闭两步验证
+			if($action == 'disable')
+			{
+				$this->form_validation->set_rules('password', '密码', 'trim|required|callback__check_password');
+				$this->form_validation->set_rules('confirm', '确认', 'callback__check_confirm');
+				$this->form_validation->set_message('_check_password', '密码验证有误，请重新输入。');
+				$this->form_validation->set_message('_check_confirm', '需要选中按钮以确认操作。');
+				
+				if($this->form_validation->run() == true)
+				{
+					//禁用验证
+					$this->user_model->edit_user_option('twostep_enabled', false);
+					
+					//发送邮件
+					$data = array(
+						'uid' => $user['id'],
+						'name' => $user['name'],
+						'email' => $user['email'],
+						'time' => unix_to_human(time()),
+						'ip' => $this->input->ip_address(),
+						'url' => base_url('account/recover')
+					);
+
+					$this->email->to($user['email']);
+					$this->email->subject('您已停用 iPlacard 两步验证');
+					$this->email->html($this->parser->parse_string(option('email_account_login_twostep_disabled_via_panel', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户通过设置面板停用。如非本人操作，请立即访问：\n\n"
+							. "\t{url}\n\n"
+							. "修改密码。"), $data, true));
+					
+					if(!$this->email->send())
+					{
+						$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'twostep_disabled_via_panel'));
+					}
+					
+					//记录日志
+					$this->system_model->log('twostep_disabled', array('ip' => $this->input->ip_address(), 'via' => 'panel'), $uid);
+					
+					$this->ui->alert('两步验证已经停用。', 'success', true);
+					
+					redirect('account/settings/twostep');
+					return;
+				}
+				
+				$this->load->view('account/manage/twostep_disable');
+				return;
+			}
+			
+			//启用两步验证
+			if($action == 'enable')
+			{
+				$this->load->model('twostep_model');
+				$this->load->library('twostep');
+				
+				//保留此前生成的密钥
+				$secret = $this->input->post('secret');
+				//如不存在生成密钥
+				if(!$secret)
+					$secret = $this->twostep->generate_secret();
+				
+				$this->form_validation->set_rules('code', '验证码', 'trim|required|integer|exact_length[6]|callback__check_twostep_verify');
+				$this->form_validation->set_message('exact_length', '验证码必须是六位数字。');
+				$this->form_validation->set_message('_check_twostep_verify', '输入的验证码有误，请重新核对您的手机显示的验证码。');
+				
+				if($this->form_validation->run() == true)
+				{
+					//启用验证
+					$this->user_model->edit_user_option('twostep_enabled', true);
+					$this->user_model->edit_user_option('twostep_secret', $secret);
+					
+					//发送邮件
+					$data = array(
+						'uid' => $user['id'],
+						'name' => $user['name'],
+						'email' => $user['email'],
+						'time' => unix_to_human(time()),
+						'ip' => $this->input->ip_address(),
+					);
+
+					$this->email->to($user['email']);
+					$this->email->subject('您已启用 iPlacard 两步验证');
+					$this->email->html($this->parser->parse_string(option('email_account_login_twostep_enabled', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户启用。"), $data, true));
+					
+					if(!$this->email->send())
+					{
+						$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'twostep_enabled'));
+					}
+					
+					//记录日志
+					$this->system_model->log('twostep_enabled', array('ip' => $this->input->ip_address()), $uid);
+					
+					$this->ui->alert('两步验证已经启用。', 'success', true);
+					
+					redirect('account/settings/twostep');
+					return;
+				}
+				
+				$vars = array(
+					'secret' => $secret,
+					'qr' => $this->twostep->get_qr_url(option('site_name', 'iPlacard'), $secret, 118, 0)
+				);
+				
+				$this->load->view('account/manage/twostep_enable', $vars);
+				return;
+			}
+			
+			//显示两步验证功能介绍
+			$this->load->view('account/manage/twostep_intro');
+			return;
+		}
+		
+		//设置主页
+		if($setting == 'home')
+		{
+			//显示待确认邮箱
+			$email_pending = user_option('account_email_pending', false);
+			if($email_pending)
+				$user['email_pending'] = $email_pending;
+			
+			//修改邮箱
+			if($this->input->post('change_email') && $this->input->post('email') != $user['email'])
+			{
+				$this->form_validation->set_rules('email', '电子邮箱地址', 'trim|required|valid_email|is_unique[user.email]');
+				$this->form_validation->set_message('valid_email', '电子邮箱地址无效。');
+			}
+			//修改手机
+			if($this->input->post('change_phone') && $this->input->post('phone') != $user['phone'])
+			{
+				$this->form_validation->set_rules('phone', '手机号', 'trim|required|integer|exact_length[11]|is_unique[user.phone]');
+				$this->form_validation->set_message('exact_length', '%s长度必须为 %s 位。');
+			}
+			//密码验证
+			$this->form_validation->set_rules('password', '密码', 'trim|required|callback__check_password[密码验证错误导致个人信息更改未完成，请重新尝试。]');
+			$this->form_validation->set_message('is_unique', '存在重复的%s。');
+			$this->form_validation->set_message('_check_password', '密码有误，请重新输入。');
+			
+			if($this->form_validation->run() == true)
+			{
+				//执行修改邮箱
+				if($this->input->post('change_email') && $this->input->post('email') != $user['email'])
+				{
+					$new_email = trim($this->input->post('email'));
+					
+					$change_time = time();
+					$change_key = strtoupper(substr(sha1($uid.$change_time.rand(10000, 49999)), 20));
+					$cancel_key = strtoupper(substr(sha1($uid.$change_time.rand(50000, 99999)), 20));
+					
+					//更新待验证邮箱
+					$this->user_model->edit_user_option('account_email_pending', $new_email);
+					$this->user_model->edit_user_option('account_email_change_time', $change_time);
+					$this->user_model->edit_user_option('account_email_change_key', $change_key);
+					$this->user_model->edit_user_option('account_email_cancel_key', $cancel_key);
+					
+					//发送邮件
+					$data = array(
+						'uid' => $user['id'],
+						'name' => $user['name'],
+						'old_email' => $user['email'],
+						'new_email' => $new_email,
+						'time' => unix_to_human(time()),
+						'ip' => $this->input->ip_address(),
+						'change_url' => base_url("account/email/confirm/$uid/$change_key"),
+						'cancel_url' => base_url("account/email/cancel/$uid/$cancel_key"),
+					);
+
+					//通知旧邮箱
+					$this->email->clear();
+					$this->email->to($user['email']);
+					$this->email->subject('您的 iPlacard 帐户邮箱已经更改');
+					$this->email->html($this->parser->parse_string(option('email_account_email_changed', "您的 iPlacard 帐户 {old_email} 的电子邮箱地址已经于 {time} 由 IP {ip} 的用户更改为 {new_email}。如非本人操作，请立即访问：\n\n"
+							. "\t{cancel_url}\n\n"
+							. "取消本次修改，同时请考虑修改密码。"), $data, true));
+					
+					if(!$this->email->send())
+					{
+						$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'email_changed'));
+					}
+					
+					//通知新邮箱
+					$this->email->clear();
+					$this->email->to($new_email);
+					$this->email->subject('验证您的新 iPlacard 帐户邮箱');
+					$this->email->html($this->parser->parse_string(option('email_account_request_email_confirm', "您的 iPlacard 帐户 {old_email} 的电子邮箱地址已经于 {time} 由 IP {ip} 的用户请求更改为 {new_email}。如果确认操作请点击访问以下链接：\n\n"
+							. "\t{change_url}\n\n"
+							. "确认您的新邮箱，此链接仅在 24 小时内有效并且仅限使用一次。当前，您的 iPlacard 邮箱仍为 {old_email}，请使用该邮箱登录 iPlacard。"), $data, true));
+					
+					if(!$this->email->send())
+					{
+						$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'email_changed'));
+					}
+					
+					//记录日志
+					$this->system_model->log('email_change_requested', array('ip' => $this->input->ip_address(), 'new' => $new_email, 'old' => $user['email']), $uid);
+					
+					$this->ui->alert('电子邮箱地址修改成功。我们已经向您的新邮箱发送了一封确认邮件，请按照邮件的提示在 24 小时内确认本次更改。', 'success');
+					
+					$user['email_pending'] = $new_email;
+					$email_changed = true;
+				}
+				
+				//执行修改手机
+				if($this->input->post('change_phone') && $this->input->post('phone') != $user['phone'])
+				{
+					$new_phone = trim($this->input->post('phone'));
+					
+					//记录旧手机信息
+					$phone_history = user_option('account_phone_history', array());
+					$phone_history[] = $new_phone;
+					$this->user_model->edit_user_option('account_phone_history', $phone_history);
+					
+					//修改手机信息
+					$this->user_model->edit_user(array('phone' => $new_phone), $uid);
+					
+					//发送邮件
+					$data = array(
+						'uid' => $user['id'],
+						'name' => $user['name'],
+						'email' => $user['email'],
+						'old_phone' => $user['phone'],
+						'new_phone' => $new_phone,
+						'time' => unix_to_human(time()),
+						'ip' => $this->input->ip_address(),
+					);
+
+					$this->email->clear();
+					$this->email->to($user['email']);
+					$this->email->subject('您的 iPlacard 帐户手机号码已经更改');
+					$this->email->html($this->parser->parse_string(option('email_account_phone_changed', "您的 iPlacard 帐户 {email} 的手机号码已经于 {time} 由 IP {ip} 的用户更改为 {new_phone}。"), $data, true));
+					
+					if(!$this->email->send())
+					{
+						$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'phone_changed'));
+					}
+					
+					//记录日志
+					$this->system_model->log('phone_changed', array('ip' => $this->input->ip_address(), 'new' => $new_phone, 'old' => $user['phone']), $uid);
+					
+					$this->ui->alert('绑定的手机号码修改成功。', 'success');
+					
+					$user['phone'] = $new_phone;
+				}
+			}
+			else
+			{
+				$email_changed = false;
+				
+				//默认启用编辑
+				if($this->input->post('change_email'))
+					$this->ui->js('footer', "edit_item('email');");
+				
+				if($this->input->post('change_phone'))
+					$this->ui->js('footer', "edit_item('phone');");
+			}
+		}
+
+		$vars = array(
+			'data' => $user,
+			'email_changed' => $email_changed
+		);
+		
+		$this->ui->title('个人信息');
+		$this->load->view('account/manage/detail', $vars);
+	}
+	
 	/**
 	 * 执行登录操作
 	 * @param int $id 用户ID
@@ -591,7 +1368,7 @@ class Account extends CI_Controller
 		), $id);
 
 		//发送登录通知
-		if(user_option('account_login_notice_enabled', false))
+		if(user_option('account_notice_login_enabled', false))
 		{
 			//生成链接
 			$halt = (string) $system_sess_id.(string) rand(1000, 9999);
@@ -658,6 +1435,43 @@ class Account extends CI_Controller
 		}
 
 		redirect('apply/status');
+	}
+	
+	/**
+	 * 执行登出操作
+	 * @param string $operation 登出原因
+	 */
+	function _do_logout($operation = 'user_operation')
+	{
+		$uid = uid();
+		
+		if(!$uid)
+			return;
+		
+		//销毁Session
+		$this->session->unset_userdata(array(
+			'uid' => '',
+			'sudo' => '',
+			'email' => '',
+			'type' => '',
+			'logged_in' => ''
+		));
+		
+		//写入日志
+		$this->system_model->log('logged_out', array('ip' => $this->input->ip_address(), 'operation' => $operation), $uid);
+	}
+	
+	/**
+	 * 写入强制登出
+	 */
+	function _do_halt($halt_id)
+	{
+		$new_userdata = $this->session->_serialize(array(
+			'halt' => true,
+			'halt_time' => time()
+		));
+		$this->db->where('id', $halt_id);
+		$this->db->update('session', array('user_data' => $new_userdata));
 	}
 	
 	/**
@@ -735,7 +1549,7 @@ class Account extends CI_Controller
 	}
 	
 	/**
-	 * 验证码检查回调函数
+	 * 两步验证码登录检查回调函数
 	 */
 	function _check_twostep_code()
 	{
@@ -775,6 +1589,18 @@ class Account extends CI_Controller
 	}
 	
 	/**
+	 * 两步验证码有效性检查回调函数
+	 */
+	function _check_twostep_verify($code)
+	{
+		$secret = $this->input->post('secret');
+		
+		if($this->twostep->check_code($secret, $code))
+			return true;
+		return false;
+	}
+	
+	/**
 	 * 短信验证码检查回调函数
 	 */
 	function _check_sms_code()
@@ -799,6 +1625,31 @@ class Account extends CI_Controller
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * 密码检查回调函数
+	 */
+	function _check_password($str, $global_message = '')
+	{
+		if($this->user_model->check_password(uid(), $str))
+			return true;
+		
+		//全局消息
+		if(!empty($global_message))
+			$this->ui->alert($global_message);
+		
+		return false;
+	}
+	
+	/**
+	 * 确认 Checkbox 检查回调函数
+	 */
+	function _check_confirm($checkbox)
+	{
+		if($checkbox == true)
+			return true;
+		return false;
 	}
 }
 

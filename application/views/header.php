@@ -63,8 +63,8 @@
 							<?php if($this->session->userdata('logged_in')) { ?>
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $this->user_model->get_user($this->session->userdata('uid'), 'name');?> <b class="caret"></b></a>
 							<ul class="dropdown-menu">
-								<li><a href="<?php echo base_url('account/detail');?>">帐户管理</a></li>
-								<li><a href="<?php echo base_url('account/password');?>">修改密码</a></li>
+								<li><a href="<?php echo base_url('account/settings/home');?>">个人信息</a></li>
+								<li><a href="<?php echo base_url('account/settings/security');?>">帐户设置</a></li>
 								<?php if($this->session->userdata('logged_in') && $this->session->userdata('type') == 'delegate' && option('tos')) { ?><li><a href="<?php echo base_url('apply/tos');?>">服务条款</a></li><?php } ?>
 								<li><a href="<?php echo base_url('help/knowledgebase');?>">知识库</a></li>
 								<li class="divider"></li>

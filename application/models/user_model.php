@@ -118,7 +118,7 @@ class User_model extends CI_Model
 		
 		//记录最后登录信息
 		$last = array(
-			'last_ip' => ip2long($this->input->ip_address()),
+			'last_ip' => $this->input->ip_address(),
 			'last_login' => time()
 		);
 		$this->edit_user($last, $id);
@@ -153,7 +153,7 @@ class User_model extends CI_Model
 	 */
 	function change_password($id, $new_password)
 	{
-		return $this->edit_profile(array('password' => $new_password), $id);
+		return $this->edit_user(array('password' => $new_password), $id);
 	}
 	
 	/**
