@@ -959,7 +959,6 @@ class Account extends CI_Controller
 			return;
 		}
 		
-		
 		//修改密码
 		if($setting == 'password')
 		{
