@@ -20,7 +20,7 @@ class Admin_model extends CI_Model
 	 */
 	function get_admin($id, $part = '')
 	{
-		$this->db->where('id', intval($id));
+		$this->db->where('user.id', intval($id));
 		$this->db->join('admin', 'user.id = admin.id', 'left outer');
 		$query = $this->db->get('user');
 		
