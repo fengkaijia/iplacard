@@ -306,7 +306,7 @@ class UI
 		{
 			foreach($list as $val)
 			{
-				if(empty($val[2]) || $this->CI->admin->capable($val[2], $id))
+				if(empty($val[2]) || $this->CI->admin_model->capable($val[2], $id))
 				{
 					$panel[$name][] = array($val[0], $val[1], $val[3]);
 				}
