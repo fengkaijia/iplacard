@@ -454,6 +454,9 @@ class Account extends CI_Controller
 				'password' => trim($this->input->post('password')),
 			), $uid);
 			
+			//记录更改时间
+			$this->user_model->edit_user_option('account_change_password_time', time());
+			
 			$this->user_model->delete_user_option('account_recover_key', $uid);
 			$this->user_model->delete_user_option('account_recover_time', $uid);
 			
@@ -935,8 +938,15 @@ class Account extends CI_Controller
 				}
 			}
 			
+			//显示信息部分
+			$info = array(
+				'password' => user_option('account_change_password_time', false),
+				'pin' => user_option('account_change_pin_time', false),
+				'twostep' => user_option('twostep_enabled', false)
+			);
+			
 			$this->ui->title('帐户安全设置');
-			$this->load->view('account/manage/security', array('notice_options' => $notice_options));
+			$this->load->view('account/manage/security', array('notice_options' => $notice_options, 'info' => $info));
 			return;
 		}
 		
@@ -954,6 +964,9 @@ class Account extends CI_Controller
 			{
 				//修改密码
 				$this->user_model->change_password($uid, trim($this->input->post('password')));
+				
+				//记录更改时间
+				$this->user_model->edit_user_option('account_change_password_time', time());
 				
 				//发送邮件通知
 				$data = array(
@@ -1001,6 +1014,9 @@ class Account extends CI_Controller
 				
 				//由于盐变动修改密码
 				$this->user_model->change_password($uid, trim($this->input->post('password')));
+				
+				//记录更改时间
+				$this->user_model->edit_user_option('account_change_pin_time', time());
 				
 				//发送邮件通知
 				$data = array(

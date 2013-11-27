@@ -11,6 +11,56 @@
 	
 	<div class="col-md-9">
 		<?php echo form_open('account/settings/security', array('class' => 'well form-horizontal'));?>
+			<?php echo form_fieldset('帐户安全状态'); ?>
+				<p>iPlacard 非常重视帐户安全，我们提供安全码、两步验证、短信验证等多种措施提升您的帐户安全性。</p>
+		
+				<div class="form-group">
+					<?php echo form_label('密码', 'info_password', array('class' => 'col-lg-2 control-label'));?>
+					<div class="col-lg-10">
+						<span class="text-<?php echo $info['password'] ? 'success' : 'warning';?>" style="padding-top: 11px; display: inline-block;"><strong><?php echo $info['password'] ? sprintf('最近更改于 %s（%s）', unix_to_human($info['password']), nicetime($info['password'])) : '从未更改';?></strong></span>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<?php echo form_label('安全码', 'info_pin', array('class' => 'col-lg-2 control-label'));?>
+					<div class="col-lg-10">
+						<span class="text-<?php echo $info['pin'] ? 'success' : 'danger';?>" style="padding-top: 11px; display: inline-block;"><strong><?php echo $info['pin'] ? sprintf('最近更改于 %s（%s）', unix_to_human($info['pin']), nicetime($info['pin'])) : '从未更改';?></strong></span>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<?php echo form_label('两步验证', 'info_twostep', array('class' => 'col-lg-2 control-label'));?>
+					<div class="col-lg-10">
+						<span class="text-<?php echo $info['twostep'] ? 'success' : 'warning';?>" style="padding-top: 11px; display: inline-block;"><strong><?php echo $info['twostep'] ? '已经启用' : '尚未启用';?></strong></span>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<div class="col-lg-10 col-lg-offset-2">
+						<?php if(!$info['password']) echo form_button(array(
+							'content' => '修改密码',
+							'type' => 'button',
+							'class' => 'btn btn-primary',
+							'onclick' => 'location.href=\''.base_url('account/settings/password').'\'',
+						));?>
+						<?php if(!$info['pin']) echo form_button(array(
+							'content' => '设置安全码',
+							'type' => 'button',
+							'class' => 'btn btn-primary',
+							'onclick' => 'location.href=\''.base_url('account/settings/pin').'\'',
+						));?>
+						<?php if(!$info['twostep']) echo form_button(array(
+							'content' => '启用两步验证',
+							'type' => 'button',
+							'class' => 'btn btn-primary',
+							'onclick' => 'location.href=\''.base_url('account/settings/twostep').'\'',
+						));?>
+					</div>
+				</div>
+			<?php echo form_fieldset_close();?>
+			
+			<br />
+			
 			<?php echo form_fieldset('邮件通知设置'); ?>
 				<p>设置接收邮件通知将可以在选定的情况发生时收到邮件通知，这将提高帐户的安全性。</p>
 		
