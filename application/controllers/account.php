@@ -888,55 +888,64 @@ class Account extends CI_Controller
 					}
 				}
 				
-				$enable_text = '';
-				$disable_text = '';
-				if(!empty($new_enabled))
+				//检查是否存在更改
+				if(!empty($new_enabled) || !empty($new_disabled))
 				{
-					$this->system_model->log('security_notice_enabled', array('ip' => $this->input->ip_address(), 'enabled' => $new_enabled), $uid);
-				
-					$enable_list = "";
-					foreach($new_enabled as $option)
+					$enable_text = '';
+					$disable_text = '';
+					if(!empty($new_enabled))
 					{
-						$enable_list .= "\t{$notice_options[$option]['name']}：启用{$notice_options[$option]['description']}\n";
+						$this->system_model->log('security_notice_enabled', array('ip' => $this->input->ip_address(), 'enabled' => $new_enabled), $uid);
+
+						$enable_list = "";
+						foreach($new_enabled as $option)
+						{
+							$enable_list .= "\t{$notice_options[$option]['name']}：启用{$notice_options[$option]['description']}\n";
+						}
+						$enable_text = "新近启用的邮件通知设置：\n\n{$enable_list}\n";
 					}
-					$enable_text = "新近启用的邮件通知设置：\n\n{$enable_list}\n";
-				}
-				
-				if(!empty($new_disabled))
-				{
-					$this->system_model->log('security_notice_disabled', array('ip' => $this->input->ip_address(), 'disabled' => $new_disabled), $uid);
-				
-					$disable_list = "";
-					foreach($new_disabled as $option)
+
+					if(!empty($new_disabled))
 					{
-						$disable_list .= "\t{$notice_options[$option]['name']}：停用{$notice_options[$option]['description']}\n";
+						$this->system_model->log('security_notice_disabled', array('ip' => $this->input->ip_address(), 'disabled' => $new_disabled), $uid);
+
+						$disable_list = "";
+						foreach($new_disabled as $option)
+						{
+							$disable_list .= "\t{$notice_options[$option]['name']}：停用{$notice_options[$option]['description']}\n";
+						}
+						$disable_text = "新近停用的邮件通知设置：\n\n{$disable_list}\n";
 					}
-					$disable_text = "新近停用的邮件通知设置：\n\n{$disable_list}\n";
+
+					//发送邮件通知
+					$data = array(
+						'uid' => $user['id'],
+						'name' => $user['name'],
+						'email' => $user['email'],
+						'time' => unix_to_human(time()),
+						'ip' => $this->input->ip_address(),
+						'enabled' => $enable_text,
+						'disabled' => $disable_text
+					);
+
+					$this->email->to($user['email']);
+					$this->email->subject('iPlacard 邮件通知设置已经变更');
+					$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的邮件通知设置已经于 {time} 由来自 IP {ip} 的用户变革。本邮件列出了变更列表，\n\n"
+							. "{enabled}"
+							. "{disabled}"
+							. "如非本人操作请立即登录 iPlacard 还原以上更改并考虑修改密码。"), $data, true));
+
+					if(!$this->email->send())
+					{
+						$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'security_settings_changed'));
+					}
 				}
-				
-				//发送邮件通知
-				$data = array(
-					'uid' => $user['id'],
-					'name' => $user['name'],
-					'email' => $user['email'],
-					'time' => unix_to_human(time()),
-					'ip' => $this->input->ip_address(),
-					'enabled' => $enable_text,
-					'disabled' => $disable_text
-				);
-
-				$this->email->to($user['email']);
-				$this->email->subject('iPlacard 邮件通知设置已经变更');
-				$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的邮件通知设置已经于 {time} 由来自 IP {ip} 的用户变革。本邮件列出了变更列表，\n\n"
-						. "{enabled}"
-						. "{disabled}"
-						. "如非本人操作请立即登录 iPlacard 还原以上更改并考虑修改密码。"), $data, true));
-
-				if(!$this->email->send())
+				else
 				{
-					$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'security_settings_changed'));
+					$this->ui->alert('没有设置变更。', 'info');
 				}
 			}
+			
 			
 			//显示信息部分
 			$info = array(
