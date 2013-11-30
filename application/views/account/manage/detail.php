@@ -24,7 +24,17 @@
 							'disabled' => NULL,
 							'class' => 'form-control',
 						));?>
-						<div class="help-block">如需更改姓名请联系管理员。</div>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<?php echo form_label('帐户类型', 'type', array('class' => 'col-lg-2 control-label'));?>
+					<div class="col-lg-10">
+						<span style="padding-top: 11px; display: inline-block;"><strong><?php
+							echo icon('user');
+							echo $data['type'] == 'admin' ? '管理用户' : '代表';
+						?></strong></span>
+						<div class="help-block"><?php echo $data['type'] == 'admin' ? '拥有管理权限的组委会成员帐户。' : '参会代表、观察员、志愿者帐户。';?></div>
 					</div>
 				</div>
 		
