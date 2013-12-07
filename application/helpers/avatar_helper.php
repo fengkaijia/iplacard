@@ -1,6 +1,49 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
+ * 头像辅助函数
+ * @package iPlacard
+ * @since 2.0
+ */
+
+/**
+ * 显示用户头像
+ * @return int|false 用户ID，如未登录返回FALSE
+ */
+function avatar($uid = '', $size = 80, $output = 'url', $atts = array())
+{
+	if(empty($uid))
+		$uid = uid();
+	
+	$CI =& get_instance();
+	
+	$avatar = user_option('account_avatar_enabled', false, $uid);
+	
+	if(!$avatar)
+	{
+		//使用Gravatar
+		$email = $CI->user_model->get_user($uid, 'email');
+		return gravatar($email, $size, $output == 'img' ? true : false, 'mm', 'x', $atts);
+	}
+	else
+	{
+		$url = base_url("account/avatar/{$uid}/{$size}");
+		
+		if($output == 'img')
+		{
+			$url = '<img src="'.$url.'"';
+			foreach($atts as $key => $val)
+			{
+				$url .= ' '.$key.'="'.$val.'"';
+			}
+			$url .= ' />';
+		}
+		
+		return $url;
+	}
+}
+
+/**
  * CodeIgniter Gravatar Helper
  *
  * @author		Jason M Horwitz
