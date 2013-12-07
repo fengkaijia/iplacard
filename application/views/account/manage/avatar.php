@@ -49,8 +49,9 @@ $this->load->view('header');?>
 						echo form_button(array(
 							'name' => 'confirm',
 							'content' => '放弃设置',
-							'type' => 'submit',
-							'class' => 'btn btn-default'
+							'type' => 'button',
+							'class' => 'btn btn-default',
+							'onclick' => 'location.href=\''.base_url('account/settings/home').'\'',
 						));?>
 					</div>
 				</div>
