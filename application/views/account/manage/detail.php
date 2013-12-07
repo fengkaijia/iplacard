@@ -157,7 +157,7 @@
 						</div>
 						<?php if(form_has_error('avatar_file'))
 							echo form_error('avatar_file');
-						else { ?><div class="help-block">上传的图片文件应不超过 2MB。</div><?php } ?>
+						else { ?><div class="help-block">上传的图片文件应不超过 <?php echo $avatar_max_size;?>。</div><?php } ?>
 					</div>
 				</div>
 			<?php echo form_fieldset_close();?>

@@ -852,10 +852,14 @@ class Account extends CI_Controller
 				
 				if($this->input->post('change_avatar'))
 				{
+					$this->load->helper('number');
+					$this->load->helper('file');
+					
 					//操作上传图像
 					$random = random_string('alnum', 32);
 					$config['file_name'] = "{$uid}_{$random}";
 					$config['allowed_types'] = 'gif|jpg|png|bmp';
+					$config['max_size'] = ini_max_upload_size(option('avatar_max_size', option('file_max_size', 10 * 1024 * 1024))) / 1024;
 					$config['upload_path'] = './temp/'.IP_INSTANCE_ID.'/upload/avatar/';
 
 					if(!file_exists($config['upload_path']))
@@ -1483,11 +1487,14 @@ class Account extends CI_Controller
 		
 		//头像功能
 		$this->load->helper('avatar');
+		$this->load->helper('number');
+		$this->load->helper('file');
 		
 		$vars = array(
 			'data' => $user,
 			'email_changed' => $email_changed,
-			'avatar' => user_option('account_avatar_enabled', false)
+			'avatar' => user_option('account_avatar_enabled', false),
+			'avatar_max_size' => byte_format(ini_max_upload_size(option('avatar_max_size', option('file_max_size', 10 * 1024 * 1024))), 0)
 		);
 		
 		$this->ui->title('个人信息');
