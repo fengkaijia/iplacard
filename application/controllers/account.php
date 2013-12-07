@@ -825,7 +825,7 @@ class Account extends CI_Controller
 		$this->load->library('parser');
 		$this->load->helper('date');
 		
-		if(!in_array($setting, array('home', 'security', 'password', 'pin', 'twostep')))
+		if(!in_array($setting, array('home', 'security', 'password', 'pin', 'twostep', 'avatar')))
 			$setting = 'home';
 		
 		//当前用户信息
@@ -833,6 +833,166 @@ class Account extends CI_Controller
 		$user = $this->user_model->get_user($uid);
 		
 		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+		
+		//安全设置
+		if($setting == 'avatar')
+		{
+			$this->load->helper('file');
+			$this->load->helper('avatar');
+			
+			if($action == 'upload')
+			{
+				$this->load->helper('string');
+				
+				//曾经上传的图像
+				$former_uploaded = user_option('account_avatar_uploaded', false);
+				$vars = array(
+					'path' => 'temp/'.IP_INSTANCE_ID.'/upload/avatar/'
+				);
+				
+				if($this->input->post('change_avatar'))
+				{
+					//操作上传图像
+					$random = random_string('alnum', 32);
+					$config['file_name'] = "{$uid}_{$random}";
+					$config['allowed_types'] = 'gif|jpg|png|bmp';
+					$config['upload_path'] = './temp/'.IP_INSTANCE_ID.'/upload/avatar/';
+
+					if(!file_exists($config['upload_path']))
+						mkdir($config['upload_path'], DIR_WRITE_MODE, true);
+
+					$this->load->library('upload', $config);
+
+					//储存上传文件
+					if(!$this->upload->do_upload('avatar_file'))
+					{
+						$this->ui->alert($this->upload->display_errors('', ''), 'danger', true);
+						redirect('account/settings/home');
+						return;
+					}
+
+					$result = $this->upload->data();
+					
+					//如果曾经已经上传临时图像
+					if($former_uploaded)
+					{
+						delete_files($config['upload_path'].$former_uploaded);
+					}
+					
+					//储存上传的文件名
+					$this->user_model->edit_user_option('account_avatar_uploaded', $result['file_name']);
+					
+					$this->system_model->log('avatar_uploaded', $result);
+					
+					$vars['width'] = $result['image_width'];
+					$vars['height'] = $result['image_height'];
+					
+					$vars['filename'] = $result['file_name'];
+				}
+				elseif($former_uploaded)
+				{
+					//操作使用早前上传的图像
+					list($width, $height) = getimagesize($vars['path'].$former_uploaded);
+					$vars['width'] = $width;
+					$vars['height'] = $height;
+					
+					$vars['filename'] = $former_uploaded;
+				}
+				else
+				{
+					//之前、操作无上传图像
+					$this->ui->alert('您未上传图像，请先上传图像再进行设置。', 'warning', true);
+					redirect('account/settings/home');
+					return;
+				}
+
+				$this->ui->title('设置头像');
+				$this->load->view('account/manage/avatar', $vars);
+				return;
+			}
+			elseif($action == 'crop')
+			{
+				if($this->input->post('crop_avatar'))
+				{
+					$upload = user_option('account_avatar_uploaded', false);
+					
+					if(!$upload)
+					{
+						$this->ui->alert('您未上传图像，请先上传图像再进行设置。', 'warning', true);
+						redirect('account/settings/home');
+						return;
+					}
+					
+					$path = './data/'.IP_INSTANCE_ID.'/avatar/'.$uid.'/';
+					
+					if(!file_exists($path))
+						mkdir($path, DIR_WRITE_MODE, true);
+					
+					list($raw, $ext) = explode('.', $upload);
+					
+					$this->load->library('image_lib');
+					$config['source_image'] = './temp/'.IP_INSTANCE_ID.'/upload/avatar/'.$upload;
+					$this->image_lib->initialize($config);
+					
+					//删除旧头像
+					delete_files($path);
+					
+					//保存原始文件
+					copy($config['source_image'], "{$path}original.{$ext}");
+					
+					//格式转换
+					if($ext != 'jpg')
+					{
+						$config['new_image'] = './temp/'.IP_INSTANCE_ID.'/upload/avatar/'.$raw.'.jpg';
+						$this->image_lib->initialize($config);
+						
+						$this->image_lib->convert('jpg');
+						$this->image_lib->clear();
+						
+						unlink($config['source_image']);
+						
+						$config['source_image'] = $config['new_image'];
+					}
+					
+					//裁剪图像
+					$crop_config = $config;
+					$crop_config['x_axis'] = $this->input->post('x');
+					$crop_config['y_axis'] = $this->input->post('y');
+					$crop_config['width'] = $this->input->post('w');
+					$crop_config['height'] = $this->input->post('h');
+					$crop_config['maintain_ratio'] = false;
+					
+					print_r($crop_config);
+					
+					$this->image_lib->initialize($crop_config);
+					
+					if(!$this->image_lib->crop())
+					{
+						echo $this->image_lib->display_errors();
+					}
+					$this->image_lib->clear();
+					
+					//预生成图像
+					$target = array(20, 40, 80, 160, 320);
+					foreach($target as $size)
+					{
+						$this->_do_avatar_resize($config['source_image'], $size, $path.$size.'.jpg');
+					}
+				
+					//设置图像
+					unlink($config['source_image']);
+					$this->user_model->edit_user_option('account_avatar_enabled', true);
+					$this->user_model->delete_user_option('account_avatar_uploaded');
+					
+					$this->ui->alert('头像设置成功。', 'success', true);
+					
+					$this->system_model->log('avatar_setted', array('crop' => array('x' => $this->input->post('x'), 'y' => $this->input->post('y'), 'w' => $this->input->post('w'))));
+				}
+			}
+			
+			redirect('account/settings/home');
+			return;
+		}
 		
 		//安全设置
 		if($setting == 'security')
@@ -1320,10 +1480,14 @@ class Account extends CI_Controller
 					$this->ui->js('footer', "edit_item('phone');");
 			}
 		}
-
+		
+		//头像功能
+		$this->load->helper('avatar');
+		
 		$vars = array(
 			'data' => $user,
-			'email_changed' => $email_changed
+			'email_changed' => $email_changed,
+			'avatar' => user_option('account_avatar_enabled', false)
 		);
 		
 		$this->ui->title('个人信息');
@@ -1472,6 +1636,30 @@ class Account extends CI_Controller
 		));
 		$this->db->where('id', $halt_id);
 		$this->db->update('session', array('user_data' => $new_userdata));
+	}
+	
+	/**
+	 * 头像缩放
+	 * @param string $source 头像文件
+	 * @param int $size 缩放大小
+	 * @param string|false $output 输出类型
+	 */
+	function _do_avatar_resize($source, $size, $output = false)
+	{
+		$this->load->library('image_lib');
+
+		$config['source_image'] = $source;
+		$config['width'] = $size;
+		$config['height'] = $size;
+		
+		if(!$output)
+			$config['dynamic_output'] = true;
+		else
+			$config['new_image'] = $output;
+		
+		$this->image_lib->initialize($config);
+		
+		$this->image_lib->resize();
 	}
 	
 	/**
