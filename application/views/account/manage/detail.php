@@ -10,7 +10,7 @@
 	</div>
 	
 	<div class="col-md-9">
-		<?php echo form_open('account/settings/home', array('class' => 'well form-horizontal'), array('change_email' => false, 'change_phone' => false));?>
+		<?php echo form_open_multipart('account/settings/home', array('class' => 'well form-horizontal'), array('change_email' => false, 'change_phone' => false, 'change_avatar' => false));?>
 			<?php echo form_fieldset('个人信息'); ?>
 				<p>您的邮箱和手机等信息将用于登录 iPlacard，错误的信息将可以导致无法登录 iPlacard，修改这些信息时请仔细确认信息是否正确。</p>
 		
@@ -95,6 +95,72 @@
 					</div>
 				</div>
 			<?php echo form_fieldset_close();?>
+			
+			<div class="form-group">
+				<div class="col-lg-10 col-lg-offset-2">
+					<?php echo form_button(array(
+						'name' => 'confirm',
+						'content' => '提交更改',
+						'type' => 'button',
+						'class' => 'btn btn-primary disabled',
+						'data-toggle' => 'modal',
+						'data-target' => '#submit_data',
+					));?>
+				</div>
+			</div>
+			
+			<br />
+			
+			<?php echo form_fieldset('个人头像'); ?>
+				<p>您可以设置您的个人头像，它将显示在 iPlacard 界面和与 iPlacard 关联的应用中，如果您未设置个人头像，我们将使用 Gravatar 代替显示头像。</p>
+				
+				<div class="form-group">
+					<?php echo form_label('头像类型', 'avatar_type', array('class' => 'col-lg-2 control-label'));?>
+					<div class="col-lg-10">
+						<span style="padding-top: 11px; display: inline-block;"><strong><?php
+							echo icon('picture-o');
+							echo $avatar ? '本地头像' : 'Gravatar';
+						?></strong></span>
+						<div class="help-block"><?php echo $avatar ? '您已经成功上传头像。' : '您尚未上传头像，当前显示的是您的 Gravatar。';?></div>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<?php echo form_label('当前头像', 'avatar_current', array('class' => 'col-lg-2 control-label'));?>
+					<div class="col-lg-10">
+						<a href="#" class="thumbnail" style="width: 170px; height: 170px;">
+							<?php echo avatar($data['id'], 160, 'img');?>
+						</a>
+					</div>
+				</div>
+				
+				<div class="form-group <?php if(form_has_error('avatar_file')) echo 'has-error';?>">
+					<?php echo form_label('上传新头像', 'avatar_file', array('class' => 'col-lg-2 control-label'));?>
+					<div class="col-lg-4">
+						<div class="input-group">
+							<?php echo form_upload(array(
+								'name' => 'avatar_file',
+								'id' => 'avatar_file',
+								'class' => 'form-control',
+								'onchange' => "$('button[name=avatar_upload]').removeAttr('disabled');"
+							));?>
+							<span class="input-group-btn">
+								<?php echo form_button(array(
+									'name' => 'avatar_upload',
+									'content' => '上传',
+									'type' => 'submit',
+									'class' => 'btn btn-primary',
+									'disabled' => NULL,
+									'onclick' => 'upload_avatar();'
+								));?>
+							</span>
+						</div>
+						<?php if(form_has_error('avatar_file'))
+							echo form_error('avatar_file');
+						else { ?><div class="help-block">上传图片文件大小应不超过 <?php echo $avatar_max_size;?>。</div><?php } ?>
+					</div>
+				</div>
+			<?php echo form_fieldset_close();?>
 		
 			<div class="form-group">
 				<div class="col-lg-10 col-lg-offset-2">
@@ -149,7 +215,8 @@
 								'name' => 'submit',
 								'content' => '确认更改',
 								'type' => 'submit',
-								'class' => 'btn btn-primary'
+								'class' => 'btn btn-primary',
+								'onclick' => '$("input[name=avatar_file]").val("");' //不上传头像
 							)); ?>
 						</div>
 					</div>
@@ -169,4 +236,17 @@ function edit_item(item)
 }
 EOT;
 $this->ui->js('footer', $edit_js);
+
+$avatar_url = base_url('account/settings/avatar/upload');
+$switch_js = <<<EOT
+function upload_avatar()
+{
+	$('input[name=change_avatar]').val(true);
+	$('button[name=confirm]').addClass('disabled');
+	$('input[name=password]').removeAttr('required');
+	$('form').get(0).setAttribute('action', '{$avatar_url}');
+}
+EOT;
+$this->ui->js('footer', $switch_js);
+		
 $this->load->view('footer');?>
