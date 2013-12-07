@@ -142,6 +142,7 @@
 								'name' => 'avatar_file',
 								'id' => 'avatar_file',
 								'class' => 'form-control',
+								'onchange' => "$('button[name=avatar_upload]').removeAttr('disabled');"
 							));?>
 							<span class="input-group-btn">
 								<?php echo form_button(array(
@@ -149,6 +150,7 @@
 									'content' => '上传',
 									'type' => 'submit',
 									'class' => 'btn btn-primary',
+									'disabled' => NULL,
 									'onclick' => 'upload_avatar();'
 								));?>
 							</span>
