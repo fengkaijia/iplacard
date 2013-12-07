@@ -1495,6 +1495,41 @@ class Account extends CI_Controller
 	}
 	
 	/**
+	 * 输出用户头像
+	 */
+	function avatar($uid, $size = 20)
+	{
+		if(!is_logged_in())
+		{
+			return;
+		}
+		
+		$target = array(20, 40, 80, 160, 320);
+		
+		$size = intval($size);
+		
+		$path = './data/'.IP_INSTANCE_ID.'/avatar/'.$uid.'/';
+		
+		//如果不是标准尺寸
+		if(!in_array($size, $target))
+		{
+			//启用动态输出可能造成负载增加和暴露 data 文件夹位置
+			if(option('avatar_resizable', false))
+			{
+				$this->_do_avatar_resize("{$path}320.jpg", $size);
+				return;
+			}
+			else
+			{
+				$size = 320;
+			}
+		}
+		
+		$this->output->set_content_type('jpg');
+		$this->output->set_output(file_get_contents("{$path}{$size}.jpg"));
+	}
+	
+	/**
 	 * 执行登录操作
 	 * @param int $id 用户ID
 	 */
