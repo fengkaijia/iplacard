@@ -19,6 +19,19 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}admin` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='管理员';
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}interview` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '面试ID',
+  `delegate` int(11) NOT NULL COMMENT '申请者ID',
+  `interviewer` int(11) NOT NULL COMMENT '面试官ID',
+  `assign_time` int(11) NOT NULL COMMENT '分配时间',
+  `schedule_time` int(11) DEFAULT NULL COMMENT '安排时间',
+  `finish_time` int(11) DEFAULT NULL COMMENT '完成时间',
+  `status` text NOT NULL COMMENT '状态',
+  `score` float DEFAULT NULL COMMENT '总评分',
+  `feedback` text COMMENT '反馈',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='面试' AUTO_INCREMENT=1 ;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}log` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '日志ID',
   `operator` int(11) NOT NULL COMMENT '用户ID',
