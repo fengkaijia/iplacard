@@ -70,6 +70,13 @@ define('IP_MULTISITE', false);
 define('IP_STATIC_CDN', '');
 
 /**
+ * 反向代理IP列表
+ */
+define('IP_REVERSE_PROXY', join(',', array(
+	''
+)));
+
+/**
  * 是否启用维护模式
  */
 define('IP_MAINTENANCE', false);
