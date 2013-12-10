@@ -19,6 +19,15 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}admin` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='管理员';
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}committee` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '委员会ID',
+  `name` text NOT NULL COMMENT '委员会名称',
+  `abbr` text NOT NULL COMMENT '委员会缩写',
+  `description` text COMMENT '委员会介绍',
+  `type` text COMMENT '委员会席位类型',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='委员会' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}interview` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '面试ID',
   `delegate` int(11) NOT NULL COMMENT '申请者ID',
