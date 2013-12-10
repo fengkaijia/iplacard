@@ -7,6 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 	<link href="<?php echo static_url(is_dev() ? 'static/css/bootstrap.css' : 'static/css/bootstrap.min.css');?>" rel="stylesheet">
+	<link href="<?php echo static_url(is_dev() ? 'static/css/webfont.css' : 'static/css/webfont.min.css');?>" rel="stylesheet">
 	<link href="<?php echo static_url(is_dev() ? 'static/css/font-awesome.css' : 'static/css/font-awesome.min.css');?>" rel="stylesheet">
 	<link href="<?php echo static_url(is_dev() ? 'static/css/iplacard.css' : 'static/css/iplacard.min.css');?>" rel="stylesheet">
 	
