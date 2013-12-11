@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}committee` (
   `abbr` text NOT NULL COMMENT '委员会缩写',
   `description` text COMMENT '委员会介绍',
   `type` text COMMENT '委员会席位类型',
+  `seat_width` int(11) DEFAULT NULL COMMENT '一般席位代表容量',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='委员会' AUTO_INCREMENT=1;
 

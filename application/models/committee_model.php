@@ -81,13 +81,14 @@ class Committee_model extends CI_Model
 	 * 添加委员会
 	 * @return int 新的委员会ID
 	 */
-	function add_committee($name, $abbr, $description = '', $type = '11')
+	function add_committee($name, $abbr, $description = '', $type = 'standard', $seat_width = 1)
 	{
 		$data = array(
 			'name' => $name,
 			'abbr' => $abbr,
 			'description' => $description,
 			'type' => $type,
+			'seat_width' => $seat_width
 		);
 		
 		//返回新委员会ID
