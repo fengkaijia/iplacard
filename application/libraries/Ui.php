@@ -241,9 +241,17 @@ class UI
 	/**
 	 * 设置页面标题
 	 */
-	function title($title)
+	function title()
 	{
-		$this->title = "$title - ".option('site_name').' - Powered by iPlacard';
+		$title = '';
+		
+		//循环
+		for($i = 0; $i < func_num_args(); $i++)
+		{
+			$title .= func_get_arg($i).' - ';
+		}
+		
+		$this->title = $title.option('site_name').' - Powered by iPlacard';
 	}
 	
 	/**
