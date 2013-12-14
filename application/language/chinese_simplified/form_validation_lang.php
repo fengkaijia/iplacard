@@ -18,6 +18,7 @@ $lang['integer'] = '%s只允许为整数。';
 $lang['matches'] = '%s与%s不相同。';
 $lang['is_natural'] = '%s必须是自然数。';
 $lang['is_natural_no_zero'] = '%s必须是正数。';
+$lang['is_unique'] = '存在相同的%s。';
 
 /* End of file IP_form_validation_lang.php */
 /* Location: ./application/language/chinese_simplified/IP_form_validation_lang.php */
