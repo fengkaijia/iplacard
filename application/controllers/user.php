@@ -7,6 +7,18 @@
  */
 class User extends CI_Controller
 {
+	/**
+	 * @var array 权限信息
+	 */
+	private $roles = array(
+		'reviewer' => array('title' => '资料审核', 'short' => '审核', 'description' => '审核参会申请|分配面试安排'),
+		'dais' => array('title' => '主席', 'short' => '主席', 'description' => '查看指定委员会代表信息|向委员会群发信息|向文件中心发布文件'),
+		'interviewer' => array('title' => '面试官', 'short' => '面试', 'description' => '面试代表|分配席位'),
+		'cashier' => array('title' => '财务管理', 'short' => '财务', 'description' => '核查和确认账单'),
+		'administrator' => array('title' => '会务管理', 'short' => '会务', 'description' => '站点信息管理|管理委员会、席位信息|SUDO|管理支持单'),
+		'bureaucrat' => array('title' => '行政员', 'short' => '行政', 'description' => '用户管理')
+	);
+	
 	function __construct()
 	{
 		parent::__construct();
@@ -41,8 +53,11 @@ class User extends CI_Controller
 	 */
 	function manage()
 	{
+		$vars['role_order'] = array('bureaucrat', 'administrator', 'dais', 'interviewer', 'reviewer', 'cashier');
+		$vars['roles'] = $this->roles;
+		
 		$this->ui->title('管理用户列表');
-		$this->load->view('admin/user_manage');
+		$this->load->view('admin/user_manage', $vars);
 	}
 	
 	/**
@@ -64,15 +79,7 @@ class User extends CI_Controller
 			$action = 'add';
 		
 		//设定权限信息
-		$roles = array(
-			'reviewer' => array('title' => '资料审核', 'description' => '审核参会申请|分配面试安排'),
-			'dais' => array('title' => '主席', 'description' => '查看指定委员会代表信息|向委员会群发信息|向文件中心发布文件'),
-			'interviewer' => array('title' => '面试官', 'description' => '面试代表|分配席位'),
-			'cashier' => array('title' => '财务管理', 'description' => '核查和确认账单'),
-			'administrator' => array('title' => '会务管理', 'description' => '站点信息管理|管理委员会、席位信息|SUDO|管理支持单'),
-			'bureaucrat' => array('title' => '行政员', 'description' => '用户管理')
-		);
-		$vars['roles'] = $roles;
+		$vars['roles'] = $this->roles;
 		
 		//委员会信息
 		$committee_ids = $this->committee_model->get_committee_ids();
@@ -174,7 +181,7 @@ class User extends CI_Controller
 			$admin_data = array();
 			
 			//权限信息
-			foreach(array_keys($roles) as $role)
+			foreach(array_keys($this->roles) as $role)
 			{
 				$admin_data["role_{$role}"] = !empty($post["role_{$role}"]);
 			}

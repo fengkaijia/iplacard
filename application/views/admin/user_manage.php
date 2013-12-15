@@ -24,12 +24,14 @@ $this->load->view('header');?>
 			<th>委员会</th>
 			<th>面试队列</th>
 			<th>权限统计</th>
-			<th class="role-column">行政</th>
-			<th class="role-column">会务</th>
-			<th class="role-column">主席</th>
-			<th class="role-column">面试</th>
-			<th class="role-column">审核</th>
-			<th class="role-column">财务</th>
+			<?php foreach($role_order as $now_role)
+			{
+				$role = $roles[$now_role]; ?><th class="role-column">
+				<span id="role_<?php echo $now_role;?>_help" data-html=true data-placement="top" data-trigger="hover focus" data-original-title="<?php echo "{$role['title']}权限";?>" data-toggle="popover" data-content="<?php echo str_replace('|', '<br />', $role['description']);?>">
+					<?php echo $role['short'];?>
+				</span>
+			</th><?php $this->ui->js('footer', "$('#role_{$now_role}_help').popover();");
+			} ?>
 			<th>最后登录</th>
 			<th>操作</th>
 		</tr>
