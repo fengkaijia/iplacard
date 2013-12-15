@@ -45,6 +45,9 @@ class User extends CI_Controller
 		$this->load->view('admin/user_manage');
 	}
 	
+	/**
+	 * 编辑或添加用户
+	 */
 	function edit($uid = '')
 	{
 		//检查权限
