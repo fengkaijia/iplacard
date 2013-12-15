@@ -15,7 +15,7 @@
 	<script src="<?php echo static_url(is_dev() ? 'static/js/bootstrap.js' : 'static/js/bootstrap.min.js');?>"></script>
 	<script src="<?php echo static_url(is_dev() ? 'static/js/iplacard.js' : 'static/js/iplacard.min.js');?>"></script>
 	
-	<?php if(!empty($this->ui->js['header'])) { ?><script language="javascript"><?php echo $this->ui->js['header'];?></script><?php } ?>
+	<?php if(!empty($this->ui->js['header'])) { ?><script language="javascript"><?php echo is_dev() ? $this->ui->js['header'] : preg_replace("/\s+/", ' ', $this->ui->js['header']);?></script><?php } ?>
 
 	<!--[if lt IE 9]>
 		<script src="<?php echo static_url(is_dev() ? 'static/js/html5shiv.js' : 'static/js/html5shiv.min.js');?>"></script>

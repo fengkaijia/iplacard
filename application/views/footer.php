@@ -9,7 +9,7 @@
 		&copy; 2008-<?php echo date('Y');?> <a href="http://imunc.com/">IMUNC</a>. All rights reserved.
 	</footer>
 	
-	<?php if(!empty($this->ui->js['footer'])) { ?><script language="javascript"><?php echo $this->ui->js['footer'];?></script><?php } ?>
+	<?php if(!empty($this->ui->js['footer'])) { ?><script language="javascript"><?php echo is_dev() ? $this->ui->js['footer'] : preg_replace("/\s+/", ' ', $this->ui->js['footer']);?></script><?php } ?>
 	<?php if(!empty($this->ui->html['footer'])) echo $this->ui->html['footer'];?>
 </body>
 </html>
