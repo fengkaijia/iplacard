@@ -1523,6 +1523,10 @@ class Account extends CI_Controller
 			//启用动态输出可能造成负载增加和暴露 data 文件夹位置
 			if(option('avatar_resizable', false))
 			{
+				//限制大小以避免潜在攻击威胁
+				if($size > 640)
+					$size = 640;
+				
 				$this->_do_avatar_resize("{$path}320.jpg", $size);
 				return;
 			}
