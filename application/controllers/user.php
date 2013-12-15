@@ -257,6 +257,74 @@ class User extends CI_Controller
 	}
 	
 	/**
+	 * 删除用户
+	 */
+	function delete($uid)
+	{
+		//检查权限
+		if(!$this->admin_model->capable('bureaucrat'))
+		{
+			$this->ui->alert('需要行政员权限以编辑用户。', 'warning', true);
+			redirect('user/manage');
+			return;
+		}
+		
+		//用户检查
+		$user = $this->admin_model->get_admin($uid);
+		if(!$user)
+		{
+			$this->ui->alert('指定删除的用户不存在。', 'warning', true);
+			redirect('user/manage');
+			return;
+		}
+		
+		$this->form_validation->set_rules('admin_password', '密码', 'trim|required|callback__check_admin_password[密码验证错误导致删除操作未执行，请重新尝试。]');
+		
+		if($this->form_validation->run() == true)
+		{
+			//删除数据
+			$this->db->where('id', $uid);
+			$this->db->delete(array('admin', 'user'));
+			
+			
+			//邮件通知
+			$this->load->library('email');
+			$this->load->library('parser');
+			$this->load->helper('date');
+
+			$data = array(
+				'uid' => $uid,
+				'name' => $user['name'],
+				'email' => $user['email'],
+				'time' => unix_to_human(time()),
+			);
+
+			//通知用户
+			$this->email->to($user['email']);
+			$this->email->subject('您的 iPlacard 帐户已被删除');
+			$this->email->html($this->parser->parse_string(option('email_admin_account_deleted', "您的 iPlacard 帐户 {email} 已经于 {time} 被行政员删除，如为误删请立即与管理团队取得联系恢复帐户。"), $data, true));
+			$this->email->send();
+			$this->email->clear();
+			
+			//通知管理员
+			$this->email->to($this->admin_model->get_admin(uid(), 'email'));
+			$this->email->subject('iPlacard 帐户删除操作通知');
+			$this->email->html($this->parser->parse_string(option('email_admin_account_delete_notice', "您已于 {time} 删除管理用户{name}（{email}）的 iPlacard 帐户。"), $data, true));
+			$this->email->send();
+			
+			//日志
+			$this->system_model->log('user_deleted', array('ip' => $this->input->ip_address(), 'user' => $user));
+			
+			$this->ui->alert("管理用户 #{$uid} 已经成功删除。", 'success', true);
+			redirect('user/manage');
+		}
+		else
+		{
+			redirect("user/edit/{$uid}");
+		}
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = 'list')
@@ -340,6 +408,21 @@ class User extends CI_Controller
 		}
 			
 		return true;
+	}
+	
+	/**
+	 * 密码检查回调函数
+	 */
+	function _check_admin_password($str, $global_message = '')
+	{
+		if($this->user_model->check_password(uid(), $str))
+			return true;
+		
+		//全局消息
+		if(!empty($global_message))
+			$this->ui->alert($global_message, 'warning', true);
+		
+		return false;
 	}
 }
 

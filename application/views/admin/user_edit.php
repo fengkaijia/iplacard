@@ -234,10 +234,78 @@
 						'content' => $action == 'add' ? '添加用户' : '修改用户',
 						'type' => 'submit',
 						'class' => 'btn btn-primary',
-					));?>
+					));
+					echo ' ';
+					if($action == 'edit')
+					{
+						echo ' ';
+						echo form_button(array(
+							'name' => 'delete',
+							'content' => '删除用户',
+							'type' => 'button',
+							'class' => 'btn btn-danger',
+							'data-toggle' => 'modal',
+							'data-target' => '#delete_user',
+						));
+					} ?>
 				</div>
 			</div>
-		<?php echo form_close(); ?>
+		<?php echo form_close();
+		
+		if($action == 'edit')
+		{
+			echo form_open("user/delete/{$user['id']}", array(
+				'class' => 'modal fade form-horizontal',
+				'id' => 'delete_user',
+				'tabindex' => '-1',
+				'role' => 'dialog',
+				'aria-labelledby' => 'delete_label',
+				'aria-hidden' => 'true'
+			));?><div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<?php echo form_button(array(
+							'content' => '&times;',
+							'class' => 'close',
+							'type' => 'button',
+							'data-dismiss' => 'modal',
+							'aria-hidden' => 'true'
+						));?>
+						<h4 class="modal-title" id="delete_label">删除用户帐户</h4>
+					</div>
+					<div class="modal-body">
+						<p>您将删除<?php echo icon('user', false).$user['name'];?>的用户帐户。此操作非常危险并且仅会删除用户信息，与之关联的面试信息将不会删除，执行操作前请确保此用户的面试队列为空。请输入您的登录密码并点击确认更改按钮继续操作。</p>
+
+						<div class="form-group <?php if(form_has_error('admin_password')) echo 'has-error';?>">
+							<?php echo form_label('登录密码', 'admin_password', array('class' => 'col-lg-3 control-label'));?>
+							<div class="col-lg-5">
+								<?php echo form_password(array(
+									'name' => 'admin_password',
+									'id' => 'admin_password',
+									'class' => 'form-control',
+									'required' => NULL
+								));
+								echo form_error('admin_password');?>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<?php echo form_button(array(
+							'content' => '取消',
+							'type' => 'button',
+							'class' => 'btn btn-link',
+							'data-dismiss' => 'modal'
+						));
+						echo form_button(array(
+							'name' => 'submit',
+							'content' => '确认删除',
+							'type' => 'submit',
+							'class' => 'btn btn-danger'
+						)); ?>
+					</div>
+				</div>
+			</div>
+		<?php echo form_close(); } ?>
 	</div>
 </div>
 
