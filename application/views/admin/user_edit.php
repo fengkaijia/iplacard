@@ -184,7 +184,8 @@
 										'id' => "role_{$name}",
 										'name' => "role_{$name}",
 										'value' => true,
-										'checked' => set_value("role_{$name}", $action == 'add' ? false : $user["role_{$name}"])
+										'checked' => set_value("role_{$name}", $action == 'add' ? false : $user["role_{$name}"]),
+										'onchange' => in_array($name, array('interviewer', 'dais')) ? 'edit_committee();' : ''
 									));
 									echo ' ';
 									echo $role['title'];?>
@@ -200,14 +201,30 @@
 					<?php echo form_label('委员会', 'committee', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-4">
 						<?php
+						$now_committee = set_value('committee', $action == 'add' ? '' : $user['committee']);
 						if(!empty($committees))
 							$array = array('' => '选择委员会') + $committees;
 						else
 							$array = array('' => '委员会为空');
-						echo form_dropdown('committee', $array, set_value('committee', $action == 'add' ? '' : $user['committee']), 'class="form-control" id="committee"');
+						echo form_dropdown('committee', $array, $now_committee, 'class="form-control" id="committee"');
 						if(form_has_error('committee'))
 							echo form_error('committee');
-						else { ?><div class="help-block">对应主席和面试官权限生效。</div><?php } ?>
+						else { ?><div class="help-block">对应主席和面试官权限生效。</div><?php }
+						$committee_js = "
+						var committee = '{$now_committee}';
+						function edit_committee() {
+							if($('#role_interviewer').is(':checked') || $('#role_dais').is(':checked')) {
+								$('#committee').val(committee);
+								$('#committee').removeAttr('disabled');
+							} else {
+								committee = $('#committee').val();
+								$('#committee').val('');
+								$('#committee').attr('disabled', 'disabled');
+							}
+						}";
+						$this->ui->js('footer', $committee_js);
+						$this->ui->js('footer', 'edit_committee();');
+						?>
 					</div>
 				</div>
 				
