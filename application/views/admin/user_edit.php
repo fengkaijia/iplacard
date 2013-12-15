@@ -98,7 +98,7 @@
 							'name' => 'password',
 							'id' => 'password',
 							'class' => 'form-control',
-							$action == 'add' ? 'required' : NULL => NULL,
+							$action == 'add' ? 'required' : 'enabled' => NULL,
 						));
 						echo form_error('password');?>
 					</div>
@@ -111,7 +111,7 @@
 							'name' => 'password_repeat',
 							'id' => 'password_repeat',
 							'class' => 'form-control',
-							$action == 'add' ? 'required' : NULL => NULL,
+							$action == 'add' ? 'required' : 'enabled' => NULL,
 						));
 						echo form_error('password_repeat');?>
 					</div>
