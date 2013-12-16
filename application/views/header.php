@@ -53,7 +53,7 @@
 							<ul class="dropdown-menu">
 								<?php foreach($column as $item) { ?><li><?php
 									echo anchor($item[1], $item[0]);
-									if($this->ui->is_backend() && $item[2] == true)
+									if(($this->ui->is_backend() || ($this->ui->is_account_page() && $this->user_model->is_admin(uid()))) && $item[2] == true)
 									{ ?></li><li class="divider"><?php } ?></li><?php } ?>
 							</ul><?php }
 						} ?>

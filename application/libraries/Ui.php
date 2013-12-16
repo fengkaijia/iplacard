@@ -305,6 +305,17 @@ class UI
 	}
 	
 	/**
+	 * 是否为帐户设置界面
+	 * @return boolean
+	 */
+	function is_account_page()
+	{
+		if($this->side == 'account')
+			return true;
+		return false;
+	}
+	
+	/**
 	 * 编译管理员界面菜单
 	 */
 	private function _admin_panel($id)
