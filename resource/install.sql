@@ -58,6 +58,28 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}option` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='系统设置' AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}seat` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '席位ID',
+  `committee` int(11) DEFAULT NULL COMMENT '委员会ID',
+  `name` text COMMENT '席位名称',
+  `primary` int(11) DEFAULT NULL COMMENT '主席位',
+  `iso` text COMMENT '符合ISO 3166-1标准的国家代码',
+  `status` text NOT NULL COMMENT '席位状态',
+  `delegate` int(11) DEFAULT NULL COMMENT '代表ID',
+  `time` int(11) DEFAULT NULL COMMENT '分配时间',
+  `level` int(11) DEFAULT '1' COMMENT '席位等级',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='席位' AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}seat_backorder` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '延期请求ID',
+  `seat` int(11) NOT NULL COMMENT '席位ID',
+  `delegate` int(11) NOT NULL COMMENT '代表ID',
+  `order_time` int(11) NOT NULL COMMENT '提交时间',
+  `expire_time` int(11) DEFAULT NULL COMMENT '过期时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='席位延期请求' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}session` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '系统记录ID',
   `session_id` varchar(40) NOT NULL DEFAULT '0' COMMENT '显示ID',
