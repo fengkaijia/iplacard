@@ -90,8 +90,8 @@ class UI
 			array('面试队列', 'row/interview/assigned/all', 'administrator', false),
 		),
 		'committee' => array(
-			array('委员会', 'manage/committee', '', false),
-			array('添加委员会', 'manage/committee/add', 'administrator', false),
+			array('委员会', 'committee/manage', '', false),
+			array('添加委员会', 'committee/edit', 'administrator', false),
 		),
 		'seat' => array(
 			array('席位', 'seat/committee', '', false),
@@ -103,15 +103,15 @@ class UI
 			array('帐单', 'row/invoice/unpaid', 'cashier', false),
 		),
 		'group' => array(
-			array('团队', 'manage/group', 'administrator', false),
-			array('添加团队', 'manage/group/add', 'administrator', false),
+			array('团队', 'group/manage', 'administrator', false),
+			array('添加团队', 'group/edit', 'administrator', false),
 		),
 		'site' => array(
-			array('管理', 'manage/site', 'administrator', true),
-			array('用户', 'manage/user', 'bureaucrat', false),
-			array('添加用户', 'manage/user/add', 'bureaucrat', true),
-			array('群发信息', 'manage/broadcast', 'administrator', false),
-			array('导出', 'manage/export', 'administrator', false),
+			array('管理', 'admin/dashboard', 'administrator', true),
+			array('用户', 'user/manage', 'bureaucrat', false),
+			array('添加用户', 'user/edit', 'bureaucrat', true),
+			array('群发信息', 'admin/broadcast', 'administrator', false),
+			array('导出', 'admin/export', 'administrator', false),
 		),
 	);
 	

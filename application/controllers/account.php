@@ -1617,7 +1617,7 @@ class Account extends CI_Controller
 				return;
 			}
 
-			redirect('manage/dashboard');
+			redirect('admin/dashboard');
 			return;
 		}
 
