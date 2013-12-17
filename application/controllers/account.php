@@ -31,7 +31,7 @@ class Account extends CI_Controller
 		{
 			if($this->user_model->is_admin(uid()))
 			{
-				redirect('manage/dashboard');
+				redirect('admin/dashboard');
 				return;
 			}
 			redirect('apply/status');
