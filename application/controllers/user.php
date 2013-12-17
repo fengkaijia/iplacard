@@ -293,7 +293,6 @@ class User extends CI_Controller
 			$this->db->where('id', $uid);
 			$this->db->delete(array('admin', 'user'));
 			
-			
 			//邮件通知
 			$this->load->library('email');
 			$this->load->library('parser');
