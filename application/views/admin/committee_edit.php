@@ -31,7 +31,7 @@
 						));
 						if(form_has_error('name'))
 							echo form_error('name');
-						else { ?><div class="help-block">建议使用委员会的全称为委员会名称。</div><?php } ?>
+						else { ?><div class="help-block">建议使用委员会的全称。</div><?php } ?>
 					</div>
 				</div>
 				
