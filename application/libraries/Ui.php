@@ -195,7 +195,7 @@ class UI
 	/**
 	 * 禁用菜单显示
 	 */
-	function diable_menu()
+	function disable_menu()
 	{
 		$this->show_menu = false;
 	}
