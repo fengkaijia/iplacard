@@ -216,7 +216,7 @@
 								'content' => '确认更改',
 								'type' => 'submit',
 								'class' => 'btn btn-primary',
-								'onclick' => '$("input[name=avatar_file]").val("");' //不上传头像
+								'onclick' => "$('input[name=avatar_file]').val('');" //不上传头像
 							)); ?>
 						</div>
 					</div>
