@@ -4,6 +4,8 @@
 
 function loader(item, size, background) {
 	if($('meta[name=css3-support]').attr("content") === 'no-css3') {
+		if(item === '')
+			return '';
 		return false;
 	}
 	
@@ -11,16 +13,21 @@ function loader(item, size, background) {
 		var background = '#ffffff';
 	}
 	
-	var width = $(item).css('width');
-	var height = $(item).css('height');
-	
 	var random = random_password(4);
-	$('#loader-' + random +' .circle').css('background', background);
+	$('#loader-' + random +' .circle').css('background', background, 'important');
 	
-	$(item).css('width', width, 'important');
-	$(item).css('height', height, 'important');
+	var string = '<div id="loader-' + random + '" class="loader" style="width: ' + size + ' !important; height: ' + size + ' !important;"><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div></div>';
 	
-	$(item).html('<div id="loader-' + random + '" class="loader" style="width: ' + size + ' !important; height: ' + size + ' !important;"><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div></div>');
+	if(item !== '') {
+		var width = $(item).css('width');
+		var height = $(item).css('height');
+
+		$(item).css('width', width, 'important');
+		$(item).css('height', height, 'important');
+		
+		$(item).html(string);
+	}	
+	return string;
 }
 
 function random_password(length, special) {
