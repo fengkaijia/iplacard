@@ -1,4 +1,13 @@
-<?php $this->load->view('header');?>
+<?php
+if($this->session->userdata('dismiss_browser_notice') != true)
+{
+	$this->ui->html('header', '<!--[if lt IE 8]>
+		<script language="javascript" type="text/javascript">
+			window.location.href="'.base_url('help/browser').'";
+		</script>
+	<![endif]-->');
+}
+$this->load->view('header');?>
 
 <?php echo form_open('account/login', array('class' => 'form-auth'));?>
 	<h2 class="form-auth-heading">登录</h2>
@@ -35,13 +44,6 @@
 	)); ?>
 	
 <?php echo form_close();?>
-
-<?php if($this->session->userdata('dismiss_browser_notice') != true) { ?><!--[if lt IE 8]>
-	<script language="javascript" type="text/javascript">
-		window.location.href="<?php echo base_url('help/browser');?>";
-	</script>
-<![endif]--><?php } ?>
-
 
 <?php $this->ui->js('footer', 'form_auth_center();');
 $this->load->view('footer'); ?>
