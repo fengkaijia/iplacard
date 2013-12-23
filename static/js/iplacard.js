@@ -4,6 +4,10 @@
 
 function loader(item, size, background)
 {
+	if($('meta[name=css3-support]').attr("content") === 'no-css3') {
+		return false;
+	}
+	
 	if(background === undefined) {
 		var background = '#ffffff';
 	}

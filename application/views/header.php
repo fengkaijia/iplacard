@@ -21,6 +21,8 @@
 		<script src="<?php echo static_url(is_dev() ? 'static/js/html5shiv.js' : 'static/js/html5shiv.min.js');?>"></script>
 		<script src="<?php echo static_url(is_dev() ? 'static/js/respond.js' : 'static/js/respond.min.js');?>"></script>
 	<![endif]-->
+	
+	<!--[if lt IE 10]><meta name="css3-support" content="no-css3"><![endif]-->
 
 	<link href="<?php echo static_url('static/img/favicon.ico');?>" rel="shortcut icon" />
 
