@@ -13,7 +13,7 @@ function loader(item, size, background) {
 		var background = '#ffffff';
 	}
 	
-	var random = random_password(4);
+	var random = random_string(4);
 	$('#loader-' + random +' .circle').css('background', background, 'important');
 	
 	var string = '<div id="loader-' + random + '" class="loader" style="width: ' + size + ' !important; height: ' + size + ' !important;"><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div></div>';
@@ -30,7 +30,7 @@ function loader(item, size, background) {
 	return string;
 }
 
-function random_password(length, special) {
+function random_string(length, special) {
 	var iteration = 0;
 	var password = "";
 	var randomNumber;
