@@ -9,6 +9,10 @@ function loader(item, size, background) {
 		return false;
 	}
 	
+	if(size === undefined) {
+		var size = $(item).css('line-height');
+	}
+	
 	if(background === undefined) {
 		var background = '#ffffff';
 	}
