@@ -2,6 +2,24 @@
  * iPlacard Project
  */
 
+function loader(item, size, background)
+{
+	if(background === undefined) {
+		var background = '#ffffff';
+	}
+	
+	var width = $(item).css('width');
+	var height = $(item).css('height');
+	
+	var random = random_password(4);
+	$('#loader-' + random +' .circle').css('background', background);
+	
+	$(item).css('width', width, 'important');
+	$(item).css('height', height, 'important');
+	
+	$(item).html('<div id="loader-' + random + '" class="loader" style="width: ' + size + ' !important; height: ' + size + ' !important;"><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div><div class="circle"></div></div>');
+}
+
 function random_password(length, special) {
 	var iteration = 0;
 	var password = "";

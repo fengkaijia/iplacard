@@ -22,6 +22,178 @@ body {
 	height: 80px;
 }
 
+/* 载入 */
+.loader {
+	position: relative;
+	margin: auto;
+}
+
+.loader .circle {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	-webkit-transform: rotate(225deg);
+	   -moz-transform: rotate(225deg);
+		-ms-transform: rotate(225deg);
+		 -o-transform: rotate(225deg);
+			transform: rotate(225deg);
+	-webkit-animation-iteration-count: infinite;
+	   -moz-animation-iteration-count: infinite;
+		-ms-animation-iteration-count: infinite;
+		 -o-animation-iteration-count: infinite;
+			animation-iteration-count: infinite;
+	-webkit-animation-name: orbit;
+	   -moz-animation-name: orbit;
+		-ms-animation-name: orbit;
+		 -o-animation-name: orbit;
+			animation-name: orbit;
+	-webkit-animation-duration: 4s;
+	   -moz-animation-duration: 4s;
+		-ms-animation-duration: 4s;
+		 -o-animation-duration: 4s;
+			animation-duration: 4s;
+}
+
+.loader .circle:after {
+	content: '';
+	position: absolute;
+	width: 5px;
+	width: -webkit-calc(100% / 5.5);
+	width:    -moz-calc(100% / 5.5);
+	width:     -ms-calc(100% / 5.5);
+	width:      -o-calc(100% / 5.5);
+	width:         calc(100% / 5.5);
+	height: 5px;
+	height: -webkit-calc(100% / 5.5);
+	height:    -moz-calc(100% / 5.5);
+	height:     -ms-calc(100% / 5.5);
+	height:      -o-calc(100% / 5.5);
+	height:         calc(100% / 5.5);
+	border-radius: 100%;
+	background: #ffffff;
+}
+
+.loader .circle:nth-child(2) {
+	-webkit-animation-delay: 240ms;
+	   -moz-animation-delay: 240ms;
+		-ms-animation-delay: 240ms;
+		 -o-animation-delay: 240ms;
+			animation-delay: 240ms;
+}
+
+.loader .circle:nth-child(3) {
+	-webkit-animation-delay: 480ms;
+	   -moz-animation-delay: 480ms;
+		-ms-animation-delay: 480ms;
+		 -o-animation-delay: 480ms;
+			animation-delay: 480ms;
+}
+
+.loader .circle:nth-child(4) {
+	-webkit-animation-delay: 720ms;
+	   -moz-animation-delay: 720ms;
+		-ms-animation-delay: 720ms;
+		 -o-animation-delay: 720ms;
+			animation-delay: 720ms;
+}
+
+.loader .circle:nth-child(5) {
+	-webkit-animation-delay: 960ms;
+	   -moz-animation-delay: 960ms;
+		-ms-animation-delay: 960ms;
+		 -o-animation-delay: 960ms;
+			animation-delay: 960ms;
+}
+
+@-webkit-keyframes orbit {
+	0% {
+		-webkit-transform: rotate(225deg);
+		opacity: 1;
+		-webkit-animation-timing-function: ease-out;
+	}
+	
+	7% {
+		-webkit-transform: rotate(345deg);
+		-webkit-animation-timing-function: linear;
+	}
+	
+	30% {
+		-webkit-transform: rotate(455deg);
+		-webkit-animation-timing-function: ease-in-out;
+	}
+	
+	39% {
+		-webkit-transform: rotate(690deg);
+		-webkit-animation-timing-function: linear;
+	}
+	
+	70% {
+		-webkit-transform: rotate(815deg);
+		opacity: 1;
+		-webkit-animation-timing-function: ease-out;
+	}
+	
+	75% {
+		-webkit-transform: rotate(945deg);
+		-webkit-animation-timing-function: ease-out;
+	}
+	
+	76% {
+		-webkit-transform: rotate(945deg);
+		opacity: 0;
+	}
+	
+	100% {
+		-webkit-transform: rotate(945deg);
+		opacity: 0;
+	}
+}
+
+@keyframes orbit {
+	0% {
+		transform: rotate(225deg);
+		opacity: 1;
+		animation-timing-function: ease-out;
+	}
+	
+	7% {
+		transform: rotate(345deg);
+		animation-timing-function: linear;
+	}
+	
+	30% {
+		transform: rotate(455deg);
+		animation-timing-function: ease-in-out;
+	}
+	
+	39% {
+		transform: rotate(690deg);
+		animation-timing-function: linear;
+	}
+	
+	70% {
+		transform: rotate(815deg);
+		opacity: 1;
+		animation-timing-function: ease-out;
+	}
+	
+	75% {
+		transform: rotate(945deg);
+		animation-timing-function: ease-out;
+	}
+	
+	76% {
+		transform: rotate(945deg);
+		opacity: 0;
+	}
+	
+	100% {
+		transform: rotate(945deg);
+		opacity: 0;
+	}
+}
+
 /* 登录帐户操作框 */
 .form-auth {
 	max-width: 360px;
