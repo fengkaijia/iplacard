@@ -51,7 +51,7 @@ $this->load->view('header');?>
 							'content' => '放弃设置',
 							'type' => 'button',
 							'class' => 'btn btn-default',
-							'onclick' => 'location.href=\''.base_url('account/settings/home').'\'',
+							'onclick' => onclick_redirect('account/settings/home')
 						));?>
 					</div>
 				</div>

@@ -56,7 +56,7 @@ $this->load->view('header');?>
 						'content' => '取消',
 						'type' => 'button',
 						'class' => 'btn btn-link',
-						'onclick' => 'location.href=\''.base_url('account/settings/twostep').'\'',
+						'onclick' => onclick_redirect('account/settings/twostep')
 					)); ?>
 					
 				</div>

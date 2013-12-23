@@ -41,19 +41,19 @@
 							'content' => '修改密码',
 							'type' => 'button',
 							'class' => 'btn btn-primary',
-							'onclick' => 'location.href=\''.base_url('account/settings/password').'\'',
+							'onclick' => onclick_redirect('account/settings/password')
 						));?>
 						<?php if(!$info['pin']) echo form_button(array(
 							'content' => '设置安全码',
 							'type' => 'button',
 							'class' => 'btn btn-primary',
-							'onclick' => 'location.href=\''.base_url('account/settings/pin').'\'',
+							'onclick' => onclick_redirect('account/settings/pin')
 						));?>
 						<?php if(!$info['twostep']) echo form_button(array(
 							'content' => '启用两步验证',
 							'type' => 'button',
 							'class' => 'btn btn-primary',
-							'onclick' => 'location.href=\''.base_url('account/settings/twostep').'\'',
+							'onclick' => onclick_redirect('account/settings/twostep')
 						));?>
 					</div>
 				</div>

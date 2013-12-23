@@ -15,7 +15,7 @@
 		'content' => '已有验证码',
 		'type' => 'button',
 		'class' => 'btn btn-link',
-		'onclick' => 'location.href=\''.base_url('account/sms/validate').'\'',
+		'onclick' => onclick_redirect('account/sms/validate')
 	)); ?>
 	
 <?php echo form_close();?>

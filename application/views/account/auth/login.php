@@ -31,7 +31,7 @@
 		'content' => '忘记密码？',
 		'type' => 'button',
 		'class' => 'btn btn-link',
-		'onclick' => 'location.href=\''.base_url('account/recover').'\'',
+		'onclick' => onclick_redirect('account/recover')
 	)); ?>
 	
 <?php echo form_close();?>

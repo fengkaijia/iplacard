@@ -26,7 +26,7 @@ $this->load->view('header');?>
 		'content' => '无法接收验证码？',
 		'type' => 'button',
 		'class' => 'btn btn-link',
-		'onclick' => 'location.href=\''.base_url('account/sms/request').'\'',
+		'onclick' => onclick_redirect('account/sms/request')
 	)); ?>
 	
 <?php echo form_close();?>

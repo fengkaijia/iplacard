@@ -29,7 +29,7 @@ $this->load->view('header');?>
 		'content' => '重新发送',
 		'type' => 'button',
 		'class' => 'btn',
-		'onclick' => 'location.href=\''.base_url('account/sms').'\'',
+		'onclick' => onclick_redirect('account/sms')
 	)); ?>
 	
 <?php echo form_close();?>

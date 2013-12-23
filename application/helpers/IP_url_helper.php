@@ -11,6 +11,15 @@ function login_redirect()
 }
 
 /**
+ * 输出onclick时跳转代码
+ */
+function onclick_redirect($uri)
+{
+	$url = base_url($uri);
+	return "location.href='{$url}'";
+}
+
+/**
  * 静态文件CDN地址
  */
 function static_url($uri)

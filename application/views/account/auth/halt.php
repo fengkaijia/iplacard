@@ -8,7 +8,7 @@
 		'content' => '登录',
 		'type' => 'button',
 		'class' => 'btn btn-primary',
-		'onclick' => 'location.href=\''.base_url('account/login').'\''
+		'onclick' => onclick_redirect('account/login')
 	));?>
 <?php echo form_close();?>
 

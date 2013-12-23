@@ -24,7 +24,7 @@
 						'content' => '启用两步验证',
 						'type' => 'button',
 						'class' => 'btn btn-success',
-						'onclick' => 'location.href=\''.base_url('account/settings/twostep/enable').'\'',
+						'onclick' => onclick_redirect('account/settings/twostep/enable')
 					));?>
 				</div>
 			</div>
