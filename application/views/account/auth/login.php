@@ -34,7 +34,8 @@ $this->load->view('header');?>
 		'name' => 'login',
 		'content' => '登录',
 		'type' => 'submit',
-		'class' => 'btn btn-primary'
+		'class' => 'btn btn-primary',
+		'onclick' => 'loader(this);'
 	));
 	echo form_button(array(
 		'content' => '忘记密码？',

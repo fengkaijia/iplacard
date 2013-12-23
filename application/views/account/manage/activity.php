@@ -53,7 +53,8 @@
 						'name' => 'submit',
 						'content' => '退出其他所有会话',
 						'type' => 'submit',
-						'class' => 'btn btn-primary'
+						'class' => 'btn btn-primary',
+						'onclick' => 'loader(this);'
 					));?>
 				</div>
 			</div>

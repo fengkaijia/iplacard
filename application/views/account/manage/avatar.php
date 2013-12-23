@@ -43,7 +43,8 @@ $this->load->view('header');?>
 							'name' => 'confirm',
 							'content' => '提交更改',
 							'type' => 'submit',
-							'class' => 'btn btn-primary'
+							'class' => 'btn btn-primary',
+							'onclick' => 'loader(this);'
 						));
 						echo ' ';
 						echo form_button(array(

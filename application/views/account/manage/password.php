@@ -57,7 +57,8 @@
 						'name' => 'submit',
 						'content' => '修改密码',
 						'type' => 'submit',
-						'class' => 'btn btn-primary'
+						'class' => 'btn btn-primary',
+						'onclick' => 'loader(this);'
 					));?>
 				</div>
 			</div>

@@ -8,7 +8,8 @@
 		'name' => 'submit',
 		'content' => '发送验证码',
 		'type' => 'submit',
-		'class' => 'btn btn-primary'
+		'class' => 'btn btn-primary',
+		'onclick' => 'loader(this);'
 	));
 	echo form_button(array(
 		'name' => 'resend',

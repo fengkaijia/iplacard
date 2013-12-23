@@ -20,7 +20,8 @@ $this->load->view('header');?>
 		'name' => 'submit',
 		'content' => '确认',
 		'type' => 'submit',
-		'class' => 'btn btn-primary'
+		'class' => 'btn btn-primary',
+		'onclick' => 'loader(this);'
 	));
 	echo form_button(array(
 		'content' => '无法接收验证码？',

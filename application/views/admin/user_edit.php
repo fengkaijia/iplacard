@@ -228,6 +228,7 @@
 						'content' => $action == 'add' ? '添加用户' : '修改用户',
 						'type' => 'submit',
 						'class' => 'btn btn-primary',
+						'onclick' => 'loader(this);'
 					));
 					echo ' ';
 					if($action == 'edit')
@@ -294,7 +295,8 @@
 							'name' => 'submit',
 							'content' => '确认删除',
 							'type' => 'submit',
-							'class' => 'btn btn-danger'
+							'class' => 'btn btn-danger',
+							'onclick' => 'loader(this);'
 						)); ?>
 					</div>
 				</div>

@@ -151,7 +151,7 @@
 									'type' => 'submit',
 									'class' => 'btn btn-primary',
 									'disabled' => NULL,
-									'onclick' => 'upload_avatar();'
+									'onclick' => 'upload_avatar(); loader(this);'
 								));?>
 							</span>
 						</div>
@@ -216,7 +216,7 @@
 								'content' => '确认更改',
 								'type' => 'submit',
 								'class' => 'btn btn-primary',
-								'onclick' => "$('input[name=avatar_file]').val('');" //不上传头像
+								'onclick' => "loader(this); $('input[name=avatar_file]').val('');" //不上传头像
 							)); ?>
 						</div>
 					</div>

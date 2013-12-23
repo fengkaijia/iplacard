@@ -50,7 +50,8 @@ $this->load->view('header');?>
 						'name' => 'submit',
 						'content' => '启用两步验证',
 						'type' => 'submit',
-						'class' => 'btn btn-success'
+						'class' => 'btn btn-success',
+						'onclick' => 'loader(this);'
 					));
 					echo form_button(array(
 						'content' => '取消',

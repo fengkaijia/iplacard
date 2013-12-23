@@ -57,7 +57,8 @@
 						'name' => 'submit',
 						'content' => '修改安全码',
 						'type' => 'submit',
-						'class' => 'btn btn-primary'
+						'class' => 'btn btn-primary',
+						'onclick' => 'loader(this);'
 					));?>
 				</div>
 			</div>

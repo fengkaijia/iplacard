@@ -136,7 +136,8 @@
 								'name' => 'submit',
 								'content' => '确认修改',
 								'type' => 'submit',
-								'class' => 'btn btn-primary'
+								'class' => 'btn btn-primary',
+								'onclick' => 'loader(this);'
 							)); ?>
 						</div>
 					</div>

@@ -47,7 +47,8 @@
 						'name' => 'submit',
 						'content' => '停用两步验证',
 						'type' => 'submit',
-						'class' => 'btn btn-danger'
+						'class' => 'btn btn-danger',
+						'onclick' => 'loader(this);'
 					));?>
 				</div>
 			</div>

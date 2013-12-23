@@ -32,7 +32,8 @@
 		'name' => 'recover',
 		'content' => '确认重置',
 		'type' => 'submit',
-		'class' => 'btn btn-primary'
+		'class' => 'btn btn-primary',
+		'onclick' => 'loader(this);'
 	));
 	echo form_button(array(
 		'content' => '登录',

@@ -21,7 +21,8 @@ $this->load->view('header');?>
 		'name' => 'submit',
 		'content' => '确认',
 		'type' => 'submit',
-		'class' => 'btn btn-primary'
+		'class' => 'btn btn-primary',
+		'onclick' => 'loader(this);'
 	));
 	echo ' ';
 	echo form_button(array(
