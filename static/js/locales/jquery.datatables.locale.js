@@ -4,7 +4,7 @@
  */
 $.extend( true, $.fn.dataTable.defaults, {
 	"oLanguage": {
-		"sProcessing": "载入中...",
+		"sProcessing": "",
 		"sLengthMenu": "显示 _MENU_ 项结果",
 		"sZeroRecords": "没有匹配结果",
 		"sInfo": "显示第 _START_ 至 _END_ 项数据，共 _TOTAL_ 项",
