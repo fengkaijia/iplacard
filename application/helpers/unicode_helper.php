@@ -22,7 +22,7 @@ function pinyin($string, $type = 'combine')
 	$CI =& get_instance();
 	$CI->load->library('curl');
 	
-	$data = json_decode($CI->curl->simple_get('http://pinyin.api.iplacard.com/place/?access_token='.IP_INSTANCE_API_ACCESS_KEY.'&word='.urlencode($string)), true);
+	$data = json_decode($CI->curl->simple_get('http://pinyin.api.iplacard.com/?access_token='.IP_INSTANCE_API_ACCESS_KEY.'&word='.urlencode($string)), true);
 	
 	if(!$data || !$data['result'])
 		return false;
