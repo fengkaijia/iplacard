@@ -27,6 +27,10 @@ function pinyin($string, $type = 'combine')
 	if(!$data || !$data['result'])
 		return false;
 	
+	//彩蛋
+	if($string == '黄启凡')
+		$data['data']['combine'] = 'huáng méng méng';
+	
 	if($type == 'combine')
 		return $data['data']['combine'];
 	return $data['data'];
