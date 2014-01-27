@@ -29,6 +29,15 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}committee` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='委员会' AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}delegate` (
+  `id` int(11) NOT NULL COMMENT '代表用户ID',
+  `unique_identifier` text NOT NULL COMMENT '唯一身份标识',
+  `application_type` text NOT NULL COMMENT '申请类型',
+  `status` text NOT NULL COMMENT '申请状态',
+  `group` int(11) DEFAULT NULL COMMENT '所在代表团',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='代表';
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}interview` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '面试ID',
   `delegate` int(11) NOT NULL COMMENT '申请者ID',
