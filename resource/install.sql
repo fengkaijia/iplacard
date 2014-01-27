@@ -89,6 +89,17 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}seat_backorder` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='席位延期请求' AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}seat_selectability` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '席位许可ID',
+  `seat` int(11) NOT NULL COMMENT '席位ID',
+  `delegate` int(11) NOT NULL COMMENT '代表ID',
+  `admin` int(11) NOT NULL COMMENT '批准管理员ID',
+  `primary` int(11) DEFAULT NULL COMMENT '是否为主要席位许可',
+  `recommended` int(11) DEFAULT NULL COMMENT '是否推荐',
+  `time` int(11) NOT NULL COMMENT '批准时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='席位选择许可' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}session` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '系统记录ID',
   `session_id` varchar(40) NOT NULL DEFAULT '0' COMMENT '显示ID',
