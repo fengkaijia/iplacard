@@ -283,6 +283,174 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
+	 * 获取席位延期请求信息
+	 * @param int $id 延期请求ID
+	 * @param string $part 指定部分
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_backorder($id, $part = '')
+	{
+		$this->db->where('id', $id);
+		$query = $this->db->get('seat_backorder');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$data = $query->row_array();
+		
+		//返回结果
+		if(empty($part))
+			return $data;
+		return $data[$part];
+	}
+	
+	/**
+	 * 查询符合条件的第一个延期请求ID
+	 * @return int|false 符合查询条件的第一个延期请求ID，如不存在返回FALSE
+	 */
+	function get_backorder_id()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'seat_backorder');
+		//将参数传递给get_id方法
+		return call_user_func_array(array($this->sql_model, 'get_id'), $args);
+	}
+	
+	/**
+	 * 查询符合条件的所有延期请求ID
+	 * @return array|false 符合查询条件的所有延期请求ID，如不存在返回FALSE
+	 */
+	function get_backorder_ids()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'seat_backorder');
+		//将参数传递给get_ids方法
+		return call_user_func_array(array($this->sql_model, 'get_ids'), $args);
+	}
+	
+	/**
+	 * 获取指定席位的所有延期请求
+	 */
+	function get_seat_backorders($seat, $only_valid = true)
+	{
+		if(!$only_valid)
+			return $this->get_backorder_ids('seat', $seat);
+		
+		$non_forever = $this->get_backorder_ids('seat', $seat, 'status', 'pending', 'expire_time >=', time());
+		if(!$non_forever)
+			$non_forever = array();
+		
+		$forever = $this->get_backorder_ids('seat', $seat, 'status', 'pending', 'expire_time', 0);
+		if(!$forever)
+			$forever = array();
+		
+		$all = array_merge($forever, $non_forever);
+		return empty($all) ? false : $all;
+	}
+	
+	/**
+	 * 编辑/添加席位延期请求
+	 * @return int 新的延期请求ID
+	 */
+	function edit_backorder($data, $id = '')
+	{
+		//新增延期请求
+		if(empty($id))
+		{
+			$this->db->insert('seat_backorder', $data);
+			return $this->db->insert_id();
+		}
+		
+		//更新延期请求
+		$this->db->where('id', $id);
+		return $this->db->update('seat_backorder', $data);
+	}
+	
+	/**
+	 * 添加席位延期请求
+	 * @return int 新的延期请求ID
+	 */
+	function add_backorder($seat, $delegate, $expire = false)
+	{
+		$data = array(
+			'seat' => $seat,
+			'delegate' => $delegate,
+			'order_time' => time(),
+			'expire_time' => 0,
+			'status' => 'pending'
+		);
+		
+		if($expire)
+			$data['expire_time'] = $expire;
+		
+		//返回新延期请求ID
+		return $this->edit_backorder($data);
+	}
+	
+	/**
+	 * 删除席位延期请求
+	 * @param int $id 延期请求ID
+	 * @return boolean 是否完成删除
+	 */
+	function delete_backorder($id)
+	{
+		$this->db->where('id', $id);
+		return $this->db->delete('seat_backorder');
+	}
+	
+	/**
+	 * 更改席位延期请求状态
+	 */
+	function change_status($id, $status, $change_time = false)
+	{
+		$available = array(
+			'pending',
+			'accepted',
+			'expired',
+			'cancelled'
+		);
+		
+		if(!in_array($status, $available))
+			return false;
+		
+		return $this->edit_backorder($data, array('status' => $status));
+	}
+	
+	/**
+	 * 检查席位是否有延期请求
+	 */
+	function is_backordered($id)
+	{
+		if(!$this->get_backorder_ids('seat', $id, 'status', 'pending', 'expire_time >=', time()))
+			if(!$this->get_backorder_ids('seat', $id, 'status', 'pending', 'expire_time', 0))
+				return false;
+		return true;
+	}
+	
+	/**
+	 * 检查席位延期请求是否有效
+	 */
+	function is_backorder_valid($id)
+	{
+		$backorder = $this->get_backorder($id);
+		
+		//延期请求不存在
+		if(!$backorder)
+			return false;
+		
+		//延期请求过期
+		if($backorder['expire_time'] < time() && $backorder['expire_time'] > 0)
+			return false;
+		
+		//延期请求状态不可接受
+		if($backorder['status'] != 'pending')
+			return false;
+		
+		return true;
+	}
+	
+	/**
 	 * 获取席位许可信息
 	 * @param int $id 许可ID
 	 * @param string $part 指定部分
