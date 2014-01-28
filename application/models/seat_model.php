@@ -87,16 +87,13 @@ class Seat_model extends CI_Model
 	 * 根据一组席位ID获取对应代表ID
 	 * @param int|array $ids 一个或一组席位ID
 	 */
-	function get_delegates_by_seats($ids, $only_locked = false)
+	function get_delegates_by_seats($ids)
 	{
 		//仅单个席位ID
 		if(is_int($ids) || is_string($ids))
 			$ids = array($ids);
 		
 		$this->db->where_in('id', $ids);
-		
-		if($only_locked)
-			$this->db->where('status', 'locked');
 		
 		$query = $this->db->get('seat');
 		
