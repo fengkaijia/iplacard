@@ -86,6 +86,7 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}seat_backorder` (
   `delegate` int(11) NOT NULL COMMENT '代表ID',
   `order_time` int(11) NOT NULL COMMENT '提交时间',
   `expire_time` int(11) DEFAULT NULL COMMENT '过期时间',
+  `status` text COMMENT '请求状态',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='席位延期请求' AUTO_INCREMENT=1;
 
