@@ -526,8 +526,7 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
-	 * 查询符合条件的所有席位许可ID
-	 * @return array|false 符合查询条件的所有席位许可ID，如不存在返回FALSE
+	 * 获取指定代表的所有席位许可
 	 */
 	function get_delegate_selectability($delegate, $only_primary = false, $only_recommended = false, $return = 'selectability')
 	{
