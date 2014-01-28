@@ -283,6 +283,181 @@ class Seat_model extends CI_Model
 			return true;
 		return false;
 	}
+	
+	/**
+	 * 获取席位许可信息
+	 * @param int $id 许可ID
+	 * @param string $part 指定部分
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_selectability($id, $part = '')
+	{
+		$this->db->where('id', $id);
+		$query = $this->db->get('seat_selectability');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$data = $query->row_array();
+		
+		//返回结果
+		if(empty($part))
+			return $data;
+		return $data[$part];
+	}
+	
+	/**
+	 * 查询符合条件的第一个席位许可ID
+	 * @return int|false 符合查询条件的第一个席位许可ID，如不存在返回FALSE
+	 */
+	function get_selectability_id()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'seat_selectability');
+		//将参数传递给get_id方法
+		return call_user_func_array(array($this->sql_model, 'get_id'), $args);
+	}
+	
+	/**
+	 * 查询符合条件的所有席位许可ID
+	 * @return array|false 符合查询条件的所有席位许可ID，如不存在返回FALSE
+	 */
+	function get_selectability_ids()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'seat_selectability');
+		//将参数传递给get_ids方法
+		return call_user_func_array(array($this->sql_model, 'get_ids'), $args);
+	}
+	
+	/**
+	 * 根据一组席位许可ID获取对应代表ID
+	 * @param int|array $ids 一个或一组席位许可ID
+	 */
+	function get_seats_by_selectabilities($ids)
+	{
+		//仅单个席位许可ID
+		if(is_int($ids) || is_string($ids))
+			$ids = array($ids);
+		
+		$this->db->where_in('id', $ids);
+		
+		$query = $this->db->get('seat_selectability');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回ID
+		foreach($query->result_array() as $data)
+		{
+			$array[] = $data['seat'];
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
+	 * 查询符合条件的所有席位许可ID
+	 * @return array|false 符合查询条件的所有席位许可ID，如不存在返回FALSE
+	 */
+	function get_delegate_selectability($delegate, $only_primary = false, $only_recommended = false, $return = 'selectability')
+	{
+		$this->db->where('delegate', $delegate);
+		if($only_primary)
+			$this->db->where('primary', true);
+		if($only_recommended)
+			$this->db->where('recommended', true);
+		
+		$query = $this->db->get('seat_selectability');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回ID
+		foreach($query->result_array() as $data)
+		{
+			$array[] = $data[$return == 'selectability' ? 'id' : 'seat'];
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
+	 * 编辑席位许可
+	 */
+	function edit_selectability($data, $id = '')
+	{
+		$this->db->where('id', $id);
+		return $this->db->update('seat', $data);
+	}
+	
+	/**
+	 * 授权许可
+	 * @param int|array $seats 一个或一组席位ID
+	 * @param type $delegate 代表ID
+	 * @param type $admin 授权管理员ID
+	 * @param type $primary 是否授权主许可
+	 * @param type $recommended 是否推荐
+	 * @return int 第一个新许可ID
+	 */
+	function grant_selectability($seats, $delegate, $admin, $primary = true, $recommended = false)
+	{
+		if(is_int($seats) || is_string($seats))
+			$seats = array($seats);
+		
+		$data = array();
+		
+		foreach($seats as $seat)
+		{
+			$insert = array(
+				'seat' => $seat,
+				'delegate' => $delegate,
+				'admin' => $admin,
+				'primary' => $primary,
+				'recommended' => $recommended
+			);
+			
+			$data[] = $insert;
+		}
+		
+		//批量插入
+		$this->db->insert_batch('seat_selectability', $data);
+		return $this->db->insert_id();
+	}
+	
+	/**
+	 * 取消授权许可
+	 * @param int|array $id 一个或一组许可ID
+	 */
+	function remove_selectability($id)
+	{
+		if(is_int($id) || is_string($id))
+			$id = array($id);
+		
+		$this->db->where_in('id', $id);
+		return $this->db->delete('seat_selectability');
+	}
+	
+	/**
+	 * 检查席位许可是否是主许可
+	 */
+	function is_primary_selectability($id)
+	{
+		return $this->get_selectability($id, 'primary') ? true : false;
+	}
+	
+	/**
+	 * 检查席位许可是否为推荐
+	 */
+	function is_recommended_selectability($id)
+	{
+		return $this->get_selectability($id, 'recommended') ? true : false;
+	}
 }
 
 /* End of file seat_model.php */
