@@ -32,11 +32,19 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}committee` (
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}delegate` (
   `id` int(11) NOT NULL COMMENT '代表用户ID',
   `unique_identifier` text NOT NULL COMMENT '唯一身份标识',
+  `geolocation` int(11) DEFAULT NULL COMMENT '地理位置',
   `application_type` text NOT NULL COMMENT '申请类型',
   `status` text NOT NULL COMMENT '申请状态',
   `group` int(11) DEFAULT NULL COMMENT '所在代表团',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='代表';
+
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}geolocation` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '地理位置ID',
+  `parent` int(11) DEFAULT NULL COMMENT '上级位置ID',
+  `name` text NOT NULL COMMENT '名称',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='地理位置' AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}interview` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '面试ID',
