@@ -194,7 +194,7 @@ class Seat_model extends CI_Model
 	/**
 	 * 更改席位分配状态
 	 */
-	function change_status($id, $status, $change_time = false)
+	function change_seat_status($id, $status, $change_time = false)
 	{
 		$available = array(
 			'unavailable',
@@ -402,7 +402,7 @@ class Seat_model extends CI_Model
 	/**
 	 * 更改席位延期请求状态
 	 */
-	function change_status($id, $status, $change_time = false)
+	function change_backorder_status($id, $status)
 	{
 		$available = array(
 			'pending',
@@ -414,7 +414,7 @@ class Seat_model extends CI_Model
 		if(!in_array($status, $available))
 			return false;
 		
-		return $this->edit_backorder($data, array('status' => $status));
+		return $this->edit_backorder($id, array('status' => $status));
 	}
 	
 	/**
