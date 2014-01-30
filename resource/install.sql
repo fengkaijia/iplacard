@@ -39,6 +39,15 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}delegate` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='代表';
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}delegate_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '事件ID',
+  `delegate` int(11) NOT NULL COMMENT '代表ID',
+  `time` int(11) NOT NULL COMMENT '事件触发时间',
+  `event` text NOT NULL COMMENT '事件名称',
+  `info` text COMMENT '事件信息',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='代表事件日志' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}geolocation` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '地理位置ID',
   `parent` int(11) DEFAULT NULL COMMENT '上级位置ID',
