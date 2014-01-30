@@ -122,7 +122,7 @@ class Delegate_model extends CI_Model
 			'invoice_issued' => 6, //等待支付帐单
 			'payment_received' => 7, //付款已收到
 			'locked' => 9, //操作锁定
-			'quitted' => 9 //退会
+			'quitted' => 10 //退会
 		);
 		
 		//如果为代表ID
