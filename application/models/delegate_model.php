@@ -133,6 +133,101 @@ class Delegate_model extends CI_Model
 			return false;
 		return $all[$status];
 	}
+	
+	/**
+	 * 获取代表事件
+	 * @param int $id 事件ID
+	 * @param string $part 指定部分
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_event($id, $part = '')
+	{
+		$this->db->where('id', $id);
+		$query = $this->db->get('delegate_event');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$data = $query->row_array();
+		
+		//返回结果
+		if(empty($part))
+			return $data;
+		return $data[$part];
+	}
+	
+	/**
+	 * 查询符合条件的第一个事件ID
+	 * @return int|false 符合查询条件的第一个事件ID，如不存在返回FALSE
+	 */
+	function get_event_id()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'delegate_event');
+		//将参数传递给get_id方法
+		return call_user_func_array(array($this->sql_model, 'get_id'), $args);
+	}
+	
+	/**
+	 * 查询符合条件的所有事件ID
+	 * @return array|false 符合查询条件的所有事件ID，如不存在返回FALSE
+	 */
+	function get_event_ids()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'delegate_event');
+		//将参数传递给get_ids方法
+		return call_user_func_array(array($this->sql_model, 'get_ids'), $args);
+	}
+	
+	/**
+	 * 获取指定代表的所有事件
+	 */
+	function get_delegate_events($delegate)
+	{
+		return $this->get_event_ids('delegate', $delegate);
+	}
+	
+	/**
+	 * 编辑/添加代表事件
+	 * @return int 新的事件ID
+	 */
+	function edit_event($data, $id = '')
+	{
+		//格式化事件信息
+		if(isset($data['info']) && !empty($data['info']))
+			$data['info'] = json_encode($data['info']);
+		
+		//新增事件
+		if(empty($id))
+		{
+			$this->db->insert('delegate_event', $data);
+			return $this->db->insert_id();
+		}
+		
+		//更新事件
+		$this->db->where('id', $id);
+		return $this->db->update('delegate_event', $data);
+	}
+	
+	/**
+	 * 添加代表事件
+	 * @return int 新的代表事件ID
+	 */
+	function add_event($delegate, $event, $info = NULL)
+	{
+		$data = array(
+			'delegate' => $delegate,
+			'time' => time(),
+			'event' => $event
+		);
+		if(!is_null($info))
+			$data['info'] = $info;
+		
+		//返回新事件ID
+		return $this->edit_event($data);
+	}
 }
 
 /* End of file delegate_model.php */
