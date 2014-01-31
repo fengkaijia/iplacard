@@ -60,6 +60,17 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}log` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='日志' AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}message` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '消息ID',
+  `sender` int(11) NOT NULL COMMENT '发送用户ID',
+  `receiver` int(11) NOT NULL COMMENT '接收用户ID',
+  `type` text COMMENT '消息类型',
+  `text` text COMMENT '显示信息',
+  `time` int(11) NOT NULL COMMENT '消息发送时间',
+  `status` text NOT NULL COMMENT '消息状态',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户消息' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}option` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '设置ID',
   `name` text NOT NULL COMMENT '设置名称',

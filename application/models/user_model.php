@@ -333,6 +333,97 @@ class User_model extends CI_Model
 	}
 	
 	/**
+	 * 获取用户消息
+	 * @param int $id 消息ID
+	 * @param string $part 指定部分
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_message($id, $part = '')
+	{
+		$this->db->where('id', $id);
+		$query = $this->db->get('message');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$data = $query->row_array();
+		
+		//返回结果
+		if(empty($part))
+			return $data;
+		return $data[$part];
+	}
+	
+	/**
+	 * 查询符合条件的第一个消息ID
+	 * @return int|false 符合查询条件的第一个消息ID，如不存在返回FALSE
+	 */
+	function get_message_id()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'message');
+		//将参数传递给get_id方法
+		return call_user_func_array(array($this->sql_model, 'get_id'), $args);
+	}
+	
+	/**
+	 * 查询符合条件的所有消息ID
+	 * @return array|false 符合查询条件的所有消息ID，如不存在返回FALSE
+	 */
+	function get_message_ids()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'message');
+		//将参数传递给get_ids方法
+		return call_user_func_array(array($this->sql_model, 'get_ids'), $args);
+	}
+	
+	/**
+	 * 获取指定用户的所有消息
+	 */
+	function get_user_messages($user)
+	{
+		return $this->get_message_ids('receiver', $user);
+	}
+	
+	/**
+	 * 编辑/添加用户消息
+	 * @return int 新的消息ID
+	 */
+	function edit_message($data, $id = '')
+	{
+		//新增消息
+		if(empty($id))
+		{
+			$this->db->insert('message', $data);
+			return $this->db->insert_id();
+		}
+		
+		//更新消息
+		$this->db->where('id', $id);
+		return $this->db->update('message', $data);
+	}
+	
+	/**
+	 * 添加用户消息
+	 * @return int 新的用户消息ID
+	 */
+	function add_message($receiver, $text, $type = 'system', $sender = 0)
+	{
+		$data = array(
+			'sender' => $sender,
+			'receiver' => $receiver,
+			'text' => $text,
+			'type' => $type,
+			'time' => time()
+		);
+		
+		//返回新消息ID
+		return $this->edit_message($data);
+	}
+	
+	/**
 	 * 使用Blowfish算法加密密码
 	 * @param string $password 密码
 	 * @param string $salt 盐
