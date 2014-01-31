@@ -135,6 +135,137 @@ class Delegate_model extends CI_Model
 	}
 	
 	/**
+	 * 获取代表资料
+	 * @param int $id 资料ID
+	 * @param string $part 指定部分
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_profile($id, $part = '')
+	{
+		$this->db->where('id', $id);
+		$query = $this->db->get('delegate_profile');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$data = $query->row_array();
+		
+		//返回结果
+		if(empty($part))
+			return $data;
+		return $data[$part];
+	}
+	
+	/**
+	 * 查询符合条件的第一个资料ID
+	 * @return int|false 符合查询条件的第一个资料ID，如不存在返回FALSE
+	 */
+	function get_profile_id()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'delegate_profile');
+		//将参数传递给get_id方法
+		return call_user_func_array(array($this->sql_model, 'get_id'), $args);
+	}
+	
+	/**
+	 * 查询符合条件的所有资料ID
+	 * @return array|false 符合查询条件的所有资料ID，如不存在返回FALSE
+	 */
+	function get_profile_ids()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'delegate_profile');
+		//将参数传递给get_ids方法
+		return call_user_func_array(array($this->sql_model, 'get_ids'), $args);
+	}
+	
+	/**
+	 * 通过代表ID和资料项类型获取资料内容
+	 */
+	function get_profile_by_name($delegate, $name, $default = NULL)
+	{
+		$this->db->where('delegate', $delegate);
+		$this->db->where('name', $name);
+		$query = $this->db->get('delegate_profile');
+		
+		//如果无结果返回默认值
+		if($query->num_rows() == 0)
+			return $default;
+		
+		//返回结果
+		$data = $query->row_array();
+		return json_decode($data['value'], true);
+	}
+	
+	/**
+	 * 获取指定代表的所有资料
+	 */
+	function get_delegate_profiles($delegate, $return = 'value')
+	{
+		$this->db->where_in('delegate', $delegate);
+		$query = $this->db->get('delegate_profile');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回数据
+		foreach($query->result_array() as $data)
+		{
+			if($return == 'id')
+				$array[] = $data['id'];
+			else
+				$array[$data['name']] = json_decode($data['value'], true);
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
+	 * 编辑/添加代表资料
+	 * @return int 新的资料ID
+	 */
+	function edit_profile($data, $id = '')
+	{
+		//格式化事件信息
+		if(isset($data['value']) && !empty($data['value']))
+			$data['value'] = json_encode($data['value']);
+		
+		//更新时间
+		$data['last_modified'] = time();
+		
+		//新增资料
+		if(empty($id))
+		{
+			$this->db->insert('profile', $data);
+			return $this->db->insert_id();
+		}
+		
+		//更新资料
+		$this->db->where('id', $id);
+		return $this->db->update('profile', $data);
+	}
+	
+	/**
+	 * 添加代表资料
+	 * @return int 新的代表资料ID
+	 */
+	function add_profile($delegate, $name, $value)
+	{
+		$data = array(
+			'delegate' => $delegate,
+			'name' => $name,
+			'value' => $value
+		);
+		
+		//返回新资料ID
+		return $this->edit_profile($data);
+	}
+	
+	/**
 	 * 获取代表事件
 	 * @param int $id 事件ID
 	 * @param string $part 指定部分
