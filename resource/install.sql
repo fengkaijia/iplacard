@@ -19,6 +19,16 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}admin` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='管理员';
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}api_token` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '令牌ID',
+  `access_token` text NOT NULL COMMENT '访问令牌字串',
+  `ip_range` text COMMENT '访问IP范围',
+  `note` text COMMENT '注释',
+  `permission` text COMMENT '权限',
+  `last_activity` int(11) DEFAULT NULL COMMENT '最后活动',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='接口访问令牌' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}committee` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '委员会ID',
   `name` text NOT NULL COMMENT '委员会名称',
