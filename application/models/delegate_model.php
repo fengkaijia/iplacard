@@ -150,6 +150,7 @@ class Delegate_model extends CI_Model
 			return false;
 		
 		$data = $query->row_array();
+		$data['value'] = json_decode($data['value'], true);
 		
 		//返回结果
 		if(empty($part))
