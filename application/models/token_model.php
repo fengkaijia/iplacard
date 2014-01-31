@@ -14,13 +14,18 @@ class Token_model extends CI_Model
 	
 	/**
 	 * 获取访问令牌信息
-	 * @param int $id ID
+	 * @param int|string $key ID或访问令牌字串
 	 * @param string $part 指定部分
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_token($id, $part = '')
+	function get_token($key, $part = '')
 	{
-		$this->db->where('id', $id);
+		//判断是否$key查询部分
+		if(is_string($key) && strlen($key) == 32)
+			$this->db->where('access_token', $key);
+		else
+			$this->db->where('id', intval($key));
+		
 		$query = $this->db->get('api_token');
 		
 		//如果无结果
