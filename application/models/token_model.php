@@ -27,6 +27,7 @@ class Token_model extends CI_Model
 			$this->db->where('id', intval($key));
 		
 		$query = $this->db->get('api_token');
+		$data['permission'] = json_decode($data['permission'], true);
 		
 		//如果无结果
 		if($query->num_rows() == 0)
