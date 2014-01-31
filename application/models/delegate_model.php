@@ -240,13 +240,13 @@ class Delegate_model extends CI_Model
 		//新增资料
 		if(empty($id))
 		{
-			$this->db->insert('profile', $data);
+			$this->db->insert('delegate_profile', $data);
 			return $this->db->insert_id();
 		}
 		
 		//更新资料
 		$this->db->where('id', $id);
-		return $this->db->update('profile', $data);
+		return $this->db->update('delegate_profile', $data);
 	}
 	
 	/**
