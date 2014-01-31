@@ -542,7 +542,7 @@ class Seat_model extends CI_Model
 		if($query->num_rows() == 0)
 			return false;
 		
-		//返回ID
+		//返回许可或席位ID
 		foreach($query->result_array() as $data)
 		{
 			$array[] = $data[$return == 'selectability' ? 'id' : 'seat'];
