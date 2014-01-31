@@ -266,6 +266,17 @@ class Delegate_model extends CI_Model
 	}
 	
 	/**
+	 * 删除代表资料
+	 * @param int $id 代表资料ID
+	 * @return boolean 是否完成删除
+	 */
+	function delete_profile($id)
+	{
+		$this->db->where('id', $id);
+		return $this->db->delete('delegate_profile');
+	}
+	
+	/**
 	 * 获取代表事件
 	 * @param int $id 事件ID
 	 * @param string $part 指定部分
