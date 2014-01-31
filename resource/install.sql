@@ -32,11 +32,37 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}committee` (
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}delegate` (
   `id` int(11) NOT NULL COMMENT '代表用户ID',
   `unique_identifier` text NOT NULL COMMENT '唯一身份标识',
+  `geolocation` int(11) DEFAULT NULL COMMENT '地理位置',
   `application_type` text NOT NULL COMMENT '申请类型',
   `status` text NOT NULL COMMENT '申请状态',
   `group` int(11) DEFAULT NULL COMMENT '所在代表团',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='代表';
+
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}delegate_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '事件ID',
+  `delegate` int(11) NOT NULL COMMENT '代表ID',
+  `time` int(11) NOT NULL COMMENT '事件触发时间',
+  `event` text NOT NULL COMMENT '事件名称',
+  `info` text COMMENT '事件信息',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='代表事件日志' AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}delegate_profile` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '资料ID',
+  `delegate` int(11) NOT NULL COMMENT '代表ID',
+  `name` text NOT NULL COMMENT '资料类型',
+  `value` text COMMENT '值',
+  `last_modified` int(11) DEFAULT NULL COMMENT '最后更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='代表资料' AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}geolocation` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '地理位置ID',
+  `parent` int(11) DEFAULT NULL COMMENT '上级位置ID',
+  `name` text NOT NULL COMMENT '名称',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='地理位置' AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}interview` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '面试ID',
