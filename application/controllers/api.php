@@ -140,6 +140,13 @@ class Api extends CI_Controller
 		
 		if($action == 'import')
 		{
+			//权限检查
+			if(!$this->token_model->capable('delegate:import', $this->token['permission']))
+			{
+				$this->_error(6, 'Permission denied.');
+				return;
+			}
+			
 			//检查导入类型
 			if(!in_array($this->data['type'], array('delegate', 'observer', 'volunteer')))
 			{
