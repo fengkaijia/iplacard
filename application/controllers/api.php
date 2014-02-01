@@ -33,6 +33,11 @@ class Api extends CI_Controller
 	private $time = 0;
 	
 	/**
+	 * @var string 错误代码
+	 */
+	private $errno = 0;
+	
+	/**
 	 * @var string 错误信息
 	 */
 	private $error = '';
@@ -53,27 +58,27 @@ class Api extends CI_Controller
 		//令牌有效性校验
 		if(!isset($post['access_token']) || strlen($post['access_token']) != 32)
 		{
-			$this->_error('Access token incorrect.');
+			$this->_error(1, 'Access token incorrect.');
 			exit;
 		}
 		
 		$token = $this->token_model->get_token($post['access_token']);
 		if(!$token)
 		{
-			$this->_error('Access token doesn\'t exist.');
+			$this->_error(2, 'Access token doesn\'t exist.');
 			exit;
 		}
 		
 		if(!$this->token_model->check_ip_range($token['ip_range']))
 		{
-			$this->_error('Request not allowed from this IP address.');
+			$this->_error(3, 'Request not allowed from this IP address.');
 			exit;
 		}
 		
 		//数据完整性校验
 		if($post['crypt'] != crypt(sha1($post['data']), $post['access_token']))
 		{
-			$this->_error('CRYPT data incorrect.');
+			$this->_error(99, 'CRYPT data incorrect.');
 			exit;
 		}
 		
@@ -98,9 +103,10 @@ class Api extends CI_Controller
 	/**
 	 * 记录错误信息
 	 */
-	private function _error($error)
+	private function _error($errno, $error)
 	{
 		$this->result = false;
+		$this->errno = $errno;
 		$this->error = $error;
 	}
 	
@@ -116,7 +122,10 @@ class Api extends CI_Controller
 		);
 		
 		if(!$this->result)
+		{
+			$result['errno'] = $this->errno;
 			$result['error'] = $this->error;
+		}
 		
 		echo json_encode($result);
 		exit;
