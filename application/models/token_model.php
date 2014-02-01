@@ -66,6 +66,25 @@ class Token_model extends CI_Model
 	}
 	
 	/**
+	 * 检查令牌是否拥有指定权限
+	 * @param string $permission 需要校验的权限
+	 * @param int|string|array $id ID（或访问令牌字串）或已有权限信息
+	 * @return boolean
+	 */
+	function capable($permission, $id)
+	{
+		//获取权限信息
+		if(!is_array($id))
+			$permissions = $this->get_token($id, 'permission');
+		else
+			$permissions = $id;
+		
+		if(!in_array($permission, $permissions))
+			return false;
+		return true;
+	}
+	
+	/**
 	 * 编辑/添加访问令牌
 	 * @return int 新的令牌ID
 	 */
