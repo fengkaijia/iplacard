@@ -54,27 +54,27 @@ class Api extends CI_Controller
 		if(!isset($post['access_token']) || strlen($post['access_token']) != 32)
 		{
 			$this->_error('Access token incorrect.');
-			$this->_echo();
+			exit;
 		}
 		
 		$token = $this->token_model->get_token($post['access_token']);
 		if(!$token)
 		{
 			$this->_error('Access token doesn\'t exist.');
-			$this->_echo();
+			exit;
 		}
 		
 		if(!$this->token_model->check_ip_range($token['ip_range']))
 		{
 			$this->_error('Request not allowed from this IP address.');
-			$this->_echo();
+			exit;
 		}
 		
 		//数据完整性校验
 		if($post['crypt'] != crypt(sha1($post['data']), $post['access_token']))
 		{
 			$this->_error('CRYPT data incorrect.');
-			$this->_echo();
+			exit;
 		}
 		
 		$this->token_model->update_last_activity($token['id']);
