@@ -61,6 +61,31 @@ class Delegate_model extends CI_Model
 	}
 	
 	/**
+	 * 获取指定代表团的所有代表
+	 */
+	function get_group_delegates($group, $limit = '')
+	{
+		$this->db->where('group', $group);
+		if(!empty($limit))
+			$this->db->where('application_type', $limit);
+		
+		$query = $this->db->get('delegate');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回代表ID
+		foreach($query->result_array() as $data)
+		{
+			$array[] = $data['id'];
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
 	 * 编辑代表信息
 	 */
 	function edit_delegate($data, $id)
