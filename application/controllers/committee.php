@@ -68,7 +68,7 @@ class Committee extends CI_Controller
 	}
 	
 	/**
-	 * 编辑或添加用户
+	 * 编辑或添加委员会
 	 */
 	function edit($id = '')
 	{
