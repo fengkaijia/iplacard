@@ -215,97 +215,104 @@ class Committee extends CI_Controller
 			
 			$ids = $this->committee_model->get_committee_ids();
 			
-			foreach($ids as $id)
+			if($ids)
 			{
-				$committee = $this->committee_model->get_committee($id);
-				
-				//操作
-				$operation = anchor("seat/manage/$id", icon('list', false).'席位列表').' '.anchor("committee/edit/$id", icon('edit', false).'编辑');
-				
-				//主席团
-				$dais_inteviewer_ids = $this->admin_model->get_admin_ids('role_dais', true, 'role_interviewer', true, 'committee', $id);
-				$dais_only_ids = $this->admin_model->get_admin_ids('role_dais', true, 'role_interviewer', false, 'committee', $id);
-				$inteviewer_only_ids = $this->admin_model->get_admin_ids('role_dais', false, 'role_interviewer', true, 'committee', $id);
-				
-				$dais_count = ($dais_inteviewer_ids ? count($dais_inteviewer_ids) : 0) + ($dais_only_ids ? count($dais_only_ids) : 0) + ($inteviewer_only_ids ? count($inteviewer_only_ids) : 0);
-				
-				$dais = array();
-				
-				if($dais_inteviewer_ids)
+				foreach($ids as $id)
 				{
-					foreach($dais_inteviewer_ids as $dais_id)
+					$committee = $this->committee_model->get_committee($id);
+
+					//操作
+					$operation = anchor("seat/manage/$id", icon('list', false).'席位列表').' '.anchor("committee/edit/$id", icon('edit', false).'编辑');
+
+					//主席团
+					$dais_inteviewer_ids = $this->admin_model->get_admin_ids('role_dais', true, 'role_interviewer', true, 'committee', $id);
+					$dais_only_ids = $this->admin_model->get_admin_ids('role_dais', true, 'role_interviewer', false, 'committee', $id);
+					$inteviewer_only_ids = $this->admin_model->get_admin_ids('role_dais', false, 'role_interviewer', true, 'committee', $id);
+
+					$dais_count = ($dais_inteviewer_ids ? count($dais_inteviewer_ids) : 0) + ($dais_only_ids ? count($dais_only_ids) : 0) + ($inteviewer_only_ids ? count($inteviewer_only_ids) : 0);
+
+					$dais = array();
+
+					if($dais_inteviewer_ids)
 					{
-						$dais[] = anchor("user/edit/$dais_id", icon('user', false).$this->user_model->get_user($dais_id, 'name'));
+						foreach($dais_inteviewer_ids as $dais_id)
+						{
+							$dais[] = anchor("user/edit/$dais_id", icon('user', false).$this->user_model->get_user($dais_id, 'name'));
+						}
 					}
-				}
-				
-				if($dais_only_ids)
-				{
-					foreach($dais_only_ids as $dais_id)
+
+					if($dais_only_ids)
 					{
-						$dais[] = anchor("user/edit/$dais_id", icon('user', false).$this->user_model->get_user($dais_id, 'name')).'（仅主席权限）';
+						foreach($dais_only_ids as $dais_id)
+						{
+							$dais[] = anchor("user/edit/$dais_id", icon('user', false).$this->user_model->get_user($dais_id, 'name')).'（仅主席权限）';
+						}
 					}
-				}
-				
-				if($inteviewer_only_ids)
-				{
-					foreach($inteviewer_only_ids as $dais_id)
+
+					if($inteviewer_only_ids)
 					{
-						$dais[] = anchor("user/edit/$dais_id", icon('user', false).$this->user_model->get_user($dais_id, 'name')).'（仅面试官权限）';
+						foreach($inteviewer_only_ids as $dais_id)
+						{
+							$dais[] = anchor("user/edit/$dais_id", icon('user', false).$this->user_model->get_user($dais_id, 'name')).'（仅面试官权限）';
+						}
 					}
-				}
-				
-				if(empty($dais))
-					$dais_list = '无';
-				else
-					$dais_list = join("<br />", $dais);
-				$dais_text = $dais_count.' 位主席<a class="dais_list" data-html=true data-placement="right" data-trigger="click" data-original-title="主席团列表" data-toggle="popover" data-content=\''.$dais_list.'\'>'.icon('plus-square-o', false).'</a>';
-				
-				//委员会类型
-				if(in_array($committee['type'], array_keys($this->types)))
-					$type_text = $this->types[$committee['type']];
-				else
-					$type_text = '未知';
-				
-				if(!empty($committee['seat_width']))
-				{
-					if(in_array($committee['seat_width'], array_keys($this->widths)))
-						$seat_width_text = $this->widths[$committee['seat_width']];
+
+					if(empty($dais))
+						$dais_list = '无';
 					else
-						$seat_width_text = "每席位 {$committee['seat_width']} 代表";
+						$dais_list = join("<br />", $dais);
+					$dais_text = $dais_count.' 位主席<a class="dais_list" data-html=true data-placement="right" data-trigger="click" data-original-title="主席团列表" data-toggle="popover" data-content=\''.$dais_list.'\'>'.icon('plus-square-o', false).'</a>';
+
+					//委员会类型
+					if(in_array($committee['type'], array_keys($this->types)))
+						$type_text = $this->types[$committee['type']];
+					else
+						$type_text = '未知';
+
+					if(!empty($committee['seat_width']))
+					{
+						if(in_array($committee['seat_width'], array_keys($this->widths)))
+							$seat_width_text = $this->widths[$committee['seat_width']];
+						else
+							$seat_width_text = "每席位 {$committee['seat_width']} 代表";
+					}
+					else
+						$seat_width_text = '';
+
+					//席位
+					$seat_available_count = $this->seat_model->get_seat_ids('committee', $id, 'status', array('unavailable', 'available', 'preserved'));
+					$seat_assigned_count = $this->seat_model->get_seat_ids('committee', $id, 'status', array('assigned'));
+					$seat_locked_count = $this->seat_model->get_seat_ids('committee', $id, 'status', array('locked'));
+
+					if(!$seat_available_count)
+						$seat_available_count = 0;
+					if(!$seat_assigned_count)
+						$seat_assigned_count = 0;
+					if(!$seat_locked_count)
+						$seat_locked_count = 0;
+
+					$seat_line = "<span class=\"label label-primary\">未分配</span> {$seat_available_count} ";
+					$seat_line .= "<span class=\"label label-warning\">待确认</span> {$seat_assigned_count} ";
+					$seat_line .= "<span class=\"label label-success\">已锁定</span> {$seat_locked_count}";
+
+					$data = array(
+						$committee['id'], //ID
+						$committee['name'], //委员会名称
+						$committee['abbr'], //委员会缩写
+						$dais_text, //主席团
+						!empty($seat_width_text) ? "{$type_text} / {$seat_width_text}" : $type_text, //委员会类型
+						$seat_line, //席位
+						$operation, //操作
+					);
+
+					$datum[] = $data;
+
+					$json = array('aaData' => $datum);
 				}
-				else
-					$seat_width_text = '';
-				
-				//席位
-				$seat_available_count = $this->seat_model->get_seat_ids('committee', $id, 'status', array('unavailable', 'available', 'preserved'));
-				$seat_assigned_count = $this->seat_model->get_seat_ids('committee', $id, 'status', array('assigned'));
-				$seat_locked_count = $this->seat_model->get_seat_ids('committee', $id, 'status', array('locked'));
-				
-				if(!$seat_available_count)
-					$seat_available_count = 0;
-				if(!$seat_assigned_count)
-					$seat_assigned_count = 0;
-				if(!$seat_locked_count)
-					$seat_locked_count = 0;
-				
-				$seat_line = "<span class=\"label label-primary\">未分配</span> {$seat_available_count} ";
-				$seat_line .= "<span class=\"label label-warning\">待确认</span> {$seat_assigned_count} ";
-				$seat_line .= "<span class=\"label label-success\">已锁定</span> {$seat_locked_count}";
-				
-				$data = array(
-					$committee['id'], //ID
-					$committee['name'], //委员会名称
-					$committee['abbr'], //委员会缩写
-					$dais_text, //主席团
-					!empty($seat_width_text) ? "{$type_text} / {$seat_width_text}" : $type_text, //委员会类型
-					$seat_line, //席位
-					$operation, //操作
-				);
-				
-				$datum[] = $data;
-				
-				$json = array('aaData' => $datum);
+			}
+			else
+			{
+				$json = array('aaData' => array());
 			}
 		}
 		
