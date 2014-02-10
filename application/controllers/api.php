@@ -195,6 +195,7 @@ class Api extends CI_Controller
 			//增加代表数据
 			$this->delegate_model->add_delegate($uid);
 			$delegate_data = array(
+				'status' => 'application_imported',
 				'application_type' => $this->data['type'],
 				'unique_identifier' => $this->data['unique_id']
 			);
