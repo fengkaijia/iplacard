@@ -160,6 +160,72 @@ class Delegate_model extends CI_Model
 	}
 	
 	/**
+	 * 转换状态为文本
+	 * @param string|int $status 状态或代表ID
+	 * @return string 状态文本
+	 */
+	function status_text($status)
+	{
+		//如果为代表ID
+		if(is_int($status) || intval($status) != 0)
+			$status = $this->get_delegate($status, 'status');
+		
+		switch($status)
+		{
+			case 'application_imported':
+				return '申请已导入';
+			case 'review_passed':
+				return '审核通过';
+			case 'review_refused':
+				return '审核未通过';
+			case 'interview_assigned':
+				return '已分配面试';
+			case 'interview_arranged':
+				return '已安排面试';
+			case 'interview_completed':
+				return '面试通过';
+			case 'moved_to_waiting_list':
+				return '在等待队列';
+			case 'seat_assigned':
+				return '席位已分配';
+			case 'invoice_issued':
+				return '等待支付';
+			case 'payment_received':
+				return '已支付会费';
+			case 'locked':
+				return '申请已完成';
+			case 'quitted':
+				return '已经退会';
+		}
+		return false;
+	}
+	
+	/**
+	 * 转换申请类型为文本
+	 * @param string|int $type 申请类型或代表ID
+	 * @return string 状态文本
+	 */
+	function application_type_text($type)
+	{
+		//如果为代表ID
+		if(is_int($type) || intval($type) != 0)
+			$type = $this->get_delegate($type, 'application_type');
+		
+		switch($type)
+		{
+			case 'delegate':
+				return '代表';
+			case 'observer':
+				return '观察员';
+			case 'volunteer':
+				return '志愿者';
+			case 'teacher':
+				return '老师';
+		}
+		return false;
+	}
+	
+	/**
 	 * 获取代表资料
 	 * @param int $id 资料ID
 	 * @param string $part 指定部分
