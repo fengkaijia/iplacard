@@ -1,0 +1,287 @@
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 代表管理控制器
+ * @package iPlacard
+ * @since 2.0
+ */
+class delegate extends CI_Controller
+{
+	function __construct()
+	{
+		parent::__construct();
+		$this->load->library('session');
+		$this->load->library('form_validation');
+		$this->load->library('ui', array('side' => 'admin'));
+		$this->load->model('admin_model');
+		$this->load->model('delegate_model');
+		$this->load->helper('form');
+		$this->load->helper('ui');
+		
+		//检查登录情况
+		if(!is_logged_in())
+		{
+			login_redirect();
+			return;
+		}
+		
+		$this->ui->now('delegate');
+	}
+	
+	/**
+	 * 管理页面
+	 */
+	function manage()
+	{
+		//查询过滤
+		$post = $this->input->get();
+		$param = $this->_filter_check($post);
+		
+		//显示标题
+		$title = '参会代表列表';
+		
+		if(isset($param['type']))
+		{
+			$text_type = array();
+			foreach($param['type'] as $one)
+			{
+				$text_type[] = $this->delegate_model->application_type_text($one);
+			}
+			$title = sprintf("%s列表", join('、', $text_type));
+		}
+		
+		if(isset($param['committee']))
+		{
+			$this->load->model('committee_model');
+			
+			$text_committee = array();
+			foreach($param['committee'] as $one)
+			{
+				$text_committee[] = $this->committee_model->get_committee($one, 'name');
+			}
+			$title = sprintf("%s代表列表", join('、', $text_committee));
+		}
+		
+		if(isset($param['group']))
+		{
+			$this->load->model('group_model');
+			
+			$text_group = array();
+			foreach($param['group'] as $one)
+			{
+				$text_group[] = $this->group_model->get_group($one, 'name');
+			}
+			$title = sprintf("%s代表团成员列表", join('、', $text_group));
+		}
+		
+		$vars = array(
+			'param_uri' => $this->_filter_check($post, true),
+			'title' => $title,
+		);
+		
+		$this->ui->title($title);
+		$this->load->view('admin/delegate_manage', $vars);
+	}
+	
+	/**
+	 * AJAX
+	 */
+	function ajax($action = 'list')
+	{
+		$json = array();
+		
+		if($action == 'list')
+		{
+			$this->load->model('committee_model');
+			$this->load->model('seat_model');
+			$this->load->helper('date');
+			
+			$param = $this->_filter_check($this->input->get());
+			$input_param = array();
+			
+			//代表类型
+			if(isset($param['type']))
+				$input_param['application_type'] = $param['type'];
+			
+			//申请状态
+			if(isset($param['status']))
+				$input_param['status'] = $param['status'];
+			
+			//代表团
+			if(isset($param['group']))
+				$input_param['group'] = $param['group'];
+			
+			//委员会
+			if(isset($param['committee']))
+			{
+				$sids = $this->seat_model->get_seat_ids('committee', $param['committee'], 'status', array('assigned', 'approved', 'locked'));
+				if($sids)
+					$input_param['id'] = $this->seat_model->get_delegates_by_seats($sids);
+			}
+			
+			$args = array();
+			if(!empty($input_param))
+			{
+				foreach($input_param as $item => $value)
+				{
+					$args[] = $item;
+					$args[] = $value;
+				}
+			}
+			$ids = call_user_func_array(array($this->delegate_model, 'get_delegate_ids'), $args);
+			
+			if($ids)
+			{
+				foreach($ids as $id)
+				{
+					$delegate = $this->delegate_model->get_delegate($id);
+
+					//操作
+					$operation = anchor("delegate/detail/$id", icon('info-circle', false).'信息').' '.anchor("ticket/manage/?delegate=$id", icon('comments', false).'工单');
+					
+					//姓名
+					$contact_list = '<p>'.icon('phone').$delegate['phone'].'</p><p>'.icon('envelope-o').$delegate['email'].'</p>';
+					$name_line = $delegate['name'].'<a class="contact_list" data-html=true data-placement="right" data-trigger="click" data-original-title=\''
+							.$delegate['name']
+							.'\' data-toggle="popover" data-content=\''.$contact_list.'\'>'.icon('phone-square', false).'</a>';
+					
+					//团队
+					$group_line = '';
+					if(!empty($delegate['group']))
+					{
+						$this->load->model('group_model');
+						$group = $this->group_model->get_group($delegate['group']);
+						$group_line = anchor("delegate/manage/?group={$group['id']}", $group['name']);
+					}
+					
+					//申请状态
+					$status_text = $this->delegate_model->status_text($delegate['status']);
+					switch($this->delegate_model->status_code($delegate['status']))
+					{
+						case 9:
+							$status_class = 'success';
+							break;
+						case 10:
+							$status_class = 'warning';
+							break;
+						default:
+							$status_class = 'primary';
+					}
+					$status_line = "<span class='label label-{$status_class}'>{$status_text}</span>";
+					
+					//委员会
+					$committee_line = '';
+					if($delegate['application_type'] == 'delegate')
+					{
+						$sid = $this->seat_model->get_seat_id('delegate', $delegate);
+						if($sid)
+						{
+							$seat = $this->seat_model->get_seat($sid);
+							$committee_line = $this->committee_model->get_committee($seat['committee'], 'abbr');
+						}
+					}
+
+					$data = array(
+						$delegate['id'], //ID
+						$name_line, //姓名
+						$group_line, //团队
+						$this->delegate_model->application_type_text($delegate['application_type']), //申请类型
+						$status_line, //申请状态
+						sprintf('%1$s（%2$s）', date('n月j日', $delegate['reg_time']), nicetime($delegate['reg_time'])), //申请提交时间
+						$committee_line, //委员会
+						$operation, //操作
+					);
+
+					$datum[] = $data;
+
+					$json = array('aaData' => $datum);
+				}
+			}
+			else
+			{
+				$json = array('aaData' => array());
+			}
+		}
+		
+		echo json_encode($json);
+	}
+	
+	/**
+	 * 查询过滤
+	 */
+	function _filter_check($post, $return_uri = false)
+	{
+		$return = array();
+		
+		//代表类型
+		if(isset($post['type']))
+		{
+			$type = array();
+			foreach(explode(',', $post['type']) as $param_type)
+			{
+				if(in_array($param_type, array('delegate', 'observer', 'volunteer', 'teacher')))
+					$type[] = $param_type;
+			}
+			if(!empty($type))
+				$return['type'] = $type;
+		}
+		
+		//申请状态
+		if(isset($post['status']))
+		{
+			$status = array();
+			foreach(explode(',', $post['status']) as $param_status)
+			{
+				if(in_array($param_status, array('application_imported', 'review_passed', 'review_refused', 'interview_assigned', 'interview_arranged', 'interview_completed', 'moved_to_waiting_list', 'seat_assigned', 'invoice_issued', 'payment_received', 'locked', 'quitted')))
+					$status[] = $param_status;
+			}
+			if(!empty($status))
+				$return['status'] = $status;
+		}
+		
+		//代表团
+		if(isset($post['group']))
+		{
+			$this->load->model('group_model');
+			
+			$group = array();
+			foreach(explode(',', $post['group']) as $param_group)
+			{
+				if(in_array($param_group, $this->group_model->get_group_ids()))
+					$group[] = $param_group;
+			}
+			if(!empty($group))
+				$return['group'] = $group;
+		}
+		
+		//委员会
+		if(isset($post['committee']))
+		{
+			$this->load->model('committee_model');
+			
+			$committee = array();
+			foreach(explode(',', $post['committee']) as $param_committee)
+			{
+				if(in_array($param_committee, $this->committee_model->get_committee_ids()))
+					$committee[] = $param_committee;
+			}
+			if(!empty($committee))
+				$return['committee'] = $committee;
+		}
+		
+		if(!$return_uri)
+			return $return;
+		
+		if(empty($return))
+			return '';
+		
+		foreach($return as $name => $value)
+		{
+			$return[$name] = join(',', $value);
+		}
+		return http_build_query($return);
+	}
+}
+
+/* End of file delegate.php */
+/* Location: ./application/controllers/delegate.php */
