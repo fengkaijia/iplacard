@@ -140,8 +140,16 @@ class delegate extends CI_Controller
 					$operation = anchor("delegate/detail/$id", icon('info-circle', false).'信息').' '.anchor("ticket/manage/?delegate=$id", icon('comments', false).'工单');
 					
 					//姓名
+					$hd_text = '';
+					if(isset($param['display_hd']) && $param['display_hd'])
+					{
+						$this->load->model('group_model');
+						
+						if($this->group_model->get_group_id('head_delegate', $id))
+							$hd_text = '<span class="label label-primary">领队</span> ';
+					}
 					$contact_list = '<p>'.icon('phone').$delegate['phone'].'</p><p>'.icon('envelope-o').$delegate['email'].'</p>';
-					$name_line = $delegate['name'].'<a class="contact_list" data-html=true data-placement="right" data-trigger="click" data-original-title=\''
+					$name_line = $hd_text.$delegate['name'].'<a class="contact_list" data-html=true data-placement="right" data-trigger="click" data-original-title=\''
 							.$delegate['name']
 							.'\' data-toggle="popover" data-content=\''.$contact_list.'\'>'.icon('phone-square', false).'</a>';
 					
@@ -267,6 +275,12 @@ class delegate extends CI_Controller
 			}
 			if(!empty($committee))
 				$return['committee'] = $committee;
+		}
+		
+		//显示领队标志
+		if(isset($post['display_hd']) && $post['display_hd'])
+		{
+			$return['display_hd'] = array(true);
 		}
 		
 		if(!$return_uri)
