@@ -211,7 +211,7 @@ class Group extends CI_Controller
 					$group = $this->group_model->get_group($id);
 
 					//操作
-					$operation = anchor("group/member/$id", icon('group', false).'成员').' '.anchor("group/edit/$id", icon('edit', false).'编辑');
+					$operation = anchor("delegate/manage/?display_hd=1&group=$id", icon('group', false).'成员').' '.anchor("group/edit/$id", icon('edit', false).'编辑');
 
 					//状态统计
 					$status = array(
