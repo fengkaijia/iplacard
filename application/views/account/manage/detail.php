@@ -128,7 +128,7 @@
 				<div class="form-group">
 					<?php echo form_label('当前头像', 'avatar_current', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-10">
-						<a href="#" class="thumbnail" style="width: 170px; height: 170px;">
+						<a class="thumbnail" style="width: 170px; height: 170px;">
 							<?php echo avatar($data['id'], 160, 'img');?>
 						</a>
 					</div>
