@@ -50,6 +50,16 @@ class delegate extends CI_Controller
 			$title = sprintf("%s列表", join('、', $text_type));
 		}
 		
+		if(isset($param['status']))
+		{
+			$text_status = array();
+			foreach($param['status'] as $one)
+			{
+				$text_status[] = $this->delegate_model->status_text($one);
+			}
+			$title = sprintf("%s代表列表", join('、', $text_status));
+		}
+		
 		if(isset($param['committee']))
 		{
 			$this->load->model('committee_model');
