@@ -77,13 +77,11 @@ class UI
 	 */
 	var $admin_panel = array(
 		'delegate' => array(
-			array('代表', 'row/delegate', 'administrator', false),
-			array('观察员', 'row/delegate/observer', 'administrator', false),
-			array('志愿者', 'row/delegate/volunteer', 'administrator', true),
-			array('退会代表', 'row/delegate/quit', 'administrator', false),
-		),
-		'admit' => array(
-			array('申请', 'row/admission', 'reviewer', false),
+			array('代表', 'delegate/manage?type=delegate', 'administrator', false),
+			array('观察员', 'delegate/manage?type=observer', 'administrator', false),
+			array('志愿者', 'delegate/manage?type=volunteer', 'administrator', false),
+			array('带队老师', 'delegate/manage?type=teacher', 'administrator', true),
+			array('退会代表', 'delegate/manage?status=quitted', 'administrator', false),
 		),
 		'interview' => array(
 			array('面试', 'row/interview/assigned', '', false),
