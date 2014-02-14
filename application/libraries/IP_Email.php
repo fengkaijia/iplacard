@@ -9,6 +9,11 @@ class IP_Email extends CI_Email
 {
 	private $CI;
 	
+	/**
+	 * @var string 邮件标题
+	 */
+	var $subject = '';
+	
 	function __construct()
 	{
 		parent::__construct();
@@ -18,6 +23,16 @@ class IP_Email extends CI_Email
 		$this->_set_default();
 	}
 	
+	/**
+	 * 记录邮件标题
+	 */
+	public function subject($subject)
+	{
+		parent::subject($subject);
+		
+		$this->subject = $subject;
+	}
+
 	/**
 	 * 发信内容中自动包含HTML邮件模板
 	 * @param string $body 邮件内容
@@ -33,7 +48,7 @@ class IP_Email extends CI_Email
 			$html = nl2br(str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $body));
 		}
 		
-		$message = $this->CI->load->view('email', array('text' => $html), true);
+		$message = $this->CI->load->view('email', array('text' => $html, 'title' => $this->subject), true);
 		$this->message($message);
 		$this->set_alt_message($body);
 		
@@ -47,6 +62,7 @@ class IP_Email extends CI_Email
 	{
 		parent::clear($clear_attachments);
 		
+		$this->subject = '';
 		$this->_set_default();
 	}
 	
