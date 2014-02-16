@@ -61,3 +61,26 @@ function form_auth_center() {
 		$('.form-auth').css({'margin-top':head});
 	}
 }
+
+function nav_menu_top()
+{
+	if($(window).width() < 992) {
+		if($('.menu-tabs').html() !== '') {
+			$('.menu-pills').html($('.menu-tabs').html());
+			$('.menu-pills .nav-menu').removeClass('nav-tabs');
+			$('.menu-pills .nav-menu').addClass('nav-pills');
+			$('.menu-tabs').empty();
+		}
+	}
+	else
+	{
+		if($('.menu-tabs').html() === '') {
+			$('.menu-tabs').html($('.menu-pills').html());
+			$('.menu-tabs .nav-menu').removeClass('nav-pills');
+			$('.menu-tabs .nav-menu').addClass('nav-tabs');
+			$('.menu-pills').empty();
+		}
+		
+		$('.nav-menu').css({'top': $('.page-header').height() + parseInt($('.page-header').css('padding-bottom').replace('px','')) - $('.nav-menu').height()});
+	}
+}

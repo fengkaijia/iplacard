@@ -229,3 +229,11 @@ body {
 	padding-top: 10px;
 	padding-bottom: 10px;
 }
+
+/* 页面菜单 */
+@media (min-width: 992px) {
+	.nav-menu {
+		border-bottom-style: none;
+		position: absolute;
+	}
+}
