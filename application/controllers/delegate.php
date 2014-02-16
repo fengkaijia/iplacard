@@ -94,6 +94,120 @@ class delegate extends CI_Controller
 	}
 	
 	/**
+	 * 查看代表资料
+	 */
+	function profile($uid)
+	{
+		$this->load->model('interview_model');
+		$this->load->model('group_model');
+		
+		//检查代表是否存在
+		if(!$this->user_model->user_exists($uid))
+		{
+			$this->ui->alert('代表不存在。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		elseif(!$this->user_model->is_delegate($uid))
+		{
+			$this->ui->alert('请求的用户 ID 不是代表。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
+		//代表资料数据
+		$profile = $this->delegate_model->get_delegate($uid);
+		$profile['application_type_text'] = $this->delegate_model->application_type_text($profile['application_type']);
+		$profile['status_text'] = $this->delegate_model->status_text($profile['status']);
+		
+		$pids = $this->delegate_model->get_profile_ids('delegate', $uid);
+		if($pids)
+		{
+			foreach($pids as $pid)
+			{
+				$one = $this->delegate_model->get_profile($pid);
+				$profile[$one['name']] = $one['value'];
+			}
+		}
+		
+		$vars['profile'] = $profile;
+		
+		//面试数据
+		$interviews = array();
+		
+		$iids = $this->interview_model->get_interview_ids('delegate', $uid);
+		if($iids)
+		{
+			$iids = array_reverse($iids);
+			
+			foreach($iids as $interview_id)
+			{
+				$interview = $this->interview_model->get_interview($interview_id);
+				$interview['interviewer'] = $this->admin_model->get_admin($interview['interviewer']);
+				$interviews[$interview['id']] = $interview;
+			}
+			
+			$vars['current_interview'] = $this->interview_model->get_current_interview_id($uid);
+		}
+		
+		$vars['interviews'] = $interviews;
+		
+		//TODO: 用户事件数据
+		
+		//所有团队数据
+		$groups = array();
+		
+		$gids = $this->group_model->get_group_ids();
+		if($gids)
+		{
+			foreach($gids as $gid)
+			{
+				$one = $this->group_model->get_group($gid);
+				$groups[$gid] = $one['name'];
+			}
+		}
+		
+		$vars['groups'] = $groups;
+		
+		//代表团队数据
+		$group = false;
+		$head_delegate = false;
+		
+		if(!empty($profile['group']))
+		{
+			$group = $this->group_model->get_group($profile['group']);
+			
+			//团队人数统计
+			$group['count'] = 0;
+			$guids = $this->delegate_model->get_delegate_ids('group', $profile['group']);
+			if($guids)
+				$group['count'] = count($guids);
+			
+			//是否为领队
+			if($group['head_delegate'] == $uid)
+				$head_delegate = true;
+		}
+		
+		$vars['group'] = $group;
+		$vars['head_delegate'] = $head_delegate;
+		
+		//席位数据
+		if(!empty($profile['seat']))
+		{
+			$this->load->model('committee_model');
+			$this->load->model('seat_model');
+			
+			$vars['seat'] = $this->seat_model->get_seat($profile['seat']);
+			$vars['committee'] = $this->committee_model->get_committee($vars['seat']['committee']);
+		}
+		
+		$vars['uid'] = $uid;
+		
+		$this->ui->title($profile['name'], '代表资料');
+		$this->load->view('admin/delegate_profile', $vars);
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = 'list')
@@ -147,7 +261,7 @@ class delegate extends CI_Controller
 					$delegate = $this->delegate_model->get_delegate($id);
 
 					//操作
-					$operation = anchor("delegate/detail/$id", icon('info-circle', false).'信息').' '.anchor("ticket/manage/?delegate=$id", icon('comments', false).'工单');
+					$operation = anchor("delegate/profile/$id", icon('info-circle', false).'信息').' '.anchor("ticket/manage/?delegate=$id", icon('comments', false).'工单');
 					
 					//姓名
 					$hd_text = '';
