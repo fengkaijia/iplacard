@@ -187,6 +187,8 @@ class delegate extends CI_Controller
 			//是否为领队
 			if($group['head_delegate'] == $uid)
 				$head_delegate = true;
+			elseif($group['head_delegate'])
+				$group['head_delegate'] = $this->delegate_model->get_delegate($group['head_delegate']);
 		}
 		
 		$vars['group'] = $group;
