@@ -144,7 +144,15 @@ class delegate extends CI_Controller
 			foreach($iids as $interview_id)
 			{
 				$interview = $this->interview_model->get_interview($interview_id);
+				$interview['status_text'] = $this->interview_model->status_text($interview['status']);
 				$interview['interviewer'] = $this->admin_model->get_admin($interview['interviewer']);
+				if(!empty($interview['interviewer']['committee']))
+				{
+					$this->load->model('committee_model');
+					
+					$interview['interviewer']['committee'] = $this->committee_model->get_committee($interview['interviewer']['committee']);
+				}
+				
 				$interviews[$interview['id']] = $interview;
 			}
 			
