@@ -70,6 +70,35 @@ class Interview_model extends CI_Model
 	}
 	
 	/**
+	 * 转换状态为文本
+	 * @param string|int $status 状态或面试ID
+	 * @return string 状态文本
+	 */
+	function status_text($status)
+	{
+		//如果为代表ID
+		if(is_int($status) || intval($status) != 0)
+			$status = $this->get_interview($status, 'status');
+		
+		switch($status)
+		{
+			case 'assigned':
+			return '等待安排时间';
+		case 'arranged':
+			return '已经安排时间';
+		case 'completed':
+			return '面试通过';
+		case 'exempted':
+			return '免试通过';
+		case 'cancelled':
+			return '面试取消';
+		case 'failed':
+			return '面试未通过';
+		}
+		return false;
+	}
+	
+	/**
 	 * 编辑/添加面试
 	 * @return int 新的面试ID
 	 */
