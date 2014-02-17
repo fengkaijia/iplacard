@@ -222,7 +222,7 @@ class Committee extends CI_Controller
 					$committee = $this->committee_model->get_committee($id);
 
 					//操作
-					$operation = anchor("seat/manage/$id", icon('list', false).'席位列表').' '.anchor("committee/edit/$id", icon('edit', false).'编辑');
+					$operation = anchor("delegate/manage/?committee=$id", icon('user', false).'代表').' '.anchor("seat/manage/?committee=$id", icon('list', false).'席位').' '.anchor("committee/edit/$id", icon('edit', false).'编辑');
 
 					//主席团
 					$dais_inteviewer_ids = $this->admin_model->get_admin_ids('role_dais', true, 'role_interviewer', true, 'committee', $id);
