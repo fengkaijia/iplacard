@@ -15,5 +15,30 @@ function icon($icon, $space = true, $fixed = true)
 	return "<i class=\"fa fa-{$icon}{$fixed}\"></i>{$space}";
 }
 
+/**
+ * 显示旗帜图标
+ * @param string $iso ISO 3166-1代码
+ * @param boolean $check 是否检查代码是否存在
+ * @param boolean $space 是否增加空间
+ * @return string 包含旗帜的HTML代码
+ */
+function flag($iso, $check = false, $space = true)
+{
+	if($check)
+	{
+		$CI =& get_instance();
+		$CI->config->load('iso');
+		
+		$available = $CI->config->item('iso_3166_1');
+		
+		if(!in_array($iso, $available))
+			$iso = '_unknown';
+	}
+	
+	$space = $space ? ' ' : '';
+	
+	return "<span class=\"flag {$iso}\"></span>{$space}";
+}
+
 /* End of file ui_helper.php */
 /* Location: ./application/helpers/ui_helper.php */
