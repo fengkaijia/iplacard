@@ -408,8 +408,6 @@ class delegate extends CI_Controller
 				{
 					$note = $this->note_model->get_note($id);
 					$note['admin'] = $this->admin_model->get_admin($note['admin']);
-					if(!empty($note))
-						$note['category'] = $this->note_model->get_category($note['category']);
 					
 					$notes[] = $note;
 				}
