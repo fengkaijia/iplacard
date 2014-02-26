@@ -428,6 +428,7 @@ class delegate extends CI_Controller
 			
 			$json = array('html' => $this->load->view('admin/delegate_note', array('notes' => $notes, 'categories' => $categories, 'uid' => $uid), true));
 		}
+		
 		echo json_encode($json);
 	}
 	
