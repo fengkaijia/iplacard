@@ -264,6 +264,91 @@ class delegate extends CI_Controller
 	}
 	
 	/**
+	 * 团队操作
+	 */
+	function group($action, $uid)
+	{
+		$this->load->model('group_model');
+		
+		$delegate = $this->delegate_model->get_delegate($uid);
+				
+		if(!$delegate)
+		{
+			$this->ui->alert('代表不存在。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
+		if($action == 'remove')
+		{
+			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+
+			$this->form_validation->set_rules('confirm', '确认删除', 'trim|required');
+
+			if($this->form_validation->run() == true)
+			{
+				if(is_null($delegate['group']))
+				{
+					$this->ui->alert('需要转换的代表是个人代表。', 'warning', true);
+					back_redirect();
+					return;
+				}
+				
+				$group = $this->group_model->get_group($delegate['group']);
+				
+				//取消团队
+				$this->delegate_model->edit_delegate(array('group' => NULL), $uid);
+				
+				//是领队
+				if($group['head_delegate'] == $uid)
+				{
+					$this->group_model->edit_group(array('head_delegate' => NULL), $group['id']);
+					
+					$this->system_model->log('group_head_delegate_removed', array('id' => $group['id'], 'head_delegate' => $uid));
+				}
+				
+				//发送邮件
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate_name' => $delegate['name'],
+					'group_name' => $group['name'],
+					'time' => unix_to_human(time()),
+				);
+				
+				//通知此代表
+				$this->email->to($delegate['name']);
+				$this->email->subject('您已调整为个人代表');
+				$this->email->html($this->parser->parse_string(option('email_group_delegate_removed', "您已于 {time} 由管理员操作退出{group_name}代表团，如为误操作请立即与管理员取得联系。"), $data, true));
+				$this->email->send();
+				$this->email->clear();
+				
+				//通知团队领队
+				if($group['head_delegate'] != $uid)
+				{
+					$this->email->to($this->delegate_model->get_delegate($group['head_delegate'], 'email'));
+					$this->email->subject('代表退出了您领队的代表团');
+					$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_removed', "{delegate_name}代表已于 {time} 由管理员操作退出您领队的{group_name}代表团，如为误操作请立即与管理员取得联系。"), $data, true));
+					$this->email->send();
+				}
+				
+				$this->ui->alert('已经转换为个人代表。', 'success', true);
+				
+				$this->system_model->log('group_delegate_removed', array('id' => $group['id'], 'delegate' => $uid));
+			}
+			else
+			{
+				$this->ui->alert('转换操作未获确认。', 'danger', true);
+			}
+		}
+		
+		back_redirect();
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = 'list')
