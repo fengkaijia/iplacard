@@ -237,3 +237,14 @@ body {
 		position: absolute;
 	}
 }
+
+/* 笔记 */
+#note_area blockquote p {
+	font-size: 17px;
+}
+
+#note_area blockquote footer,
+#note_area blockquote small,
+#note_area blockquote .small {
+	font-size: 14px;
+}
