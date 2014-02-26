@@ -6,13 +6,14 @@ if(!empty($notes))
 	<p><?php echo nl2br($note['text']);?></p>
 	<small><?php
 	if(!empty($note['admin']['title']))
-	{
-		printf('%1$s（%2$s）于%3$s（%4$s）', $note['admin']['name'], $note['admin']['title'], date('n月j日', $note['time']), nicetime($note['time']));
-	}
+		$name_line = sprintf('%1$s（%2$s）', $note['admin']['name'], $note['admin']['title']);
 	else
-	{
-		printf('%1$s于%2$s（%3$s）', $note['admin']['name'], date('n月j日', $note['time']), nicetime($note['time']));
-	}
+		$name_line = sprintf('%1$s', $note['admin']['name']);
+	
+	if(!empty($note['category']) && isset($categories[$note['category']]))
+		printf('%4$s / %1$s / %2$s（%3$s）', $name_line, date('n月j日', $note['time']), nicetime($note['time']), icon('tag', false).$categories[$note['category']]);
+	else
+		printf('%1$s / %2$s（%3$s）', $name_line, date('n月j日', $note['time']), nicetime($note['time']));
 	?></small>
 </blockquote><?php } }
 echo form_button(array(
