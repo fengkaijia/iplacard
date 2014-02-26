@@ -95,7 +95,7 @@ class Note_model extends CI_Model
 			$uid = uid();
 		
 		$data = array(
-			'user' => $uid,
+			'admin' => $uid,
 			'delegate' => $delegate,
 			'text' => $text,
 			'time' => time()
