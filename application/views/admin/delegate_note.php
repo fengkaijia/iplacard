@@ -1,12 +1,18 @@
 <?php
 if(!empty($notes))
 {
+	//管理用户记录（多次出现不显示职位）
+	$admins = array();
+	
 	foreach($notes as $id => $note)
 	{ ?><blockquote>
 	<p><?php echo nl2br($note['text']);?></p>
 	<small><?php
-	if(!empty($note['admin']['title']))
+	if(!empty($note['admin']['title']) && !in_array($note['admin']['id'], $admins))
+	{
 		$name_line = sprintf('%1$s（%2$s）', $note['admin']['name'], $note['admin']['title']);
+		$admins[] = $note['admin']['id'];
+	}
 	else
 		$name_line = sprintf('%1$s', $note['admin']['name']);
 	
