@@ -219,6 +219,51 @@ class delegate extends CI_Controller
 	}
 	
 	/**
+	 * 添加笔记
+	 */
+	function note($action, $uid, $id = '')
+	{
+		$this->load->model('note_model');
+		
+		//设定操作类型
+		if(empty($id))
+			$action = 'add';
+		
+		//添加笔记
+		if($action == 'add')
+		{
+			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+
+			$this->form_validation->set_rules('note', '笔记内容', 'trim|required');
+
+			if($this->form_validation->run() == true)
+			{
+				$note = $this->input->post('note', true);
+				$category = $this->input->post('category');
+				
+				if(empty($category) || !$this->note_model->get_category($category))
+					$category = NULL;
+				
+				$new_id = $this->note_model->add_note(intval($uid), $note, $category);
+				
+				if($new_id)
+				{
+					$this->ui->alert("已经成功添加笔记。", 'success', true);
+
+					$this->system_model->log('note_added', array('id' => $new_id));
+				}
+				else
+				{
+					$this->ui->alert("出现未知错误导致笔记未能添加，请重试。", 'danger', true);
+				}
+			}
+			
+			back_redirect();
+			return;
+		}
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = 'list')
