@@ -345,7 +345,46 @@ class delegate extends CI_Controller
 				$json = array('aaData' => array());
 			}
 		}
-		
+		elseif($action == 'note')
+		{
+			$this->load->model('note_model');
+			$this->load->helper('date');
+			
+			$uid = $this->input->get('id');
+			if(empty($uid))
+				return;
+			
+			$notes = array();
+			
+			$ids = $this->note_model->get_delegate_notes($uid);
+			if(!empty($ids))
+			{
+				foreach($ids as $id)
+				{
+					$note = $this->note_model->get_note($id);
+					$note['admin'] = $this->admin_model->get_admin($note['admin']);
+					if(!empty($note))
+						$note['category'] = $this->note_model->get_category($note['category']);
+					
+					$notes[] = $note;
+				}
+			}
+			
+			$categories = array();
+			
+			$cat_ids = $this->note_model->get_category_ids();
+			if(!empty($cat_ids))
+			{
+				foreach($cat_ids as $id)
+				{
+					$category = $this->note_model->get_category($id);
+					
+					$categories[$id] = $category['name'];
+				}
+			}
+			
+			$json = array('html' => $this->load->view('admin/delegate_note', array('notes' => $notes, 'categories' => $categories, 'uid' => $uid), true));
+		}
 		echo json_encode($json);
 	}
 	

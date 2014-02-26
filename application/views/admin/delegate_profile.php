@@ -188,9 +188,12 @@ $this->load->view('header');?>
 			</div>
 			
 			<hr />
+			
+			<h3 id="note">笔记</h3>
+			<div id="note_area">
+				操作载入中……
+			</div>
 		</div>
-		
-		<?php $this->load->view('admin/delegate_note', array('delegate' => $uid));?>
 	</div>
 </div>
 
@@ -206,5 +209,17 @@ $.ajax({
 });
 EOT;
 $this->ui->js('footer', $operation_js);
+
+$note_url = base_url("delegate/ajax/note?id=$uid");
+$note_js = <<<EOT
+$.ajax({
+	url: "$note_url",
+	dataType : "json",
+	success : function( note ){
+		$("#note_area").html( note.html );
+	}
+});
+EOT;
+$this->ui->js('footer', $note_js);
 
 $this->load->view('footer');?>
