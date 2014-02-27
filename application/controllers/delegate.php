@@ -464,7 +464,10 @@ class delegate extends CI_Controller
 					}
 				}
 				
-				$this->ui->alert('团队转换调整操作完成。', 'success', true);
+				if(is_null($delegate['group']) || $delegate['group'] != $group_id || ($group_new['head_delegate'] != $uid && $this->input->post('head_delegate') == true) || ($group_new['head_delegate'] == $uid && $this->input->post('head_delegate') == false))
+					$this->ui->alert('团队转换调整操作完成。', 'success', true);
+				else
+					$this->ui->alert('未执行团队转换调整操作。', 'info', true);
 				
 				$this->system_model->log('group_delegate_removed', array('id' => $group['id'], 'delegate' => $uid));
 			}
