@@ -464,6 +464,17 @@ class delegate extends CI_Controller
 					}
 				}
 				
+				//通知领队取消
+				if($delegate['group'] == $group_id && !$group_new['head_delegate'] == $uid && $this->input->post('head_delegate') == false)
+				{
+					//通知成为领队
+					$this->email->to($delegate['email']);
+					$this->email->subject('您的代表团领队已经取消');
+					$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_removed', "您领队的{group_new_name}代表团已于 {time} 由管理员操作取消了领队，目前{group_new_name}代表团没有领队，如为误操作请立即与管理员取得联系。"), $data, true));
+					$this->email->send();
+					$this->email->clear();
+				}
+				
 				if(is_null($delegate['group']) || $delegate['group'] != $group_id || ($group_new['head_delegate'] != $uid && $this->input->post('head_delegate') == true) || ($group_new['head_delegate'] == $uid && $this->input->post('head_delegate') == false))
 					$this->ui->alert('团队转换调整操作完成。', 'success', true);
 				else
