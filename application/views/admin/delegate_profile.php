@@ -55,7 +55,7 @@ $this->load->view('header');?>
 							<th>领队</th>
 						</tr>
 						<tr>
-							<td><?php echo anchor("delegate/manage/group={$group['id']}", $group['name']);?></td>
+							<td><?php echo anchor("delegate/manage/?group={$group['id']}", $group['name']);?></td>
 							<td><?php echo $group['count'];?></td>
 							<td><?php if($head_delegate) { ?><span class="label label-primary">此代表是领队</span><?php }
 							elseif(!$group['head_delegate']) { ?><span class="label label-warning">该团队暂无领队</span><?php }
@@ -123,7 +123,7 @@ $this->load->view('header');?>
 					</div>
 				<?php echo form_close(); } else { ?><p>此申请者为个人申请代表，不属于任何团队。</p>
 				<a data-toggle="modal" data-target="#group_edit" class="btn btn-primary"><?php echo icon('retweet');?>转换为团队代表</a><?php }
-				echo form_open("delegate/group/{$profile['id']}", array(
+				echo form_open("delegate/group/edit/{$profile['id']}", array(
 					'class' => 'modal fade form-horizontal',
 					'id' => 'group_edit',
 					'tabindex' => '-1',
