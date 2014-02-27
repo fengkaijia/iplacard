@@ -122,7 +122,76 @@ $this->load->view('header');?>
 						</div>
 					</div>
 				<?php echo form_close(); } else { ?><p>此申请者为个人申请代表，不属于任何团队。</p>
-				<a data-toggle="modal" data-target="#group_edit" class="btn btn-primary"><?php echo icon('retweet');?>转换为团队代表</a><?php } ?>
+				<a data-toggle="modal" data-target="#group_edit" class="btn btn-primary"><?php echo icon('retweet');?>转换为团队代表</a><?php }
+				echo form_open("delegate/group/{$profile['id']}", array(
+					'class' => 'modal fade form-horizontal',
+					'id' => 'group_edit',
+					'tabindex' => '-1',
+					'role' => 'dialog',
+					'aria-labelledby' => 'edit_label',
+					'aria-hidden' => 'true'
+				));?><div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<?php echo form_button(array(
+									'content' => '&times;',
+									'class' => 'close',
+									'type' => 'button',
+									'data-dismiss' => 'modal',
+									'aria-hidden' => 'true'
+								));?>
+								<h4 class="modal-title" id="edit_label"><?php echo $group ? '调整团队' : '加入团队';?></h4>
+							</div>
+							<div class="modal-body">
+								<p>将会调整<?php echo icon('user', false).$profile['name'];?>的团队属性，调整完成后将会通知代表。</p>
+								
+								<div class="form-group <?php if(form_has_error('group')) echo 'has-error';?>">
+									<?php echo form_label('所属团队', 'group', array('class' => 'col-lg-3 control-label'));?>
+									<div class="col-lg-5">
+										<?php echo form_dropdown('group', array('' => '选择代表团...') + $groups, set_value('group', $group ? $group['id'] : ''), 'class="form-control" id="committee"');
+										if(form_has_error('group'))
+											echo form_error('group');
+										else { ?><div class="help-block">代表所属的代表团。</div><?php } ?>
+									</div>
+								</div>
+								
+								<div class="form-group <?php if(form_has_error('head_delegate')) echo 'has-error';?>">
+									<?php echo form_label('设为领队', 'head_delegate', array('class' => 'col-lg-3 control-label'));?>
+									<div class="col-lg-9">
+										<div class="checkbox">
+											<label>
+												<?php echo form_checkbox(array(
+													'name' => 'head_delegate',
+													'id' => 'head_delegate',
+													'value' => true,
+													'checked' => false,
+												)); ?> 设置此代表为团队领队
+											</label>
+										</div>
+										<?php if(form_has_error('head_delegate'))
+											echo form_error('head_delegate');
+										else { ?><div class="help-block">如设置的代表团以存在领队，此操作仍然有效。</div><?php } ?>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<?php echo form_button(array(
+									'content' => '取消',
+									'type' => 'button',
+									'class' => 'btn btn-link',
+									'data-dismiss' => 'modal'
+								));
+								echo form_button(array(
+									'name' => 'submit',
+									'content' => '确认提交',
+									'type' => 'submit',
+									'class' => 'btn btn-primary',
+									'onclick' => 'loader(this);'
+								)); ?>
+							</div>
+						</div>
+					</div>
+				<?php echo form_close(); ?>
 				
 				<hr />
 				
