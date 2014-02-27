@@ -178,7 +178,7 @@ $this->load->view('header');?>
 										</div>
 										<?php if(form_has_error('head_delegate'))
 											echo form_error('head_delegate');
-										else { ?><div class="help-block">如设置的代表团以存在领队，此操作仍然有效。</div><?php } ?>
+										else { ?><div class="help-block">如设置的代表团已存在领队，此操作仍然有效。</div><?php } ?>
 									</div>
 								</div>
 							</div>
