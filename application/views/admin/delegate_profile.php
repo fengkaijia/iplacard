@@ -68,7 +68,8 @@ $this->load->view('header');?>
 					<button type="button" data-toggle="modal" data-target="#group_edit" onclick="$('input[name=head_delegate]').attr('checked', <?php echo set_value('group', $head_delegate ? true : false) ? 'true' : 'false';?>); $('select[name=group]').removeAttr('disabled');" class="btn btn-primary"><?php echo icon('retweet');?>调整团队</button>
 					<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
 					<ul class="dropdown-menu">
-						<?php if(!$head_delegate) { ?><li><a data-toggle="modal" data-target="#group_edit" onclick="$('input[name=head_delegate]').attr('checked', true); $('select[name=group]').attr('disabled', true);">设为领队领队</a></li><?php } ?>
+						<?php if(!$head_delegate) { ?><li><a data-toggle="modal" data-target="#group_edit" onclick="$('input[name=head_delegate]').attr('checked', true); $('select[name=group]').attr('disabled', true);">设为领队领队</a></li><?php }
+						else { ?><li><a data-toggle="modal" data-target="#group_edit" onclick="$('input[name=head_delegate]').attr('checked', false); $('select[name=group]').attr('disabled', true);">取消领队属性</a></li><?php } ?>
 						<li><a data-toggle="modal" data-target="#group_remove">取消团队</a></li>
 					</ul>
                 </div>
