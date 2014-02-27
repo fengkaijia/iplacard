@@ -64,12 +64,68 @@ $this->load->view('header');?>
 					</tbody>
 				</table>
 				<a data-toggle="modal" data-target="#group_edit" class="btn btn-primary">调整团队</a>
-				<a data-toggle="modal" data-target="#group_cancel" class="btn btn-warning">取消团队</a>
-				<?php } else { ?><p>此申请者为个人申请代表，不属于任何团队。</p>
+				<a data-toggle="modal" data-target="#group_remove" class="btn btn-warning">取消团队</a>
+				<?php echo form_open("delegate/group/remove/{$profile['id']}", array(
+					'class' => 'modal fade form-horizontal',
+					'id' => 'group_remove',
+					'tabindex' => '-1',
+					'role' => 'dialog',
+					'aria-labelledby' => 'remove_label',
+					'aria-hidden' => 'true'
+				));?><div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<?php echo form_button(array(
+									'content' => '&times;',
+									'class' => 'close',
+									'type' => 'button',
+									'data-dismiss' => 'modal',
+									'aria-hidden' => 'true'
+								));?>
+								<h4 class="modal-title" id="remove_label">转换为个人代表</h4>
+							</div>
+							<div class="modal-body">
+								<p>将会转换<?php echo icon('user', false).$profile['name'];?>为个人代表。</p>
+								
+								<div class="form-group <?php if(form_has_error('confirm')) echo 'has-error';?>">
+									<?php echo form_label('确认转换', 'confirm', array('class' => 'col-lg-3 control-label'));?>
+									<div class="col-lg-9">
+										<div class="checkbox">
+											<label>
+												<?php echo form_checkbox(array(
+													'name' => 'confirm',
+													'id' => 'confirm',
+													'value' => true,
+													'checked' => false,
+												)); ?> 确认转换为个人代表
+											</label>
+										</div>
+										<?php echo form_error('confirm');?>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<?php echo form_button(array(
+									'content' => '取消',
+									'type' => 'button',
+									'class' => 'btn btn-link',
+									'data-dismiss' => 'modal'
+								));
+								echo form_button(array(
+									'name' => 'submit',
+									'content' => '确认转换',
+									'type' => 'submit',
+									'class' => 'btn btn-primary',
+									'onclick' => 'loader(this);'
+								)); ?>
+							</div>
+						</div>
+					</div>
+				<?php echo form_close(); } else { ?><p>此申请者为个人申请代表，不属于任何团队。</p>
 				<a data-toggle="modal" data-target="#group_edit" class="btn btn-primary"><?php echo icon('retweet');?>转换为团队代表</a><?php } ?>
-
+				
 				<hr />
-
+				
 				<?php if(!empty($profile['experience'])) { ?><h3>参会经历</h3>
 				<table class="table table-bordered table-striped table-hover">
 					<thead>
