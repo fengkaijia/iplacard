@@ -279,6 +279,7 @@ class delegate extends CI_Controller
 			return;
 		}
 		
+		//转换为个人代表
 		if($action == 'remove')
 		{
 			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
@@ -315,14 +316,14 @@ class delegate extends CI_Controller
 				$data = array(
 					'uid' => $uid,
 					'delegate_name' => $delegate['name'],
-					'group_name' => $group['name'],
+					'group_old_name' => $group['name'],
 					'time' => unix_to_human(time()),
 				);
 				
 				//通知此代表
 				$this->email->to($delegate['name']);
 				$this->email->subject('您已调整为个人代表');
-				$this->email->html($this->parser->parse_string(option('email_group_delegate_removed', "您已于 {time} 由管理员操作退出{group_name}代表团，如为误操作请立即与管理员取得联系。"), $data, true));
+				$this->email->html($this->parser->parse_string(option('email_group_delegate_removed', "您已于 {time} 由管理员操作退出{group_old_name}代表团，如为误操作请立即与管理员取得联系。"), $data, true));
 				$this->email->send();
 				$this->email->clear();
 				
@@ -331,7 +332,7 @@ class delegate extends CI_Controller
 				{
 					$this->email->to($this->delegate_model->get_delegate($group['head_delegate'], 'email'));
 					$this->email->subject('代表退出了您领队的代表团');
-					$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_removed', "{delegate_name}代表已于 {time} 由管理员操作退出您领队的{group_name}代表团，如为误操作请立即与管理员取得联系。"), $data, true));
+					$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_removed', "{delegate_name}代表已于 {time} 由管理员操作退出您领队的{group_old_name}代表团，如为误操作请立即与管理员取得联系。"), $data, true));
 					$this->email->send();
 				}
 				
@@ -342,6 +343,128 @@ class delegate extends CI_Controller
 			else
 			{
 				$this->ui->alert('转换操作未获确认。', 'danger', true);
+			}
+		}
+		
+		//加入或调整团队
+		if($action == 'edit')
+		{
+			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+
+			$this->form_validation->set_rules('group', '所属团队', 'trim|required');
+
+			if($this->form_validation->run() == true)
+			{
+				$group_id = intval($this->input->post('group'));
+				$group_new = $this->group_model->get_group($group_id);
+				
+				if(!$group_new)
+				{
+					$this->ui->alert('代表团不存在。', 'danger', true);
+					back_redirect();
+					return;
+				}
+				
+				//已经为团队代表
+				if(!is_null($delegate['group']))
+				{
+					$group_old = $this->group_model->get_group($delegate['group']);
+					
+					//取消旧领队属性
+					if($group_old['head_delegate'] == $uid)
+					{
+						$this->group_model->edit_group(array('head_delegate' => NULL), $group_old['id']);
+
+						$this->system_model->log('group_head_delegate_removed', array('id' => $group_old['id'], 'head_delegate' => $uid));
+					}
+				}
+				
+				//更新团队
+				$this->delegate_model->edit_delegate(array('group' => $group_id), $uid);
+				
+				//设为领队
+				if($this->input->post('head_delegate') == true)
+				{
+					$this->group_model->edit_group(array('head_delegate' => $uid), $group_id);
+					
+					$this->ui->alert("{$group_new['name']}的领队设置已经更新。", 'success', true);
+					
+					$this->system_model->log('group_head_delegate_changed', array('id' => $group_id, 'head_delegate_new' => $uid, 'head_delegate_old' => $group_old['head_delegate']));
+				}
+				
+				//发送邮件
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate_name' => $delegate['name'],
+					'group_new_name' => $group_new['name'],
+					'group_old_name' => !is_null($delegate['group']) ? $group_old['name'] : NULL,
+					'time' => unix_to_human(time()),
+				);
+				
+				//通知此代表
+				$this->email->to($delegate['email']);
+				if(!is_null($delegate['group']))
+				{
+					$this->email->subject('您的代表团已经调整');
+					$this->email->html($this->parser->parse_string(option('email_group_delegate_changed', "您已于 {time} 由管理员操作退出{group_old_name}代表团，加入{group_new_name}代表团代表。"), $data, true));
+				}
+				else
+				{
+					$this->email->subject('您已加入代表团');
+					$this->email->html($this->parser->parse_string(option('email_group_delegate_joined', "您已于 {time} 由管理员操作加入{group_new_name}代表团代表。"), $data, true));
+				}
+				$this->email->send();
+				$this->email->clear();
+				
+				//通知旧团队领队
+				if(!is_null($delegate['group']) && $group_old['head_delegate'] != $uid)
+				{
+					$this->email->to($this->delegate_model->get_delegate($group_old['head_delegate'], 'email'));
+					$this->email->subject('代表退出了您领队的代表团');
+					$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_removed', "{delegate_name}代表已于 {time} 由管理员操作退出您领队的{group_old_name}代表团，如为误操作请立即与管理员取得联系。"), $data, true));
+					$this->email->send();
+					$this->email->clear();
+				}
+				
+				//通知新团队领队
+				if($this->input->post('head_delegate') != true)
+				{
+					$this->email->to($this->delegate_model->get_delegate($group_new['head_delegate'], 'email'));
+					$this->email->subject('代表加入您领队的代表团');
+					$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_joined', "{delegate_name}代表已于 {time} 由管理员操作加入您领队的{group_new_name}代表团。"), $data, true));
+					$this->email->send();
+				}
+				else
+				{
+					//通知成为领队
+					$this->email->to($delegate['email']);
+					$this->email->subject('您已经成为代表团领队');
+					$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_granted', "您已于 {time} 由管理员操作成为{group_new_name}代表团的领队。"), $data, true));
+					$this->email->send();
+					$this->email->clear();
+					
+					//通知取消原领队
+					if(!is_null($group_new['head_delegate']))
+					{
+						$this->email->to($this->delegate_model->get_delegate($group_new['head_delegate'], 'email'));
+						$this->email->subject('代表团领队已经更换');
+						$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_changed', "您领队的{group_new_name}代表团已于 {time} 由管理员操作更换领队为{delegate_name}代表，如为误操作请立即与管理员取得联系。"), $data, true));
+						$this->email->send();
+						$this->email->clear();
+					}
+				}
+				
+				$this->ui->alert('团队转换调整操作完成。', 'success', true);
+				
+				$this->system_model->log('group_delegate_removed', array('id' => $group['id'], 'delegate' => $uid));
+			}
+			else
+			{
+				$this->ui->alert('转换操作未完成。', 'danger', true);
 			}
 		}
 		
