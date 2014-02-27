@@ -380,7 +380,8 @@ class delegate extends CI_Controller
 				}
 				
 				//更新团队
-				$this->delegate_model->edit_delegate(array('group' => $group_id), $uid);
+				if(is_null($delegate['group']) || $delegate['group'] != $group_id)
+					$this->delegate_model->edit_delegate(array('group' => $group_id), $uid);
 				
 				//设为领队
 				if($this->input->post('head_delegate') == true)
@@ -406,22 +407,25 @@ class delegate extends CI_Controller
 				);
 				
 				//通知此代表
-				$this->email->to($delegate['email']);
-				if(!is_null($delegate['group']))
+				if(is_null($delegate['group']) || $delegate['group'] != $group_id)
 				{
-					$this->email->subject('您的代表团已经调整');
-					$this->email->html($this->parser->parse_string(option('email_group_delegate_changed', "您已于 {time} 由管理员操作退出{group_old_name}代表团，加入{group_new_name}代表团代表。"), $data, true));
+					$this->email->to($delegate['email']);
+					if(!is_null($delegate['group']))
+					{
+						$this->email->subject('您的代表团已经调整');
+						$this->email->html($this->parser->parse_string(option('email_group_delegate_changed', "您已于 {time} 由管理员操作退出{group_old_name}代表团，加入{group_new_name}代表团代表。"), $data, true));
+					}
+					else
+					{
+						$this->email->subject('您已加入代表团');
+						$this->email->html($this->parser->parse_string(option('email_group_delegate_joined', "您已于 {time} 由管理员操作加入{group_new_name}代表团代表。"), $data, true));
+					}
+					$this->email->send();
+					$this->email->clear();
 				}
-				else
-				{
-					$this->email->subject('您已加入代表团');
-					$this->email->html($this->parser->parse_string(option('email_group_delegate_joined', "您已于 {time} 由管理员操作加入{group_new_name}代表团代表。"), $data, true));
-				}
-				$this->email->send();
-				$this->email->clear();
 				
 				//通知旧团队领队
-				if(!is_null($delegate['group']) && $group_old['head_delegate'] != $uid)
+				if(!is_null($delegate['group']) && $delegate['group'] != $group_id && $group_old['head_delegate'] != $uid)
 				{
 					$this->email->to($this->delegate_model->get_delegate($group_old['head_delegate'], 'email'));
 					$this->email->subject('代表退出了您领队的代表团');
@@ -431,14 +435,16 @@ class delegate extends CI_Controller
 				}
 				
 				//通知新团队领队
-				if($this->input->post('head_delegate') != true)
+				if($delegate['group'] != $group_id && $this->input->post('head_delegate') != true)
 				{
 					$this->email->to($this->delegate_model->get_delegate($group_new['head_delegate'], 'email'));
 					$this->email->subject('代表加入您领队的代表团');
 					$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_joined', "{delegate_name}代表已于 {time} 由管理员操作加入您领队的{group_new_name}代表团。"), $data, true));
 					$this->email->send();
 				}
-				else
+				
+				//通知领队变更
+				if(($delegate['group'] != $group_id && $this->input->post('head_delegate') == true) || ($delegate['group'] == $group_id && !$group_new['head_delegate'] != $uid && $this->input->post('head_delegate') == true))
 				{
 					//通知成为领队
 					$this->email->to($delegate['email']);
