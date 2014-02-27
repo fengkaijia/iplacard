@@ -46,7 +46,7 @@ $this->load->view('header');?>
 					</tbody>
 				</table>
 
-				<h3>团队信息</h3>
+				<?php if($groups) { ?><h3>团队信息</h3>
 				<?php if($group) { ?><table class="table table-bordered table-striped table-hover">
 					<tbody>
 						<tr>
@@ -191,9 +191,7 @@ $this->load->view('header');?>
 							</div>
 						</div>
 					</div>
-				<?php echo form_close(); ?>
-				
-				<hr />
+				<?php echo form_close(); } ?>
 				
 				<?php if(!empty($profile['experience'])) { ?><h3>参会经历</h3>
 				<table class="table table-bordered table-striped table-hover">
