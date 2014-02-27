@@ -164,7 +164,7 @@ $this->load->view('header');?>
 													'name' => 'head_delegate',
 													'id' => 'head_delegate',
 													'value' => true,
-													'checked' => false,
+													'checked' => set_value('group', $head_delegate ? true : false),
 												)); ?> 设置此代表为团队领队
 											</label>
 										</div>
