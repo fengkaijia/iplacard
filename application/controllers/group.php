@@ -158,8 +158,8 @@ class Group extends CI_Controller
 				$email_data['head_delegate'] = $head_delegate['name'];
 				
 				$this->email->to($head_delegate['email']);
-				$this->email->subject('您的代表团已经删除');
-				$this->email->html($this->parser->parse_string(option('email_delegate_group_deleted', "您的代表团{group}已经于 {time} 被管理员删除，如存在误操作请立即联系管理员。"), $email_data, true));
+				$this->email->subject('您领队的代表团已经删除');
+				$this->email->html($this->parser->parse_string(option('email_group_manage_group_deleted', "您领队的代表团{group}已经于 {time} 被管理员删除，如存在误操作请立即联系管理员。"), $email_data, true));
 				$this->email->send();
 				$this->email->clear();
 			}
@@ -168,7 +168,7 @@ class Group extends CI_Controller
 			if($group_delegates)
 			{
 				$this->email->subject('您所在的代表团已经解散');
-				$this->email->html($this->parser->parse_string(option('email_delegate_group_dissolved', "您所在的代表团{group}已经于 {time} 解散，请与您的领队联系了解详情。"), $email_data, true));
+				$this->email->html($this->parser->parse_string(option('email_group_delegate_dissolved', "您所在的代表团{group}已经于 {time} 解散，请与您的领队联系了解详情。"), $email_data, true));
 				
 				foreach($group_delegates as $delegate)
 				{
