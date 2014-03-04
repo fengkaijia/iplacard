@@ -64,7 +64,9 @@
 						<?php if(!$this->session->userdata('logged_in') && option('login_link')) { $login_link = option('login_link'); ?><li><?php echo anchor($login_link['link'], $login_link['text']);?></li><?php } ?>
 						<li class="dropdown">
 							<?php if($this->session->userdata('logged_in')) { ?>
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $this->session->userdata('name');?> <b class="caret"></b></a>
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" style="position: relative;"><?php
+								echo avatar('', 26, 'img', array('class' => 'img-circle', 'style' => 'position: absolute; margin-top: -2px;'));
+								?> <span style="margin-left: 32px;"><?php echo $this->session->userdata('name');?></span> <b class="caret"></b></a>
 							<ul class="dropdown-menu">
 								<li><a href="<?php echo base_url('account/settings/home');?>">个人信息</a></li>
 								<li><a href="<?php echo base_url('account/settings/security');?>">帐户设置</a></li>
