@@ -119,6 +119,9 @@ class UI
 	{
 		$this->CI =& get_instance();
 		
+		$this->CI->load->helper('avatar');
+		$this->CI->load->helper('ui');
+		
 		//设置默认标题
 		$this->title = option('site_name', 'iPlacard Instance').' - Powered by iPlacard';
 		

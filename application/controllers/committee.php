@@ -39,7 +39,6 @@ class Committee extends CI_Controller
 		$this->load->model('admin_model');
 		$this->load->model('committee_model');
 		$this->load->helper('form');
-		$this->load->helper('ui');
 		
 		//检查登录情况
 		if(!is_logged_in())

@@ -27,7 +27,6 @@ class Group extends CI_Controller
 		$this->load->model('delegate_model');
 		$this->load->model('group_model');
 		$this->load->helper('form');
-		$this->load->helper('ui');
 		
 		//检查登录情况
 		if(!is_logged_in())

@@ -15,7 +15,6 @@ class Account extends CI_Controller
 		$this->load->library('user_agent');
 		$this->load->library('ui', array('side' => 'account'));
 		$this->load->helper('form');
-		$this->load->helper('ui');
 		
 		//IE Postback检查
 		$this->session->set_userdata('init', uniqid());
