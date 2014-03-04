@@ -976,7 +976,7 @@ class Account extends CI_Controller
 					$this->image_lib->clear();
 					
 					//预生成图像
-					$target = array(20, 40, 80, 160, 320);
+					$target = array(20, 26, 40, 80, 160, 320);
 					foreach($target as $size)
 					{
 						$this->_do_avatar_resize($config['source_image'], $size, $path.$size.'.jpg');
