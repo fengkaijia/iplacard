@@ -70,6 +70,17 @@ class Interview_model extends CI_Model
 	}
 	
 	/**
+	 * 查询面试官面试队列ID
+	 */
+	function get_interviewer_interviews($interviewer, $status = array())
+	{
+		if(empty($status))
+			return $this->get_interview_ids('interviewer', $interviewer);
+		
+		return $this->get_interview_ids('status', $status, 'interviewer', $interviewer);
+	}
+	
+	/**
 	 * 转换状态为文本
 	 * @param string|int $status 状态或面试ID
 	 * @return string 状态文本
