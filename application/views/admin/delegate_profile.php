@@ -325,7 +325,9 @@ $this->load->view('header');?>
 			</div>
 			
 			<hr />
-			
+		</div>
+		
+		<div id="note_bar">
 			<h3 id="note">笔记</h3>
 			<div id="note_area">
 				操作载入中……

@@ -619,6 +619,28 @@ class delegate extends CI_Controller
 				$json = array('aaData' => array());
 			}
 		}
+		elseif($action == 'sidebar')
+		{
+			$uid = $this->input->get('id');
+			if(empty($uid))
+				return;
+			
+			$delegate = $this->delegate_model->get_delegate($uid);
+			if(!$delegate)
+				return;
+			
+			$html = $this->_sidebar_admission($delegate);
+			$html .= $this->_sidebar_administration($delegate);
+			
+			if(empty($html))
+			{
+				$html = '<script>jQuery(function($){
+					$("#operation_bar").html( "" );
+				});</script>';
+			}
+			
+			$json = array('html' => $html);
+		}
 		elseif($action == 'note')
 		{
 			$this->load->model('note_model');
@@ -659,6 +681,22 @@ class delegate extends CI_Controller
 		}
 		
 		echo json_encode($json);
+	}
+	
+	/**
+	 * 流程操作栏
+	 */
+	function _sidebar_admission($delegate)
+	{
+		return '';
+	}
+	
+	/**
+	 * 管理操作栏
+	 */
+	function _sidebar_administration($delegate)
+	{
+		return '';
 	}
 	
 	/**
