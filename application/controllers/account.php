@@ -1510,7 +1510,7 @@ class Account extends CI_Controller
 			return;
 		}
 		
-		$target = array(20, 40, 80, 160, 320);
+		$target = array(20, 26, 40, 80, 160, 320);
 		
 		$size = intval($size);
 		
