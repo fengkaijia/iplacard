@@ -5,7 +5,12 @@ $this->load->view('header');?>
 <div class="page-header">
 	<div class="row">
 		<div class="col-md-8">
-			<h1><?php echo $profile['name'];?></h1>
+			<h1 style="position: relative;">
+				<a class="thumbnail" style="width: 50px; height: 50px; position: absolute; margin-top: -2px;">
+					<?php echo avatar($profile['id'], 40, 'img');?>
+				</a>
+				<span style="margin-left: 58px;"><?php echo $profile['name'];?></span>
+			</h1>
 		</div>
 		<?php $this->ui->js('footer', 'nav_menu_top();
 		$(window).resize(function($){
