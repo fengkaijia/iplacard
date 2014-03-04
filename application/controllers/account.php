@@ -1559,6 +1559,7 @@ class Account extends CI_Controller
 		$this->session->set_userdata(array(
 			'uid' => intval($user['id']),
 			'sudo' => false,
+			'name' => $user['name'],
 			'email' => $user['email'],
 			'type' => $user['type'],
 			'logged_in' => true));

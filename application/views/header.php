@@ -51,11 +51,11 @@
 						{
 							if(count($column) == 1) { ?><li <?php if(!empty($this->ui->now_page) && $this->ui->now_page == $name) { ?>class="active"<?php } ?>><?php echo anchor($column[0][1], $column[0][0]);?></li><?php }
 							else { ?><li class="dropdown<?php //TODO: 高亮当前?>">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $column[0][0];?> <!--<b class="caret"></b>--></a>
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $column[0][0];?></a>
 							<ul class="dropdown-menu">
 								<?php foreach($column as $item) { ?><li><?php
 									echo anchor($item[1], $item[0]);
-									if(($this->ui->is_backend() || ($this->ui->is_account_page() && $this->user_model->is_admin(uid()))) && $item[2] == true)
+									if($this->session->userdata('type') == 'admin' && $item[2] == true)
 									{ ?></li><li class="divider"><?php } ?></li><?php } ?>
 							</ul><?php }
 						} ?>
@@ -64,7 +64,7 @@
 						<?php if(!$this->session->userdata('logged_in') && option('login_link')) { $login_link = option('login_link'); ?><li><?php echo anchor($login_link['link'], $login_link['text']);?></li><?php } ?>
 						<li class="dropdown">
 							<?php if($this->session->userdata('logged_in')) { ?>
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $this->user_model->get_user($this->session->userdata('uid'), 'name');?> <b class="caret"></b></a>
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $this->session->userdata('name');?> <b class="caret"></b></a>
 							<ul class="dropdown-menu">
 								<li><a href="<?php echo base_url('account/settings/home');?>">个人信息</a></li>
 								<li><a href="<?php echo base_url('account/settings/security');?>">帐户设置</a></li>
