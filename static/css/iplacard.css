@@ -229,3 +229,22 @@ body {
 	padding-top: 10px;
 	padding-bottom: 10px;
 }
+
+/* 页面菜单 */
+@media (min-width: 992px) {
+	.nav-menu {
+		border-bottom-style: none;
+		position: absolute;
+	}
+}
+
+/* 笔记 */
+#note_area blockquote p {
+	font-size: 17px;
+}
+
+#note_area blockquote footer,
+#note_area blockquote small,
+#note_area blockquote .small {
+	font-size: 14px;
+}

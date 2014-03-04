@@ -116,6 +116,23 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}message` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户消息' AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}note` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '笔记ID',
+  `admin` int(11) NOT NULL COMMENT '注释者ID',
+  `delegate` int(11) NOT NULL COMMENT '代表ID',
+  `time` int(11) NOT NULL COMMENT '生成时间',
+  `text` text NOT NULL COMMENT '内容',
+  `category` int(11) DEFAULT NULL COMMENT '记录分类',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户注释' AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}note_category` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '分类ID',
+  `name` text NOT NULL COMMENT '分类名称',
+  `type` text COMMENT '分类类型',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='注释笔记分类' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}option` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '设置ID',
   `name` text NOT NULL COMMENT '设置名称',

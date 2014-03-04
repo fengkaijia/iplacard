@@ -20,6 +20,15 @@ function onclick_redirect($uri)
 }
 
 /**
+ * 返回上一页跳转
+ */
+function back_redirect()
+{
+	$CI =& get_instance();
+	redirect($CI->input->server('HTTP_REFERER'));
+}
+
+/**
  * 静态文件CDN地址
  */
 function static_url($uri)
