@@ -1517,7 +1517,7 @@ class Account extends CI_Controller
 		$path = './data/'.IP_INSTANCE_ID.'/avatar/'.$uid.'/';
 		
 		//如果不是标准尺寸
-		if(!in_array($size, $target))
+		if(!in_array($size, $target) || !file_exists("{$path}{$size}.jpg"));
 		{
 			//启用动态输出可能造成负载增加和暴露 data 文件夹位置
 			if(option('avatar_resizable', false))
