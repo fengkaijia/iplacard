@@ -833,6 +833,110 @@ class delegate extends CI_Controller
 					return $this->load->view('admin/admission/review', $vars, true);
 				}
 				break;
+			case 'review_passed':
+				if($this->admin_model->capable('reviewer'))
+				{
+					$this->load->model('interview_model');
+					$this->load->model('committee_model');
+					
+					$list_ids = $this->admin_model->get_admin_ids('role_interviewer', true);
+						
+					//获取可选择面试官列表
+					$select = array();
+					$committees = array();
+					$count = 0;
+					
+					if($list_ids)
+					{
+						foreach($list_ids as $id)
+						{
+							$admin = $this->admin_model->get_admin($id);
+
+							//面试官队列数
+							$queues = $this->interview_model->get_interviewer_interviews($id, array('assigned', 'arranged'));
+							$queue = !$queues ? 0 : count($queues);
+
+							$committee = empty($admin['committee']) ? 0 : $admin['committee'];
+							if($committee > 0 && !isset($committees['committee']))
+								$committees[$committee] = $this->committee_model->get_committee($committee);
+							
+							$select[$committee][] = array(
+								'id' => $id,
+								'name' => $admin['name'],
+								'title' => $admin['title'],
+								'queue' => $queue
+							);
+						}
+						
+						$count = count($list_ids);
+					}
+					$vars['select'] = $select;
+					$vars['interviewer_count'] = $count;
+					$vars['committees'] = $committees;
+
+					//高亮面试官
+					$primary = array();
+					$choice_committee = array();
+					
+					$choice_option = option('profile_special_committee_choice');
+					if($choice_option)
+					{
+						$choice_committee = $this->delegate_model->get_profile_by_name($delegate['id'], $choice_option);
+
+						if(!empty($choice_committee))
+						{
+							foreach($choice_committee as $committee_id)
+							{
+								$primary['committee'][] = $committee_id;
+								foreach($select[$committee_id] as $one)
+								{
+									$primary['interviewer'][] = $one['id'];
+								}
+								
+								$choice_committee[] = $this->committee_model->get_committee($committee_id, 'abbr');
+							}
+						}
+					}
+					$vars['primary'] = $primary;
+					$vars['choice_committee'] = $choice_committee;
+					
+					//是否为二次面试
+					if(!$this->interview_model->get_interview_ids('status', 'failed', 'delegate', $delegate['id']))
+						$vars['is_reassign'] = false;
+					else
+						$vars['is_reassign'] = true;
+					
+					//是否为回退
+					$rollbackers = array();
+					$rollback = array();
+					
+					$rollback_ids = $this->delegate_model->get_event_ids('delegate', $delegate['id'], 'event', 'interview_rollbacked');
+					if($rollback_ids)
+					{
+						foreach($rollback_ids as $id)
+						{
+							$event = $this->delegate_model->get_event($id, 'info');
+							
+							$interviewer = $this->interview_model->get_interview($event['interview'], 'interviewer');
+							
+							if(!in_array($interviewer, $rollbackers))
+							{
+								$rollback[] = $this->admin_model->get_admin($interviewer);
+								$rollbackers[] = $interviewer;
+							}
+						}
+						$vars['is_rollbacked'] = true;
+					}
+					else
+						$vars['is_rollbacked'] = false;
+					
+					$vars['rollback'] = $rollback;
+					
+					$vars['delegate'] = $delegate;
+					
+					return $this->load->view('admin/admission/assign_interview', $vars, true);
+				}
+				break;
 		}
 		
 		return '';
