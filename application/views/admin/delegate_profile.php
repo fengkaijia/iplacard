@@ -343,7 +343,7 @@ $.ajax({
 	url: "$ajax_url",
 	dataType : "json",
 	success : function( sidebar ){
-		$("#operation_area").html( sidebar.html );
+		$("#operation_bar").html( sidebar.html );
 	}
 });
 EOT;
