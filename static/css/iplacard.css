@@ -248,3 +248,46 @@ body {
 #note_area blockquote .small {
 	font-size: 14px;
 }
+
+/* Bootstrap-Select */
+.selectpicker .special {
+	background-color: #ebebeb;
+}
+
+.bootstrap-select .btn-default,
+.bootstrap-select .btn-default:hover,
+.bootstrap-select .btn-default:focus,
+.bootstrap-select .btn-default:active,
+.bootstrap-select .btn-default.active,
+.bootstrap-select .dropdown-toggle.btn-default {
+	color: #333;
+	background-color: #ebebeb;
+	border-color: #adadad;
+}
+.bootstrap-select .btn-default:active,
+.bootstrap-select .btn-default.active,
+.bootstrap-select .dropdown-toggle.btn-default {
+	background-image: none;
+}
+.bootstrap-select .btn-default.disabled,
+.bootstrap-select .btn-default[disabled],
+fieldset[disabled] .bootstrap-select .btn-default,
+.bootstrap-select .btn-default.disabled:hover,
+.bootstrap-select .btn-default[disabled]:hover,
+fieldset[disabled] .bootstrap-select .btn-default:hover,
+.bootstrap-select .btn-default.disabled:focus,
+.bootstrap-select .btn-default[disabled]:focus,
+fieldset[disabled] .bootstrap-select .btn-default:focus,
+.bootstrap-select .btn-default.disabled:active,
+.bootstrap-select .btn-default[disabled]:active,
+fieldset[disabled] .bootstrap-select .btn-default:active,
+.bootstrap-select .btn-default.disabled.active,
+.bootstrap-select .btn-default[disabled].active,
+fieldset[disabled] .bootstrap-select .btn-default.active {
+	background-color: #fff;
+	border-color: #ccc;
+}
+.bootstrap-select .btn-default .badge {
+	color: #fff;
+	background-color: #333;
+}
