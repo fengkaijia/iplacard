@@ -493,6 +493,134 @@ class delegate extends CI_Controller
 	}
 	
 	/**
+	 * AJAX 操作
+	 */
+	function operation($action, $uid)
+	{
+		if(empty($uid))
+			return;
+
+		$delegate = $this->delegate_model->get_delegate($uid);
+		if(!$delegate)
+			return;
+		
+		switch($action)
+		{
+			//通过审核
+			case 'pass_application':
+				$this->delegate_model->change_status($uid, 'review_passed');
+				
+				$this->delegate_model->add_event($uid, 'review_passed');
+				
+				if($delegate['application_type'] == 'delegate')
+					$this->user_model->add_message($uid, '您的参会申请已经通过审核，我们将在近期内为您分配面试官。');
+				else
+					$this->user_model->add_message($uid, '您的参会申请已经通过审核。');
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('参会申请审核通过');
+				$this->email->html($this->parser->parse_string(option("email_delegate_application_passed_{$delegate['application_type']}", "您的参会申请已经于 {time} 通过审核，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				
+				//短信通知
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的参会申请已经通过审核，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert('参会申请已经通过。', 'success', true);
+				
+				$this->system_model->log('review_passed', array('delegate' => $uid));
+				
+				//非代表情况
+				if($delegate['application_type'] != 'delegate')
+				{
+					$fee = option("fee_{$delegate['application_type']}", 0);
+					
+					if($fee > 0)
+					{
+						//TODO: 生成帐单
+					}
+					else
+					{
+						$this->delegate_model->change_status($uid, 'locked');
+				
+						$this->delegate_model->add_event($uid, 'locked', array('admin' => uid()));
+						
+						$this->user_model->add_message($uid, '恭喜您！您的参会申请流程已经完成。');
+					}
+				}
+				break;
+			
+			//拒绝通过申请
+			case 'refuse_application':
+				$reason = $this->input->post('reason', true);
+				
+				$this->delegate_model->change_status($uid, 'review_refused');
+				
+				$this->delegate_model->add_event($uid, 'review_refused', array('reason' => $reason));
+				
+				$this->user_model->add_message($uid, '您的参会申请未能通过审核，感谢您的参与。');
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'reason' => $reason,
+					'time' => unix_to_human(time()),
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('参会申请审核未通过');
+				
+				if(empty($reason))
+					$this->email->html($this->parser->parse_string(option('email_delegate_application_refused_no_reason', "很遗憾，您的参会申请未能通过审核，感谢您的参与。"), $data, true));
+				else
+					$this->email->html($this->parser->parse_string(option('email_delegate_application_refused', "很遗憾，您的参会申请由于以下原因：\n\n\t{reason}\n\n未能通过审核，感谢您的参与。"), $data, true));
+				
+				$this->email->send();
+				
+				//短信通知
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的参会申请未能通过审核，如有疑问请与我们联系，感谢您的参与。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert('参会申请已经拒绝。', 'success', true);
+				
+				$this->system_model->log('review_refused', array('delegate' => $uid));
+				break;
+		}
+		
+		back_redirect();
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = 'list')
@@ -688,6 +816,25 @@ class delegate extends CI_Controller
 	 */
 	function _sidebar_admission($delegate)
 	{
+		$vars = array(
+			'uid' => $delegate['id'],
+			'delegate' => $delegate
+		);
+		
+		switch($delegate['status'])
+		{
+			case 'application_imported':
+				if($this->admin_model->capable('reviewer'))
+				{
+					$delegate['application_type_text'] = $this->delegate_model->application_type_text($delegate['application_type']);
+					
+					$vars['delegate'] = $delegate;
+					
+					return $this->load->view('admin/admission/review', $vars, true);
+				}
+				break;
+		}
+		
 		return '';
 	}
 	
