@@ -623,6 +623,87 @@ class delegate extends CI_Controller
 				$this->system_model->log('review_refused', array('delegate' => $uid));
 				break;
 				
+			case 'assign_interview':
+				if($delegate['status'] != 'review_passed')
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$interviewer = $this->admin_model->get_admin($this->input->post('interviewer'));
+				if(!$interviewer)
+				{
+					$this->ui->alert('面试官不存在。', 'warning', true);
+					break;
+				}
+				if(!$this->admin_model->capable('interviewer', $interviewer['id']))
+				{
+					$this->ui->alert('指派的面试官没有对应面试权限。', 'warning', true);
+					break;
+				}
+				$queue = $this->interview_model->get_interviewer_interviews($interviewer['id'], array('assigned', 'arranged'));
+				
+				//是否为二次面试
+				$old_id = $this->interview_model->get_interview_id('status', 'failed', 'delegate', $uid);
+				if($old_id)
+				{
+					$old_interviewer = $this->interview->get_interview($old_id, 'interviewer');
+					if($old_interviewer == $interviewer['id'])
+					{
+						$this->ui->alert('指派的面试官是已经面试过此代表。', 'warning', true);
+						break;
+					}
+				}
+				
+				$this->interview_model->assign_interview($uid, $interviewer['id']);
+				
+				$this->delegate_model->change_status($uid, 'interview_assigned');
+				
+				$this->delegate_model->add_event($uid, 'interview_assigned', array('interviewer' => $interviewer['id']));
+				
+				$this->user_model->add_message($uid, "我们已经为您分配了面试官，面试官{$interviewer['name']}将在近期内与您取得联系安排面试。");
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'interviewer' => $interviewer['name'],
+					'queue' => !$queue ? 1 : count($queue) + 1,
+					'time' => unix_to_human(time())
+				);
+				
+				//邮件通知代表
+				$this->email->to($delegate['email']);
+				$this->email->subject('已经为您分配面试官');
+				$this->email->html($this->parser->parse_string(option('email_delegate_interview_assigned', "我们已经于 {time} 为您分配了面试官，面试官{interviewer}将会在近期内与您取得联系，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				$this->email->clear();
+				
+				//邮件通知面试官
+				$this->email->to($interviewer['email']);
+				$this->email->subject('新的面试安排');
+				$this->email->html($this->parser->parse_string(option('email_interviewer_interview_assigned', "管理员已经于 {time} 安排您面试{delegate}代表。当前您的面试队列共 {queue} 人。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('我们已经为您分配了面试官，他将会在近期内与您取得联系，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert("已经指派{$interviewer['name']}面试此代表。", 'success', true);
+				
+				$this->system_model->log('interview_assigned', array('delegate' => $uid, 'interviewer' => $interviewer['id']));				
+				break;
+				
 			//免试
 			case 'exempt_interview':
 				if($delegate['status'] != 'review_passed')
