@@ -93,6 +93,7 @@ foreach($data as $group => $list)
 			'content' => icon('share').'分配面试官',
 			'type' => 'submit',
 			'class' => 'btn btn-primary',
+			'onclick' => 'loader(this);'
 		));
 		echo form_button(array(
 			'content' => '取消',
@@ -133,6 +134,7 @@ foreach($data as $group => $list)
 			'content' => icon('reply-all').'确认免试通过',
 			'type' => 'submit',
 			'class' => 'btn btn-primary',
+			'onclick' => 'loader(this);'
 		));
 		echo form_button(array(
 			'content' => '取消',
