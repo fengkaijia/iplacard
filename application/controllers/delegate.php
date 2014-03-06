@@ -508,6 +508,9 @@ class delegate extends CI_Controller
 		{
 			//通过审核
 			case 'pass_application':
+				if($delegate['status'] != 'application_imported')
+					break;
+				
 				$this->delegate_model->change_status($uid, 'review_passed');
 				
 				$this->delegate_model->add_event($uid, 'review_passed');
@@ -570,6 +573,9 @@ class delegate extends CI_Controller
 			
 			//拒绝通过申请
 			case 'refuse_application':
+				if($delegate['status'] != 'application_imported')
+					break;
+				
 				$reason = $this->input->post('reason', true);
 				
 				$this->delegate_model->change_status($uid, 'review_refused');
