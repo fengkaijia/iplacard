@@ -21,7 +21,7 @@ class Interview_model extends CI_Model
 	function get_interview($id, $part = '')
 	{
 		$this->db->where('id', $id);
-		$query = $this->db->get('user');
+		$query = $this->db->get('interview');
 		
 		//如果无结果
 		if($query->num_rows() == 0)
