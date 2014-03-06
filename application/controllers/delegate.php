@@ -621,6 +621,74 @@ class delegate extends CI_Controller
 				
 				$this->system_model->log('review_refused', array('delegate' => $uid));
 				break;
+				
+			//免试
+			case 'exempt_interview':
+				if($delegate['status'] != 'review_passed')
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$interviewer = $this->admin_model->get_admin($this->input->post('interviewer'));
+				if(!$interviewer)
+				{
+					$this->ui->alert('面试官不存在。', 'warning', true);
+					break;
+				}
+				if(!$this->admin_model->capable('interviewer', $interviewer['id']))
+				{
+					$this->ui->alert('指派的面试官没有对应面试权限。', 'warning', true);
+					break;
+				}
+				
+				$this->interview_model->assign_interview($uid, $interviewer['id'], true);
+				
+				$this->delegate_model->change_status($uid, 'interview_completed');
+				
+				$this->delegate_model->add_event($uid, 'interview_exempted');
+				
+				$this->user_model->add_message($uid, "您的参会申请符合免试条件，无需进行面试，面试官{$interviewer['name']}将在近期内为您分配席位。");
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'interviewer' => $interviewer['name'],
+					'time' => unix_to_human(time())
+				);
+				
+				//邮件通知代表
+				$this->email->to($delegate['email']);
+				$this->email->subject('您已获得免试分配资格');
+				$this->email->html($this->parser->parse_string(option('email_delegate_interview_exempted', "经过审核，您的参会申请符合免试分配条件，无需进行面试。我们已经于 {time} 安排面试官{interviewer}为您分配席位，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				$this->email->clear();
+				
+				//邮件通知面试官
+				$this->email->to($interviewer['email']);
+				$this->email->subject('新的分配席位请求');
+				$this->email->html($this->parser->parse_string(option('email_interviewer_interview_exempted', "管理员已经于 {time} 免试通过{delegate}代表的参会申请并安排您为其直接分配席位。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的参会申请符合免试分配条件，将有面试官直接为您分配席位，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert("已经通过免试分配并指派{$interviewer['name']}分配席位。", 'success', true);
+				
+				$this->system_model->log('interview_exempted', array('delegate' => $uid, 'interviewer' => $interviewer['id']));				
+				break;
 		}
 		
 		back_redirect();
