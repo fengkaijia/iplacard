@@ -101,6 +101,7 @@ class delegate extends CI_Controller
 		$this->load->model('interview_model');
 		$this->load->model('group_model');
 		$this->load->helper('avatar');
+		$this->load->helper('date');
 		
 		//检查代表是否存在
 		if(!$this->user_model->user_exists($uid))
