@@ -31,7 +31,7 @@ foreach($data as $group => $list)
 <div id="pre_select">
 	<h3 id="admission_operation">安排面试</h3>
 	
-	<?php if($is_reassign) { ?><p><span class="label label-warning">注意</span> 这是二次面试分配。</p><?php } ?>
+	<?php if($is_secondary) { ?><p><span class="label label-warning">注意</span> 这是二次面试分配。</p><?php } ?>
 	<p>此代表已经通过审核，将需要为其安排面试。</p>
 	<p>点击<strong>分配面试</strong>按钮后，将会出现可选择的面试官列表，您可以分配一位面试官面试此代表。</p>
 	<p>如果此代表具有规定的免试资格，可以以免试通过方式完成此代表的面试流程。点击<strong>免试通过</strong>按钮后，将会出现可选择的面试官列表，您需要分配一位面试官为此代表分配席位。</p>
@@ -66,7 +66,7 @@ foreach($data as $group => $list)
 <div id="do_assign">
 	<h3 id="admission_operation">分配面试官</h3>
 
-	<?php if($is_reassign) { ?><p><span class="label label-warning">注意</span> 这是二次面试分配。</p><?php }
+	<?php if($is_secondary) { ?><p><span class="label label-warning">注意</span> 这是二次面试分配。</p><?php }
 	if(!empty($choice_committee)) { ?><p>代表志愿选择<?php echo join('、', $choice_committee);?>委员会，系统已经高亮标记了对应委员会的面试官。</p><?php } ?>
 	<p>请在此列表中选择面试官，面试官姓名右侧显示了面试官当前面试队列长度。</p>
 

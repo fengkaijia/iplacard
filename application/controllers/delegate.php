@@ -1057,10 +1057,10 @@ class delegate extends CI_Controller
 					$vars['choice_committee'] = $choice_committee;
 					
 					//是否为二次面试
-					if(!$this->interview_model->get_interview_ids('status', 'failed', 'delegate', $delegate['id']))
-						$vars['is_reassign'] = false;
+					if(!$this->interview_model->is_secondary($delegate['id'], 'delegate'))
+						$vars['is_secondary'] = false;
 					else
-						$vars['is_reassign'] = true;
+						$vars['is_secondary'] = true;
 					
 					//是否为回退
 					$rollbackers = array();
