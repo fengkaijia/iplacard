@@ -1094,6 +1094,34 @@ class delegate extends CI_Controller
 				$vars['delegate'] = $delegate;
 
 				return $this->load->view('admin/admission/assign_interview', $vars, true);
+				
+			//安排面试界面
+			case 'interview_assigned':
+				if(!$this->admin_model->capable('interviewer'))
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$current_id = $this->interview_model->get_current_interview_id($delegate);
+				if(!$current_id)
+					break;
+				
+				$interview = $this->interview_model->get_interview($current_id);
+				if(!$interview)
+					break;
+				
+				if($interview['interviewer'] != uid())
+					break;
+				
+				//是否为二次面试
+				if($this->interview_model->is_secondary($current_id))
+					$vars['is_secondary'] = true;
+				else
+					$vars['is_secondary'] = false;
+				
+				$vars['delegate'] = $delegate;
+				
+				return $this->load->view('admin/admission/arrange_interview', $vars, true);
 		}
 		
 		return '';
