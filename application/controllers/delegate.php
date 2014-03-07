@@ -623,6 +623,7 @@ class delegate extends CI_Controller
 				$this->system_model->log('review_refused', array('delegate' => $uid));
 				break;
 				
+			//分配面试官
 			case 'assign_interview':
 				if($delegate['status'] != 'review_passed')
 					break;
