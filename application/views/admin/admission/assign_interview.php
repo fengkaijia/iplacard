@@ -17,6 +17,20 @@ foreach($data as $group => $list)
 		$subtext_title[$one['id']] = $one['title'];
 	}
 }
+
+if($is_rollbacked)
+{
+	foreach($rollback as $one)
+	{
+		if(!empty($one['committee']))
+			$user_text = "（{$committees[$one['committee']]['abbr']}）";
+		else
+			$user_text = empty($one['title']) ? '' : "（{$one['title']}）";
+
+		$link = $this->admin_model->capable('administrator') ? anchor("/user/edit/{$one['id']}", $one['name']) : $one['name'];
+		$rollback_data[] = icon('user', false).$link.$user_text;
+	}
+}
 ?><link href="<?php echo static_url(is_dev() ? 'static/css/bootstrap.select.css' : 'static/css/bootstrap.select.min.css');?>" rel="stylesheet">
 <script src="<?php echo static_url(is_dev() ? 'static/js/bootstrap.select.js' : 'static/js/bootstrap.select.min.js');?>"></script>
 <script>
@@ -36,17 +50,7 @@ foreach($data as $group => $list)
 	<p>点击<strong>分配面试</strong>按钮后，将会出现可选择的面试官列表，您可以分配一位面试官面试此代表。</p>
 	<p>如果此代表具有规定的免试资格，可以以免试通过方式完成此代表的面试流程。点击<strong>免试通过</strong>按钮后，将会出现可选择的面试官列表，您需要分配一位面试官为此代表分配席位。</p>
 	
-	<?php if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php foreach($rollback as $one)
-	{
-		if(!empty($one['committee']))
-			$user_text = "（{$committees[$one['committee']]['name']}）";
-		else
-			$user_text = empty($one['title']) ? '' : "（{$one['title']}）";
-
-		$link = $this->admin_model->capable('administrator') ? anchor("/user/edit/{$one['id']}", $one['name']) : $one['name'];
-		$all_data[] = icon('user', false).$link.$user_text;
-	}
-	echo join("、", $all_data); ?>回退，请在记事中了解回退原因。</p><?php } ?>
+	<?php if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php echo join("、", $rollback_data); ?>回退，请在记事中了解回退原因。</p><?php } ?>
 	
 	<?php echo form_button(array(
 		'content' => '分配面试',
@@ -74,17 +78,7 @@ foreach($data as $group => $list)
 	echo form_open("delegate/operation/assign_interview/{$delegate['id']}");
 		echo form_dropdown_select('interviewer', $option, array(), isset($primary['interviewer']) ? $primary['interviewer'] : array(), $subtext_queue, $interviewer_count > 10 ? true : false);
 
-		if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php foreach($rollback as $one)
-		{
-			if(!empty($one['committee']))
-				$user_text = "（{$committees[$one['committee']]['name']}）";
-			else
-				$user_text = empty($one['title']) ? '' : "（{$one['title']}）";
-
-			$link = $this->admin_model->capable('administrator') ? anchor("/user/edit/{$one['id']}", $one['name']) : $one['name'];
-			$all_data[] = icon('user', false).$link.$user_text;
-		}
-		echo join("、", $all_data); ?>回退，请在记事中了解回退原因。</p><?php } ?>
+		if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php echo join("、", $rollback_data); ?>回退，请在记事中了解回退原因。</p><?php } ?>
 
 		<p>分配完成之后，分配信息将会以邮件形式自动通知代表和面试官。</p>
 
@@ -115,17 +109,7 @@ foreach($data as $group => $list)
 	echo form_open("delegate/operation/exempt_interview/{$delegate['id']}");
 		echo form_dropdown_select('interviewer', $option, array(uid()), isset($primary['interviewer']) ? $primary['interviewer'] : array(), $subtext_title, $interviewer_count > 10 ? true : false);
 
-		if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php foreach($rollback as $one)
-		{
-			if(!empty($one['committee']))
-				$user_text = "（{$committees[$one['committee']]['name']}）";
-			else
-				$user_text = empty($one['title']) ? '' : "（{$one['title']}）";
-
-			$link = $this->admin_model->capable('administrator') ? anchor("/user/edit/{$one['id']}", $one['name']) : $one['name'];
-			$all_data[] = icon('user', false).$link.$user_text;
-		}
-		echo join("、", $all_data); ?>回退，请在记事中了解回退原因。</p><?php } ?>
+		if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php echo join("、", $rollback_data); ?>回退，请在记事中了解回退原因。</p><?php } ?>
 
 		<p>指派之后，iPlacard 将会以邮件形式自动通知代表和面试官。</p>
 
