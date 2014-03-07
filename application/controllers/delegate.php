@@ -770,7 +770,69 @@ class delegate extends CI_Controller
 				
 				$this->ui->alert("已经通过免试分配并指派{$interviewer['name']}分配席位。", 'success', true);
 				
-				$this->system_model->log('interview_exempted', array('delegate' => $uid, 'interviewer' => $interviewer['id']));				
+				$this->system_model->log('interview_exempted', array('delegate' => $uid, 'interviewer' => $interviewer['id']));		
+				break;
+				
+			//回退面试
+			case 'rollback_interview':
+				if($delegate['status'] != 'interview_assigned')
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$interview_id = $this->interview_model->get_current_interview_id($uid);
+				if(!$interview_id)
+				{
+					$this->ui->alert('尝试回退的面试已经排定或不存在。', 'danger', true);
+					break;
+				}
+				
+				$interview = $this->interview_model->get_interview($interview_id);
+				if($interview['interviewer'] != uid())
+				{
+					$this->ui->alert('您不是此代表的面试官，因此无权回退此面试。', 'danger', true);
+					break;
+				}
+				
+				$this->interview_model->cancel_interview($interview['id']);
+				
+				$this->delegate_model->change_status($uid, 'review_passed');
+				
+				$this->delegate_model->add_event($uid, 'interview_rollbacked', array('interview' => $interview['id']));
+				
+				$this->user_model->add_message($uid, "您的面试官已经取消了面试安排，我们将会尽快为您分配新的面试官。");
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'interviewer' => $this->admin_model->get_admin($interview['interviewer'], 'name'),
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('面试已经取消');
+				$this->email->html($this->parser->parse_string(option('email_delegate_interview_rollbacked', "您的面试官{interviewer}已经于 {time} 取消了面试安排，我们将会尽快为您分配新的面试官，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的面试官已经取消了面试安排，我们将会尽快为您分配新的面试官，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert("已经回退了与{$delegate['name']}代表的面试安排。", 'success', true);
+				
+				$this->system_model->log('interview_rollbacked', array('interview' => $interview['id']));
 				break;
 		}
 		
