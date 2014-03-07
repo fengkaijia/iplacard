@@ -295,7 +295,7 @@ $this->load->view('header');?>
 							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $interview['schedule_time']), nicetime($interview['schedule_time']));?></td>
 						</tr><?php }
 						if(!empty($interview['finish_time'])) { ?><tr>
-							<td>完成时间</td>
+							<td><?php echo $interview['status'] == 'cancelled' ? '取消时间' : '完成时间';?></td>
 							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $interview['finish_time']), nicetime($interview['finish_time']));?></td>
 						</tr><?php }
 						if(!empty($interview['score'])) { ?><tr>
