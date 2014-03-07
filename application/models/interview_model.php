@@ -81,6 +81,45 @@ class Interview_model extends CI_Model
 	}
 	
 	/**
+	 * 显示当前面试分数平均分布
+	 * @param int $min 最小样本
+	 * @return array|false 数据分布数组，如达不到最小样本返回FALSE
+	 */
+	function get_score_levels($min = 20)
+	{
+		$this->db->where('score IS NOT NULL', NULL, false);
+		$this->db->select('score');
+		$this->db->order_by('score', 'desc');
+		$query = $this->db->get('interview');
+		
+		//如果达不到最小样本
+		$count = $query->num_rows();
+		if($count < $min)
+			return false;
+		
+		//生成分数
+		$scores = array();
+		foreach($query->result_array() as $row)
+		{
+			$scores[] = $row['score'];
+		}
+		
+		//最低分数
+		$scores[] = 0;
+		
+		//生成分布数组
+		$level = array();
+		foreach(array(1, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100) as $i)
+		{
+			$point = round($count / 100 * $i);
+			$level[$i] = $scores[$point];
+		}
+		
+		//返回分布数组
+		return $level;
+	}
+	
+	/**
 	 * 转换状态为文本
 	 * @param string|int $status 状态或面试ID
 	 * @return string 状态文本
