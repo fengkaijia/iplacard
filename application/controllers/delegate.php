@@ -1224,8 +1224,6 @@ class delegate extends CI_Controller
 
 				$vars['rollback'] = $rollback;
 
-				$vars['delegate'] = $delegate;
-
 				return $this->load->view('admin/admission/assign_interview', $vars, true);
 				
 			//安排面试界面
@@ -1235,7 +1233,7 @@ class delegate extends CI_Controller
 				
 				$this->load->model('interview_model');
 				
-				$current_id = $this->interview_model->get_current_interview_id($delegate);
+				$current_id = $this->interview_model->get_current_interview_id($delegate['id']);
 				if(!$current_id)
 					break;
 				
@@ -1252,8 +1250,6 @@ class delegate extends CI_Controller
 				else
 					$vars['is_secondary'] = false;
 				
-				$vars['delegate'] = $delegate;
-				
 				return $this->load->view('admin/admission/arrange_interview', $vars, true);
 				
 			//面试界面
@@ -1263,7 +1259,7 @@ class delegate extends CI_Controller
 				
 				$this->load->model('interview_model');
 				
-				$current_id = $this->interview_model->get_current_interview_id($delegate);
+				$current_id = $this->interview_model->get_current_interview_id($delegate['id']);
 				if(!$current_id)
 					break;
 				
@@ -1273,6 +1269,8 @@ class delegate extends CI_Controller
 				
 				if($interview['interviewer'] != uid())
 					break;
+				
+				$vars['interview'] = $interview;
 				
 				//是否默认显示重新安排页面
 				if($interview['status'] == 'arranged' && (($interview['schedule_time'] - 1800) >= time()))
