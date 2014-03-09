@@ -853,7 +853,7 @@ class delegate extends CI_Controller
 				$interview_id = $this->interview_model->get_current_interview_id($uid);
 				if(!$interview_id)
 				{
-					$this->ui->alert('尝试回退的面试已经排定或不存在。', 'danger', true);
+					$this->ui->alert('尝试回退的面试不存在。', 'danger', true);
 					break;
 				}
 				
