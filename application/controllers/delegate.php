@@ -1285,6 +1285,11 @@ class delegate extends CI_Controller
 					$vars['is_secondary'] = true;
 				
 				//分数分布
+				$vars['score_standard'] = option('interview_score_standard', array('score' => array(
+					'name' => '总分',
+					'weight' => 1
+				)));
+				$vars['score_total'] = option('interview_score_total', 5);
 				$vars['score_level'] = $this->interview_model->get_score_levels(20);
 				
 				return $this->load->view('admin/admission/do_interview', $vars, true);
