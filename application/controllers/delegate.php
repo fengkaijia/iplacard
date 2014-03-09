@@ -904,6 +904,77 @@ class delegate extends CI_Controller
 				
 				$this->system_model->log('interview_rollbacked', array('interview' => $interview['id']));
 				break;
+					
+			//取消面试
+			case 'cancel_interview':
+				if($delegate['status'] != 'interview_arranged')
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$interview_id = $this->interview_model->get_current_interview_id($uid);
+				if(!$interview_id)
+				{
+					$this->ui->alert('尝试重新安排时间的面试不存在。', 'danger', true);
+					break;
+				}
+				
+				$interview = $this->interview_model->get_interview($interview_id);
+				if($interview['interviewer'] != uid())
+				{
+					$this->ui->alert('您不是此代表的面试官，因此重新安排此面试的时间。', 'danger', true);
+					break;
+				}
+				
+				if($interview['status'] != 'arranged')
+				{
+					$this->ui->alert('尝试重新安排时间的面试尚未排定或者已经完成。', 'danger', true);
+					break;
+				}
+				
+				$this->interview_model->cancel_interview($interview['id']);
+				
+				$this->interview_model->assign_interview($uid, $interview['interviewer']);
+				
+				$this->delegate_model->change_status($uid, 'interview_assigned');
+				
+				$this->delegate_model->add_event($uid, 'interview_cancelled', array('interview' => $interview['id']));
+				
+				$this->user_model->add_message($uid, "您的面试官已经取消了面试安排，他将在近期内重新安排面试时间。");
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'interviewer' => $this->admin_model->get_admin($interview['interviewer'], 'name'),
+					'schedule_time' => unix_to_human($interview['schedule_time']),
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('面试安排已经取消');
+				$this->email->html($this->parser->parse_string(option('email_delegate_interview_cancelled', "您的面试官{interviewer}已经于 {time} 取消了原定 {schedule_time} 开始的面试安排，他将在近期内重新安排面试时间，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的面试官已经取消了面试安排，他将在近期内重新安排面试时间，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert("已经取消了与{$delegate['name']}代表的面试安排。", 'success', true);
+				
+				$this->system_model->log('interview_cancelled', array('interview' => $interview['id']));
+				break;
 		}
 		
 		back_redirect();
