@@ -18,7 +18,7 @@
 
 <h3 id="admission_operation">安排面试</h3>
 
-<?php if($is_secondary) { ?><p><span class="label label-warning">注意</span> 这是二次面试分配。</p><?php } ?>
+<?php if($is_secondary) { ?><p><span class="label label-warning">注意</span> 这是二次面试。</p><?php } ?>
 <p>请联系代表并安排面试时间，安排确定后将可以执行面试操作，在预定的面试时间前将有邮件和短信通知。</p>
 
 <?php echo form_open("delegate/operation/arrange_interview/{$delegate['id']}"); ?>
