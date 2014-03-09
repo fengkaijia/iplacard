@@ -647,7 +647,7 @@ class delegate extends CI_Controller
 				$old_id = $this->interview_model->get_interview_id('status', 'failed', 'delegate', $uid);
 				if($old_id)
 				{
-					$old_interviewer = $this->interview->get_interview($old_id, 'interviewer');
+					$old_interviewer = $this->interview_model->get_interview($old_id, 'interviewer');
 					if($old_interviewer == $interviewer['id'])
 					{
 						$this->ui->alert('指派的面试官是已经面试过此代表。', 'warning', true);
