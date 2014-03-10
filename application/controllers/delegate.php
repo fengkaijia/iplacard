@@ -1062,7 +1062,7 @@ class delegate extends CI_Controller
 				{
 					$this->delegate_model->add_event($uid, 'interview_failed', array('interview' => $interview['id']));
 					
-					if(!$this->interview_model->is_secondary($interview_id))
+					if(!$this->interview_model->is_secondary($delegate['id'], 'delegate'))
 					{
 						$this->delegate_model->change_status($uid, 'review_passed');
 
@@ -1486,7 +1486,7 @@ class delegate extends CI_Controller
 					break;
 				
 				//是否为二次面试
-				if($this->interview_model->is_secondary($current_id))
+				if($this->interview_model->is_secondary($delegate['id'], 'delegate'))
 					$vars['is_secondary'] = true;
 				else
 					$vars['is_secondary'] = false;
