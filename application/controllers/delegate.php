@@ -1183,7 +1183,17 @@ class delegate extends CI_Controller
 			{
 				$sids = $this->seat_model->get_seat_ids('committee', $param['committee'], 'status', array('assigned', 'approved', 'locked'));
 				if($sids)
-					$input_param['id'] = $this->seat_model->get_delegates_by_seats($sids);
+				{
+					$dids = $this->seat_model->get_delegates_by_seats($sids);
+					if($dids)
+						$input_param['id'] = $dids;
+					else
+						$input_param['id'] = array(NULL);
+				}
+				else
+				{
+					$input_param['id'] = array(NULL);
+				}
 			}
 			
 			$args = array();
