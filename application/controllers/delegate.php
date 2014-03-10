@@ -1534,6 +1534,52 @@ class delegate extends CI_Controller
 				$vars['score_level'] = $this->interview_model->get_score_levels(20);
 				
 				return $this->load->view('admin/admission/do_interview', $vars, true);
+				
+			//分配席位选择
+			case 'interview_completed':
+			case 'seat_assigned':
+				if(!$this->admin_model->capable('interviewer'))
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$current_id = $this->interview_model->get_current_interview_id($delegate['id']);
+				if(!$current_id)
+					break;
+				
+				$interview = $this->interview_model->get_interview($current_id);
+				if(!$interview)
+					break;
+				
+				if(!in_array($interview['status'], array('completed', 'exempted')))
+					break;
+				
+				if($interview['interviewer'] != uid())
+					break;
+				
+				$vars['interview'] = $interview;
+				
+				//面试成绩排位
+				$vars['score_level'] = false;
+				if($interview['status'] == 'completed' && !empty($interview['score']))
+				{
+					$score_level = $this->interview_model->get_score_levels(1);
+					if($score_level)
+					{
+						foreach($score_level as $level => $sample)
+						{
+							if($interview['score'] >= $sample)
+							{
+								$vars['score_level'] = $level;
+								break;
+							}
+						}
+					}
+				}
+				
+				$vars['score_total'] = option('interview_score_total', 5);
+				
+				return $this->load->view('admin/admission/assign_seat', $vars, true);
 		}
 		
 		return '';
