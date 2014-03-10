@@ -306,7 +306,7 @@ $this->load->view('header');?>
 							<td>详细评分</td>
 							<td><?php foreach(option('interview_score_standard', array('score' => array('name' => '总分'))) as $sid => $one)
 							{
-								echo "<span class=\"label label-default\">{$one['name']}</span> {$interview['feedback']['score'][$sid]} ";
+								echo "<span class=\"label label-primary\">{$one['name']}</span> {$interview['feedback']['score'][$sid]} ";
 							} ?></td>
 						</tr><?php }
 						if(!empty($interview['feedback'])) { ?><tr>
