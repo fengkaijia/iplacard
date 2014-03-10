@@ -362,8 +362,8 @@ class User extends CI_Controller
 				//面试队列统计
 				$interview_queue_count = $this->interview_model->get_interview_ids('interviewer', $id, 'status', array('assigned', 'arranged'));
 				$interview_done_count = $this->interview_model->get_interview_ids('interviewer', $id, 'status', array('completed', 'failed'));
-				$interview_line = $interview_queue_count ? "<span class=\"label label-primary\">队列</span> {$interview_queue_count} " : '';
-				$interview_line .= $interview_done_count ? "<span class=\"label label-success\">结束</span> {$interview_done_count} " : '';
+				$interview_line = $interview_queue_count ? '<span class="label label-primary">队列</span> '.count($interview_queue_count).' ' : '';
+				$interview_line .= $interview_done_count ? '<span class="label label-success">结束</span> '.count($interview_done_count).' ' : '';
 				
 				//权限统计
 				$role_count = 0;

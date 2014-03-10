@@ -21,7 +21,7 @@ class Interview_model extends CI_Model
 	function get_interview($id, $part = '')
 	{
 		$this->db->where('id', $id);
-		$query = $this->db->get('user');
+		$query = $this->db->get('interview');
 		
 		//如果无结果
 		if($query->num_rows() == 0)
@@ -67,6 +67,56 @@ class Interview_model extends CI_Model
 	function get_current_interview_id($delegate)
 	{
 		return $this->get_interview_id('delegate', $delegate, 'status', array('assigned', 'arranged', 'completed', 'exempted'));
+	}
+	
+	/**
+	 * 查询面试官面试队列ID
+	 */
+	function get_interviewer_interviews($interviewer, $status = array())
+	{
+		if(empty($status))
+			return $this->get_interview_ids('interviewer', $interviewer);
+		
+		return $this->get_interview_ids('status', $status, 'interviewer', $interviewer);
+	}
+	
+	/**
+	 * 显示当前面试分数平均分布
+	 * @param int $min 最小样本
+	 * @return array|false 数据分布数组，如达不到最小样本返回FALSE
+	 */
+	function get_score_levels($min = 20)
+	{
+		$this->db->where('score IS NOT NULL', NULL, false);
+		$this->db->select('score');
+		$this->db->order_by('score', 'desc');
+		$query = $this->db->get('interview');
+		
+		//如果达不到最小样本
+		$count = $query->num_rows();
+		if($count < $min)
+			return false;
+		
+		//生成分数
+		$scores = array();
+		foreach($query->result_array() as $row)
+		{
+			$scores[] = $row['score'];
+		}
+		
+		//最低分数
+		$scores[] = 0;
+		
+		//生成分布数组
+		$level = array();
+		foreach(array(1, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100) as $i)
+		{
+			$point = round($count / 100 * $i);
+			$level[$i] = $scores[$point];
+		}
+		
+		//返回分布数组
+		return $level;
 	}
 	
 	/**
@@ -176,6 +226,7 @@ class Interview_model extends CI_Model
 		$data = array(
 			'score' => $score,
 			'feedback' => $feedback,
+			'finish_time' => time(),
 			'status' => $pass ? 'completed': 'failed'
 		);
 		return $this->edit_interview($data, $id);
@@ -190,7 +241,7 @@ class Interview_model extends CI_Model
 		if($type == 'interview')
 			$delegate = $this->get_interview($id, 'delegate');
 		
-		if($type == 'delegate' && $this->get_interview_id('delegate', $delegate, 'status', 'failed'))
+		if($this->get_interview_id('delegate', $delegate, 'status', 'failed'))
 			return true;
 		return false;
 	}

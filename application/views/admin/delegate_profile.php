@@ -295,16 +295,23 @@ $this->load->view('header');?>
 							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $interview['schedule_time']), nicetime($interview['schedule_time']));?></td>
 						</tr><?php }
 						if(!empty($interview['finish_time'])) { ?><tr>
-							<td>完成时间</td>
+							<td><?php echo $interview['status'] == 'cancelled' ? '取消时间' : '完成时间';?></td>
 							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $interview['finish_time']), nicetime($interview['finish_time']));?></td>
 						</tr><?php }
 						if(!empty($interview['score'])) { ?><tr>
 							<td>面试总分</td>
-							<td><?php echo round($interview['score'], 2);?></td>
+							<td><strong><?php echo round($interview['score'], 2);?></strong></td>
+						</tr><?php }
+						if(!empty($interview['feedback']['score'])) { ?><tr>
+							<td>详细评分</td>
+							<td><?php foreach(option('interview_score_standard', array('score' => array('name' => '总分'))) as $sid => $one)
+							{
+								echo "<span class=\"label label-primary\">{$one['name']}</span> {$interview['feedback']['score'][$sid]} ";
+							} ?></td>
 						</tr><?php }
 						if(!empty($interview['feedback'])) { ?><tr>
-							<td>面试反馈</td>
-							<td><?php echo $interview['feedback'];?></td>
+							<td style="min-width: 100px;">面试反馈</td>
+							<td><?php echo $interview['feedback']['feedback'];?></td>
 						</tr><?php } ?>
 					</tbody>
 				</table>
@@ -343,7 +350,7 @@ $.ajax({
 	url: "$ajax_url",
 	dataType : "json",
 	success : function( sidebar ){
-		$("#operation_area").html( sidebar.html );
+		$("#operation_bar").html( sidebar.html );
 	}
 });
 EOT;

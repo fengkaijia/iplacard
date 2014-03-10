@@ -101,6 +101,7 @@ class delegate extends CI_Controller
 		$this->load->model('interview_model');
 		$this->load->model('group_model');
 		$this->load->helper('avatar');
+		$this->load->helper('date');
 		
 		//检查代表是否存在
 		if(!$this->user_model->user_exists($uid))
@@ -493,6 +494,663 @@ class delegate extends CI_Controller
 	}
 	
 	/**
+	 * AJAX 操作
+	 */
+	function operation($action, $uid)
+	{
+		if(empty($uid))
+			return;
+
+		$delegate = $this->delegate_model->get_delegate($uid);
+		if(!$delegate)
+			return;
+		
+		switch($action)
+		{
+			//通过审核
+			case 'pass_application':
+				if($delegate['status'] != 'application_imported')
+					break;
+				
+				$this->delegate_model->change_status($uid, 'review_passed');
+				
+				$this->delegate_model->add_event($uid, 'review_passed');
+				
+				if($delegate['application_type'] == 'delegate')
+					$this->user_model->add_message($uid, '您的参会申请已经通过审核，我们将在近期内为您分配面试官。');
+				else
+					$this->user_model->add_message($uid, '您的参会申请已经通过审核。');
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('参会申请审核通过');
+				$this->email->html($this->parser->parse_string(option("email_delegate_application_passed_{$delegate['application_type']}", "您的参会申请已经于 {time} 通过审核，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				
+				//短信通知
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的参会申请已经通过审核，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert('参会申请已经通过。', 'success', true);
+				
+				$this->system_model->log('review_passed', array('delegate' => $uid));
+				
+				//非代表情况
+				if($delegate['application_type'] != 'delegate')
+				{
+					$fee = option("fee_{$delegate['application_type']}", 0);
+					
+					if($fee > 0)
+					{
+						//TODO: 生成帐单
+					}
+					else
+					{
+						$this->delegate_model->change_status($uid, 'locked');
+				
+						$this->delegate_model->add_event($uid, 'locked', array('admin' => uid()));
+						
+						$this->user_model->add_message($uid, '恭喜您！您的参会申请流程已经完成。');
+					}
+				}
+				break;
+			
+			//拒绝通过申请
+			case 'refuse_application':
+				if($delegate['status'] != 'application_imported')
+					break;
+				
+				$reason = $this->input->post('reason', true);
+				
+				$this->delegate_model->change_status($uid, 'review_refused');
+				
+				$this->delegate_model->add_event($uid, 'review_refused', array('reason' => $reason));
+				
+				$this->user_model->add_message($uid, '您的参会申请未能通过审核，感谢您的参与。');
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'reason' => $reason,
+					'time' => unix_to_human(time()),
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('参会申请审核未通过');
+				
+				if(empty($reason))
+					$this->email->html($this->parser->parse_string(option('email_delegate_application_refused_no_reason', "很遗憾，您的参会申请未能通过审核，感谢您的参与。"), $data, true));
+				else
+					$this->email->html($this->parser->parse_string(option('email_delegate_application_refused', "很遗憾，您的参会申请由于以下原因：\n\n\t{reason}\n\n未能通过审核，感谢您的参与。"), $data, true));
+				
+				$this->email->send();
+				
+				//短信通知
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的参会申请未能通过审核，如有疑问请与我们联系，感谢您的参与。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert('参会申请已经拒绝。', 'success', true);
+				
+				$this->system_model->log('review_refused', array('delegate' => $uid));
+				break;
+				
+			//分配面试官
+			case 'assign_interview':
+				if($delegate['status'] != 'review_passed')
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$interviewer = $this->admin_model->get_admin($this->input->post('interviewer'));
+				if(!$interviewer)
+				{
+					$this->ui->alert('面试官不存在。', 'warning', true);
+					break;
+				}
+				if(!$this->admin_model->capable('interviewer', $interviewer['id']))
+				{
+					$this->ui->alert('指派的面试官没有对应面试权限。', 'warning', true);
+					break;
+				}
+				$queue = $this->interview_model->get_interviewer_interviews($interviewer['id'], array('assigned', 'arranged'));
+				
+				//是否为二次面试
+				$old_id = $this->interview_model->get_interview_id('status', 'failed', 'delegate', $uid);
+				if($old_id)
+				{
+					$old_interviewer = $this->interview_model->get_interview($old_id, 'interviewer');
+					if($old_interviewer == $interviewer['id'])
+					{
+						$this->ui->alert('指派的面试官是已经面试过此代表。', 'warning', true);
+						break;
+					}
+				}
+				
+				$this->interview_model->assign_interview($uid, $interviewer['id']);
+				
+				$this->delegate_model->change_status($uid, 'interview_assigned');
+				
+				$this->delegate_model->add_event($uid, 'interview_assigned', array('interviewer' => $interviewer['id']));
+				
+				$this->user_model->add_message($uid, "我们已经为您分配了面试官，面试官{$interviewer['name']}将在近期内与您取得联系安排面试。");
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'interviewer' => $interviewer['name'],
+					'queue' => !$queue ? 1 : count($queue) + 1,
+					'time' => unix_to_human(time())
+				);
+				
+				//邮件通知代表
+				$this->email->to($delegate['email']);
+				$this->email->subject('已经为您分配面试官');
+				$this->email->html($this->parser->parse_string(option('email_delegate_interview_assigned', "我们已经于 {time} 为您分配了面试官，面试官{interviewer}将会在近期内与您取得联系，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				$this->email->clear();
+				
+				//邮件通知面试官
+				$this->email->to($interviewer['email']);
+				$this->email->subject('新的面试安排');
+				$this->email->html($this->parser->parse_string(option('email_interviewer_interview_assigned', "管理员已经于 {time} 安排您面试{delegate}代表。当前您的面试队列共 {queue} 人。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('我们已经为您分配了面试官，他将会在近期内与您取得联系，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert("已经指派{$interviewer['name']}面试此代表。", 'success', true);
+				
+				$this->system_model->log('interview_assigned', array('delegate' => $uid, 'interviewer' => $interviewer['id']));				
+				break;
+				
+			//免试
+			case 'exempt_interview':
+				if($delegate['status'] != 'review_passed')
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$interviewer = $this->admin_model->get_admin($this->input->post('interviewer'));
+				if(!$interviewer)
+				{
+					$this->ui->alert('面试官不存在。', 'warning', true);
+					break;
+				}
+				if(!$this->admin_model->capable('interviewer', $interviewer['id']))
+				{
+					$this->ui->alert('指派的面试官没有对应面试权限。', 'warning', true);
+					break;
+				}
+				
+				$this->interview_model->assign_interview($uid, $interviewer['id'], true);
+				
+				$this->delegate_model->change_status($uid, 'interview_completed');
+				
+				$this->delegate_model->add_event($uid, 'interview_exempted');
+				
+				$this->user_model->add_message($uid, "您的参会申请符合免试条件，无需进行面试，面试官{$interviewer['name']}将在近期内为您分配席位。");
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'interviewer' => $interviewer['name'],
+					'time' => unix_to_human(time())
+				);
+				
+				//邮件通知代表
+				$this->email->to($delegate['email']);
+				$this->email->subject('您已获得免试分配资格');
+				$this->email->html($this->parser->parse_string(option('email_delegate_interview_exempted', "经过审核，您的参会申请符合免试分配条件，无需进行面试。我们已经于 {time} 安排面试官{interviewer}为您分配席位，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				$this->email->clear();
+				
+				//邮件通知面试官
+				$this->email->to($interviewer['email']);
+				$this->email->subject('新的分配席位请求');
+				$this->email->html($this->parser->parse_string(option('email_interviewer_interview_exempted', "管理员已经于 {time} 免试通过{delegate}代表的参会申请并安排您为其直接分配席位。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的参会申请符合免试分配条件，将有面试官直接为您分配席位，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert("已经通过免试分配并指派{$interviewer['name']}分配席位。", 'success', true);
+				
+				$this->system_model->log('interview_exempted', array('delegate' => $uid, 'interviewer' => $interviewer['id']));		
+				break;
+				
+			//安排面试时间
+			case 'arrange_interview':
+				if($delegate['status'] != 'interview_assigned')
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$interview_id = $this->interview_model->get_current_interview_id($uid);
+				if(!$interview_id)
+				{
+					$this->ui->alert('尝试安排的面试不存在。', 'danger', true);
+					break;
+				}
+				
+				$interview = $this->interview_model->get_interview($interview_id);
+				if($interview['interviewer'] != uid())
+				{
+					$this->ui->alert('您不是此代表的面试官，因此无权安排此面试。', 'danger', true);
+					break;
+				}
+				
+				$time = strtotime($this->input->post('time'));
+				if(empty($time))
+				{
+					$this->ui->alert('输入的时间格式有误。', 'danger', true);
+					break;
+				}
+				
+				$this->interview_model->arrange_time($interview['id'], $time);
+				
+				$this->delegate_model->change_status($uid, 'interview_arranged');
+				
+				$this->delegate_model->add_event($uid, 'interview_arranged', array('interview' => $interview['id'], 'time' => $time));
+				
+				$this->user_model->add_message($uid, sprintf("您的面试官已经将面试安排在 %s，届时我们将提前通知您准备面试。", date('Y-m-d H:i', $time)));
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'interviewer' => $this->admin_model->get_admin($interview['interviewer'], 'name'),
+					'schedule_time' => unix_to_human($time),
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('已经安排面试时间');
+				$this->email->html($this->parser->parse_string(option('email_delegate_interview_arranged', "您的面试官{interviewer}已经于 {time} 将面试安排于 {schedule_time} 进行，届时我们将提前通知您准备面试，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的面试官已经安排面试时间，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert("已经安排了与{$delegate['name']}代表的面试时间，届时我们将提前通知准备面试。", 'success', true);
+				
+				$this->system_model->log('interview_arranged', array('interview' => $interview['id'], 'time' => $time));
+				break;
+				
+			//回退面试
+			case 'rollback_interview':
+				if($delegate['status'] != 'interview_assigned')
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$interview_id = $this->interview_model->get_current_interview_id($uid);
+				if(!$interview_id)
+				{
+					$this->ui->alert('尝试回退的面试不存在。', 'danger', true);
+					break;
+				}
+				
+				$interview = $this->interview_model->get_interview($interview_id);
+				if($interview['interviewer'] != uid())
+				{
+					$this->ui->alert('您不是此代表的面试官，因此无权回退此面试。', 'danger', true);
+					break;
+				}
+				
+				$this->interview_model->cancel_interview($interview['id']);
+				
+				$this->delegate_model->change_status($uid, 'review_passed');
+				
+				$this->delegate_model->add_event($uid, 'interview_rollbacked', array('interview' => $interview['id']));
+				
+				$this->user_model->add_message($uid, "您的面试官已经取消了面试安排，我们将会尽快为您分配新的面试官。");
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'interviewer' => $this->admin_model->get_admin($interview['interviewer'], 'name'),
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('面试已经取消');
+				$this->email->html($this->parser->parse_string(option('email_delegate_interview_rollbacked', "您的面试官{interviewer}已经于 {time} 取消了面试安排，我们将会尽快为您分配新的面试官，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的面试官已经取消了面试安排，我们将会尽快为您分配新的面试官，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert("已经回退了与{$delegate['name']}代表的面试安排。", 'success', true);
+				
+				$this->system_model->log('interview_rollbacked', array('interview' => $interview['id']));
+				break;
+					
+			//取消面试
+			case 'cancel_interview':
+				if($delegate['status'] != 'interview_arranged')
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$interview_id = $this->interview_model->get_current_interview_id($uid);
+				if(!$interview_id)
+				{
+					$this->ui->alert('尝试重新安排时间的面试不存在。', 'danger', true);
+					break;
+				}
+				
+				$interview = $this->interview_model->get_interview($interview_id);
+				if($interview['interviewer'] != uid())
+				{
+					$this->ui->alert('您不是此代表的面试官，因此重新安排此面试的时间。', 'danger', true);
+					break;
+				}
+				
+				if($interview['status'] != 'arranged')
+				{
+					$this->ui->alert('尝试重新安排时间的面试尚未排定或者已经完成。', 'danger', true);
+					break;
+				}
+				
+				$this->interview_model->cancel_interview($interview['id']);
+				
+				$this->interview_model->assign_interview($uid, $interview['interviewer']);
+				
+				$this->delegate_model->change_status($uid, 'interview_assigned');
+				
+				$this->delegate_model->add_event($uid, 'interview_cancelled', array('interview' => $interview['id']));
+				
+				$this->user_model->add_message($uid, "您的面试官已经取消了面试安排，他将在近期内重新安排面试时间。");
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'interviewer' => $this->admin_model->get_admin($interview['interviewer'], 'name'),
+					'schedule_time' => unix_to_human($interview['schedule_time']),
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('面试安排已经取消');
+				$this->email->html($this->parser->parse_string(option('email_delegate_interview_cancelled', "您的面试官{interviewer}已经于 {time} 取消了原定 {schedule_time} 开始的面试安排，他将在近期内重新安排面试时间，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的面试官已经取消了面试安排，他将在近期内重新安排面试时间，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->send();
+				}
+				
+				$this->ui->alert("已经取消了与{$delegate['name']}代表的面试安排。", 'success', true);
+				
+				$this->system_model->log('interview_cancelled', array('interview' => $interview['id']));
+				break;
+				
+			//面试
+			case 'interview':
+				if($delegate['status'] != 'interview_arranged')
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$interview_id = $this->interview_model->get_current_interview_id($uid);
+				if(!$interview_id)
+				{
+					$this->ui->alert('指定的面试不存在。', 'danger', true);
+					break;
+				}
+				
+				$interview = $this->interview_model->get_interview($interview_id);
+				if($interview['interviewer'] != uid())
+				{
+					$this->ui->alert('您不是此代表的面试官，因此进行面试。', 'danger', true);
+					break;
+				}
+				
+				if($interview['status'] != 'arranged')
+				{
+					$this->ui->alert('面试尚未排定或者已经完成。', 'danger', true);
+					break;
+				}
+				
+				//是否通过
+				if($this->input->post('pass'))
+					$pass = true;
+				else
+					$pass = false;
+				
+				//计算总分
+				$score = (float) 0;
+				$score_all = array();
+				$score_total = option('interview_score_total', 5);
+				
+				foreach(option('interview_score_standard', array('score' => array('weight' => 1))) as $sid => $one)
+				{
+					//存在性验证
+					$score_one = $this->input->post("score_$sid");
+					if(!empty($score_one))
+						$score_one = intval($score_one);
+					else
+						$score_one = 0;
+					
+					//有效性验证
+					if($score_one > $score_total)
+						$score_one = $score_total;
+					elseif($score_one < 0)
+						$score_one = 0;
+					
+					$score += (float) $score_one * $one['weight'];
+					$score_all[$sid] = $score_one;
+				}
+				
+				//反馈
+				$feedback = $this->input->post('feedback');
+				if(empty($feedback))
+					$feedback = NULL;
+				
+				$feedback_data = array(
+					'score' => $score_all,
+					'feedback' => $feedback
+				);
+				
+				//执行面试结果
+				$this->interview_model->complete_interview($interview_id, $score, $pass, $feedback_data);
+				
+				//载入邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'interviewer' => $this->admin_model->get_admin($interview['interviewer'], 'name'),
+					'time' => unix_to_human(time())
+				);
+				
+				if(!$pass)
+				{
+					$this->delegate_model->add_event($uid, 'interview_failed', array('interview' => $interview['id']));
+					
+					if(!$this->interview_model->is_secondary($delegate['id'], 'delegate'))
+					{
+						$this->delegate_model->change_status($uid, 'review_passed');
+
+						$this->user_model->add_message($uid, "您将需要进行二次面试，我们将在近期内为您重新分配面试官。");
+						
+						//邮件通知
+						$this->email->to($delegate['email']);
+						$this->email->subject('面试未通过');
+						$this->email->html($this->parser->parse_string(option('email_delegate_interview_failed', "您的面试官已经于 {time} 认定您未能通过面试，您将需要进行二次面试，我们将在近期内为您重新分配面试官，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						$this->email->send();
+
+						//短信通知代表
+						if(option('sms_enabled', false))
+						{
+							$this->load->model('sms_model');
+							$this->load->library('sms');
+
+							$this->sms->to($uid);
+							$this->sms->message('您将需要进行二次面试，我们将在近期内为您重新分配面试官，请登录 iPlacard 系统查看申请状态。');
+							$this->sms->send();
+						}
+						
+						$this->ui->alert("已经通知{$delegate['name']}代表的准备二次面试。", 'success', true);
+					}
+					else
+					{
+						$this->delegate_model->change_status($uid, 'moved_to_waiting_list');
+
+						$this->user_model->add_message($uid, "很遗憾，您未能通过二次面试。您的申请已经移入等待队列。");
+						
+						//邮件通知
+						$this->email->to($delegate['email']);
+						$this->email->subject('二次面试未通过');
+						$this->email->html($this->parser->parse_string(option('email_delegate_interview_failed_2nd', "您的面试官已经于 {time} 认定您未能通过二次面试。您的申请已经移入等待队列，当席位出现空缺时，我们将会为您分配席位，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						$this->email->send();
+
+						//短信通知代表
+						if(option('sms_enabled', false))
+						{
+							$this->load->model('sms_model');
+							$this->load->library('sms');
+
+							$this->sms->to($uid);
+							$this->sms->message('您将需要进行二次面试，我们将在近期内为您重新分配面试官，请登录 iPlacard 系统查看申请状态。');
+							$this->sms->send();
+						}
+						
+						$this->ui->alert("已经将{$delegate['name']}代表移动至等待队列。", 'success', true);
+					}
+				}
+				else
+				{
+					$this->delegate_model->change_status($uid, 'interview_completed');
+					
+					$this->delegate_model->add_event($uid, 'interview_passed', array('interview' => $interview['id']));
+					
+					$this->user_model->add_message($uid, "您已通过面试，我们将在近期内为您分配席位选择。");
+					
+					//邮件通知
+					$this->email->to($delegate['email']);
+					$this->email->subject('面试通过');
+					$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed', "您的面试官已经于 {time} 认定您成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。"), $data, true));
+					$this->email->send();
+
+					//短信通知代表
+					if(option('sms_enabled', false))
+					{
+						$this->load->model('sms_model');
+						$this->load->library('sms');
+
+						$this->sms->to($uid);
+						$this->sms->message('您已成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。');
+						$this->sms->send();
+					}
+
+					$this->ui->alert("已经通过{$delegate['name']}代表的面试。", 'success', true);
+				}
+				
+				$this->ui->alert("已经录入面试成绩。", 'success', true);
+				
+				$this->system_model->log('interview_completed', array('interview' => $interview['id'], 'pass' => $pass));
+				break;
+		}
+		
+		back_redirect();
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = 'list')
@@ -525,7 +1183,17 @@ class delegate extends CI_Controller
 			{
 				$sids = $this->seat_model->get_seat_ids('committee', $param['committee'], 'status', array('assigned', 'approved', 'locked'));
 				if($sids)
-					$input_param['id'] = $this->seat_model->get_delegates_by_seats($sids);
+				{
+					$dids = $this->seat_model->get_delegates_by_seats($sids);
+					if($dids)
+						$input_param['id'] = $dids;
+					else
+						$input_param['id'] = array(NULL);
+				}
+				else
+				{
+					$input_param['id'] = array(NULL);
+				}
 			}
 			
 			$args = array();
@@ -688,6 +1356,242 @@ class delegate extends CI_Controller
 	 */
 	function _sidebar_admission($delegate)
 	{
+		$vars = array(
+			'uid' => $delegate['id'],
+			'delegate' => $delegate
+		);
+		
+		switch($delegate['status'])
+		{
+			//审核申请界面
+			case 'application_imported':
+				if(!$this->admin_model->capable('reviewer'))
+					break;
+				
+				$delegate['application_type_text'] = $this->delegate_model->application_type_text($delegate['application_type']);
+
+				$vars['delegate'] = $delegate;
+
+				return $this->load->view('admin/admission/review', $vars, true);
+				
+			//分配面试界面
+			case 'review_passed':
+				if(!$this->admin_model->capable('reviewer'))
+					break;
+				
+				$this->load->model('interview_model');
+				$this->load->model('committee_model');
+
+				$list_ids = $this->admin_model->get_admin_ids('role_interviewer', true);
+
+				//获取可选择面试官列表
+				$select = array();
+				$committees = array();
+				$count = 0;
+
+				if($list_ids)
+				{
+					foreach($list_ids as $id)
+					{
+						$admin = $this->admin_model->get_admin($id);
+
+						//面试官队列数
+						$queues = $this->interview_model->get_interviewer_interviews($id, array('assigned', 'arranged'));
+						$queue = !$queues ? 0 : count($queues);
+
+						$committee = empty($admin['committee']) ? 0 : $admin['committee'];
+						if($committee > 0 && !isset($committees['committee']))
+							$committees[$committee] = $this->committee_model->get_committee($committee);
+
+						$select[$committee][] = array(
+							'id' => $id,
+							'name' => $admin['name'],
+							'title' => $admin['title'],
+							'queue' => $queue
+						);
+					}
+
+					$count = count($list_ids);
+				}
+				$vars['select'] = $select;
+				$vars['interviewer_count'] = $count;
+				$vars['committees'] = $committees;
+
+				//高亮面试官
+				$primary = array();
+				$choice_committee = array();
+
+				$choice_option = option('profile_special_committee_choice');
+				if($choice_option)
+				{
+					$choice_committee = $this->delegate_model->get_profile_by_name($delegate['id'], $choice_option);
+
+					if(!empty($choice_committee))
+					{
+						foreach($choice_committee as $committee_id)
+						{
+							$primary['committee'][] = $committee_id;
+							foreach($select[$committee_id] as $one)
+							{
+								$primary['interviewer'][] = $one['id'];
+							}
+
+							$choice_committee[] = $this->committee_model->get_committee($committee_id, 'abbr');
+						}
+					}
+				}
+				$vars['primary'] = $primary;
+				$vars['choice_committee'] = $choice_committee;
+
+				//是否为二次面试
+				if(!$this->interview_model->is_secondary($delegate['id'], 'delegate'))
+					$vars['is_secondary'] = false;
+				else
+					$vars['is_secondary'] = true;
+
+				//是否为回退
+				$rollbackers = array();
+				$rollback = array();
+
+				$rollback_ids = $this->delegate_model->get_event_ids('delegate', $delegate['id'], 'event', 'interview_rollbacked');
+				if($rollback_ids)
+				{
+					foreach($rollback_ids as $id)
+					{
+						$event = $this->delegate_model->get_event($id, 'info');
+
+						$interviewer = $this->interview_model->get_interview($event['interview'], 'interviewer');
+						
+						if(!in_array($interviewer, $rollbackers))
+						{
+							$rollback[] = $this->admin_model->get_admin($interviewer);
+							$rollbackers[] = $interviewer;
+						}
+					}
+					$vars['is_rollbacked'] = true;
+				}
+				else
+					$vars['is_rollbacked'] = false;
+
+				$vars['rollback'] = $rollback;
+
+				return $this->load->view('admin/admission/assign_interview', $vars, true);
+				
+			//安排面试界面
+			case 'interview_assigned':
+				if(!$this->admin_model->capable('interviewer'))
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$current_id = $this->interview_model->get_current_interview_id($delegate['id']);
+				if(!$current_id)
+					break;
+				
+				$interview = $this->interview_model->get_interview($current_id);
+				if(!$interview)
+					break;
+				
+				if($interview['interviewer'] != uid())
+					break;
+				
+				//是否为二次面试
+				if($this->interview_model->is_secondary($delegate['id'], 'delegate'))
+					$vars['is_secondary'] = true;
+				else
+					$vars['is_secondary'] = false;
+				
+				return $this->load->view('admin/admission/arrange_interview', $vars, true);
+				
+			//面试界面
+			case 'interview_arranged':
+				if(!$this->admin_model->capable('interviewer'))
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$current_id = $this->interview_model->get_current_interview_id($delegate['id']);
+				if(!$current_id)
+					break;
+				
+				$interview = $this->interview_model->get_interview($current_id);
+				if(!$interview)
+					break;
+				
+				if($interview['interviewer'] != uid())
+					break;
+				
+				$vars['interview'] = $interview;
+				
+				//是否默认显示重新安排页面
+				if($interview['status'] == 'arranged' && (($interview['schedule_time'] - 1800) >= time()))
+					$vars['pre'] = true;
+				else
+					$vars['pre'] = false;
+				
+				//是否为二次面试
+				if(!$this->interview_model->is_secondary($delegate['id'], 'delegate'))
+					$vars['is_secondary'] = false;
+				else
+					$vars['is_secondary'] = true;
+				
+				//分数分布
+				$vars['score_standard'] = option('interview_score_standard', array('score' => array(
+					'name' => '总分',
+					'weight' => 1
+				)));
+				$vars['score_total'] = option('interview_score_total', 5);
+				$vars['score_level'] = $this->interview_model->get_score_levels(20);
+				
+				return $this->load->view('admin/admission/do_interview', $vars, true);
+				
+			//分配席位选择
+			case 'interview_completed':
+			case 'seat_assigned':
+				if(!$this->admin_model->capable('interviewer'))
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$current_id = $this->interview_model->get_current_interview_id($delegate['id']);
+				if(!$current_id)
+					break;
+				
+				$interview = $this->interview_model->get_interview($current_id);
+				if(!$interview)
+					break;
+				
+				if(!in_array($interview['status'], array('completed', 'exempted')))
+					break;
+				
+				if($interview['interviewer'] != uid())
+					break;
+				
+				$vars['interview'] = $interview;
+				
+				//面试成绩排位
+				$vars['score_level'] = false;
+				if($interview['status'] == 'completed' && !empty($interview['score']))
+				{
+					$score_level = $this->interview_model->get_score_levels(1);
+					if($score_level)
+					{
+						foreach($score_level as $level => $sample)
+						{
+							if($interview['score'] >= $sample)
+							{
+								$vars['score_level'] = $level;
+								break;
+							}
+						}
+					}
+				}
+				
+				$vars['score_total'] = option('interview_score_total', 5);
+				
+				return $this->load->view('admin/admission/assign_seat', $vars, true);
+		}
+		
 		return '';
 	}
 	
