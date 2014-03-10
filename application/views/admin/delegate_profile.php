@@ -300,11 +300,18 @@ $this->load->view('header');?>
 						</tr><?php }
 						if(!empty($interview['score'])) { ?><tr>
 							<td>面试总分</td>
-							<td><?php echo round($interview['score'], 2);?></td>
+							<td><strong><?php echo round($interview['score'], 2);?></strong></td>
+						</tr><?php }
+						if(!empty($interview['feedback']['score'])) { ?><tr>
+							<td>详细评分</td>
+							<td><?php foreach(option('interview_score_standard', array('score' => array('name' => '总分'))) as $sid => $one)
+							{
+								echo "<span class=\"label label-default\">{$one['name']}</span> {$interview['feedback']['score'][$sid]} ";
+							} ?></td>
 						</tr><?php }
 						if(!empty($interview['feedback'])) { ?><tr>
-							<td>面试反馈</td>
-							<td><?php echo $interview['feedback'];?></td>
+							<td style="min-width: 100px;">面试反馈</td>
+							<td><?php echo $interview['feedback']['feedback'];?></td>
 						</tr><?php } ?>
 					</tbody>
 				</table>
