@@ -241,7 +241,7 @@ class Interview_model extends CI_Model
 		if($type == 'interview')
 			$delegate = $this->get_interview($id, 'delegate');
 		
-		if($type == 'delegate' && $this->get_interview_id('delegate', $delegate, 'status', 'failed'))
+		if($this->get_interview_id('delegate', $delegate, 'status', 'failed'))
 			return true;
 		return false;
 	}
