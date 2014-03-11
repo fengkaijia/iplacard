@@ -133,17 +133,17 @@ class Interview_model extends CI_Model
 		switch($status)
 		{
 			case 'assigned':
-			return '等待安排时间';
-		case 'arranged':
-			return '已经安排时间';
-		case 'completed':
-			return '面试通过';
-		case 'exempted':
-			return '免试通过';
-		case 'cancelled':
-			return '面试取消';
-		case 'failed':
-			return '面试未通过';
+				return '等待安排时间';
+			case 'arranged':
+				return '已经安排时间';
+			case 'completed':
+				return '面试通过';
+			case 'exempted':
+				return '免试通过';
+			case 'cancelled':
+				return '面试取消';
+			case 'failed':
+				return '面试未通过';
 		}
 		return false;
 	}
