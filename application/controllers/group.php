@@ -256,7 +256,7 @@ class Group extends CI_Controller
 					if(!empty($group['head_delegate']))
 					{
 						$head_delegate = $this->delegate_model->get_delegate($group['head_delegate']);
-						$head_delegate_name = anchor("delegate/detail/{$head_delegate['id']}", $head_delegate['name']);
+						$head_delegate_name = anchor("delegate/profile/{$head_delegate['id']}", $head_delegate['name']);
 						$head_delegate_line = icon('user', false).$head_delegate_name;
 					}
 
