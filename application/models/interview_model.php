@@ -233,15 +233,27 @@ class Interview_model extends CI_Model
 	}
 	
 	/**
-	 * 查询面试或代表是否为二次面试
+	 * 查询面试是否为二次面试或查询代表是否有二次面试
 	 */
 	function is_secondary($id, $type = 'interview')
 	{
 		$delegate = $id;
 		if($type == 'interview')
-			$delegate = $this->get_interview($id, 'delegate');
+		{
+			$interview = $this->get_interview($id);
+			if(!$interview)
+				return false;
+			
+			$time = $interview['assign_time'];
+			
+			$delegate = $interview['delegate'];
+		}
+		else
+		{
+			$time = time();
+		}
 		
-		if($this->get_interview_id('delegate', $delegate, 'status', 'failed'))
+		if($this->get_interview_id('delegate', $delegate, 'status', 'failed', 'finish_time <', $time))
 			return true;
 		return false;
 	}
