@@ -84,8 +84,8 @@ class UI
 			array('退会代表', 'delegate/manage?status=quitted', 'administrator', false),
 		),
 		'interview' => array(
-			array('面试', 'row/interview/assigned', '', false),
-			array('面试队列', 'row/interview/assigned/all', 'administrator', false),
+			array('面试', 'interview/manage?interviewer=u', 'interviewer', false),
+			array('面试队列', 'interview/manage', 'administrator', false),
 		),
 		'committee' => array(
 			array('委员会', 'committee/manage', '', false),

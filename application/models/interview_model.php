@@ -133,17 +133,17 @@ class Interview_model extends CI_Model
 		switch($status)
 		{
 			case 'assigned':
-			return '等待安排时间';
-		case 'arranged':
-			return '已经安排时间';
-		case 'completed':
-			return '面试通过';
-		case 'exempted':
-			return '免试通过';
-		case 'cancelled':
-			return '面试取消';
-		case 'failed':
-			return '面试未通过';
+				return '等待安排时间';
+			case 'arranged':
+				return '已经安排时间';
+			case 'completed':
+				return '面试通过';
+			case 'exempted':
+				return '免试通过';
+			case 'cancelled':
+				return '面试取消';
+			case 'failed':
+				return '面试未通过';
 		}
 		return false;
 	}
@@ -233,15 +233,27 @@ class Interview_model extends CI_Model
 	}
 	
 	/**
-	 * 查询面试或代表是否为二次面试
+	 * 查询面试是否为二次面试或查询代表是否有二次面试
 	 */
 	function is_secondary($id, $type = 'interview')
 	{
 		$delegate = $id;
 		if($type == 'interview')
-			$delegate = $this->get_interview($id, 'delegate');
+		{
+			$interview = $this->get_interview($id);
+			if(!$interview)
+				return false;
+			
+			$time = $interview['assign_time'];
+			
+			$delegate = $interview['delegate'];
+		}
+		else
+		{
+			$time = time();
+		}
 		
-		if($this->get_interview_id('delegate', $delegate, 'status', 'failed'))
+		if($this->get_interview_id('delegate', $delegate, 'status', 'failed', 'finish_time <', $time))
 			return true;
 		return false;
 	}
