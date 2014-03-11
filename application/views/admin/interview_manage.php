@@ -16,9 +16,9 @@ $this->load->view('header');?>
 		});');
 		if(!empty($part)) { ?><div class="col-md-4 menu-tabs">
 			<ul class="nav nav-tabs nav-menu">
-				<li<?php if($part == 'all') echo ' class="active"';?>><?php echo anchor('interview/manage/?'.$param_tab['all'], '全部面试');?></li>
-				<li<?php if($part == 'pending') echo ' class="active"';?>><?php echo anchor('interview/manage/?'.$param_tab['pending'], '未完成面试');?></li>
-				<li<?php if($part == 'finished') echo ' class="active"';?>><?php echo anchor('interview/manage/?'.$param_tab['finished'], '已完成面试');?></li>
+				<li<?php if($part == 'all') echo ' class="active"';?>><?php echo anchor('interview/manage?'.$param_tab['all'], '全部面试');?></li>
+				<li<?php if($part == 'pending') echo ' class="active"';?>><?php echo anchor('interview/manage?'.$param_tab['pending'], '未完成面试');?></li>
+				<li<?php if($part == 'finished') echo ' class="active"';?>><?php echo anchor('interview/manage?'.$param_tab['finished'], '已完成面试');?></li>
 			</ul>
 		</div><?php } ?>
 	</div>
