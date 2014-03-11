@@ -36,6 +36,7 @@ class Interview extends CI_Controller
 		//查询过滤
 		$post = $this->input->get();
 		$param = $this->_filter_check($post);
+		$param_tab = array();
 		
 		//显示标题
 		$title = '全部面试列表';
@@ -48,6 +49,17 @@ class Interview extends CI_Controller
 				$text_status[] = $this->interview_model->status_text($one);
 			}
 			$title = sprintf("%s列表", join('、', $text_status));
+			
+			if(count($param['status']) == 2 && in_array('assigned', $param['status']) && in_array('arranged', $param['status']))
+				$part = 'pending';
+			elseif(count($param['status']) == 3 && in_array('completed', $param['status']) && in_array('failed', $param['status']) && in_array('exempted', $param['status']))
+				$part = 'finished';
+			else
+				$part = '';
+		}
+		else
+		{
+			$part = 'all';
 		}
 		
 		if(isset($param['committee']))
@@ -87,8 +99,22 @@ class Interview extends CI_Controller
 			$title = sprintf("%s的面试队列", join('、', $text_interviewer));
 		}
 		
+		//标签地址
+		$params = $param;
+		
+		$params['status'] = array('assigned', 'arranged');
+		$param_tab['pending'] = $this->_filter_build($params);
+		
+		$params['status'] = array('completed', 'failed', 'exempted');
+		$param_tab['finished'] = $this->_filter_build($params);
+		
+		unset($params['status']);
+		$param_tab['all'] = $this->_filter_build($params);
+		
 		$vars = array(
 			'param_uri' => $this->_filter_check($post, true),
+			'param_tab' => $param_tab,
+			'part' => $part,
 			'title' => $title,
 		);
 		
@@ -334,11 +360,19 @@ class Interview extends CI_Controller
 		if(empty($return))
 			return '';
 		
-		foreach($return as $name => $value)
+		return $this->_filter_build($return);
+	}
+	
+	/**
+	 * 建立查询URI
+	 */
+	function _filter_build($param)
+	{
+		foreach($param as $name => $value)
 		{
-			$return[$name] = join(',', $value);
+			$param[$name] = join(',', $value);
 		}
-		return http_build_query($return);
+		return http_build_query($param);
 	}
 }
 

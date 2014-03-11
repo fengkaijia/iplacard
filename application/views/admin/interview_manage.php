@@ -6,8 +6,25 @@ $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/boots
 $this->load->view('header');?>
 
 <div class="page-header">
-	<h1><?php echo $title;?></h1>
+	<div class="row">
+		<div class="col-md-<?php echo !empty($part) ? '8' : '12';?>">
+			<h1><?php echo $title;?></h1>
+		</div>
+		<?php $this->ui->js('footer', 'nav_menu_top();
+		$(window).resize(function($){
+			nav_menu_top();
+		});');
+		if(!empty($part)) { ?><div class="col-md-4 menu-tabs">
+			<ul class="nav nav-tabs nav-menu">
+				<li<?php if($part == 'all') echo ' class="active"';?>><?php echo anchor('interview/manage/?'.$param_tab['all'], '全部面试');?></li>
+				<li<?php if($part == 'pending') echo ' class="active"';?>><?php echo anchor('interview/manage/?'.$param_tab['pending'], '未完成面试');?></li>
+				<li<?php if($part == 'finished') echo ' class="active"';?>><?php echo anchor('interview/manage/?'.$param_tab['finished'], '已完成面试');?></li>
+			</ul>
+		</div><?php } ?>
+	</div>
 </div>
+
+<div class="menu-pills"></div>
 
 <table id="interview_list" class="table table-striped table-bordered table-hover table-responsive">
 	<thead>
