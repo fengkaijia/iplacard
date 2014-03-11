@@ -202,7 +202,7 @@ class Interview extends CI_Controller
 					
 					//姓名
 					$contact_list = '<p>'.icon('phone').$delegate['phone'].'</p><p>'.icon('envelope-o').$delegate['email'].'</p>';
-					$name_line = $delegate['name'].'<a class="contact_list" data-html=true data-placement="right" data-trigger="click" data-original-title=\''
+					$name_line = $delegate['name'].'<a href="#" class="contact_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\''
 							.$delegate['name']
 							.'\' data-toggle="popover" data-content=\''.$contact_list.'\'>'.icon('phone-square', false).'</a>';
 					
