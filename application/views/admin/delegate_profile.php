@@ -26,9 +26,7 @@ $this->load->view('header');?>
 	</div>
 </div>
 
-<div class="menu-pills">
-	
-</div>
+<div class="menu-pills"></div>
 
 <div class="row">
 	<div class="col-md-8">
