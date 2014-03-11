@@ -85,7 +85,7 @@ class Delegate extends CI_Controller
 		}
 		
 		$vars = array(
-			'param_uri' => $this->_filter_check($post, true),
+			'param_uri' => $this->_filter_build($param),
 			'title' => $title,
 		);
 		
@@ -1678,11 +1678,19 @@ class Delegate extends CI_Controller
 		if(empty($return))
 			return '';
 		
-		foreach($return as $name => $value)
+		return $this->_filter_build($return);
+	}
+	
+	/**
+	 * 建立查询URI
+	 */
+	function _filter_build($param)
+	{
+		foreach($param as $name => $value)
 		{
-			$return[$name] = join(',', $value);
+			$param[$name] = join(',', $value);
 		}
-		return http_build_query($return);
+		return http_build_query($param);
 	}
 }
 

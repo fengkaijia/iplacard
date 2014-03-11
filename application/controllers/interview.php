@@ -112,7 +112,7 @@ class Interview extends CI_Controller
 		$param_tab['all'] = $this->_filter_build($params);
 		
 		$vars = array(
-			'param_uri' => $this->_filter_check($post, true),
+			'param_uri' => $this->_filter_build($param),
 			'param_tab' => $param_tab,
 			'part' => $part,
 			'title' => $title,
