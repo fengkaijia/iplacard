@@ -1,7 +1,16 @@
 <?php $this->load->view('header');?>
 
 <div class="page-header">
-	<h1><?php echo $action == 'add' ? '添加用户' : icon('user').$user['name'];?></h1>
+	<div class="row">
+		<div class="col-md-12">
+			<?php if($action == 'add') { ?><h1>添加用户</h1><?php } else { ?><h1 style="position: relative;">
+				<a class="thumbnail" style="width: 50px; height: 50px; position: absolute; margin-top: -2px;">
+					<?php echo avatar($user['id'], 40, 'img');?>
+				</a>
+				<span style="margin-left: 58px;"><?php echo $user['name'];?></span>
+			</h1><?php } ?>
+		</div>
+	</div>
 </div>
 
 <div class="row">
