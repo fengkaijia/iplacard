@@ -5,7 +5,7 @@
  * @package iPlacard
  * @since 2.0
  */
-class delegate extends CI_Controller
+class Delegate extends CI_Controller
 {
 	function __construct()
 	{
