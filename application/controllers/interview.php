@@ -343,10 +343,12 @@ class Interview extends CI_Controller
 		//面试官
 		if(isset($post['interviewer']))
 		{
-			
 			$interviewer = array();
 			foreach(explode(',', $post['interviewer']) as $param_interviewer)
 			{
+				if($param_interviewer == 'u')
+					$param_interviewer = uid();
+				
 				if($this->admin_model->capable('interviewer', $param_interviewer))
 					$interviewer[] = $param_interviewer;
 			}
