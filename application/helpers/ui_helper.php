@@ -20,9 +20,10 @@ function icon($icon, $space = true, $fixed = true)
  * @param string $iso ISO 3166-1代码
  * @param boolean $check 是否检查代码是否存在
  * @param boolean $space 是否增加空间
+ * @param boolean $null_output 是否在旗帜不存在时显示未知旗帜
  * @return string 包含旗帜的HTML代码
  */
-function flag($iso, $check = false, $space = true)
+function flag($iso, $check = false, $space = true, $null_output = false)
 {
 	if($check)
 	{
@@ -32,7 +33,12 @@ function flag($iso, $check = false, $space = true)
 		$available = $CI->config->item('iso_3166_1');
 		
 		if(!array_key_exists($iso, $available))
+		{
+			if(!$null_output)
+				return '';
+			
 			$iso = '_unknown';
+		}
 	}
 	
 	$space = $space ? ' ' : '';
