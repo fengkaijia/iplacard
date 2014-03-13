@@ -126,6 +126,80 @@ class Seat extends CI_Controller
 		$this->ui->title($title, '席位列表');
 		$this->load->view('admin/seat_manage', $vars);
 	}
+	
+	/**
+	 * 席位操作
+	 */
+	function operation($action, $id)
+	{
+		if(empty($id))
+			return;
+		
+		$admin = $this->admin_model->get_admin(uid());
+		
+		$seat = $this->seat_model->get_seat($id);
+		if(!$seat)
+			return;
+		
+		switch($action)
+		{
+			//保留席位
+			case 'preserve_seat':
+				if($seat['status'] != 'available' && $seat['status'] != 'preserved')
+				{
+					$this->ui->alert('席位当前状态无法更改保留设置。', 'warning', true);
+					break;
+				}
+				
+				if($seat['status'] == 'preserved')
+				{
+					$this->ui->alert('席位已经被设置保留，无需更改。', 'info', true);
+					break;
+				}
+				
+				if($seat['committee'] != $admin['committee'] && !$this->admin_model->capable('administrator'))
+				{
+					$this->ui->alert('您不是此席位所在委员会的面试官或主席，因此您无法为调整此席位的属性。', 'warning', true);
+					break;
+				}
+				
+				$this->seat_model->change_seat_status($id, 'preserved');
+				
+				$this->system_model->log('seat_preserved', array('seat' => $id));
+				
+				$this->ui->alert('席位已设置保留。', 'success', true);
+				break;
+				
+			//开放席位
+			case 'open_seat':
+				if($seat['status'] != 'available' && $seat['status'] != 'preserved')
+				{
+					$this->ui->alert('席位当前状态无法更改保留设置。', 'warning', true);
+					break;
+				}
+				
+				if($seat['status'] == 'available')
+				{
+					$this->ui->alert('席位已经被设置开放，无需更改。', 'info', true);
+					break;
+				}
+				
+				if($seat['committee'] != $admin['committee'] && !$this->admin_model->capable('administrator'))
+				{
+					$this->ui->alert('您不是此席位所在委员会的面试官或主席，因此您无法为调整此席位的属性。', 'warning', true);
+					break;
+				}
+				
+				$this->seat_model->change_seat_status($id, 'available');
+				
+				$this->system_model->log('seat_opened', array('seat' => $id));
+				
+				$this->ui->alert('席位已设置保留。', 'success', true);
+				break;
+		}
+		
+		back_redirect();
+	}
 
 	/**
 	 * AJAX
