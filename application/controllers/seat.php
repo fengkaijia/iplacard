@@ -328,6 +328,13 @@ class Seat extends CI_Controller
 			$committee = array();
 			foreach(explode(',', $post['committee']) as $param_committee)
 			{
+				if($param_committee == 'u')
+				{
+					$param_committee = $this->admin_model->get_admin(uid(), 'committee');
+					if(!$param_committee)
+						$param_committee = 0;
+				}
+				
 				if(in_array($param_committee, $this->committee_model->get_committee_ids()))
 					$committee[] = $param_committee;
 			}
