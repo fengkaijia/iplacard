@@ -47,6 +47,135 @@ $this->load->view('header');?>
 </table>
 
 <?php
+echo form_open('seat/operation/preserve_seat/0', array(
+	'class' => 'modal fade form-horizontal',
+	'id' => 'preserve_seat',
+	'tabindex' => '-1',
+	'role' => 'dialog',
+	'aria-labelledby' => 'preserve_label',
+	'aria-hidden' => 'true'
+));?><div class="modal-dialog">
+	<div class="modal-content">
+		<div class="modal-header">
+			<?php echo form_button(array(
+				'content' => '&times;',
+				'class' => 'close',
+				'type' => 'button',
+				'data-dismiss' => 'modal',
+				'aria-hidden' => 'true'
+			));?>
+			<h4 class="modal-title" id="preserve_label">保留席位</h4>
+		</div>
+		<div class="modal-body">
+			<p>将会保留以下席位：</p>
+			
+			<table class="table table-striped table-bordered table-hover table-responsive flags-16">
+				<tbody>
+					<tr>
+						<td>席位ID</td>
+						<td class="seat-id"></td>
+					</tr>
+					<tr>
+						<td>席位名称</td>
+						<td class="seat-name"></td>
+					</tr>
+					<tr>
+						<td>等级</td>
+						<td class="seat-level"></td>
+					</tr>
+					<tr>
+						<td>状态</td>
+						<td class="seat-status"></td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<p>席位保留后将只有<?php echo icon('tags', false);?><span class="seat-committee"></span>委员会的面试官可分配此席位。在此席位再次开放前，其他委员会面试官无法分配此席位。管理员和该委员会的面试官可以开放此席位。</p>
+		</div>
+		<div class="modal-footer">
+			<?php echo form_button(array(
+				'content' => '取消',
+				'type' => 'button',
+				'class' => 'btn btn-link',
+				'data-dismiss' => 'modal'
+			));
+			echo form_button(array(
+				'name' => 'submit',
+				'content' => '确认保留',
+				'type' => 'submit',
+				'class' => 'btn btn-primary',
+				'onclick' => 'loader(this);'
+			)); ?>
+		</div>
+	</div>
+</div>
+<?php echo form_close();
+
+echo form_open('seat/operation/open_seat/0', array(
+	'class' => 'modal fade form-horizontal',
+	'id' => 'preserve_seat',
+	'tabindex' => '-1',
+	'role' => 'dialog',
+	'aria-labelledby' => 'preserve_label',
+	'aria-hidden' => 'true'
+));?><div class="modal-dialog">
+	<div class="modal-content">
+		<div class="modal-header">
+			<?php echo form_button(array(
+				'content' => '&times;',
+				'class' => 'close',
+				'type' => 'button',
+				'data-dismiss' => 'modal',
+				'aria-hidden' => 'true'
+			));?>
+			<h4 class="modal-title" id="preserve_label">开放席位</h4>
+		</div>
+		<div class="modal-body">
+			<p>将会开放以下席位：</p>
+			
+			<table class="table table-striped table-bordered table-hover table-responsive flags-16">
+				<tbody>
+					<tr>
+						<td>席位ID</td>
+						<td class="seat-id"></td>
+					</tr>
+					<tr>
+						<td>席位名称</td>
+						<td class="seat-name"></td>
+					</tr>
+					<tr>
+						<td>等级</td>
+						<td class="seat-level"></td>
+					</tr>
+					<tr>
+						<td>状态</td>
+						<td class="seat-status"></td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<p>席位开放后将所有面试官都将可分配此席位。</p>
+		</div>
+		<div class="modal-footer">
+			<?php echo form_button(array(
+				'content' => '取消',
+				'type' => 'button',
+				'class' => 'btn btn-link',
+				'data-dismiss' => 'modal'
+			));
+			echo form_button(array(
+				'name' => 'submit',
+				'content' => '确认开放',
+				'type' => 'submit',
+				'class' => 'btn btn-primary',
+				'onclick' => 'loader(this);'
+			)); ?>
+		</div>
+	</div>
+</div>
+<?php echo form_close(); ?>
+
+<?php
 $ajax_url = base_url('seat/ajax/list?'.$param_uri);
 $ajax_js = <<<EOT
 $(document).ready(function() {
@@ -59,9 +188,41 @@ $(document).ready(function() {
 		"fnInitComplete": function() {
 			this.fnAdjustColumnSizing();
 			$('.contact_list').popover();
+		},
+		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+			$(nRow).attr("id", 'seat-' + aData[0]);
 		}
 	} );
 } );
 EOT;
 $this->ui->js('footer', $ajax_js);
+
+$preserve_url = base_url('seat/operation/preserve_seat');
+$open_url = base_url('seat/operation/open_seat');
+$box_js = <<<EOT
+function set_seat_box(id, type) {
+	switch(type) {
+		case 'preserve':
+			$('#preserve_seat').attr('action', '{$preserve_url}/' + id);
+			break;
+		case 'open':
+			$('#open_seat').attr('action', '{$open_url}/' + id);
+			break;
+	}
+	
+	$(':hidden[name=seat]').val(id);
+	
+	$('.seat-id').html($('#seat-' + id).children().eq(0).html());
+	$('.seat-name').html($('#seat-' + id).children().eq(1).html());
+	$('.seat-committee').html($('#seat-' + id).children().eq(2).html());
+	$('.seat-level').html($('#seat-' + id).children().eq(4).html());
+	
+	if($('#seat-' + id).children().eq(3).is(':empty')) {
+		$('.seat-status').html('<span class="label label-primary">正常</span>');
+	} else {
+		$('.seat-status').html($('#seat-' + id).children().eq(3).html());
+	}
+}
+EOT;
+$this->ui->js('footer', $box_js);
 $this->load->view('footer');?>
