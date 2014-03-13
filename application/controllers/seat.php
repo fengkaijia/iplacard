@@ -196,7 +196,7 @@ class Seat extends CI_Controller
 							$operation .= '<a href="#" data-toggle="modal" data-target="#preserve_seat" onclick="set_seat_box('.$seat['id'].', \'preserve\');">'.icon('eye-slash', false).'保留</a>';
 					}
 					
-					//姓名
+					//代表
 					$name_line = '';
 					if($delegate)
 					{
@@ -242,7 +242,7 @@ class Seat extends CI_Controller
 					
 					$data = array(
 						$seat['id'], //ID
-						flag($seat['iso'], true).$seat['name'], //姓名
+						flag($seat['iso'], true).$seat['name'], //席位名称
 						$this->committee_model->get_committee($seat['committee'], 'abbr'), //委员会
 						$status_line, //席位状态
 						$seat['level'], //席位等级
