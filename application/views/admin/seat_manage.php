@@ -113,10 +113,10 @@ echo form_open('seat/operation/preserve_seat/0', array(
 
 echo form_open('seat/operation/open_seat/0', array(
 	'class' => 'modal fade form-horizontal',
-	'id' => 'preserve_seat',
+	'id' => 'open_seat',
 	'tabindex' => '-1',
 	'role' => 'dialog',
-	'aria-labelledby' => 'preserve_label',
+	'aria-labelledby' => 'open_label',
 	'aria-hidden' => 'true'
 ));?><div class="modal-dialog">
 	<div class="modal-content">
@@ -128,7 +128,7 @@ echo form_open('seat/operation/open_seat/0', array(
 				'data-dismiss' => 'modal',
 				'aria-hidden' => 'true'
 			));?>
-			<h4 class="modal-title" id="preserve_label">开放席位</h4>
+			<h4 class="modal-title" id="open_label">开放席位</h4>
 		</div>
 		<div class="modal-body">
 			<p>将会开放以下席位：</p>
