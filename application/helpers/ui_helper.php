@@ -31,7 +31,7 @@ function flag($iso, $check = false, $space = true)
 		
 		$available = $CI->config->item('iso_3166_1');
 		
-		if(!in_array($iso, $available))
+		if(!array_key_exists($iso, $available))
 			$iso = '_unknown';
 	}
 	
