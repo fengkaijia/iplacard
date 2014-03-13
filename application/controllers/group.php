@@ -67,9 +67,12 @@ class Group extends CI_Controller
 		if(empty($id))
 			$action = 'add';
 		
-		$group = $this->group_model->get_group($id);
-		if(!$group)
-			$action = 'add';
+		if($action == 'edit')
+		{
+			$group = $this->group_model->get_group($id);
+			if(!$group)
+				$action = 'add';
+		}
 		
 		if($action == 'edit')
 		{
