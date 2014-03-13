@@ -112,6 +112,35 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
+	 * 转换状态为文本
+	 * @param string|int $status 状态或席位ID
+	 * @return string 状态文本
+	 */
+	function status_text($status)
+	{
+		//如果为代表ID
+		if(is_int($status) || intval($status) != 0)
+			$status = $this->get_seat($status, 'status');
+		
+		switch($status)
+		{
+			case 'unavailable':
+				return '不可分配';
+			case 'available':
+				return '等待分配';
+			case 'preserved':
+				return '保留分配';
+			case 'assigned':
+				return '已经分配';
+			case 'approved':
+				return '以获批准';
+			case 'locked':
+				return '已经锁定';
+		}
+		return false;
+	}
+	
+	/**
 	 * 编辑/添加席位
 	 * @return int 新的席位ID
 	 */
