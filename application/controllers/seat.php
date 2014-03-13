@@ -196,12 +196,19 @@ class Seat extends CI_Controller
 							$operation .= '<a href="#" data-toggle="modal" data-target="#preserve_seat" onclick="set_seat_box('.$seat['id'].', \'preserve\');">'.icon('eye-slash', false).'保留</a>';
 					}
 					
+					//席位名称
+					$name_line = flag($seat['iso'], true).$seat['name'];
+					if(!empty($seat['primary']))
+						$name_line .= ' <span class="label label-primary">子席位</span>';
+					elseif(!$this->seat_model->is_single_seat($id))
+						$name_line .= ' <span class="label label-primary">多代席位</span>';
+					
 					//代表
-					$name_line = '';
+					$delegate_line = '';
 					if($delegate)
 					{
 						$contact_list = '<p>'.icon('phone').$delegate['phone'].'</p><p>'.icon('envelope-o').$delegate['email'].'</p><p>'.icon('male').'ID '.$delegate['id'].'</p>';
-						$name_line = $delegate['name'].'<a href="#" class="contact_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\''
+						$delegate_line = $delegate['name'].'<a href="#" class="contact_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\''
 							.$delegate['name']
 							.'\' data-toggle="popover" data-content=\''.$contact_list.'\'>'.icon('info-circle', false).'</a>';
 					}
@@ -242,11 +249,11 @@ class Seat extends CI_Controller
 					
 					$data = array(
 						$seat['id'], //ID
-						flag($seat['iso'], true).$seat['name'], //席位名称
+						$name_line, //席位名称
 						$this->committee_model->get_committee($seat['committee'], 'abbr'), //委员会
 						$status_line, //席位状态
 						$seat['level'], //席位等级
-						!empty($seat['delegate']) ? $name_line : 'N/A', //代表
+						!empty($seat['delegate']) ? $delegate_line : 'N/A', //代表
 						$condition_line, //可分配情况
 						$operation, //操作
 					);
