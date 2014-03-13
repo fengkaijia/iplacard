@@ -366,11 +366,11 @@ class Seat_model extends CI_Model
 		if(!$only_valid)
 			return $this->get_backorder_ids('seat', $seat);
 		
-		$non_forever = $this->get_backorder_ids('seat', $seat, 'status', 'pending', 'expire_time >=', time());
+		$non_forever = $this->get_backorder_ids('seat', $seat, 'expire_time >=', time());
 		if(!$non_forever)
 			$non_forever = array();
 		
-		$forever = $this->get_backorder_ids('seat', $seat, 'status', 'pending', 'expire_time', 0);
+		$forever = $this->get_backorder_ids('seat', $seat, 'expire_time', 0);
 		if(!$forever)
 			$forever = array();
 		
