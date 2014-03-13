@@ -92,10 +92,9 @@ class UI
 			array('添加委员会', 'committee/edit', 'administrator', false),
 		),
 		'seat' => array(
-			array('席位', 'seat/committee', '', false),
-			array('全部席位列表', 'row/seat/available', 'administrator', false),
-			array('待审核席位分配', 'row/seat/assigned', 'administrator', true),
-			array('添加席位', 'manage/seat/add', 'administrator', false),
+			array('席位', 'seat/manage?committee=u', '', false),
+			array('全部席位列表', 'seat/manage', 'administrator', true),
+			array('添加席位', 'seat/edit', 'administrator', false),
 		),
 		'invoice' => array(
 			array('帐单', 'row/invoice/unpaid', 'cashier', false),
