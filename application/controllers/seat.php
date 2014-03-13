@@ -242,7 +242,7 @@ class Seat extends CI_Controller
 					
 					$data = array(
 						$seat['id'], //ID
-						$seat['name'], //姓名
+						flag($seat['iso'], true).$seat['name'], //姓名
 						$this->committee_model->get_committee($seat['committee'], 'abbr'), //委员会
 						$status_line, //席位状态
 						$seat['level'], //席位等级
