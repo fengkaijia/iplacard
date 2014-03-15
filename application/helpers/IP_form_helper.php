@@ -71,7 +71,7 @@ function form_dropdown_select($name = '', $options = array(), $selected = array(
 			
 			$hig = (in_array($key, $highlighted)) ? ' class="chzn-highlight"' : '';
 			
-			$sub = (array_key_exists($optgroup_key, $subtexts)) ? ' data-subtext="'.$subtexts[$optgroup_key].'"' : '';
+			$sub = (array_key_exists($key, $subtexts)) ? ' data-subtext="'.$subtexts[$key].'"' : '';
 
 			$form .= '<option value="'.$key.'"'.$sel.$hig.$sub.'>'.(string) $val."</option>\n";
 		}
