@@ -17,7 +17,7 @@ function form_has_error($field)
 	return true;
 }
 
-function form_dropdown_select($name = '', $options = array(), $selected = array(), $highlighted = array(), $subtexts = array(), $search = false, $class = 'selectpicker', $extra = '')
+function form_dropdown_select($name = '', $options = array(), $selected = array(), $search = false, $highlighted = array(), $subtexts = array(), $htmltexts = array(), $class = 'selectpicker', $extra = '')
 {
 	if ( ! is_array($selected))
 	{
@@ -59,8 +59,10 @@ function form_dropdown_select($name = '', $options = array(), $selected = array(
 				$hig = (in_array($optgroup_key, $highlighted)) ? ' class="special"' : '';
 				
 				$sub = (array_key_exists($optgroup_key, $subtexts)) ? ' data-subtext="'.$subtexts[$optgroup_key].'"' : '';
+				
+				$htm = (array_key_exists($optgroup_key, $htmltexts)) ? ' data-content="'.$htmltexts[$optgroup_key].'"' : '';
 
-				$form .= '<option value="'.$optgroup_key.'"'.$sel.$hig.$sub.'>'.(string) $optgroup_val."</option>\n";
+				$form .= '<option value="'.$optgroup_key.'"'.$sel.$hig.$sub.$htm.'>'.(string) $optgroup_val."</option>\n";
 			}
 
 			$form .= '</optgroup>'."\n";
@@ -72,8 +74,10 @@ function form_dropdown_select($name = '', $options = array(), $selected = array(
 			$hig = (in_array($key, $highlighted)) ? ' class="chzn-highlight"' : '';
 			
 			$sub = (array_key_exists($key, $subtexts)) ? ' data-subtext="'.$subtexts[$key].'"' : '';
+			
+			$htm = (array_key_exists($key, $htmltexts)) ? ' data-content="'.$htmltexts[$key].'"' : '';
 
-			$form .= '<option value="'.$key.'"'.$sel.$hig.$sub.'>'.(string) $val."</option>\n";
+			$form .= '<option value="'.$key.'"'.$sel.$hig.$sub.$htm.'>'.(string) $val."</option>\n";
 		}
 	}
 
