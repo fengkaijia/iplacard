@@ -363,6 +363,40 @@ class Seat extends CI_Controller
 				
 				$this->ui->alert('席位已设置保留。', 'success', true);
 				break;
+				
+			//删除席位
+			case 'delete_seat':
+				if(!in_array($seat['status'], array('unavailable', 'available', 'preserved')))
+				{
+					$this->ui->alert('席位当前状态不允许删除。', 'danger', true);
+					break;
+				}
+				
+				if(empty($seat['primary']) && !$this->seat_model->is_single_seat($id))
+				{
+					$this->ui->alert('需要删除的席位包含子席位。', 'danger', true);
+					break;
+				}
+				
+				if(!$this->admin_model->capable('administrator'))
+				{
+					$this->ui->alert('需要管理员权限以删除席位。', 'danger', true);
+					break;
+				}
+				
+				$this->form_validation->set_rules('admin_password', '密码', 'trim|required|callback__check_admin_password[密码验证错误导致删除操作未执行，请重新尝试。]');
+		
+				if($this->form_validation->run() == true)
+				{
+					$this->seat_model->delete_seat($id);
+					
+					$this->system_model->log('seat_deleted', array('id' => $id, 'seat' => $seat));
+					
+					$this->ui->alert("席位 #{$id} 已删除。", 'success', true);
+					redirect('seat/manage');
+					return;
+				}
+				break;
 		}
 		
 		back_redirect();
