@@ -130,6 +130,11 @@ $this->load->view('header');?>
 							'primary' => '多代席位的主席位',
 							'sub' => '多代席位的子席位'
 						);
+						
+						//禁止单代席位或子席位改为主席位
+						if($action == 'edit' && ($seat['type'] == 'sub' || $seat['type'] == 'single'))
+							unset($array['primary']);
+						
 						echo form_dropdown('seat_type', $array, set_value('seat_type', $action == 'add' ? 'single' : $seat['type']), 'class="form-control"');
 						if(form_has_error('seat_type'))
 							echo form_error('seat_type');
