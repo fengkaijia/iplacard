@@ -201,6 +201,12 @@ class Seat_model extends CI_Model
 		
 		$primary = $this->get_seat($id);
 		
+		$data = array(
+			'status' => 'available',
+			'committee' => $primary['committee'],
+			'primary' => $id
+		);
+		
 		//席位名称
 		if(!empty($name))
 			$data['name'] = $name;
@@ -212,9 +218,6 @@ class Seat_model extends CI_Model
 		//国家代码
 		if(!empty($iso))
 			$data['iso'] = $iso;
-		
-		$data['committee'] = $primary['committee'];
-		$data['primary'] = $id;
 		
 		//返回新席位ID
 		return $this->edit_seat($data);
