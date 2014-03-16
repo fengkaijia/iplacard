@@ -128,6 +128,173 @@ class Seat extends CI_Controller
 	}
 	
 	/**
+	 * 编辑或添加席位
+	 */
+	function edit($id = '')
+	{
+		//检查权限
+		if(!$this->admin_model->capable('administrator'))
+		{
+			$this->ui->alert('需要管理员权限以编辑席位。', 'warning', true);
+			redirect('seat/manage');
+			return;
+		}
+		
+		//设定操作类型
+		$action = 'edit';
+		if(empty($id))
+			$action = 'add';
+		
+		if($action == 'edit')
+		{
+			$seat = $this->seat_model->get_seat($id);
+			if(!$seat)
+				$action = 'add';
+			
+			//席位类型
+			if(!empty($seat['primary']))
+				$seat['type'] = 'sub';
+			else
+			{
+				if($this->seat_model->is_primary_seat($seat['id']))
+					$seat['type'] = 'primary';
+				
+				if($this->seat_model->is_single_seat($seat['id']))
+					$seat['type'] = 'single';
+			}
+		}
+		
+		//委员会信息
+		$committees = array();
+		
+		$committee_ids = $this->committee_model->get_committee_ids();
+		foreach($committee_ids as $committee_id)
+		{
+			$committee = $this->committee_model->get_committee($committee_id);
+			$committees[$committee_id] = "{$committee['name']}（{$committee['abbr']}）";
+		}
+		
+		$vars['committees'] = $committees;
+		
+		//全部国家列表
+		$this->load->config('iso');
+		$iso = $this->config->item('iso_3166_1');
+		$vars['iso'] = $iso;
+		
+		//全部可供选择主席位
+		$seats = array();
+		
+		$primary_seats = $this->seat_model->get_seat_ids('primary', NULL);
+		if($primary_seats)
+		{
+			foreach($primary_seats as $seat_id)
+			{
+				$primary_seat = $this->seat_model->get_seat($seat_id);
+				
+				$seats[$primary_seat['committee']][] = array(
+					'id' => $seat_id,
+					'name' => $primary_seat['name'],
+					'iso' => $primary_seat['iso']
+				);
+			}
+		}
+		$vars['seats'] = $seats;
+		
+		if($action == 'edit')
+		{
+			$vars['seat'] = $seat;
+			
+			$this->ui->title($seat['name'], '编辑席位');
+		}
+		else
+		{
+			$this->ui->title('添加席位');
+		}
+		
+		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+		
+		$this->form_validation->set_rules('seat_type', '席位类型', 'trim|required');
+		
+		$seat_type = $this->input->post('seat_type');
+		if($seat_type != 'sub')
+		{
+			$this->form_validation->set_rules('name', '席位名称', 'trim|required');
+			$this->form_validation->set_rules('committee', '委员会', 'required');
+		}
+		else
+		{
+			$this->form_validation->set_rules('primary', '主席位', 'callback__check_primary_seat');
+			$this->form_validation->set_message('_check_primary_seat', '主席位不可选。');
+		}
+		
+		if($this->form_validation->run() == true)
+		{
+			$post = $this->input->post();
+			
+			if($action == 'add')
+			{
+				if($seat_type == 'sub')
+				{
+					$id = $this->seat_model->add_attached_seat(
+						$post['primary'],
+						empty($post['name']) ? NULL : $post['name'],
+						empty($post['level']) ? NULL : $post['level'],
+						empty($post['iso']) ? NULL : $post['iso']
+					);
+					
+					$this->ui->alert("已经创建子席位 #{$id}。", 'success', true);
+
+					$this->system_model->log('seat_added', array('id' => $id));
+				}
+				else
+				{
+					$id = $this->seat_model->add_seat($post['committee'], $post['name'], $post['level'], $post['iso']);
+					
+					$new_sub_ids = array();
+					if($seat_type == 'primary' && intval($post['sub_num']) > 0)
+					{
+						for($i = 0; $i < $post['sub_num']; $i++)
+						{
+							$new_sub_ids = $this->seat_model->add_attached_seat($id);
+						}
+					}
+					
+					$this->ui->alert("已经创建席位 #{$id}。", 'success', true);
+
+					$this->system_model->log('seat_added', array('id' => $id, 'sub' => $new_sub_ids));
+				}
+			}
+			else
+			{
+				//新数据
+				$data = array();
+				foreach(array('name', 'level', 'committee', 'iso') as $item)
+				{
+					if($post[$item] != $seat[$item])
+						$data[$item] = $post[$item];
+				}
+				
+				if($seat_type == 'sub' && !empty($post['primary']))
+					$data['primary'] = $post['primary'];
+				else
+					$data['primary'] = NULL;
+				
+				$this->seat_model->edit_seat($data, $id);
+
+				$this->ui->alert("席位 #{$id} 已编辑。", 'success', true);
+
+				$this->system_model->log('seat_edited', array('id' => $id, 'data' => $data));
+			}
+			
+			redirect('seat/manage');
+			return;
+		}
+		
+		$vars['action'] = $action;
+		$this->load->view('admin/seat_edit', $vars);
+	}
+	
+	/**
 	 * 席位操作
 	 */
 	function operation($action, $id)
@@ -359,6 +526,19 @@ class Seat extends CI_Controller
 			$this->ui->alert($global_message, 'warning', true);
 		
 		return false;
+	}
+	
+	/**
+	 * 主席位检查回调函数
+	 */
+	function _check_primary_seat($primary = '')
+	{
+		if(empty($primary))
+			return true;
+		
+		if($this->seat_model->is_attached_seat($primary))
+			return false;
+		return true;
 	}
 	
 	/**
