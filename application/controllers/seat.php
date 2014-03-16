@@ -141,6 +141,7 @@ class Seat extends CI_Controller
 		}
 		
 		//设定操作类型
+		$preset = false;
 		$action = 'edit';
 		if(empty($id))
 			$action = 'add';
@@ -162,7 +163,29 @@ class Seat extends CI_Controller
 				if($this->seat_model->is_single_seat($seat['id']))
 					$seat['type'] = 'single';
 			}
+			
+			$vars['seat'] = $seat;
 		}
+		else
+		{
+			$primary = $this->input->get('primary');
+			
+			if(!empty($primary))
+			{
+				$seat = $this->seat_model->get_seat($primary);
+
+				if($seat)
+				{
+					$preset = true;
+					
+					$seat['type'] = 'sub';
+					$seat['primary'] = $primary;
+					
+					$vars['seat'] = $seat;
+				}
+			}
+		}
+		$vars['preset'] = $preset;
 		
 		//委员会信息
 		$committees = array();
@@ -202,8 +225,6 @@ class Seat extends CI_Controller
 		
 		if($action == 'edit')
 		{
-			$vars['seat'] = $seat;
-			
 			$this->ui->title($seat['name'], '编辑席位');
 		}
 		else
@@ -237,9 +258,9 @@ class Seat extends CI_Controller
 				{
 					$id = $this->seat_model->add_attached_seat(
 						$post['primary'],
-						empty($post['name']) ? NULL : $post['name'],
-						empty($post['level']) ? NULL : $post['level'],
-						empty($post['iso']) ? NULL : $post['iso']
+						empty($post['name']) || ($preset && $post['name'] == $seat['name']) ? NULL : $post['name'],
+						empty($post['level']) || ($preset && $post['level'] == $seat['level']) ? NULL : $post['level'],
+						empty($post['iso']) || ($preset && $post['iso'] == $seat['iso']) ? NULL : $post['iso']
 					);
 					
 					$this->ui->alert("已经创建子席位 #{$id}。", 'success', true);
@@ -463,13 +484,17 @@ class Seat extends CI_Controller
 					$operation = '';
 					if($this->admin_model->capable('administrator'))
 						$operation .= anchor("seat/edit/$id", icon('edit', false).'编辑').' ';
+					
 					if(in_array($seat['status'], array('available', 'preserved')) && ($seat['committee'] == $admin_committee || $this->admin_model->capable('administrator')))
 					{
 						if($seat['status'] == 'preserved')
-							$operation .= '<a href="#" data-toggle="modal" data-target="#open_seat" onclick="set_seat_box('.$seat['id'].', \'open\');">'.icon('eye', false).'开放</a>';
+							$operation .= '<a href="#" data-toggle="modal" data-target="#open_seat" onclick="set_seat_box('.$seat['id'].', \'open\');">'.icon('eye', false).'开放</a> ';
 						else
-							$operation .= '<a href="#" data-toggle="modal" data-target="#preserve_seat" onclick="set_seat_box('.$seat['id'].', \'preserve\');">'.icon('eye-slash', false).'保留</a>';
+							$operation .= '<a href="#" data-toggle="modal" data-target="#preserve_seat" onclick="set_seat_box('.$seat['id'].', \'preserve\');">'.icon('eye-slash', false).'保留</a> ';
 					}
+					
+					if(empty($seat['primary']) && $this->admin_model->capable('administrator'))
+						$operation .= anchor("seat/edit/?primary=$id", icon('plus-circle', false).'增加').' ';
 					
 					//席位名称
 					$name_line = flag($seat['iso'], true).$seat['name'];

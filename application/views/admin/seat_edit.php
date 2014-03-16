@@ -23,7 +23,7 @@ $this->load->view('header');?>
 	</div>
 	
 	<div class="col-md-9">
-		<?php echo form_open($action == 'add' ? 'seat/edit' : "seat/edit/{$seat['id']}", array('class' => 'well form-horizontal'));?>
+		<?php echo form_open($action == 'add' ? (!$preset ? 'seat/edit' : "seat/edit/?primary={$seat['primary']}") : "seat/edit/{$seat['id']}", array('class' => 'well form-horizontal'));?>
 			<?php echo form_fieldset('席位基础信息'); ?>
 				<div class="form-group <?php if(form_has_error('name')) echo 'has-error';?>">
 					<?php echo form_label('席位名称', 'name', array('class' => 'col-lg-2 control-label'));?>
@@ -32,7 +32,7 @@ $this->load->view('header');?>
 							'name' => 'name',
 							'id' => 'name',
 							'class' => 'form-control',
-							'value' => set_value('name', $action == 'add' ? '' : $seat['name']),
+							'value' => set_value('name', $action == 'add' && !$preset ? '' : $seat['name']),
 							'required'=> NULL,
 						));
 						if(form_has_error('name'))
@@ -45,7 +45,7 @@ $this->load->view('header');?>
 					<?php echo form_label('委员会', 'committee', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-4">
 						<?php
-						$now_committee = set_value('committee', $action == 'add' ? '' : $seat['committee']);
+						$now_committee = set_value('committee', $action == 'add' && !$preset ? '' : $seat['committee']);
 						if(!empty($committees))
 							$array = array('' => '选择委员会') + $committees;
 						else
@@ -73,7 +73,7 @@ $this->load->view('header');?>
 								$array[$i] = $i;
 						}
 						
-						$now_level = set_value('level', $action == 'add' ? round($score_total / 2) : $seat['level']);
+						$now_level = set_value('level', $action == 'add' && !$preset ? round($score_total / 2) : $seat['level']);
 						
 						echo form_dropdown('level', $array, $now_level, 'class="form-control"');
 						if(form_has_error('level'))
@@ -92,7 +92,7 @@ $this->load->view('header');?>
 					<?php echo form_label('国家', 'iso', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-10">
 						<?php
-						$now_iso = set_value('iso', $action == 'add' ? '' : $seat['iso']);
+						$now_iso = set_value('iso', $action == 'add' && !$preset ? '' : $seat['iso']);
 						
 						$html_text = array();
 						if(!empty($iso))
@@ -115,8 +115,13 @@ $this->load->view('header');?>
 			
 			<?php
 			//如主席位存在子席位则禁用调整设置
-			if($action == 'edit' && $seat['type'] == 'primary')
+			if(($action == 'edit' && $seat['type'] == 'primary') || $preset)
+			{
+				echo form_hidden('seat_type', $seat['type']);
+				echo form_hidden('primary', $seat['primary']);
+				
 				echo form_fieldset('多代席位设置', array('disabled' => true));
+			}
 			else
 				echo form_fieldset('多代席位设置'); ?>
 				<p>iPlacard 支持设置多代席位。多代席位时由有一个主席位和若干个子席位组成。</p>
@@ -135,7 +140,7 @@ $this->load->view('header');?>
 						if($action == 'edit' && ($seat['type'] == 'sub' || $seat['type'] == 'single'))
 							unset($array['primary']);
 						
-						echo form_dropdown('seat_type', $array, set_value('seat_type', $action == 'add' ? 'single' : $seat['type']), 'class="form-control"');
+						echo form_dropdown('seat_type', $array, set_value('seat_type', $action == 'add' && !$preset ? 'single' : $seat['type']), 'class="form-control"');
 						if(form_has_error('seat_type'))
 							echo form_error('seat_type');
 						elseif($action == 'edit' && $seat['type'] == 'primary') { ?><div class="help-block">当前席位因含有若干个子席位而无法调整席位类型。</div><?php }
@@ -171,7 +176,7 @@ $this->load->view('header');?>
 						$this->ui->js('footer', $seat_type_js);
 						
 						//编辑子席位默认显示
-						if($action == 'edit' && $seat['type'] == 'sub')
+						if(($action == 'edit' || $preset) && $seat['type'] == 'sub')
 							$this->ui->js('footer', "$('#seat_primary').show();");
 						?>
 					</div>
@@ -198,7 +203,7 @@ $this->load->view('header');?>
 					<?php echo form_label('主席位', 'primary', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-10">
 						<?php
-						$now_seat = set_value('primary', $action == 'add' ? '' : $seat['primary']);
+						$now_seat = set_value('primary', $action == 'add' && !$preset ? '' : $seat['primary']);
 						
 						$seat_data = array();
 						foreach($seats as $cid => $committee)
