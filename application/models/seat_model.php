@@ -29,6 +29,19 @@ class Seat_model extends CI_Model
 		
 		$data = $query->row_array();
 		
+		//子席位
+		if(!empty($data['primary']))
+		{
+			//TODO: 递归死循环
+			$primary = $this->get_seat($data['primary']);
+			
+			foreach($data as $key => $value)
+			{
+				if(empty($value))
+					$data[$key] = $primary[$key];
+			}
+		}
+		
 		//返回结果
 		if(empty($part))
 			return $data;
@@ -195,8 +208,6 @@ class Seat_model extends CI_Model
 		//席位级别
 		if(!empty($level))
 			$data['level'] = $level;
-		else
-			$data['level'] = $primary['level'];
 		
 		//国家代码
 		if(!empty($iso))
