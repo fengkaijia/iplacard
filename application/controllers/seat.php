@@ -411,7 +411,16 @@ class Seat extends CI_Controller
 				{
 					$this->seat_model->delete_seat($id);
 					
-					$this->system_model->log('seat_deleted', array('id' => $id, 'seat' => $seat));
+					//删除选项和预订
+					$sids = $this->seat_model->get_selectability_ids('seat', $id);
+					if($sids)
+						$this->seat_model->remove_selectability($sids);
+					
+					$bids = $this->seat_model->get_backorder_ids('seat', $id);
+					if($bids)
+						$this->seat_model->delete_backorder($bids);
+					
+					$this->system_model->log('seat_deleted', array('id' => $id, 'seat' => $seat, 'selectability' => $sids, 'backorder' => $bids));
 					
 					$this->ui->alert("席位 #{$id} 已删除。", 'success', true);
 					redirect('seat/manage');
