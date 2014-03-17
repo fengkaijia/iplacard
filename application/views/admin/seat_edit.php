@@ -5,7 +5,7 @@ $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/boots
 $this->load->view('header');?>
 
 <div class="page-header">
-	<h1><?php echo $action == 'add' ? '添加席位' : $seat['name'];?></h1>
+	<h1><?php echo $action == 'add' ? $preset ? '添加子席位' : '添加席位' : $seat['name'];?></h1>
 </div>
 
 <div class="row">
