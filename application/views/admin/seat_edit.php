@@ -98,16 +98,16 @@ $this->load->view('header');?>
 						<?php
 						$now_iso = set_value('iso', $action == 'add' && !$preset ? '' : $seat['iso']);
 						
-						$html_text = array();
+						$iso_html = array();
 						if(!empty($iso))
 						{
 							foreach($iso as $code => $name)
 							{
-								$html_text[$code] = flag($code, false, true, false, false).$name;
+								$iso_html[$code] = flag($code, false, true, false, false).$name;
 							}
 						}
 						
-						echo form_dropdown_select('iso', array('' => '请选择国家') + $iso, $now_iso, true, array(), array(), $html_text, 'selectpicker flags-16');
+						echo form_dropdown_select('iso', array('' => '请选择国家') + $iso, $now_iso, true, array(), array(), $iso_html, 'selectpicker flags-16');
 						if(form_has_error('iso'))
 							echo form_error('iso');
 						else { ?><div class="help-block">国家地区信息，可为空。</div><?php } ?>
@@ -215,20 +215,20 @@ $this->load->view('header');?>
 							$seat_data[$cid] = $committee;
 						}
 						
-						$option = array();
-						$option_html = array();
+						$primary_html = array();
+						
+						$primary_option = array('' => '请选择主席位');
 						foreach($seat_data as $group => $list)
 						{
 							$groupname = $committees[$group];
 							foreach($list as $one)
 							{
-								$option[$groupname][$one['id']] = $one['name'];
-								$option_html[$one['id']] = flag($one['iso'], false, true, false, false).$one['name'];
+								$primary_option[$groupname][$one['id']] = $one['name'];
+								$primary_html[$one['id']] = flag($one['iso'], false, true, false, false).$one['name'];
 							}
 						}
-						$option = array('' => '请选择主席位') + $option;
 						
-						echo form_dropdown_select('primary', $option, $now_seat, true, array(), array(), $option_html, 'selectpicker flags-16');
+						echo form_dropdown_select('primary', $primary_option, $now_seat, true, array(), array(), $primary_html, 'selectpicker flags-16');
 						if(form_has_error('primary'))
 							echo form_error('primary');
 						else { ?><div class="help-block">设置此席位的主席位，如为空，此席位将被设置为单代席位。</div><?php } ?>
