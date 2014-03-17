@@ -4,7 +4,7 @@
  */
 
 .flags-16 .flag{
-	margin-top: 0px;
+	margin-top: 2px;
 	display: inline-block;
 	height: 16px;
 	width: 16px;
@@ -273,7 +273,7 @@
 .flags-16 ._Wales { background-position: -0px -4128px; }
 
 .flags-24 .flag{
-	margin-top: 0px;
+	margin-top: 3px;
 	display: inline-block;
 	height: 24px;
 	width: 24px;
@@ -542,7 +542,7 @@
 .flags-24 ._Wales { background-position: -0px -6192px; }
 
 .flags-32 .flag{
-	margin-top: 0px;
+	margin-top: 4px;
 	display: inline-block;
 	height: 32px;
 	width: 32px;

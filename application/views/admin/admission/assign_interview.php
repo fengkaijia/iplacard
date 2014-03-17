@@ -76,7 +76,7 @@ if($is_rollbacked)
 
 	<?php
 	echo form_open("delegate/operation/assign_interview/{$delegate['id']}");
-		echo form_dropdown_select('interviewer', $option, array(), isset($primary['interviewer']) ? $primary['interviewer'] : array(), $subtext_queue, $interviewer_count > 10 ? true : false);
+		echo form_dropdown_select('interviewer', $option, array(), $interviewer_count > 10 ? true : false, isset($primary['interviewer']) ? $primary['interviewer'] : array(), $subtext_queue);
 
 		if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php echo join("、", $rollback_data); ?>回退，请在记事中了解回退原因。</p><?php } ?>
 
@@ -107,7 +107,7 @@ if($is_rollbacked)
 
 	<?php
 	echo form_open("delegate/operation/exempt_interview/{$delegate['id']}");
-		echo form_dropdown_select('interviewer', $option, array(uid()), isset($primary['interviewer']) ? $primary['interviewer'] : array(), $subtext_title, $interviewer_count > 10 ? true : false);
+		echo form_dropdown_select('interviewer', $option, array(uid()), $interviewer_count > 10 ? true : false, isset($primary['interviewer']) ? $primary['interviewer'] : array(), $subtext_title);
 
 		if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php echo join("、", $rollback_data); ?>回退，请在记事中了解回退原因。</p><?php } ?>
 

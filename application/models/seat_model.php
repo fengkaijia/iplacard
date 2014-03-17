@@ -29,6 +29,19 @@ class Seat_model extends CI_Model
 		
 		$data = $query->row_array();
 		
+		//子席位
+		if(!empty($data['primary']))
+		{
+			//TODO: 递归死循环
+			$primary = $this->get_seat($data['primary']);
+			
+			foreach($data as $key => $value)
+			{
+				if(empty($value))
+					$data[$key] = $primary[$key];
+			}
+		}
+		
 		//返回结果
 		if(empty($part))
 			return $data;
@@ -112,6 +125,35 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
+	 * 转换状态为文本
+	 * @param string|int $status 状态或席位ID
+	 * @return string 状态文本
+	 */
+	function status_text($status)
+	{
+		//如果为代表ID
+		if(is_int($status) || intval($status) != 0)
+			$status = $this->get_seat($status, 'status');
+		
+		switch($status)
+		{
+			case 'unavailable':
+				return '不可分配';
+			case 'available':
+				return '等待分配';
+			case 'preserved':
+				return '保留分配';
+			case 'assigned':
+				return '已经分配';
+			case 'approved':
+				return '以获批准';
+			case 'locked':
+				return '已经锁定';
+		}
+		return false;
+	}
+	
+	/**
 	 * 编辑/添加席位
 	 * @return int 新的席位ID
 	 */
@@ -159,6 +201,12 @@ class Seat_model extends CI_Model
 		
 		$primary = $this->get_seat($id);
 		
+		$data = array(
+			'status' => 'available',
+			'committee' => $primary['committee'],
+			'primary' => $id
+		);
+		
 		//席位名称
 		if(!empty($name))
 			$data['name'] = $name;
@@ -166,15 +214,10 @@ class Seat_model extends CI_Model
 		//席位级别
 		if(!empty($level))
 			$data['level'] = $level;
-		else
-			$data['level'] = $primary['level'];
 		
 		//国家代码
 		if(!empty($iso))
 			$data['iso'] = $iso;
-		
-		$data['committee'] = $primary['committee'];
-		$data['primary'] = $id;
 		
 		//返回新席位ID
 		return $this->edit_seat($data);
@@ -337,11 +380,11 @@ class Seat_model extends CI_Model
 		if(!$only_valid)
 			return $this->get_backorder_ids('seat', $seat);
 		
-		$non_forever = $this->get_backorder_ids('seat', $seat, 'status', 'pending', 'expire_time >=', time());
+		$non_forever = $this->get_backorder_ids('seat', $seat, 'expire_time >=', time());
 		if(!$non_forever)
 			$non_forever = array();
 		
-		$forever = $this->get_backorder_ids('seat', $seat, 'status', 'pending', 'expire_time', 0);
+		$forever = $this->get_backorder_ids('seat', $seat, 'expire_time', 0);
 		if(!$forever)
 			$forever = array();
 		
