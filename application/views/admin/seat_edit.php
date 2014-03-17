@@ -40,8 +40,12 @@ $this->load->view('header');?>
 						else { ?><div class="help-block">建议使用全称。</div><?php } ?>
 					</div>
 				</div>
-		
-				<div class="form-group <?php if(form_has_error('committee')) echo 'has-error';?>">
+				
+				<?php
+				//添加子席位时无法更改委员会
+				if($preset)
+					echo form_hidden('seat_type', $seat['type']);
+				?><div class="form-group <?php if(form_has_error('committee')) echo 'has-error';?>">
 					<?php echo form_label('委员会', 'committee', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-4">
 						<?php
@@ -50,7 +54,7 @@ $this->load->view('header');?>
 							$array = array('' => '选择委员会') + $committees;
 						else
 							$array = array('' => '委员会为空');
-						echo form_dropdown('committee', $array, $now_committee, 'class="form-control"');
+						echo form_dropdown('committee', $array, $now_committee, $preset ? 'class="form-control" disabled' : 'class="form-control"');
 						if(form_has_error('committee'))
 							echo form_error('committee');
 						else { ?><div class="help-block">席位所在的委员会。</div><?php } ?>
