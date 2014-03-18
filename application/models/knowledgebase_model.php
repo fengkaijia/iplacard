@@ -68,6 +68,8 @@ class Knowledgebase_model extends CI_Model
 			$this->db->order_by('order');
 		elseif($order == 'count')
 			$this->db->order_by('count', 'desc');
+		else
+			$this->db->order_by('id');
 		
 		$this->db->limit($limit);
 		
@@ -126,6 +128,8 @@ class Knowledgebase_model extends CI_Model
 		}
 		
 		//更新文章
+		$data['update_time'] = time();
+		
 		$this->db->where('id', $id);
 		return $this->db->update('knowledgebase', $data);
 	}
