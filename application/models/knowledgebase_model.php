@@ -60,6 +60,34 @@ class Knowledgebase_model extends CI_Model
 	}
 	
 	/**
+	 * 排序结果
+	 */
+	function get_ordered_articles($order = 'id', $limit = 20)
+	{
+		if($order == 'order')
+			$this->db->order_by('order');
+		elseif($order == 'count')
+			$this->db->order_by('count', 'desc');
+		
+		$this->db->limit($limit);
+		
+		$query = $this->db->get('knowledgebase');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回ID
+		foreach($query->result_array() as $data)
+		{
+			$array[] = $data['id'];
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
 	 * 知识库全文搜索
 	 */
 	function search_article($keyword)
