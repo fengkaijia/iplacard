@@ -279,16 +279,13 @@ class Committee extends CI_Controller
 						$seat_width_text = '';
 
 					//席位
-					$seat_available_count = $this->seat_model->get_seat_ids('committee', $id, 'status', array('unavailable', 'available', 'preserved'));
-					$seat_assigned_count = $this->seat_model->get_seat_ids('committee', $id, 'status', array('assigned'));
-					$seat_locked_count = $this->seat_model->get_seat_ids('committee', $id, 'status', array('locked'));
-
-					if(!$seat_available_count)
-						$seat_available_count = 0;
-					if(!$seat_assigned_count)
-						$seat_assigned_count = 0;
-					if(!$seat_locked_count)
-						$seat_locked_count = 0;
+					$seat_available = $this->seat_model->get_seat_ids('committee', $id, 'status', array('unavailable', 'available', 'preserved'));
+					$seat_assigned = $this->seat_model->get_seat_ids('committee', $id, 'status', array('assigned'));
+					$seat_locked = $this->seat_model->get_seat_ids('committee', $id, 'status', array('locked'));
+					
+					$seat_available_count = !$seat_available ? 0 : count($seat_available);
+					$seat_assigned_count = !$seat_assigned ? 0 : count($seat_assigned);
+					$seat_locked_count = !$seat_locked ? 0 : count($seat_locked);
 
 					$seat_line = "<span class=\"label label-primary\">未分配</span> {$seat_available_count} ";
 					$seat_line .= "<span class=\"label label-warning\">待确认</span> {$seat_assigned_count} ";
