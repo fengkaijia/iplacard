@@ -96,6 +96,20 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}interview` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='面试' AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}knowledgebase` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '文章ID',
+  `kb` int(11) NOT NULL DEFAULT '0' COMMENT '显示ID',
+  `title` text NOT NULL COMMENT '文章标题',
+  `content` longtext NOT NULL COMMENT '文章内容',
+  `order` int(11) NOT NULL DEFAULT '0' COMMENT '知识库排序',
+  `create_time` int(11) NOT NULL COMMENT '创建时间',
+  `update_time` int(11) DEFAULT NULL COMMENT '修改时间',
+  `system` int(11) NOT NULL DEFAULT '0' COMMENT '系统文章标识',
+  `count` int(11) NOT NULL DEFAULT '0' COMMENT '访问次数',
+  PRIMARY KEY (`id`),
+  FULLTEXT KEY `content` (`title`,`content`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='知识库' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}log` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '日志ID',
   `operator` int(11) NOT NULL COMMENT '用户ID',
