@@ -1,5 +1,5 @@
 /*!
- * bootstrap-select v1.5.0
+ * bootstrap-select v1.5.2
  * http://silviomoreto.github.io/bootstrap-select/
  *
  * Copyright 2013 bootstrap-select
@@ -184,14 +184,15 @@
                 } else if ($this.data('divider') === true) {
                     _liA.push('<div class="div-contain"><div class="divider"></div></div>');
                 } else if ($(this).data('hidden') === true) {
-                    _liA.push('');
+                    _liA.push('<a></a>');
                 } else {
                     _liA.push(that.createA(text, optionClass, inline ));
                 }
             });
 
             $.each(_liA, function(i, item) {
-                _liHtml += '<li rel=' + i + '>' + item + '</li>';
+                var hide = item === '<a></a>' ? 'class="hide"' : '';
+                _liHtml += '<li rel="' + i + '"' + hide + '>' + item + '</li>';
             });
 
             //If we are not multiple, and we dont have a selected item, and we dont have a title, select the first element so something is set in the button
@@ -374,9 +375,11 @@
                 // Get correct width if element hidden
                 var selectClone = this.$newElement.clone().appendTo('body');
                 var ulWidth = selectClone.find('> .dropdown-menu').css('width');
+                var btnWidth = selectClone.css('width', 'auto').find('> button').css('width');
                 selectClone.remove();
-
-                this.$newElement.css('width', ulWidth);
+                
+                // Set width to whatever's larger, button title or longest option
+                this.$newElement.css('width', Math.max(parseInt(ulWidth), parseInt(btnWidth)) + 'px');
             } else if (this.options.width == 'fit') {
                 // Remove inline min-width so width can be changed from 'auto'
                 this.$menu.css('min-width', '');
@@ -409,6 +412,9 @@
                     $drop.css({'top' : pos.top + actualHeight, 'left' : pos.left, 'width' : $element[0].offsetWidth, 'position' : 'absolute'});
                 };
             this.$newElement.on('click', function() {
+                if (that.isDisabled()) {
+                    return;
+                }
                 getPlacement($(this));
                 $drop.appendTo(that.options.container);
                 $drop.toggleClass('open', !$(this).hasClass('open'));
@@ -451,12 +457,12 @@
         },
 
         setSelected: function(index, selected) {
-            if (this.$lis == null) this.$lis = this.$menu.find('li');
+            if (this.$lis == null) this.$lis = this.$menu.find('li:not(.hide)');
             $(this.$lis[index]).toggleClass('selected', selected);
         },
 
         setDisabled: function(index, disabled) {
-            if (this.$lis == null) this.$lis = this.$menu.find('li');
+            if (this.$lis == null) this.$lis = this.$menu.find('li:not(.hide)');
             if (disabled) {
                 $(this.$lis[index]).addClass('disabled').find('a').attr('href', '#').attr('tabindex', -1);
             } else {
@@ -658,7 +664,7 @@
 
             this.$searchbox.on('input propertychange', function() {
                 if (that.$searchbox.val()) {
-                    that.$lis.find('a').removeClass('hide').not(':icontains(' + that.$searchbox.val() + ')').parent().addClass('hide');
+                    that.$lis.removeClass('hide').find('a').not(':icontains(' + that.$searchbox.val() + ')').parent().addClass('hide');
                     
                     if (!that.$menu.find('li').filter(':visible:not(.no-results)').length) {
                         if (!!no_results.parent().length) no_results.remove();
@@ -751,9 +757,7 @@
             isActive = that.$menu.parent().hasClass('open');
 
             if (!isActive && /([0-9]|[A-z])/.test(String.fromCharCode(e.keyCode))) {
-                that.setSize();
-                that.$menu.parent().addClass('open');
-                isActive = that.$menu.parent().hasClass('open');
+                that.$newElement.trigger('click');
                 that.$searchbox.focus();
             }
             
