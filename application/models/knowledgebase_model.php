@@ -92,12 +92,13 @@ class Knowledgebase_model extends CI_Model
 	/**
 	 * 知识库全文搜索
 	 */
-	function search_article($keyword)
+	function search_article($keyword, $limit = 20)
 	{
 		$keyword = $this->db->escape_str($keyword);
 		
 		$this->db->select('id');
 		$this->db->where("MATCH (title, content) AGAINST (\"{$keyword}\" IN BOOLEAN MODE)", NULL, false);
+		$this->db->limit($limit);
 		$query = $this->db->get('knowledgebase');
 		
 		//如果无结果
