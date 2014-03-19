@@ -238,6 +238,19 @@ body {
 	}
 }
 
+/* 知识库 */
+@media (min-width: 992px) {
+	#jumbotron-kb form {
+		width: 50%;
+	}
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+	#jumbotron-kb form {
+		width: 75%;
+	}
+}
+
 /* 笔记 */
 #note_area blockquote p {
 	font-size: 17px;
