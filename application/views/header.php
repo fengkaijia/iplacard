@@ -92,8 +92,8 @@
 	<?php if($this->ui->show_sidebar) { ?><div class="col-sm-3 col-md-2 sidebar">
 		<?php foreach($this->ui->sidebar() as $list) { ?><ul class="nav nav-sidebar">
 			<?php foreach($list as $item) {
-				echo isset($item[2]) && $item[2] ? '<li class="active">' : '<li>'; 
-				echo anchor(!empty($item[1]) ? $item[1] : '#', $item[0]);
+				echo isset($item[3]) && $item[3] ? '<li class="active">' : '<li>';
+				echo anchor(!empty($item[1]) ? $item[1] : '#', $item[0], '', isset($item[2]) && $item[2] ? true : false);
 				echo '</li>';
 			} ?>
 		</ul><?php } ?>
