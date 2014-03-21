@@ -93,10 +93,14 @@ class Delegate_model extends CI_Model
 		$this->db->select('user.id');
 		
 		$this->db->like('user.id', $keyword, 'none');
-		$this->db->or_like('user.name', $keyword);
-		$this->db->or_like('user.email', $keyword);
-		$this->db->or_like('user.phone', $keyword);
-		$this->db->or_like('delegate.unique_identifier', $keyword);
+		
+		if(intval($keyword) > 1000 || intval($keyword) == 0)
+		{
+			$this->db->or_like('user.name', $keyword);
+			$this->db->or_like('user.email', $keyword);
+			$this->db->or_like('user.phone', $keyword);
+			$this->db->or_like('delegate.unique_identifier', $keyword);
+		}
 		
 		$this->db->join('delegate', 'user.id = delegate.id');
 		$this->db->limit($limit);
