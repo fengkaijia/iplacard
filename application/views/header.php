@@ -90,13 +90,14 @@
 	</div><?php } ?>
 	
 	<?php if($this->ui->show_sidebar) { ?><div class="col-sm-3 col-md-2 sidebar">
-		<?php foreach($this->ui->sidebar() as $list) { ?><ul class="nav nav-sidebar">
-			<?php foreach($list as $item) {
+		<ul class="nav nav-sidebar">
+			<?php foreach($this->ui->sidebar() as $item)
+			{
 				echo isset($item[3]) && $item[3] ? '<li class="active">' : '<li>';
 				echo anchor(!empty($item[1]) ? $item[1] : '#', $item[0], isset($item[2]) && $item[2] ? "onclick=\"$('.sidebar li').removeClass('active'); $(this).parent().addClass('active');\"" : '', isset($item[2]) && $item[2] ? true : false);
-				echo '</li>';
+				echo isset($item[4]) && $item[4] ? '</li></ul><ul class="nav nav-sidebar">' : '</li>';
 			} ?>
-		</ul><?php } ?>
+		</ul>
 	</div><?php } ?>
 
 	<div id="wrap">
