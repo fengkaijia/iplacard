@@ -21,7 +21,7 @@ class Delegate_model extends CI_Model
 	function get_delegate($id, $part = '')
 	{
 		$this->db->where('user.id', intval($id));
-		$this->db->join('delegate', 'user.id = delegate.id', 'left outer');
+		$this->db->join('delegate', 'user.id = delegate.id');
 		$query = $this->db->get('user');
 		
 		//如果无结果
@@ -84,7 +84,7 @@ class Delegate_model extends CI_Model
 		
 		return $array;
 	}
-	
+
 	/**
 	 * 编辑代表信息
 	 */
