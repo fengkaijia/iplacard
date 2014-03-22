@@ -45,7 +45,15 @@ class Admin extends CI_Controller
 			'dashboard' => array(icon('dashboard').'控制板', '#ui-dashboard', true, true),
 			'task' => array(icon('tasks').'待办事项', '#ui-task', true),
 			'spdy' => array(icon('bolt').'快速访问', '#ui-spdy', true),
-			'news' => array(icon('globe').'新闻', '#ui-news', true),
+			'news' => array(icon('globe').'新闻', '#ui-news', true, false, true),
+			
+			'delegate' => array(icon('user').'代表管理', 'delegate/manage'),
+			'interview' => array(icon('comments').'面试管理', 'interview/manage'),
+			'seat' => array(icon('th-list').'席位管理', 'seat/manage'),
+			'group' => array(icon('users').'代表团管理', 'group/manage', false, false, true),
+			
+			'account' => array(icon('user').'帐户', 'account/settings/home'),
+			'knowledgebase' => array(icon('book').'知识库', 'help/knowledgebase'),
 		);
 		
 		$admin = $this->admin_model->get_admin(uid());
