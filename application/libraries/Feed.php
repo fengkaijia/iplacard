@@ -27,7 +27,7 @@ class Feed
 		$this->data = array();
 		$this->channel_data = array();
 
-		if(!$all = $this->CI->cache->file->get("rss_{$this->feed_sum}"))
+		if(!$all = $this->CI->cache->get("rss_{$this->feed_sum}"))
 		{
 			$raw = @file_get_contents($this->feed_uri);
 			
@@ -74,7 +74,7 @@ class Feed
 					$all[] = $data;
 				}
 			}
-			$this->CI->cache->file->save("rss_{$this->feed_sum}", $all, $this->cache_life);
+			$this->CI->cache->save("rss_{$this->feed_sum}", $all, $this->cache_life);
 		}
 		$this->data = $all;
 		return true;
