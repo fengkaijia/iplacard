@@ -92,44 +92,55 @@
 				<?php
 				$spdy_url = base_url('admin/ajax/spdy');
 				$spdy_delegate_url = base_url('delegate/profile');
+				$spdy_empty_keyword = anchor('#', icon('exclamation-circle').'输入为空。', 'class="list-group-item"', true);
 				$spdy_button = icon('sign-in', false);
 				$spdy_js = "function spdy()
 				{
 					keyword = $('input[name=keyword]').val();
 					
-					$.ajax({
-						url: '{$spdy_url}',
-						async: true,
-						data: {keyword: keyword},
-						dataType : 'json',
-						success : function( json ){
-							$('#spdy_result').html(json.html);
-							
-							if(!json.result)
-							{
-								$('#ui-spdy').removeClass('panel-default').removeClass('panel-success').removeClass('panel-primary').addClass('panel-warning');
-								$('#spdy_go').removeClass('btn-success').removeClass('btn-primary').addClass('btn-warning');
+					if(keyword !== '')
+					{
+						$.ajax({
+							url: '{$spdy_url}',
+							async: true,
+							data: {keyword: keyword},
+							dataType : 'json',
+							success : function( json ){
+								$('#spdy_result').html(json.html);
+
+								if(!json.result)
+								{
+									$('#ui-spdy').removeClass('panel-default').removeClass('panel-danger').removeClass('panel-success').removeClass('panel-primary').addClass('panel-warning');
+									$('#spdy_go').removeClass('btn-success').removeClass('btn-danger').removeClass('btn-primary').addClass('btn-warning');
+								}
+								else if(json.redirect)
+								{
+									$('#ui-spdy').removeClass('panel-default').removeClass('panel-danger').removeClass('panel-warning').removeClass('panel-primary').addClass('panel-success');
+									$('#spdy_go').removeClass('btn-warning').removeClass('btn-danger').removeClass('btn-primary').addClass('btn-success');
+
+									setTimeout(function(){
+										location.href = '{$spdy_delegate_url}/' + json.id
+									}, 500);
+
+									return;
+								}
+								else
+								{
+									$('#ui-spdy').removeClass('panel-default').removeClass('panel-danger').removeClass('panel-success').removeClass('panel-warning').addClass('panel-primary');
+									$('#spdy_go').removeClass('btn-success').removeClass('btn-danger').removeClass('btn-warning').addClass('btn-primary');
+								}
 							}
-							else if(json.redirect)
-							{
-								$('#ui-spdy').removeClass('panel-default').removeClass('panel-warning').removeClass('panel-primary').addClass('panel-success');
-								$('#spdy_go').removeClass('btn-warning').removeClass('btn-primary').addClass('btn-success');
-								
-								setTimeout(function(){
-									location.href = '{$spdy_delegate_url}/' + json.id
-								}, 500);
-								
-								return;
-							}
-							else
-							{
-								$('#ui-spdy').removeClass('panel-default').removeClass('panel-success').removeClass('panel-warning').addClass('panel-primary');
-								$('#spdy_go').removeClass('btn-success').removeClass('btn-warning').addClass('btn-primary');
-							}
-							
-							$('#spdy_go').html('{$spdy_button}');
-						}
-					});
+						});
+					}
+					else
+					{
+						$('#spdy_result').html('{$spdy_empty_keyword}');
+						
+						$('#ui-spdy').removeClass('panel-default').removeClass('panel-success').removeClass('panel-warning').removeClass('panel-primary').addClass('panel-danger');
+						$('#spdy_go').removeClass('btn-success').removeClass('btn-warning').removeClass('btn-primary').addClass('btn-danger');
+					}
+					
+					$('#spdy_go').html('{$spdy_button}');
 				}";
 				$this->ui->js('footer', $spdy_js);
 				?>
