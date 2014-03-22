@@ -42,10 +42,10 @@ class Admin extends CI_Controller
 		$vars = array();
 		
 		$sidebar = array(
-			'dashboard' => array('控制板', '#ui-dashboard', true, true),
-			'task' => array('待办事项', '#ui-task', true),
-			'spdy' => array('快速访问', '#ui-spdy', true),
-			'news' => array('新闻', '#ui-news', true),
+			'dashboard' => array(icon('dashboard').'控制板', '#ui-dashboard', true, true),
+			'task' => array(icon('tasks').'待办事项', '#ui-task', true),
+			'spdy' => array(icon('bolt').'快速访问', '#ui-spdy', true),
+			'news' => array(icon('globe').'新闻', '#ui-news', true),
 		);
 		
 		$admin = $this->admin_model->get_admin(uid());
