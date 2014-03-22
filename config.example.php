@@ -77,6 +77,15 @@ define('IP_REVERSE_PROXY', join(',', array(
 )));
 
 /**
+ * Memcached缓存服务器列表
+ */
+define('IP_MEMCACHED_SERVER', serialize(array(
+	'hostname' => '127.0.0.1',
+	'port' => 11211,
+	'weight' => 1
+)));
+
+/**
  * 是否启用维护模式
  */
 define('IP_MAINTENANCE', false);
