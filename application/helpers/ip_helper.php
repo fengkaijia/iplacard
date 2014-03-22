@@ -6,15 +6,22 @@
 function ip_lookup($ip = '')
 {
 	$CI =& get_instance();
-	$CI->load->library('curl');
+	$CI->load->driver('cache', array('adapter' => 'memcached', 'backup' => 'file'));
 	
 	if(empty($ip))
 		$ip = $CI->input->ip_address();
 	
-	$data = json_decode($CI->curl->simple_get('http://ip.api.iplacard.com/place/?access_token='.IP_INSTANCE_API_ACCESS_KEY.'&ip='.$ip), true);
+	if(!$data = $CI->cache->get("0_ip_lookup_{$ip}"))
+	{
+		$CI->load->library('curl');
+		$data = json_decode($CI->curl->simple_get('http://ip.api.iplacard.com/place/?access_token='.IP_INSTANCE_API_ACCESS_KEY.'&ip='.$ip), true);
+
+		if(!$data || !$data['result'])
+			return false;
+		
+		$CI->cache->save("0_ip_lookup_{$ip}", $data, 60 * 60 * 24);
+	}
 	
-	if(!$data || !$data['result'])
-		return false;
 	return $data['data'];
 }
 
