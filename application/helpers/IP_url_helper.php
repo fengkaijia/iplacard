@@ -37,6 +37,19 @@ function anchor($uri = '', $title = '', $attributes = '', $inline = false)
 }
 
 /**
+ * 根据权限确定是否显示超链接
+ */
+function anchor_capable($uri = '', $title = '', $role = '', $attributes = '')
+{
+	$CI =& get_instance();
+	$CI->load->model('admin_model');
+	
+	if($CI->admin_model->capable($role))
+		return anchor($uri, $title, $attributes);
+	return "<span {$attributes}>{$title}</span>";
+}
+
+/**
  * 跳转到请求登录页面并且保留请求链接
  */
 function login_redirect()
