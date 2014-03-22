@@ -61,6 +61,16 @@ class UI
 	var $show_menu = true;
 	
 	/**
+	 * @var boolean 是否使用系统界面显示边栏
+	 */
+	var $show_sidebar = false;
+	
+	/**
+	 * @var array 边栏
+	 */
+	var $sidebar = array();
+	
+	/**
 	 * @var array 代表界面菜单
 	 */
 	var $delegate_panel = array(
@@ -198,6 +208,34 @@ class UI
 	function disable_menu()
 	{
 		$this->show_menu = false;
+	}
+	
+	/**
+	 * 启用边栏显示
+	 */
+	function enable_sidebar()
+	{
+		$this->show_sidebar = true;
+	}
+	
+	/**
+	 * 禁用边栏显示
+	 */
+	function disable_sidebar()
+	{
+		$this->show_sidebar = false;
+	}
+	
+	/**
+	 * 导入边栏
+	 */
+	function sidebar($sidebar = array())
+	{
+		if(empty($sidebar))
+			return $this->sidebar;
+		
+		$this->sidebar = $sidebar;
+		$this->enable_sidebar();
 	}
 	
 	/**

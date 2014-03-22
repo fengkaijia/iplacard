@@ -34,63 +34,74 @@
 </head>
 
 <body>
-	<div id="wrap">
-		<?php if($this->ui->show_menu == true) { ?><div class="navbar navbar-inverse navbar-fixed-top">
-			<div class="container">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<a class="navbar-brand" href="<?php echo base_url('');?>">iPlacard</a>
-				</div>
-				<div class="navbar-collapse collapse">
-					<ul class="nav navbar-nav">
-						<?php foreach($this->ui->panel() as $name => $column)
-						{
-							if(count($column) == 1) { ?><li <?php if(!empty($this->ui->now_page) && $this->ui->now_page == $name) { ?>class="active"<?php } ?>><?php echo anchor($column[0][1], $column[0][0]);?></li><?php }
-							else { ?><li class="dropdown<?php //TODO: 高亮当前?>">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $column[0][0];?></a>
-							<ul class="dropdown-menu">
-								<?php foreach($column as $item) { ?><li><?php
-									echo anchor($item[1], $item[0]);
-									if($this->session->userdata('type') == 'admin' && $item[2] == true)
-									{ ?></li><li class="divider"><?php } ?></li><?php } ?>
-							</ul><?php }
-						} ?>
-					</ul>
-					<ul class="nav navbar-nav navbar-right">
-						<?php if(!$this->session->userdata('logged_in') && option('login_link')) { $login_link = option('login_link'); ?><li><?php echo anchor($login_link['link'], $login_link['text']);?></li><?php } ?>
-						<li class="dropdown">
-							<?php if($this->session->userdata('logged_in')) { ?>
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" style="position: relative;"><?php
-								echo avatar('', 26, 'img', array('class' => 'img-circle', 'style' => 'position: absolute; margin-top: -2px;'));
-								?> <span style="margin-left: 32px;"><?php echo $this->session->userdata('name');?></span> <b class="caret"></b></a>
-							<ul class="dropdown-menu">
-								<li><a href="<?php echo base_url('account/settings/home');?>">个人信息</a></li>
-								<li><a href="<?php echo base_url('account/settings/security');?>">帐户设置</a></li>
-								<?php if($this->session->userdata('logged_in') && $this->session->userdata('type') == 'delegate' && option('tos')) { ?><li><a href="<?php echo base_url('apply/tos');?>">服务条款</a></li><?php } ?>
-								<li><a href="<?php echo base_url('help/knowledgebase');?>">知识库</a></li>
-								<li class="divider"></li>
-								<li><a href="<?php echo base_url('account/logout');?>">登出</a></li>
-							</ul><?php } else { ?>
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown">登录 <b class="caret"></b></a>
-							<ul class="dropdown-menu">
-								<li><a href="<?php echo base_url('account/login');?>">登录</a></li>
-								<li><a href="<?php echo base_url('account/recover');?>">帐号恢复</a></li>
-								<li><a href="<?php echo base_url('help/knowledgebase');?>">知识库</a></li>
-								<li class="divider"></li>
-								<li><?php echo safe_mailto(option('site_contact_email', 'contact@iplacard.com'), '联系管理员');?></li>
-								<li><a href="<?php echo base_url('about/iplacard');?>">关于</a></li>
-							</ul><?php } ?>
-						</li>
-					</ul>
-				</div><!--/.nav-collapse -->
+	<?php if($this->ui->show_menu) { ?><div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="<?php echo base_url('');?>">iPlacard</a>
 			</div>
-		</div><?php } ?>
+			<div class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					<?php foreach($this->ui->panel() as $name => $column)
+					{
+						if(count($column) == 1) { ?><li <?php if(!empty($this->ui->now_page) && $this->ui->now_page == $name) { ?>class="active"<?php } ?>><?php echo anchor($column[0][1], $column[0][0]);?></li><?php }
+						else { ?><li class="dropdown<?php //TODO: 高亮当前?>">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $column[0][0];?></a>
+						<ul class="dropdown-menu">
+							<?php foreach($column as $item) { ?><li><?php
+								echo anchor($item[1], $item[0]);
+								if($this->session->userdata('type') == 'admin' && $item[2] == true)
+								{ ?></li><li class="divider"><?php } ?></li><?php } ?>
+						</ul><?php }
+					} ?>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<?php if(!$this->session->userdata('logged_in') && option('login_link')) { $login_link = option('login_link'); ?><li><?php echo anchor($login_link['link'], $login_link['text']);?></li><?php } ?>
+					<li class="dropdown">
+						<?php if($this->session->userdata('logged_in')) { ?>
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" style="position: relative;"><?php
+							echo avatar('', 26, 'img', array('class' => 'img-circle', 'style' => 'position: absolute; margin-top: -2px;'));
+							?> <span style="margin-left: 32px;"><?php echo $this->session->userdata('name');?></span> <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="<?php echo base_url('account/settings/home');?>">个人信息</a></li>
+							<li><a href="<?php echo base_url('account/settings/security');?>">帐户设置</a></li>
+							<?php if($this->session->userdata('logged_in') && $this->session->userdata('type') == 'delegate' && option('tos')) { ?><li><a href="<?php echo base_url('apply/tos');?>">服务条款</a></li><?php } ?>
+							<li><a href="<?php echo base_url('help/knowledgebase');?>">知识库</a></li>
+							<li class="divider"></li>
+							<li><a href="<?php echo base_url('account/logout');?>">登出</a></li>
+						</ul><?php } else { ?>
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">登录 <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="<?php echo base_url('account/login');?>">登录</a></li>
+							<li><a href="<?php echo base_url('account/recover');?>">帐号恢复</a></li>
+							<li><a href="<?php echo base_url('help/knowledgebase');?>">知识库</a></li>
+							<li class="divider"></li>
+							<li><?php echo safe_mailto(option('site_contact_email', 'contact@iplacard.com'), '联系管理员');?></li>
+							<li><a href="<?php echo base_url('about/iplacard');?>">关于</a></li>
+						</ul><?php } ?>
+					</li>
+				</ul>
+			</div><!--/.nav-collapse -->
+		</div>
+	</div><?php } ?>
+	
+	<?php if($this->ui->show_sidebar) { ?><div class="col-sm-3 col-md-2 sidebar">
+		<ul class="nav nav-sidebar">
+			<?php foreach($this->ui->sidebar() as $item)
+			{
+				echo isset($item[3]) && $item[3] ? '<li class="active">' : '<li>';
+				echo anchor(!empty($item[1]) ? $item[1] : '#', $item[0], isset($item[2]) && $item[2] ? "onclick=\"$('.sidebar li').removeClass('active'); $(this).parent().addClass('active');\"" : '', isset($item[2]) ? $item[2] : false);
+				echo isset($item[4]) && $item[4] ? '</li></ul><ul class="nav nav-sidebar">' : '</li>';
+			} ?>
+		</ul>
+	</div><?php } ?>
 
-		<div id="content" class="container" style="padding-top: <?php echo $this->ui->show_menu ? 72 : 36;?>px;">
+	<div id="wrap">
+		<div id="content" class="<?php echo $this->ui->show_sidebar ? 'container col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main' : 'container';?>" style="padding-top: <?php echo $this->ui->show_menu ? 72 : 36;?>px;">
 			<?php if($this->ui->show_alert && !empty($this->ui->alert)) { ?><section id="global-alert">
 				<?php foreach($this->ui->alert as $alert) { ?>
 				<div class="alert alert-dismissable alert-<?php echo $alert['type'];?>">

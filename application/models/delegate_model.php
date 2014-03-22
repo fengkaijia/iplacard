@@ -21,7 +21,7 @@ class Delegate_model extends CI_Model
 	function get_delegate($id, $part = '')
 	{
 		$this->db->where('user.id', intval($id));
-		$this->db->join('delegate', 'user.id = delegate.id', 'left outer');
+		$this->db->join('delegate', 'user.id = delegate.id');
 		$query = $this->db->get('user');
 		
 		//如果无结果
@@ -76,6 +76,41 @@ class Delegate_model extends CI_Model
 			return false;
 		
 		//返回代表ID
+		foreach($query->result_array() as $data)
+		{
+			$array[] = $data['id'];
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
+	 * 搜索代表
+	 */
+	function search_delegate($keyword, $limit = 20)
+	{
+		$this->db->select('user.id');
+		
+		$this->db->like('user.id', $keyword, 'none');
+		
+		if(intval($keyword) > 1000 || intval($keyword) == 0)
+		{
+			$this->db->or_like('user.name', $keyword);
+			$this->db->or_like('user.email', $keyword);
+			$this->db->or_like('user.phone', $keyword);
+			$this->db->or_like('delegate.unique_identifier', $keyword);
+		}
+		
+		$this->db->join('delegate', 'user.id = delegate.id');
+		$this->db->limit($limit);
+		$query = $this->db->get('user');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回ID
 		foreach($query->result_array() as $data)
 		{
 			$array[] = $data['id'];

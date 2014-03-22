@@ -1,6 +1,55 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
+ * 辅助函数支持显示页面内链接
+ */
+function anchor($uri = '', $title = '', $attributes = '', $inline = false)
+{
+	$title = (string) $title;
+
+	if ( ! $inline)
+	{
+		if ( ! is_array($uri))
+		{
+			$site_url = ( ! preg_match('!^\w+://! i', $uri)) ? site_url($uri) : $uri;
+		}
+		else
+		{
+			$site_url = site_url($uri);
+		}
+	}
+	else
+	{
+		$site_url = $uri;
+	}
+
+	if ($title == '')
+	{
+		$title = $site_url;
+	}
+
+	if ($attributes != '')
+	{
+		$attributes = _parse_attributes($attributes);
+	}
+
+	return '<a href="'.$site_url.'"'.$attributes.'>'.$title.'</a>';
+}
+
+/**
+ * 根据权限确定是否显示超链接
+ */
+function anchor_capable($uri = '', $title = '', $role = '', $attributes = '')
+{
+	$CI =& get_instance();
+	$CI->load->model('admin_model');
+	
+	if($CI->admin_model->capable($role))
+		return anchor($uri, $title, $attributes);
+	return "<span {$attributes}>{$title}</span>";
+}
+
+/**
  * 跳转到请求登录页面并且保留请求链接
  */
 function login_redirect()
