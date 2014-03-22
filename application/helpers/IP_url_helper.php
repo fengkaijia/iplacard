@@ -1,7 +1,7 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
- * 支持显示页面内链接 Anchor 辅助函数
+ * 辅助函数支持显示页面内链接
  */
 function anchor($uri = '', $title = '', $attributes = '', $inline = false)
 {
