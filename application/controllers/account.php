@@ -350,6 +350,8 @@ class Account extends CI_Controller
 			return;
 		}
 		
+		$vars = array('sent' => false);
+		
 		$this->form_validation->set_rules('email', '电子邮箱地址', 'trim|required|valid_email|callback__check_password_recover');
 		$this->form_validation->set_rules('name', '姓名', 'trim|required');
 		$this->form_validation->set_message('valid_email', '电子邮箱地址无效。');
@@ -401,14 +403,17 @@ class Account extends CI_Controller
 			{
 				//发送成功记录日志
 				$this->system_model->log('requested_password_reset', array('ip' => $this->input->ip_address()), $uid);
-				$this->load->view('account/auth/recover', array('sent' => true, 'email' => $user['email']));
-				return;
+				
+				$vars = array(
+					'sent' => true,
+					'email' => $user['email']
+				);
 			}
 		}
 		
 		$this->ui->title('密码重置');
 		$this->ui->background();
-		$this->load->view('account/auth/recover', array('sent' => false));
+		$this->load->view('account/auth/recover', $vars);
 	}
 	
 	/**
