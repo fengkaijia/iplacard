@@ -119,6 +119,7 @@ class Account extends CI_Controller
 			$this->ui->alert(sprintf('这将会是您的最后一次登录尝试，如果仍然登录失败您将会被暂停登录 10 分钟，如果您忘记了密码请<a href="%s" class="alert-link">重置密码</a>。', base_url('account/recover')));
 		
 		$this->ui->title('登录');
+		$this->ui->background();
 		$this->load->view('account/auth/login');
 	}
 	
@@ -201,6 +202,7 @@ class Account extends CI_Controller
 		}
 		
 		$this->ui->title('两步验证');
+		$this->ui->background();
 		$this->load->view('account/auth/twostep');
 	}
 	
@@ -223,6 +225,7 @@ class Account extends CI_Controller
 		$user = $this->user_model->get_user($id);
 		
 		$this->ui->title('短信验证');
+		$this->ui->background();
 		
 		//验证页面
 		if($action == 'validate')
@@ -404,6 +407,7 @@ class Account extends CI_Controller
 		}
 		
 		$this->ui->title('密码重置');
+		$this->ui->background();
 		$this->load->view('account/auth/recover', array('sent' => false));
 	}
 	
@@ -486,6 +490,7 @@ class Account extends CI_Controller
 		}
 		
 		$this->ui->title('密码重置');
+		$this->ui->background();
 		$this->load->view('account/auth/reset', array('email' => $user['email'], 'uri' => "$uid/$key"));
 	}
 	
@@ -535,6 +540,7 @@ class Account extends CI_Controller
 		}
 		
 		$this->ui->title('强制登出');
+		$this->ui->background();
 		$this->load->view('account/auth/halt', array('no_action' => $no_action));
 	}
 	
