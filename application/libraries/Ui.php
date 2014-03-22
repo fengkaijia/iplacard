@@ -269,6 +269,29 @@ class UI
 	}
 	
 	/**
+	 * 显示背景图片
+	 */
+	function background()
+	{
+		$background = option('ui_background_image', false);
+		
+		if(!$background)
+			return;
+		
+		$url = base_url('public/'.IP_INSTANCE_ID.'/img/'.$background);
+		$this->html('header', "<style type=\"text/css\">
+			body {
+				height: 100%;
+				background: #fff url('{$url}') no-repeat center center fixed;
+				-webkit-background-size: cover;
+				   -moz-background-size: cover;
+					 -o-background-size: cover;
+						background-size: cover;
+			}
+		</style>");
+	}
+	
+	/**
 	 * 设置前后端
 	 */
 	function side($side)
