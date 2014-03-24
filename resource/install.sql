@@ -67,6 +67,46 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}delegate_profile` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='代表资料' AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `ip_document` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '文件ID',
+  `title` text NOT NULL COMMENT '文件标题',
+  `description` text COMMENT '文件介绍',
+  `file` int(11) DEFAULT NULL COMMENT '文件版本ID',
+  `user` int(11) NOT NULL COMMENT '上传用户',
+  `time` int(11) DEFAULT NULL COMMENT '上传时间',
+  `highlight` int(11) DEFAULT NULL COMMENT '是否置顶',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文件' AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS `ip_document_access` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '文件权限ID',
+  `document` int(11) NOT NULL COMMENT '文件ID',
+  `access` int(11) DEFAULT NULL COMMENT '委员会授权',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文件访问权限' AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS `ip_document_download` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '下载记录ID',
+  `file` int(11) NOT NULL COMMENT '文件版本ID',
+  `user` int(11) NOT NULL COMMENT '下载用户ID',
+  `time` int(11) NOT NULL COMMENT '下载时间',
+  `drm` text COMMENT '版权标识',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文件下载记录' AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS `ip_document_file` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '文件版本ID',
+  `document` int(11) NOT NULL COMMENT '文件ID',
+  `version` text COMMENT '版本号',
+  `filetype` text NOT NULL COMMENT '文件类型',
+  `filesize` int(11) NOT NULL COMMENT '文件大小',
+  `hash` text NOT NULL COMMENT '散列值',
+  `drm` text COMMENT '版权标识类型',
+  `user` int(11) NOT NULL COMMENT '上传用户',
+  `time` int(11) NOT NULL COMMENT '上传时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文件版本' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}geolocation` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '地理位置ID',
   `parent` int(11) DEFAULT NULL COMMENT '上级位置ID',
