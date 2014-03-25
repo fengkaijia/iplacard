@@ -42,5 +42,17 @@ function nicetime($date, $space = false)
 	return "$difference$periods[$j]{$tense}";
 }
 
+/**
+ * 检查输入是否为有效的UNIX时间戳
+ * @link https://gist.github.com/sepehr/6351385
+ * @param string $timestamp 待验证时间戳
+ * @return boolean 验证结果
+ */
+function is_timestamp($timestamp)
+{
+	$check = (is_int($timestamp) || is_float($timestamp)) ? $timestamp : (string) (int) $timestamp;
+	return ($check === $timestamp) && ((int) $timestamp <=  PHP_INT_MAX) && ((int) $timestamp >= ~PHP_INT_MAX);
+}
+
 /* End of file IP_date_helper.php */
 /* Location: ./application/helpers/IP_date_helper.php */

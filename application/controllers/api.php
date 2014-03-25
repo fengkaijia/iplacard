@@ -137,6 +137,7 @@ class Api extends CI_Controller
 	function delegate($action = 'import')
 	{
 		$this->load->model('delegate_model');
+		$this->load->helper('date');
 		
 		if($action == 'import')
 		{
@@ -180,6 +181,11 @@ class Api extends CI_Controller
 			$this->load->helper('string');
 			$password = random_string('alnum', 8);
 			
+			//记录导入时间
+			$reg_time = time();
+			if(option('api_custom_time', true) && isset($this->data['reg_time']) && is_timestamp($this->data['reg_time']))
+				$reg_time = $this->data['reg_time'];
+			
 			//新建用户
 			$user_data = array(
 				'name' => trim($this->data['name']),
@@ -188,7 +194,7 @@ class Api extends CI_Controller
 				'password' => $password,
 				'pin_password' => option('default_pin_password', 'iPlacard'),
 				'phone' => trim($this->data['phone']),
-				'reg_time' => time()
+				'reg_time' => $reg_time
 			);
 			$uid = $this->user_model->edit_user($user_data);
 			
