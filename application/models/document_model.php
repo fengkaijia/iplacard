@@ -193,6 +193,18 @@ class Document_model extends CI_Model
 	}
 	
 	/**
+	 * 检查文件是否存在
+	 * @param int $id 文件ID
+	 * @return boolean
+	 */
+	function document_exists($id)
+	{
+		if($this->get_document($id))
+			return true;
+		return false;
+	}
+	
+	/**
 	 * 检查指定的委员会是否可访问指定文件
 	 * @return boolean
 	 */
