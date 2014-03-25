@@ -137,7 +137,8 @@ class Document_model extends CI_Model
 		$data = array(
 			'title' => $title,
 			'description' => $description,
-			'highlight' => $highlight
+			'highlight' => $highlight,
+			'time' => time()
 		);
 		
 		//返回新文件ID
