@@ -111,7 +111,7 @@ class Document_model extends CI_Model
 	 * 编辑/添加文件
 	 * @return int 新的文件ID
 	 */
-	function edit_committee($data, $id = '')
+	function edit_document($data, $id = '')
 	{
 		//新增文件
 		if(empty($id))
