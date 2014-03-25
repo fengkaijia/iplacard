@@ -279,7 +279,7 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}user` (
   `type` text NOT NULL COMMENT '用户类型',
   `pin_password` text COMMENT '安全码',
   `last_login` int(11) DEFAULT NULL COMMENT '最近登录时间',
-  `last_ip` int(11) DEFAULT NULL COMMENT '最近登录IP',
+  `last_ip` text COMMENT '最近登录IP',
   `reg_time` int(11) NOT NULL COMMENT '注册时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户' AUTO_INCREMENT=1;
