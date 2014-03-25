@@ -37,7 +37,7 @@ class Seat extends CI_Controller
 	}
 	
 	/**
-	 * 跳转页
+	 * 管理页面
 	 */
 	function manage()
 	{
