@@ -29,6 +29,7 @@ $this->load->view('header');?>
 </table>
 
 <?php
+$hide_column = !$this->admin_model->capable('administrator') ? 'this.fnSetColumnVis(5, false);' : '';
 $ajax_url = base_url('document/ajax/list');
 $ajax_js = <<<EOT
 $(document).ready(function() {
@@ -40,6 +41,7 @@ $(document).ready(function() {
 		"sAjaxSource": '{$ajax_url}',
 		"fnInitComplete": function() {
 			this.fnAdjustColumnSizing();
+			{$hide_column}
 			$('.committee_list').popover();
 			$('.version_list').popover();
 		}
