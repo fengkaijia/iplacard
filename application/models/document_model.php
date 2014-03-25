@@ -21,8 +21,8 @@ class Document_model extends CI_Model
 	function get_document($id, $part = '')
 	{
 		$this->db->where('document.id', intval($id));
-		$this->db->join('document_file', 'document.file = file.id');
-		$query = $this->db->get('document');
+		$this->db->join('document', 'document_file.id = document.file');
+		$query = $this->db->get('document_file');
 		
 		//如果无结果
 		if($query->num_rows() == 0)
