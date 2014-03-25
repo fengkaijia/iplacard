@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS `ip_document_download` (
   `file` int(11) NOT NULL COMMENT '文件版本ID',
   `user` int(11) NOT NULL COMMENT '下载用户ID',
   `time` int(11) NOT NULL COMMENT '下载时间',
+  `ip` text COMMENT '下载请求IP',
   `drm` text COMMENT '版权标识',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文件下载记录' AUTO_INCREMENT=1;
