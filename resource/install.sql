@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS `ip_document_file` (
   `filetype` text NOT NULL COMMENT '文件类型',
   `filesize` int(11) NOT NULL COMMENT '文件大小',
   `hash` text NOT NULL COMMENT '散列值',
-  `drm` text COMMENT '版权标识类型',
+  `drm` int(11) NOT NULL COMMENT '启用版权标识',
   `user` int(11) NOT NULL COMMENT '上传用户',
   `time` int(11) NOT NULL COMMENT '上传时间',
   PRIMARY KEY (`id`)
