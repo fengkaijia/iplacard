@@ -233,6 +233,153 @@ class Document_model extends CI_Model
 			return true;
 		return false;
 	}
+		
+	/**
+	 * 获取文件版本信息
+	 * @param int $id 用户ID
+	 * @param string $part 指定部分
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_file($id, $part = '')
+	{
+		$this->db->where('id', intval($id));
+		$query = $this->db->get('document_file');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$data = $query->row_array();
+		
+		//返回结果
+		if(empty($part))
+			return $data;
+		return $data[$part];
+	}
+	
+	/**
+	 * 查询符合条件的第一个文件版本ID
+	 * @return int|false 符合查询条件的第一个文件版本ID，如不存在返回FALSE
+	 */
+	function get_file_id()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'document_file');
+		//将参数传递给get_id方法
+		return call_user_func_array(array($this->sql_model, 'get_id'), $args);
+	}
+	
+	/**
+	 * 查询符合条件的所有文件版本ID
+	 * @return array|false 符合查询条件的所有文件版本ID，如不存在返回FALSE
+	 */
+	function get_file_ids()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'document_file');
+		//将参数传递给get_ids方法
+		return call_user_func_array(array($this->sql_model, 'get_ids'), $args);
+	}
+	
+	/**
+	 * 查询指定文件的所有文件版本ID
+	 * @return array|false 指定文件的所有文件版本ID，如不存在返回FALSE
+	 */
+	function get_document_files($document)
+	{
+		return $this->get_file_ids('document', $document);
+	}
+	
+	/**
+	 * 编辑/添加版本
+	 * @return int 新的文件版本ID
+	 */
+	function edit_file($data, $id = '')
+	{
+		//新增文件版本
+		if(empty($id))
+		{
+			$this->db->insert('document_file', $data);
+			return $this->db->insert_id();
+		}
+		
+		//更新文件版本
+		$this->db->where('id', $id);
+		return $this->db->update('document_file', $data);
+	}
+	
+	/**
+	 * 添加文件版本
+	 * @param int $document 文件ID
+	 * @param string $file_path 上传文件路径
+	 * @param string $version 版本号
+	 * @param boolean $drm 是否启用版本标识类型
+	 * @param int $user 上传用户ID
+	 */
+	function add_file($document, $file_path, $version = '', $drm = true, $user = '')
+	{
+		$this->load->helper('file');
+		
+		//文件属性
+		$file = get_file_info($file_path);
+		if(!$file)
+			return false;
+		
+		if(empty($user))
+			$user = uid();
+		
+		//保护设置
+		$type = pathinfo($file_path, PATHINFO_EXTENSION);
+		if($drm && in_array($type, array('pdf')))
+			$drm = true;
+		else
+			$drm = false;
+		
+		$data = array(
+			'document' => $document,
+			'version' => $version,
+			'filetype' => $type,
+			'filesize' => $file['size'],
+			'hash' => sha1_file($file_path),
+			'drm' => $drm,
+			'user' => $user,
+			'time' => time()
+		);
+		
+		//返回新文件版本ID
+		return $this->edit_file($data);
+	}
+	
+	/**
+	 * 删除文件版本
+	 * @param int $id 文件版本ID
+	 * @return boolean 是否完成删除
+	 */
+	function delete_file($id)
+	{
+		$this->db->where('id', $id);
+		return $this->db->delete('document_file');
+	}
+	
+	/**
+	 * 检查文件版本是否存在
+	 * @param int $id 文件版本ID
+	 * @return boolean
+	 */
+	function file_exists($id)
+	{
+		if($this->get_file($id))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * 检查文件版本是否开启版权保护
+	 */
+	function is_drm_enabled($file)
+	{
+		return $this->get_file($file, 'drm');
+	}
 }
 
 /* End of file document_model.php */
