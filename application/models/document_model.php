@@ -61,6 +61,53 @@ class Document_model extends CI_Model
 	}
 	
 	/**
+	 * 获取指定委员会的所有可查看文件
+	 */
+	function get_committee_documents($committee)
+	{
+		$this->db->where('access', array($committee, 0));
+		$query = $this->db->get('document_access');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回文件ID
+		foreach($query->result_array() as $data)
+		{
+			$array[] = $data['document'];
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
+	 * 获取指定文件的访问范围
+	 */
+	function get_documents_accessibility($document)
+	{
+		$this->db->where('document', $document);
+		$query = $this->db->get('document_access');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回文件ID
+		foreach($query->result_array() as $data)
+		{
+			if($data['access'] == 0)
+				return true;
+			
+			$array[] = $data['access'];
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
 	 * 编辑/添加文件
 	 * @return int 新的文件ID
 	 */
@@ -107,6 +154,71 @@ class Document_model extends CI_Model
 		$this->db->where('id', $id);
 		$this->db->or_where('document', $id);
 		return $this->db->delete(array('document', 'document_access', 'document_file'));
+	}
+	
+	/**
+	 * 添加访问权限
+	 * @param int $document 文件ID
+	 * @param int|array $committees 一个或一组委员会ID或0
+	 * @return boolean 是否完成添加
+	 */
+	function add_access($document, $committees)
+	{
+		if(!is_array($committees))
+			$committees = array($committees);
+		
+		//生成数据
+		foreach($committees as $committee)
+		{
+			$data[] = array(
+				'document' => $document,
+				'access' => $committee
+			);
+		}
+		
+		return $this->db->insert_batch('document_access', $data);
+	}
+	
+	/**
+	 * 删除访问权限
+	 * @param int $document 文件ID
+	 * @param int|array $committees 一个或一组委员会ID或0
+	 * @return boolean 是否完成删除
+	 */
+	function delete_access($document, $committees)
+	{
+		$this->db->where('document', $document);
+		$this->db->where('access', $committees);
+		return $this->db->delete('document_access');
+	}
+	
+	/**
+	 * 检查指定的委员会是否可访问指定文件
+	 * @return boolean
+	 */
+	function is_accessible($document, $committee)
+	{
+		$access = $this->get_documents_accessibility($document);
+		
+		if($access === true)
+			return true;
+		
+		if(in_array($committee, $access))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * 检查文件是否可全局访问
+	 * @return boolean
+	 */
+	function is_global_accessible($document)
+	{
+		$access = $this->get_documents_accessibility($document);
+		
+		if($access === true)
+			return true;
+		return false;
 	}
 }
 
