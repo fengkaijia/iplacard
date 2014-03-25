@@ -380,6 +380,127 @@ class Document_model extends CI_Model
 	{
 		return $this->get_file($file, 'drm');
 	}
+	
+	/**
+	 * 获取文件下载记录
+	 * @param int $id 下载记录ID
+	 * @param string $part 指定部分
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_download($id, $part = '')
+	{
+		$this->db->where('id', intval($id));
+		$query = $this->db->get('document_download');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$data = $query->row_array();
+		
+		//返回结果
+		if(empty($part))
+			return $data;
+		return $data[$part];
+	}
+	
+	/**
+	 * 查询符合条件的第一个文件下载记录ID
+	 * @return int|false 符合查询条件的第一个文件下载ID，如不存在返回FALSE
+	 */
+	function get_download_id()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'document_download');
+		//将参数传递给get_id方法
+		return call_user_func_array(array($this->sql_model, 'get_id'), $args);
+	}
+	
+	/**
+	 * 查询符合条件的所有文件下载记录ID
+	 * @return array|false 符合查询条件的所有文件下载ID，如不存在返回FALSE
+	 */
+	function get_download_ids()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'document_download');
+		//将参数传递给get_ids方法
+		return call_user_func_array(array($this->sql_model, 'get_ids'), $args);
+	}
+	
+	/**
+	 * 获取文件版本的下载记录
+	 * @return array|false 指定文件版本的所有下载ID，如不存在返回FALSE
+	 */
+	function get_file_downloads($file)
+	{
+		return $this->get_download_ids('file', $file);
+	}
+	
+	/**
+	 * 获取文件的下载记录
+	 * @return array|false 指定文件的所有下载ID，如不存在返回FALSE
+	 */
+	function get_document_downloads($document)
+	{
+		$file = $this->get_document_files($document);
+		
+		if(!$file)
+			return false;
+		
+		return $this->get_download_ids('file', $file);
+	}
+	
+	/**
+	 * 获取用户的下载记录
+	 * @return array|false 指定用户的所有下载ID，如不存在返回FALSE
+	 */
+	function get_user_downloads($user)
+	{
+		return $this->get_download_ids('user', $user);
+	}
+	
+	/**
+	 * 添加文件下载记录
+	 * @param int $file 文件版本ID
+	 * @param int $user 用户ID
+	 * @param string $drm 版权标识
+	 * @return int 下载记录ID
+	 */
+	function add_download($file, $user = '', $drm = '')
+	{
+		if(empty($user))
+			$user = uid();
+		
+		$data = array(
+			'file' => $file,
+			'user' => $user,
+			'time' => time(),
+			'ip' => $this->input->ip_address()
+		);
+		
+		if(!empty($drm))
+			$data['drm'] = $drm;
+		
+		$this->db->insert('document_download', $data);
+		return $this->db->insert_id();
+	}
+	
+	/**
+	 * 检查用户是否已经下载指定的文件或文件版本
+	 * @param int $user 用户ID
+	 * @param int $key 文件ID或文件版本ID
+	 * @param string $type 搜索的类型
+	 */
+	function is_user_downloaded($user, $key, $type = 'file')
+	{
+		if($type == 'document')
+			$key = $this->get_document_files($key);
+		
+		if($this->get_download_ids('user', $user, 'file', $key))
+			return true;
+		return false;
+	}
 }
 
 /* End of file document_model.php */
