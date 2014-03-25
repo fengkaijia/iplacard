@@ -236,7 +236,7 @@ class Document_model extends CI_Model
 		
 	/**
 	 * 获取文件版本信息
-	 * @param int $id 用户ID
+	 * @param int $id 文件版本ID
 	 * @param string $part 指定部分
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
