@@ -30,7 +30,7 @@ $this->load->view('header');?>
 	<thead>
 		<tr>
 			<th>ID</th>
-			<th>姓名</th>
+			<th>面试者</th>
 			<th>面试状态</th>
 			<th>分配时间</th>
 			<th>安排时间</th>
