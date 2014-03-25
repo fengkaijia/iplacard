@@ -375,6 +375,7 @@ class Document_model extends CI_Model
 	
 	/**
 	 * 检查文件版本是否开启版权保护
+	 * @param int $file 文件版本ID
 	 */
 	function is_drm_enabled($file)
 	{
