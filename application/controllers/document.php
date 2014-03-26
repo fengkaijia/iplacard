@@ -126,7 +126,7 @@ class Document extends CI_Controller
 						$operation .= ' '.anchor("document/edit/$id", icon('edit', false).'编辑');
 					
 					//文件名称
-					$title_line = $document['title'];
+					$title_line = mime($document['filetype']).$document['title'];
 					if($document['highlight'])
 						$title_line .= '<span class="text-primary">'.icon('star', false).'</span>';
 					

@@ -3,13 +3,14 @@ $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/boots
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.datatables.js' : 'static/js/jquery.datatables.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/jquery.datatables.locale.js': 'static/js/locales/jquery.datatables.locale.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.datatables.js' : 'static/js/bootstrap.datatables.min.js').'"></script>');
+$this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/mimes.css' : 'static/css/mimes.min.css').'" rel="stylesheet">');
 $this->load->view('header');?>
 
 <div class="page-header">
 	<h1><?php echo $title;?></h1>
 </div>
 
-<table id="document_list" class="table table-striped table-bordered table-hover table-responsive">
+<table id="document_list" class="table table-striped table-bordered table-hover table-responsive mimes-16">
 	<thead>
 		<tr>
 			<th>ID</th>

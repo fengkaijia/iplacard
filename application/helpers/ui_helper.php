@@ -52,5 +52,21 @@ function flag($iso, $check = false, $space = true, $null_output = false, $double
 	return "<span class='flag {$iso}'></span>{$space}";
 }
 
+/**
+ * 显示文件类型图标
+ * @param string $mime 文件类型
+ * @param boolean $space 是否增加空间
+ * @param boolean $double_quota 是否使用双引号输出
+ * @return string 包含文件类型的HTML代码
+ */
+function mime($mime, $space = true, $double_quota = true)
+{
+	$space = $space ? ' ' : '';
+	
+	if($double_quota)
+		return "<span class=\"mime {$mime}\"></span>{$space}";
+	return "<span class='mime {$mime}'></span>{$space}";
+}
+
 /* End of file ui_helper.php */
 /* Location: ./application/helpers/ui_helper.php */
