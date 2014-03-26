@@ -1,0 +1,120 @@
+/*!
+ * Mimetypes Icon Set for iPlacard
+ * Copyright 2014 Kaijia Feng
+ */
+
+.mimes-16 .mime {
+	margin-top: 3px;
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+	vertical-align: text-top;
+	line-height: 16px;
+	background: url('../img/mimes/16.png') no-repeat;
+}
+.mimes-16 .txt { background-position: -0px -0px; }
+.mimes-16 .chm { background-position: -0px -16px; }
+.mimes-16 .csv { background-position: -0px -32px; }
+.mimes-16 .doc, .mimes-16 .docx, .mimes-16 .wps, .mimes-16 .odt { background-position: -0px -48px; }
+.mimes-16 .dot, .mimes-16 .dotx, .mimes-16 .ott { background-position: -0px -64px; }
+.mimes-16 .jpg, .mimes-16 .jpeg, .mimes-16 .gif, .mimes-16 .bmp, .mimes-16 .png, .mimes-16 .tif, .mimes-16 .tiff, .mimes-16 .psd { background-position: -0px -80px; }
+.mimes-16 .kml { background-position: -0px -96px; }
+.mimes-16 .mp4, .mimes-16 .avi, .mimes-16 .rmvb, .mimes-16 .rm, .mimes-16 .mpg, .mimes-16 .mpeg, .mimes-16 .mkv { background-position: -0px -112px; }
+.mimes-16 .pdf { background-position: -0px -128px; }
+.mimes-16 .ppt, .mimes-16 .pptx, .mimes-16 .dps, .mimes-16 .wpp, .mimes-16 .odp, .mimes-16 .otp { background-position: -0px -144px; }
+.mimes-16 .rtf, .mimes-16 .markdown { background-position: -0px -160px; }
+.mimes-16 .xls, .mimes-16 .xlsx, .mimes-16 .et, .mimes-16 .ods, .mimes-16 .ots { background-position: -0px -176px; }
+.mimes-16 .zip, .mimes-16 .rar, .mimes-16 .tar, .mimes-16 .gz, .mimes-16 .bz2, .mimes-16 .lz, .mimes-16 .xz { background-position: -0px -192px; }
+
+.mimes-22 .mime {
+	margin-top: 3px;
+	display: inline-block;
+	height: 22px;
+	width: 22px;
+	vertical-align: text-top;
+	line-height: 22px;
+	background: url('../img/mimes/22.png') no-repeat;
+}
+.mimes-22 .txt { background-position: -0px -0px; }
+.mimes-22 .chm { background-position: -0px -22px; }
+.mimes-22 .csv { background-position: -0px -44px; }
+.mimes-22 .doc, .mimes-22 .docx, .mimes-22 .wps, .mimes-22 .odt { background-position: -0px -66px; }
+.mimes-22 .dot, .mimes-22 .dotx, .mimes-22 .ott { background-position: -0px -88px; }
+.mimes-22 .jpg, .mimes-22 .jpeg, .mimes-22 .gif, .mimes-22 .bmp, .mimes-22 .png, .mimes-22 .tif, .mimes-22 .tiff, .mimes-22 .psd { background-position: -0px -110px; }
+.mimes-22 .kml { background-position: -0px -132px; }
+.mimes-22 .mp4, .mimes-22 .avi, .mimes-22 .rmvb, .mimes-22 .rm, .mimes-22 .mpg, .mimes-22 .mpeg, .mimes-22 .mkv { background-position: -0px -154px; }
+.mimes-22 .pdf { background-position: -0px -176px; }
+.mimes-22 .ppt, .mimes-22 .pptx, .mimes-22 .dps, .mimes-22 .wpp, .mimes-22 .odp, .mimes-22 .otp { background-position: -0px -198px; }
+.mimes-22 .rtf, .mimes-22 .markdown { background-position: -0px -220px; }
+.mimes-22 .xls, .mimes-22 .xlsx, .mimes-22 .et, .mimes-22 .ods, .mimes-22 .ots { background-position: -0px -242px; }
+.mimes-22 .zip, .mimes-22 .rar, .mimes-22 .tar, .mimes-22 .gz, .mimes-22 .bz2, .mimes-22 .lz, .mimes-22 .xz { background-position: -0px -264px; }
+
+.mimes-32 .mime {
+	margin-top: 4px;
+	display: inline-block;
+	height: 32px;
+	width: 32px;
+	vertical-align: text-top;
+	line-height: 32px;
+	background: url('../img/mimes/32.png') no-repeat;
+}
+.mimes-32 .txt { background-position: -0px -0px; }
+.mimes-32 .chm { background-position: -0px -32px; }
+.mimes-32 .csv { background-position: -0px -64px; }
+.mimes-32 .doc, .mimes-32 .docx, .mimes-32 .wps, .mimes-32 .odt { background-position: -0px -96px; }
+.mimes-32 .dot, .mimes-32 .dotx, .mimes-32 .ott { background-position: -0px -128px; }
+.mimes-32 .jpg, .mimes-32 .jpeg, .mimes-32 .gif, .mimes-32 .bmp, .mimes-32 .png, .mimes-32 .tif, .mimes-32 .tiff, .mimes-32 .psd { background-position: -0px -160px; }
+.mimes-32 .kml { background-position: -0px -192px; }
+.mimes-32 .mp4, .mimes-32 .avi, .mimes-32 .rmvb, .mimes-32 .rm, .mimes-32 .mpg, .mimes-32 .mpeg, .mimes-32 .mkv { background-position: -0px -224px; }
+.mimes-32 .pdf { background-position: -0px -256px; }
+.mimes-32 .ppt, .mimes-32 .pptx, .mimes-32 .dps, .mimes-32 .wpp, .mimes-32 .odp, .mimes-32 .otp { background-position: -0px -288px; }
+.mimes-32 .rtf, .mimes-32 .markdown { background-position: -0px -320px; }
+.mimes-32 .xls, .mimes-32 .xlsx, .mimes-32 .et, .mimes-32 .ods, .mimes-32 .ots { background-position: -0px -352px; }
+.mimes-32 .zip, .mimes-32 .rar, .mimes-32 .tar, .mimes-32 .gz, .mimes-32 .bz2, .mimes-32 .lz, .mimes-32 .xz { background-position: -0px -384px; }
+
+.mimes-48 .mime {
+	margin-top: 4px;
+	display: inline-block;
+	height: 48px;
+	width: 48px;
+	vertical-align: text-top;
+	line-height: 48px;
+	background: url('../img/mimes/48.png') no-repeat;
+}
+.mimes-48 .txt { background-position: -0px -0px; }
+.mimes-48 .chm { background-position: -0px -48px; }
+.mimes-48 .csv { background-position: -0px -96px; }
+.mimes-48 .doc, .mimes-48 .docx, .mimes-48 .wps, .mimes-48 .odt { background-position: -0px -144px; }
+.mimes-48 .dot, .mimes-48 .dotx, .mimes-48 .ott { background-position: -0px -192px; }
+.mimes-48 .jpg, .mimes-48 .jpeg, .mimes-48 .gif, .mimes-48 .bmp, .mimes-48 .png, .mimes-48 .tif, .mimes-48 .tiff, .mimes-48 .psd { background-position: -0px -240px; }
+.mimes-48 .kml { background-position: -0px -288px; }
+.mimes-48 .mp4, .mimes-48 .avi, .mimes-48 .rmvb, .mimes-48 .rm, .mimes-48 .mpg, .mimes-48 .mpeg, .mimes-48 .mkv { background-position: -0px -336px; }
+.mimes-48 .pdf { background-position: -0px -384px; }
+.mimes-48 .ppt, .mimes-48 .pptx, .mimes-48 .dps, .mimes-48 .wpp, .mimes-48 .odp, .mimes-48 .otp { background-position: -0px -432px; }
+.mimes-48 .rtf, .mimes-48 .markdown { background-position: -0px -480px; }
+.mimes-48 .xls, .mimes-48 .xlsx, .mimes-48 .et, .mimes-48 .ods, .mimes-48 .ots { background-position: -0px -528px; }
+.mimes-48 .zip, .mimes-48 .rar, .mimes-48 .tar, .mimes-48 .gz, .mimes-48 .bz2, .mimes-48 .lz, .mimes-48 .xz { background-position: -0px -576px; }
+
+.mimes-128 .mime {
+	margin-top: 0px;
+	display: inline-block;
+	height: 128px;
+	width: 128px;
+	vertical-align: text-top;
+	line-height: 128px;
+	background: url('../img/mimes/128.png') no-repeat;
+}
+.mimes-128 .txt { background-position: -0px -0px; }
+.mimes-128 .chm { background-position: -0px -128px; }
+.mimes-128 .csv { background-position: -0px -256px; }
+.mimes-128 .doc, .mimes-128 .docx, .mimes-128 .wps, .mimes-128 .odt { background-position: -0px -384px; }
+.mimes-128 .dot, .mimes-128 .dotx, .mimes-128 .ott { background-position: -0px -512px; }
+.mimes-128 .jpg, .mimes-128 .jpeg, .mimes-128 .gif, .mimes-128 .bmp, .mimes-128 .png, .mimes-128 .tif, .mimes-128 .tiff, .mimes-128 .psd { background-position: -0px -640px; }
+.mimes-128 .kml { background-position: -0px -768px; }
+.mimes-128 .mp4, .mimes-128 .avi, .mimes-128 .rmvb, .mimes-128 .rm, .mimes-128 .mpg, .mimes-128 .mpeg, .mimes-128 .mkv { background-position: -0px -896px; }
+.mimes-128 .pdf { background-position: -0px -1024px; }
+.mimes-128 .ppt, .mimes-128 .pptx, .mimes-128 .dps, .mimes-128 .wpp, .mimes-128 .odp, .mimes-128 .otp { background-position: -0px -1152px; }
+.mimes-128 .rtf, .mimes-128 .markdown { background-position: -0px -1280px; }
+.mimes-128 .xls, .mimes-128 .xlsx, .mimes-128 .et, .mimes-128 .ods, .mimes-128 .ots { background-position: -0px -1408px; }
+.mimes-128 .zip, .mimes-128 .rar, .mimes-128 .tar, .mimes-128 .gz, .mimes-128 .bz2, .mimes-128 .lz, .mimes-128 .xz { background-position: -0px -1536px; }
+
