@@ -27,7 +27,7 @@
 							'id' => 'name',
 							'class' => 'form-control',
 							'value' => set_value('name', $action == 'add' ? '' : $committee['name']),
-							'required'=> NULL,
+							'required' => NULL,
 						));
 						if(form_has_error('name'))
 							echo form_error('name');
@@ -43,7 +43,7 @@
 							'id' => 'abbr',
 							'class' => 'form-control',
 							'value' => set_value('abbr', $action == 'add' ? '' : $committee['abbr']),
-							'required'=> NULL,
+							'required' => NULL,
 						));
 						if(form_has_error('abbr'))
 							echo form_error('abbr');
@@ -60,7 +60,7 @@
 							'class' => 'form-control',
 							'rows' => 4,
 							'value' => set_value('description', $action == 'add' ? '' : $committee['description']),
-							'required'=> NULL,
+							'required' => NULL,
 						));
 						if(form_has_error('description'))
 							echo form_error('description');

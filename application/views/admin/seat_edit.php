@@ -33,7 +33,7 @@ $this->load->view('header');?>
 							'id' => 'name',
 							'class' => 'form-control',
 							'value' => set_value('name', $action == 'add' && !$preset ? '' : $seat['name']),
-							'required'=> NULL,
+							'required' => NULL,
 						));
 						if(form_has_error('name'))
 							echo form_error('name');
@@ -195,7 +195,7 @@ $this->load->view('header');?>
 							'class' => 'form-control',
 							'style' => 'max-width: 50px;',
 							'value' => set_value('sub_num', 1),
-							'required'=> NULL,
+							'required' => NULL,
 						)); ?> 个相同属性的子席位
 						<?php if(form_has_error('sub_num'))
 							echo form_error('sub_num');

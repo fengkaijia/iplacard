@@ -29,7 +29,7 @@
 							'id' => 'name',
 							'class' => 'form-control',
 							'value' => set_value('name', $action == 'add' ? '' : $group['name']),
-							'required'=> NULL,
+							'required' => NULL,
 						));
 						if(form_has_error('name'))
 							echo form_error('name');
