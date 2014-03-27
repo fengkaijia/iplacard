@@ -183,13 +183,16 @@ class Document_model extends CI_Model
 	/**
 	 * 删除访问权限
 	 * @param int $document 文件ID
-	 * @param int|array $committees 一个或一组委员会ID或0
+	 * @param int|array $committees 一个或一组委员会ID或0，如为空全部删除
 	 * @return boolean 是否完成删除
 	 */
-	function delete_access($document, $committees)
+	function delete_access($document, $committees = '')
 	{
 		$this->db->where('document', $document);
-		$this->db->where('access', $committees);
+		
+		if(!empty($committees))
+			$this->db->where('access', $committees);
+		
 		return $this->db->delete('document_access');
 	}
 	
