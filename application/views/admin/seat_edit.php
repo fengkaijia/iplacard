@@ -180,7 +180,7 @@ $this->load->view('header');?>
 						$this->ui->js('footer', $seat_type_js);
 						
 						//编辑子席位默认显示
-						if(($action == 'edit' || $preset) && $seat['type'] == 'sub')
+						if(($action == 'edit' || $preset) && set_value('seat_type', $action == 'add' && !$preset ? 'single' : $seat['type']) == 'sub')
 							$this->ui->js('footer', "$('#seat_primary').show();");
 						?>
 					</div>
