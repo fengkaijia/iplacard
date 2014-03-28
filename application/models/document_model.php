@@ -138,7 +138,7 @@ class Document_model extends CI_Model
 			'title' => $title,
 			'description' => $description,
 			'highlight' => $highlight,
-			'time' => time()
+			'create_time' => time()
 		);
 		
 		//返回新文件ID
@@ -346,7 +346,7 @@ class Document_model extends CI_Model
 			'hash' => sha1_file($file_path),
 			'drm' => $drm,
 			'user' => $user,
-			'time' => time()
+			'upload_time' => time()
 		);
 		
 		//返回新文件版本ID
