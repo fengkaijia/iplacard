@@ -138,7 +138,8 @@ class Document_model extends CI_Model
 			'title' => $title,
 			'description' => $description,
 			'highlight' => $highlight,
-			'create_time' => time()
+			'create_time' => time(),
+			'user' => $user
 		);
 		
 		//返回新文件ID
