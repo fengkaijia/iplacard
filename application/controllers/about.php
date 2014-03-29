@@ -32,6 +32,16 @@ class About extends CI_Controller
 		$this->ui->background();
 		$this->load->view('about');
 	}
+	
+	/**
+	 * 爱梦之书
+	 */
+	function imunc()
+	{
+		$this->ui->title('爱梦之书');
+		$this->ui->background();
+		$this->load->view('book');
+	}
 }
 
 /* End of file about.php */
