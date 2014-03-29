@@ -252,9 +252,7 @@ class Document extends CI_Controller
 				
 				if($access_committees == 0)
 				{
-					$this->load->model('delegate_model');
-					
-					$delegates = $this->delegate_model->get_delegate_ids();
+					$users = $this->user_model->get_user_ids('id !=', uid());
 				}
 				else
 				{
@@ -263,11 +261,11 @@ class Document extends CI_Controller
 					$sids = $this->seat_model->get_seat_ids('committee', $access_committees, 'status', array('assigned', 'approved', 'locked'));
 					if($sids)
 					{
-						$delegates = $this->seat_model->get_delegates_by_seats($sids);
+						$users = $this->seat_model->get_delegates_by_seats($sids);
 					}
 				}
 				
-				if($delegates)
+				if($users)
 				{
 					if($action == 'add')
 					{
@@ -280,9 +278,9 @@ class Document extends CI_Controller
 						$this->email->html($this->parser->parse_string(option('email_document_updated', "文件《{title}》已经于 {time} 更新，请访问 iPlacard 下载文件更新。"), $email_data, true));
 					}
 
-					foreach($delegates as $delegate)
+					foreach($users as $user)
 					{
-						$this->email->to($this->user_model->get_user($delegate, 'email'));
+						$this->email->to($this->user_model->get_user($user, 'email'));
 						$this->email->send();
 					}
 				}
