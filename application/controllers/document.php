@@ -247,6 +247,60 @@ class Document extends CI_Controller
 		$vars['action'] = $action;
 		$this->load->view('admin/document_edit', $vars);
 	}
+	
+	/**
+	 * 删除文件
+	 */
+	function delete($id)
+	{
+		//文件检查
+		$document = $this->document_model->get_document($id);
+		if(!$document)
+		{
+			$this->ui->alert('指定删除的文件不存在。', 'warning', true);
+			redirect('document/manage');
+			return;
+		}
+		
+		$this->form_validation->set_rules('admin_password', '密码', 'trim|required|callback__check_admin_password[密码验证错误导致删除操作未执行，请重新尝试。]');
+		
+		if($this->form_validation->run() == true)
+		{
+			$count = 0;
+			
+			//删除数据
+			$files = $this->document_model->get_document_files($id);
+			if($files)
+			{
+				$path = './data/'.IP_INSTANCE_ID.'/document/';
+				
+				//删除文件版本
+				foreach($files as $file_id)
+				{
+					$file = $this->document_model->get_file($file_id);
+					
+					unlink("{$path}{$file_id}.{$file['filetype']}");
+					
+					$this->document_model->delete_file($file_id);
+				}
+				
+				$count = count($files);
+			}
+			
+			$this->document_model->delete_document($id);
+			$this->document_model->delete_access($id);
+			
+			//日志
+			$this->system_model->log('document_deleted', array('ip' => $this->input->ip_address(), 'document' => $id, 'file' => $files));
+			
+			$this->ui->alert("文件 #{$id} 已经成功删除，同时此文件的 {$count} 个版本也已删除。", 'success', true);
+			redirect('document/manage');
+		}
+		else
+		{
+			redirect("document/edit/{$id}");
+		}
+	}
 
 	/**
 	 * AJAX
