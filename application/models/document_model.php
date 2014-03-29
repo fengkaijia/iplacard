@@ -154,8 +154,7 @@ class Document_model extends CI_Model
 	function delete_document($id)
 	{
 		$this->db->where('id', $id);
-		$this->db->or_where('document', $id);
-		return $this->db->delete(array('document', 'document_access', 'document_file'));
+		return $this->db->delete('document');
 	}
 	
 	/**
