@@ -64,6 +64,189 @@ class Document extends CI_Controller
 		$this->ui->title($title, '文件管理');
 		$this->load->view('admin/document_manage', $vars);
 	}
+	
+	
+	/**
+	 * 编辑或添加文件
+	 */
+	function edit($id = '')
+	{
+		$this->load->helper('number');
+		$this->load->helper('file');
+		
+		//检查权限
+		if(!$this->admin_model->capable('administrator') && !$this->admin_model->capable('dais'))
+		{
+			$this->ui->alert('需要管理员或主席权限以编辑文件。', 'warning', true);
+			redirect('document/manage');
+			return;
+		}
+		
+		//设定操作类型
+		$action = 'edit';
+		if(empty($id))
+			$action = 'add';
+		
+		if($action == 'edit')
+		{
+			$document = $this->document_model->get_document($id);
+			if(!$document)
+				$action = 'add';
+			elseif(!$this->admin_model->capable('administrator') && $document['user'] != uid())
+			{
+				$this->ui->alert('仅此文件的发布者可以编辑此文件。', 'warning', true);
+				redirect('document/manage');
+				return;
+			}
+			
+			$access = $this->document_model->get_documents_accessibility($id);
+			if($access !== true)
+			{
+				$document['access_select'] = $access;
+				$document['access_type'] = 'committee';
+			}
+			else
+			{
+				$document['access_select'] = array();
+				$document['access_type'] = 'global';
+			}
+			
+			$vars['document'] = $document;
+			
+			$this->ui->title($document['title'], '文件管理');
+		}
+		else
+		{
+			$this->ui->title('添加文件');
+		}
+		
+		//委员会信息
+		$committees = array();
+		
+		$committee_ids = $this->committee_model->get_committee_ids();
+		foreach($committee_ids as $committee_id)
+		{
+			$committee = $this->committee_model->get_committee($committee_id);
+			$committees[$committee_id] = "{$committee['name']}（{$committee['abbr']}）";
+		}
+		
+		$vars['committees'] = $committees;
+		
+		//文件大小上限
+		$file_max_size = byte_format(ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)), 0);
+		$vars['file_max_size'] = $file_max_size;
+		
+		//预上传文件版本
+		if($this->input->post('new_upload'))
+		{
+			//操作上传图像
+			$this->load->helper('string');
+			$config['file_name'] = time().'_'.random_string('alnum', 32);
+			$config['allowed_types'] = '*';
+			$config['max_size'] = ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)) / 1024;
+			$config['upload_path'] = './temp/'.IP_INSTANCE_ID.'/upload/document/';
+
+			if(!file_exists($config['upload_path']))
+				mkdir($config['upload_path'], DIR_WRITE_MODE, true);
+
+			$this->load->library('upload', $config);
+
+			//储存上传文件
+			if(!$this->upload->do_upload('file'))
+			{
+				$error = $this->upload->display_errors('', '');
+				
+				$this->form_validation->set_message('_check_upload_error', $error);
+				
+				$this->form_validation->set_rules('file', '文件', 'callback__check_upload_error');
+			}
+
+			$upload_result = $this->upload->data();
+		}
+		
+		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+		
+		$this->form_validation->set_rules('title', '文件名称', 'trim|required');
+		$this->form_validation->set_rules('access_type', '分发类型', 'trim|required');
+		if($action == 'add')
+		{
+			$this->form_validation->set_rules('new_upload', '文件', 'required');
+		}
+		
+		if($this->form_validation->run() == true)
+		{
+			$post = $this->input->post();
+			
+			//文件
+			if($action == 'add')
+			{
+				$id = $this->document_model->add_document($post['title'], $post['description'], isset($post['highlight']) && $post['highlight'] ? true : false);
+				
+				$this->ui->alert("已经成功添加新文件 #{$id}。", 'success', true);
+				
+				$this->system_model->log('document_added', array('id' => $id));
+			}
+			else
+			{
+				$data = array(
+					'title' => $post['title'],
+					'description' => $post['description'],
+					'highlight' => $post['highlight'] ? true : false
+				);
+				
+				$this->document_model->edit_document($data, $id);
+				
+				$this->ui->alert('文件已编辑。', 'success', true);
+
+				$this->system_model->log('document_edited', array('id' => $id, 'data' => $data));
+			}
+			
+			//权限
+			if($action == 'edit')
+				$this->document_model->delete_access($id);
+			
+			$access_committees = array();
+			if($post['access_type'] == 'committee')
+			{
+				foreach($post['access_select'] as $access_one)
+				{
+					if($this->committee_model->get_committee($access_one))
+						$access_committees[] = intval($access_one);
+				}
+			}
+			else
+			{
+				$access_committees = 0;
+			}
+			
+			$this->document_model->add_access($id, $access_committees);
+			
+			//文件版本
+			if(isset($upload_result))
+			{
+				$file_id = $this->document_model->add_file($id, $upload_result['full_path'], $post['version'], $post['drm']);
+				
+				$this->document_model->edit_document(array('file' => $file_id), $id);
+				
+				$path = './data/'.IP_INSTANCE_ID.'/document/';
+				
+				if(!file_exists($path))
+					mkdir($path, DIR_WRITE_MODE, true);
+				
+				rename($upload_result['full_path'], $path.$file_id.$upload_result['file_ext']);
+				
+				$this->ui->alert("已经上传文件版本 #{$file_id}。", 'success', true);
+
+				$this->system_model->log('document_file_uploaded', array('id' => $file_id, 'document' => $id));
+			}
+			
+			redirect('document/manage');
+			return;
+		}
+		
+		$vars['action'] = $action;
+		$this->load->view('admin/document_edit', $vars);
+	}
 
 	/**
 	 * AJAX
@@ -231,6 +414,14 @@ class Document extends CI_Controller
 		if(!empty($global_message))
 			$this->ui->alert($global_message, 'warning', true);
 		
+		return false;
+	}
+	
+	/**
+	 * 文件上传检查回调虚函数
+	 */
+	function _check_upload_error($str)
+	{
 		return false;
 	}
 	
