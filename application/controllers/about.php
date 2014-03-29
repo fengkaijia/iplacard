@@ -29,6 +29,7 @@ class About extends CI_Controller
 	function iplacard()
 	{
 		$this->ui->title('关于');
+		$this->ui->background();
 		$this->load->view('about');
 	}
 }
