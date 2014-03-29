@@ -238,6 +238,54 @@ class Document extends CI_Controller
 				$this->ui->alert("已经上传文件版本 #{$file_id}。", 'success', true);
 
 				$this->system_model->log('document_file_uploaded', array('id' => $file_id, 'document' => $id));
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$email_data = array(
+					'id' => $id,
+					'title' => $post['title'],
+					'time' => unix_to_human(time())
+				);
+				
+				if($access_committees == 0)
+				{
+					$this->load->model('delegate_model');
+					
+					$delegates = $this->delegate_model->get_delegate_ids();
+				}
+				else
+				{
+					$this->load->model('seat_model');
+					
+					$sids = $this->seat_model->get_seat_ids('committee', $access_committees, 'status', array('assigned', 'approved', 'locked'));
+					if($sids)
+					{
+						$delegates = $this->seat_model->get_delegates_by_seats($sids);
+					}
+				}
+				
+				if($delegates)
+				{
+					if($action == 'add')
+					{
+						$this->email->subject('新的文件可供下载');
+						$this->email->html($this->parser->parse_string(option('email_document_added', "新的文件《{title}》已经于 {time} 上传到 iPlacard，请访问 iPlacard 下载文件。"), $email_data, true));
+					}
+					else
+					{
+						$this->email->subject('文件已经更新');
+						$this->email->html($this->parser->parse_string(option('email_document_updated', "文件《{title}》已经于 {time} 更新，请访问 iPlacard 下载文件更新。"), $email_data, true));
+					}
+
+					foreach($delegates as $delegate)
+					{
+						$this->email->to($this->user_model->get_user($delegate, 'email'));
+						$this->email->send();
+					}
+				}
 			}
 			
 			redirect('document/manage');
