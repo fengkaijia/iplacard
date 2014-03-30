@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}document` (
   `description` text COMMENT '文件介绍',
   `file` int(11) DEFAULT NULL COMMENT '文件版本ID',
   `user` int(11) NOT NULL COMMENT '上传用户',
-  `time` int(11) DEFAULT NULL COMMENT '上传时间',
+  `create_time` int(11) DEFAULT NULL COMMENT '上传时间',
   `highlight` int(11) DEFAULT NULL COMMENT '是否置顶',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文件' AUTO_INCREMENT=1;
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}document_file` (
   `hash` text NOT NULL COMMENT '散列值',
   `drm` int(11) NOT NULL COMMENT '启用版权标识',
   `user` int(11) NOT NULL COMMENT '上传用户',
-  `time` int(11) NOT NULL COMMENT '上传时间',
+  `upload_time` int(11) NOT NULL COMMENT '上传时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文件版本' AUTO_INCREMENT=1;
 

@@ -86,5 +86,16 @@ function form_dropdown_select($name = '', $options = array(), $selected = array(
 	return $form;
 }
 
+
+function form_dropdown_multiselect($name = '', $options = array(), $selected = array(), $search = false, $highlighted = array(), $subtexts = array(), $htmltexts = array(), $class = 'selectpicker', $extra = '')
+{
+	if ( ! strpos($extra, 'multiple'))
+	{
+		$extra .= ' multiple="multiple"';
+	}
+	
+	return form_dropdown_select($name, $options, $selected, $search, $highlighted, $subtexts, $htmltexts, $class, $extra);
+}
+
 /* End of file IP_form_helper.php */
 /* Location: ./application/helpers/IP_form_helper.php */

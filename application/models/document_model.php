@@ -21,8 +21,8 @@ class Document_model extends CI_Model
 	function get_document($id, $part = '')
 	{
 		$this->db->where('document.id', intval($id));
-		$this->db->join('document_file', 'document.file = file.id');
-		$query = $this->db->get('document');
+		$this->db->join('document', 'document_file.id = document.file');
+		$query = $this->db->get('document_file');
 		
 		//如果无结果
 		if($query->num_rows() == 0)
@@ -138,7 +138,8 @@ class Document_model extends CI_Model
 			'title' => $title,
 			'description' => $description,
 			'highlight' => $highlight,
-			'time' => time()
+			'create_time' => time(),
+			'user' => $user
 		);
 		
 		//返回新文件ID
@@ -153,8 +154,7 @@ class Document_model extends CI_Model
 	function delete_document($id)
 	{
 		$this->db->where('id', $id);
-		$this->db->or_where('document', $id);
-		return $this->db->delete(array('document', 'document_access', 'document_file'));
+		return $this->db->delete('document');
 	}
 	
 	/**
@@ -183,13 +183,16 @@ class Document_model extends CI_Model
 	/**
 	 * 删除访问权限
 	 * @param int $document 文件ID
-	 * @param int|array $committees 一个或一组委员会ID或0
+	 * @param int|array $committees 一个或一组委员会ID或0，如为空全部删除
 	 * @return boolean 是否完成删除
 	 */
-	function delete_access($document, $committees)
+	function delete_access($document, $committees = '')
 	{
 		$this->db->where('document', $document);
-		$this->db->where('access', $committees);
+		
+		if(!empty($committees))
+			$this->db->where('access', $committees);
+		
 		return $this->db->delete('document_access');
 	}
 	
@@ -343,7 +346,7 @@ class Document_model extends CI_Model
 			'hash' => sha1_file($file_path),
 			'drm' => $drm,
 			'user' => $user,
-			'time' => time()
+			'upload_time' => time()
 		);
 		
 		//返回新文件版本ID
