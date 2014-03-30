@@ -106,6 +106,10 @@ class UI
 			array('全部席位列表', 'seat/manage', 'administrator', true),
 			array('添加席位', 'seat/edit', 'administrator', false),
 		),
+		'document' => array(
+			array('文件', 'document/manage', '', false),
+			array('添加文件', 'document/edit', 'administrator', false),
+		),
 		'invoice' => array(
 			array('帐单', 'row/invoice/unpaid', 'cashier', false),
 		),
