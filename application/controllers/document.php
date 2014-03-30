@@ -308,6 +308,13 @@ class Document extends CI_Controller
 			return;
 		}
 		
+		if(!$this->admin_model->capable('administrator') && $document['user'] != uid())
+		{
+			$this->ui->alert('需要管理员权限以删除文件。', 'warning', true);
+			redirect('document/manage');
+			return;
+		}
+		
 		$this->form_validation->set_rules('admin_password', '密码', 'trim|required|callback__check_admin_password[密码验证错误导致删除操作未执行，请重新尝试。]');
 		
 		if($this->form_validation->run() == true)
@@ -378,6 +385,14 @@ class Document extends CI_Controller
 		elseif($file['document'] != $id)
 		{
 			$this->ui->alert('参数错误。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
+		//权限检查
+		if(!$this->_check_document_access($id))
+		{
+			$this->ui->alert('无权下载此文件。', 'warning', true);
 			back_redirect();
 			return;
 		}
@@ -595,6 +610,39 @@ class Document extends CI_Controller
 	 */
 	function _check_upload_error($str)
 	{
+		return false;
+	}
+	
+	/**
+	 * 检查是否有权限访问文件
+	 */
+	function _check_document_access($document, $user = '')
+	{
+		if(empty($user))
+			$user = uid();
+		
+		//所有管理员有权访问
+		if($this->user_model->is_admin($user))
+			return true;
+		
+		$access = $this->document_model->get_documents_accessibility($document);
+		
+		//全局文件所有人有权访问
+		if($access === true)
+			return true;
+		
+		//指定委员会代表有权访问
+		$this->load->model('seat_model');
+		
+		$seats = $this->seat_model->get_seat_ids('committee', $access, 'status', array('assigned', 'approved', 'locked'));
+		if(!$seats)
+			return false;
+		
+		$delegates = $this->seat_model->get_delegates_by_seats($seats);
+		if(in_array($user, $delegates))
+			return true;
+		
+		//其他情况无权访问
 		return false;
 	}
 	
