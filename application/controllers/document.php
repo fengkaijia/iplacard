@@ -499,9 +499,9 @@ class Document extends CI_Controller
 						$count_access = count($access);
 						
 						if($access === true)
-							$access_line = icon('files-o', false).'全局分发';
+							$access_line = '全局分发';
 						elseif($count_access == 1)
-							$access_line = icon('file-o', false).$this->committee_model->get_committee($access[0], 'abbr');
+							$access_line = $this->committee_model->get_committee($access[0], 'abbr');
 						else
 						{
 							$access_line = "$count_access 委员会";
@@ -533,9 +533,12 @@ class Document extends CI_Controller
 							{
 								$version_info = $this->document_model->get_file($one);
 								
-								$version_text = !empty($version_info['version']) ? $version_info['version'] : '';
-								$version_text .= sprintf('<span class="text-muted"> / %s</span> ', date('n月j日', $version_info['upload_time']));
-								if($one == $document['file'])
+								if(empty($version_info['version']))
+									$version_text = sprintf('<span class="text-muted">%s</span> ', date('n月j日', $version_info['upload_time']));
+								else
+									$version_text = $version_info['version'].sprintf('<span class="text-muted"> / %s</span> ', date('n月j日', $version_info['upload_time']));
+								
+								if($document['file'] == $one)
 									$version_text .= '<span class="label label-primary">最新</span>';
 								
 								$version_list .= '<p>'.icon('file').$version_text.'</p>';
@@ -544,7 +547,7 @@ class Document extends CI_Controller
 							$version_line .= '<a href="#" class="version_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'历史版本\' data-toggle="popover" data-content=\''.$version_list.'\'>'.icon('info-circle', false).'</a>';
 						}
 						else
-							$version_line = '<span class="text-primary">原始版本</span>';
+							$version_line = '原始版本';
 						
 						//下载量
 						$downloads = $this->document_model->get_download_ids('file', $version);
