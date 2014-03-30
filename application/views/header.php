@@ -23,6 +23,31 @@
 	<![endif]-->
 	
 	<!--[if lt IE 10]><meta name="css3-support" content="no-css3"><![endif]-->
+	
+	<?php
+	$background = option('ui_background_image', false);
+	if($background && ($this->ui->show_background || option('ui_background_global_enabled', false))) { ?><style type="text/css">
+		#wrap {
+			display: block;
+			position: relative;
+		}
+
+		#wrap::after {
+			content: '';
+			background: #fff url('<?php echo base_url('public/'.IP_INSTANCE_ID.'/img/'.$background);?>') no-repeat center center fixed;
+			-webkit-background-size: cover;
+			   -moz-background-size: cover;
+				 -o-background-size: cover;
+					background-size: cover;
+			<?php if(!$this->ui->show_background) { ?>opacity: 0.3;<?php } ?>
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			position: absolute;
+			z-index: -1;
+		}
+	</style><?php } ?>
 
 	<link href="<?php echo static_url('static/img/favicon.ico');?>" rel="shortcut icon" />
 

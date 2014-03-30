@@ -66,6 +66,11 @@ class UI
 	var $show_sidebar = false;
 	
 	/**
+	 * @var boolean 是否显示全亮度背景
+	 */
+	var $show_background = false;
+	
+	/**
 	 * @var array 边栏
 	 */
 	var $sidebar = array();
@@ -273,22 +278,7 @@ class UI
 	 */
 	function background()
 	{
-		$background = option('ui_background_image', false);
-		
-		if(!$background)
-			return;
-		
-		$url = base_url('public/'.IP_INSTANCE_ID.'/img/'.$background);
-		$this->html('header', "<style type=\"text/css\">
-			body {
-				height: 100%;
-				background: #fff url('{$url}') no-repeat center center fixed;
-				-webkit-background-size: cover;
-				   -moz-background-size: cover;
-					 -o-background-size: cover;
-						background-size: cover;
-			}
-		</style>");
+		$this->show_background = true;
 	}
 	
 	/**
