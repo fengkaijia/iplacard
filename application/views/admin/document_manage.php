@@ -45,6 +45,7 @@ $(document).ready(function() {
 			{$hide_column}
 			$('.committee_list').popover();
 			$('.version_list').popover();
+			$('.document_info').tooltip();
 		}
 	} );
 } );

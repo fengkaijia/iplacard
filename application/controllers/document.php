@@ -488,9 +488,10 @@ class Document extends CI_Controller
 						$operation .= ' '.anchor("document/edit/$id", icon('edit', false).'编辑');
 					
 					//文件名称
-					$title_line = mime($document['filetype']).$document['title'];
+					$this->load->helper('file');
+					$title_line = sprintf('<span class="document_info" data-original-title="%1$s（%2$s）文件" data-toggle="tooltip">%3$s</span>', strtoupper($document['filetype']), get_mime_by_extension('.'.$document['filetype']), mime($document['filetype'])).$document['title'];
 					if($document['highlight'])
-						$title_line .= '<span class="text-primary">'.icon('star', false).'</span>';
+						$title_line .= '<span class="text-primary document_info" data-original-title="重要文件" data-toggle="tooltip">'.icon('star', false).'</span>';
 					
 					//分发范围
 					$access = $this->document_model->get_documents_accessibility($id);
