@@ -347,6 +347,68 @@ class Document extends CI_Controller
 			redirect("document/edit/{$id}");
 		}
 	}
+	
+	/**
+	 * 下载文件
+	 */
+	function download($id, $version = 0)
+	{
+		$this->load->helper('file');
+		$this->load->helper('download');
+		
+		$document = $this->document_model->get_document($id);
+		if(!$document)
+		{
+			$this->ui->alert('请求下载的文件不存在。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
+		//许可检查
+		if($version == 0)
+			$version = $document['file'];
+		
+		$file = $this->document_model->get_file($version);
+		if(!$file)
+		{
+			$this->ui->alert('请求下载的文件不存在。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		elseif($file['document'] != $id)
+		{
+			$this->ui->alert('参数错误。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
+		//读取文件内容
+		$path = './data/'.IP_INSTANCE_ID.'/document/';
+		
+		$data = read_file("{$path}{$file['id']}.{$file['filetype']}");
+		
+		if(empty($data) || sha1($data) != $file['hash'])
+		{
+			$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
+		//版权标识
+		list($data, $drm) = $this->_drm($data, $file['filetype']);
+		
+		$this->document_model->add_download($file['id'], uid(), $drm);
+		
+		//文件名
+		$organization = option('organization', 'iPlacard');
+		if(!empty($file['version']))
+			$filename = "{$organization}-{$document['title']}-{$file['version']}.{$file['filetype']}";
+		else
+			$filename = "{$organization}-{$document['title']}-{$file['id']}.{$file['filetype']}";
+		
+		//弹出下载
+		force_download($filename, $data);
+	}
 
 	/**
 	 * AJAX
@@ -500,6 +562,17 @@ class Document extends CI_Controller
 		}
 		
 		echo json_encode($json);
+	}
+	
+	/**
+	 * 增加版权标识
+	 * @param type $data 文件数据
+	 * @param type $type 文件类型
+	 * @todo 支持版权标识
+	 */
+	function _drm($data, $type)
+	{
+		return array($data, NULL);
 	}
 	
 	/**
