@@ -7,6 +7,11 @@
  */
 class Document extends CI_Controller
 {
+	/**
+	 * @var string 文件路径
+	 */
+	private $path = '';
+	
 	function __construct()
 	{
 		parent::__construct();
@@ -31,6 +36,9 @@ class Document extends CI_Controller
 			redirect('');
 			return;
 		}
+		
+		//文件路径
+		$this->path = './data/'.IP_INSTANCE_ID.'/document/';
 		
 		$this->ui->now('document');
 	}
@@ -228,12 +236,10 @@ class Document extends CI_Controller
 				
 				$this->document_model->edit_document(array('file' => $file_id), $id);
 				
-				$path = './data/'.IP_INSTANCE_ID.'/document/';
+				if(!file_exists($this->path))
+					mkdir($this->path, DIR_WRITE_MODE, true);
 				
-				if(!file_exists($path))
-					mkdir($path, DIR_WRITE_MODE, true);
-				
-				rename($upload_result['full_path'], $path.$file_id.$upload_result['file_ext']);
+				rename($upload_result['full_path'], $this->path.$file_id.$upload_result['file_ext']);
 				
 				$this->ui->alert("已经上传文件版本 #{$file_id}。", 'success', true);
 
@@ -325,14 +331,12 @@ class Document extends CI_Controller
 			$files = $this->document_model->get_document_files($id);
 			if($files)
 			{
-				$path = './data/'.IP_INSTANCE_ID.'/document/';
-				
 				//删除文件版本
 				foreach($files as $file_id)
 				{
 					$file = $this->document_model->get_file($file_id);
 					
-					unlink("{$path}{$file_id}.{$file['filetype']}");
+					unlink("{$this->path}{$file_id}.{$file['filetype']}");
 					
 					$this->document_model->delete_file($file_id);
 				}
@@ -398,9 +402,7 @@ class Document extends CI_Controller
 		}
 		
 		//读取文件内容
-		$path = './data/'.IP_INSTANCE_ID.'/document/';
-		
-		$data = read_file("{$path}{$file['id']}.{$file['filetype']}");
+		$data = read_file("{$this->path}{$file['id']}.{$file['filetype']}");
 		
 		if(empty($data) || sha1($data) != $file['hash'])
 		{
