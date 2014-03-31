@@ -276,7 +276,7 @@ $this->load->view('header');?>
 					<tbody>
 						<tr>
 							<td>状态</td>
-							<td><?php echo $interview['status_text'];?></td>
+							<td class="text-<?php echo $interview['status_class'];?>"><?php echo $interview['status_text'];?></td>
 						</tr>
 						<tr>
 							<td>指派面试官</td>

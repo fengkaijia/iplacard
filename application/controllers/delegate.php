@@ -146,7 +146,9 @@ class Delegate extends CI_Controller
 			foreach($iids as $interview_id)
 			{
 				$interview = $this->interview_model->get_interview($interview_id);
+				
 				$interview['status_text'] = $this->interview_model->status_text($interview['status']);
+				
 				$interview['interviewer'] = $this->admin_model->get_admin($interview['interviewer']);
 				if(!empty($interview['interviewer']['committee']))
 				{
@@ -154,6 +156,23 @@ class Delegate extends CI_Controller
 					
 					$interview['interviewer']['committee'] = $this->committee_model->get_committee($interview['interviewer']['committee']);
 				}
+				
+				switch($interview['status'])
+				{
+					case 'completed':
+					case 'exempted':
+						$status_class = 'success';
+						break;
+					case 'failed':
+						$status_class = 'danger';
+						break;
+					case 'cancelled':
+						$status_class = 'muted';
+						break;
+					default:
+						$status_class = 'primary';
+				}
+				$interview['status_class'] = $status_class;
 				
 				$interviews[$interview['id']] = $interview;
 			}
