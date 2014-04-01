@@ -2,7 +2,7 @@
 
 <?php if($welcome) { ?><div id="welcome" class="jumbotron">
 	<h1 style="font-size: 56px;">欢迎使用 iPlacard</h1>
-	<p>全新的下一代模拟联合国会议管理系统已经为您准备完成，立即开始使用。</p>
+	<p>全新的下一代模拟联合国会议管理系统已经为您准备就绪，立即开始使用。</p>
 	<div class="form-inline">
 		<div class="form-group">
 			<a class="btn btn-primary btn-lg" onclick="dismiss_welcome();">开始使用</a>
