@@ -202,7 +202,7 @@ class User extends CI_Controller
 			$new_user = $this->admin_model->get_admin($uid);
 			
 			//发送新密码
-			if($post['sendmail'] && !empty($post['password']))
+			if($action == 'add' || ($post['sendmail'] && !empty($post['password'])))
 			{
 				$this->load->library('email');
 				$this->load->library('parser');
