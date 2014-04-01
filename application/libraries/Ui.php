@@ -115,9 +115,6 @@ class UI
 			array('文件', 'document/manage', '', false),
 			array('添加文件', 'document/edit', 'administrator', false),
 		),
-		'invoice' => array(
-			array('帐单', 'row/invoice/unpaid', 'cashier', false),
-		),
 		'group' => array(
 			array('团队', 'group/manage', 'administrator', false),
 			array('添加团队', 'group/edit', 'administrator', false),
@@ -125,9 +122,7 @@ class UI
 		'site' => array(
 			array('管理', 'admin/dashboard', 'administrator', true),
 			array('用户', 'user/manage', 'bureaucrat', false),
-			array('添加用户', 'user/edit', 'bureaucrat', true),
-			array('群发信息', 'admin/broadcast', 'administrator', false),
-			array('导出', 'admin/export', 'administrator', false),
+			array('添加用户', 'user/edit', 'bureaucrat', false),
 		),
 	);
 	
