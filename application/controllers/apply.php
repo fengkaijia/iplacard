@@ -54,7 +54,7 @@ class Apply extends CI_Controller
 	function status()
 	{
 		//欢迎界面
-		if(!user_option('ui_admin_dismiss_welcome', false))
+		if(!user_option('ui_dismiss_welcome', false))
 			$vars['welcome'] = true;
 		else
 			$vars['welcome'] = false;
@@ -248,7 +248,7 @@ class Apply extends CI_Controller
 		
 		if($action == 'dismiss_welcome')
 		{
-			if($this->user_model->is_admin(uid()))
+			if($this->user_model->is_delegate($this->uid))
 			{
 				$this->user_model->edit_user_option('ui_dismiss_welcome', true);
 				
