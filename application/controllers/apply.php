@@ -49,6 +49,24 @@ class Apply extends CI_Controller
 	}
 	
 	/**
+	 * 申请首页
+	 */
+	function status()
+	{
+		//欢迎界面
+		if(!user_option('ui_admin_dismiss_welcome', false))
+			$vars['welcome'] = true;
+		else
+			$vars['welcome'] = false;
+		
+		$vars['delegate'] = $this->delegate;
+		
+		$this->ui->now('status');
+		$this->ui->title('申请');
+		$this->load->view('delegate/status', $vars);
+	}
+	
+	/**
 	 * 个人信息
 	 */
 	function profile()
@@ -222,6 +240,30 @@ class Apply extends CI_Controller
 		$this->ui->now('interview');
 		$this->ui->title('面试');
 		$this->load->view('delegate/interview', $vars);
+	}
+	
+	/**
+	 * AJAX
+	 */
+	function ajax($action = '')
+	{
+		$json = array();
+		
+		if($action == 'dismiss_welcome')
+		{
+			if($this->user_model->is_admin(uid()))
+			{
+				$this->user_model->edit_user_option('ui_dismiss_welcome', true);
+				
+				$json['result'] = true;
+			}
+			else
+			{
+				$json['result'] = false;
+			}
+		}
+		
+		echo json_encode($json);
 	}
 }
 
