@@ -76,6 +76,93 @@ class Apply extends CI_Controller
 	}
 	
 	/**
+	 * 代表团信息
+	 */
+	function group()
+	{
+		$this->load->model('group_model');
+		$this->load->model('committee_model');
+		$this->load->model('seat_model');
+		
+		if(empty($this->delegate['group']))
+		{
+			$this->ui->alert('当前您不是任何代表团成员，请与管理员联系。', 'warning', true);
+			back_redirect();
+			return;
+		}
+		
+		$group = $this->group_model->get_group($this->delegate['group']);
+		if(!$group)
+		{
+			$this->ui->alert('代表团不存在或已经解散。', 'warning', true);
+			back_redirect();
+			return;
+		}
+		
+		$vars['group'] = $group;
+		
+		//是否为领队
+		$head_delegate = false;
+		if($group['head_delegate'] == $this->uid)
+			$head_delegate = true;
+		
+		$vars['head_delegate'] = $head_delegate;
+		
+		$delegates = array();
+		$ids = $this->delegate_model->get_group_delegates($group['id']);
+		foreach($ids as $id)
+		{
+			$group_delegate = $this->delegate_model->get_delegate($id);
+			
+			$group_delegate['application_type_text'] = $this->delegate_model->application_type_text($group_delegate['application_type']);
+			$group_delegate['status_text'] = $this->delegate_model->status_text($group_delegate['status']);
+			switch($this->delegate_model->status_code($group_delegate['status']))
+			{
+				case 9:
+					$group_delegate['status_class'] = 'success';
+					break;
+				case 10:
+					$group_delegate['status_class'] = 'warning';
+					break;
+				default:
+					$group_delegate['status_class'] = 'primary';
+			}
+			
+			//如果是领队载入详细资料
+			if($id == $group['head_delegate'])
+			{
+				$pids = $this->delegate_model->get_profile_ids('delegate', $id);
+				if($pids)
+				{
+					foreach($pids as $pid)
+					{
+						$one = $this->delegate_model->get_profile($pid);
+						$group_delegate[$one['name']] = $one['value'];
+					}
+				}
+			}
+			
+			//席位信息
+			$sid = $this->seat_model->get_seat_id('delegate', $id);
+			if($sid)
+			{
+				$group_delegate['seat'] = $this->seat_model->get_seat($sid);
+				$group_delegate['committee'] = $this->committee_model->get_committee($group_delegate['seat']['committee']);
+			}
+			
+			$delegates[$id] = $group_delegate;
+		}
+		
+		$vars['delegates'] = $delegates;
+		
+		$vars['delegate'] = $this->delegate;
+		
+		$this->ui->now('group');
+		$this->ui->title('代表团');
+		$this->load->view('delegate/group', $vars);
+	}
+	
+	/**
 	 * 面试信息
 	 */
 	function interview()
