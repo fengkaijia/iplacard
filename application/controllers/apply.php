@@ -43,6 +43,9 @@ class Apply extends CI_Controller
 		//当前代表信息
 		$this->uid = uid();
 		$this->delegate = $this->delegate_model->get_delegate($this->uid);
+		$this->delegate['application_type_text'] = $this->delegate_model->application_type_text($this->delegate['application_type']);
+		$this->delegate['status_text'] = $this->delegate_model->status_text($this->delegate['status']);
+		$this->delegate['status_code'] = $this->delegate_model->status_code($this->delegate['status']);
 	}
 	
 	/**
@@ -53,9 +56,6 @@ class Apply extends CI_Controller
 		$this->load->model('committee_model');
 		
 		$profile = $this->delegate_model->get_delegate($this->uid);
-		$profile['application_type_text'] = $this->delegate_model->application_type_text($profile['application_type']);
-		$profile['status_text'] = $this->delegate_model->status_text($profile['status']);
-		$profile['status_code'] = $this->delegate_model->status_code($profile['status']);
 		
 		$pids = $this->delegate_model->get_profile_ids('delegate', $this->uid);
 		if($pids)
