@@ -71,9 +71,7 @@ class Apply extends CI_Controller
 	 */
 	function profile()
 	{
-		$this->load->model('committee_model');
-		
-		$profile = $this->delegate_model->get_delegate($this->uid);
+		$delegate = $this->delegate;
 		
 		$pids = $this->delegate_model->get_profile_ids('delegate', $this->uid);
 		if($pids)
@@ -81,12 +79,11 @@ class Apply extends CI_Controller
 			foreach($pids as $pid)
 			{
 				$one = $this->delegate_model->get_profile($pid);
-				$profile[$one['name']] = $one['value'];
+				$delegate[$one['name']] = $one['value'];
 			}
 		}
 		
-		$vars['profile'] = $profile;
-		$vars['delegate'] = $this->delegate;
+		$vars['delegate'] = $delegate;
 		
 		$this->ui->now('profile');
 		$this->ui->title('个人信息');
