@@ -140,7 +140,7 @@ class Sms extends Sms_model
 		$data = array(
 			'access_key' => IP_INSTANCE_API_ACCESS_KEY,
 			'secret_key' => IP_INSTANCE_API_SECRET_KEY,
-			'message' => $sms['message']."[{$this->identity}]",
+			'message' => $sms['message']."【{$this->identity}】",
 			'receiver' => $sms['phone']
 		);
 		//不加入API队列直接发送
