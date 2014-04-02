@@ -43,30 +43,90 @@ body {
 }
 
 .nav-sidebar {
-  margin-right: -21px;
-  margin-bottom: 20px;
-  margin-left: -20px;
+	margin-right: -21px;
+	margin-bottom: 20px;
+	margin-left: -20px;
 }
 .nav-sidebar > li > a {
-  padding-right: 20px;
-  padding-left: 20px;
+	padding-right: 20px;
+	padding-left: 20px;
 }
 .nav-sidebar > .active > a {
-  color: #fff;
-  background-color: #007fff;
+	color: #fff;
+	background-color: #007fff;
 }
 
 .main {
-  padding: 20px;
+	padding: 20px;
 }
 @media (min-width: 768px) {
-  .main {
-    padding-right: 40px;
-    padding-left: 40px;
-  }
+	.main {
+		padding-right: 40px;
+		padding-left: 40px;
+	}
 }
 .main .page-header {
-  margin-top: 0;
+	margin-top: 0;
+}
+
+/* 进程 */
+.wizard {
+	display: none;
+}
+@media (min-width: 1200px) {
+	.wizard {
+		display: block;
+	}
+	.wizard a {
+		padding: 15px 15px 15px 20px;
+		margin-right: 5px;
+		background: #e6e6e6;
+		position: relative;
+		display: inline-block;
+		text-decoration: none;
+	}
+	.wizard a:before {
+		width: 0;
+		height: 0;
+		border-top: 25px inset transparent;
+		border-bottom: 25px inset transparent;
+		border-left: 25px solid #ffffff;
+		position: absolute;
+		content: "";
+		top: 0;
+		left: 0;
+	}
+	.wizard a:after {
+		width: 0;
+		height: 0;
+		border-top: 25px inset transparent;
+		border-bottom: 25px inset transparent;
+		border-left: 25px solid #e6e6e6;
+		position: absolute;
+		content: "";
+		top: 0;
+		right: -25px;
+		z-index: 2;
+	}
+	.wizard a:first-child:before,
+	.wizard a:last-child:after {
+		border: none;
+	}
+	.wizard .label {
+		margin: 0 5px 0 20px;
+		position: relative;
+		top: -1px;
+	}
+	.wizard a:first-child .label {
+		margin-left: 0;
+	}
+	.wizard .current {
+		background: #007fff;
+		color: #ffffff;
+	}
+	.wizard .current:after {
+		border-left-color: #007fff;
+	}
 }
 
 /* 载入 */

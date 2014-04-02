@@ -414,30 +414,24 @@ class UI
 	private function _set_delegate_panel($id)
 	{
 		$this->CI->load->model('delegate_model');
+		$this->CI->load->model('seat_model');
 		$this->CI->load->model('interview_model');
-		$this->CI->load->model('invoice_model');
 		if($this->CI->delegate_model->get_delegate($id, 'group'))
 		{
 			$this->delegate_panel['group'] = array(
 				array('团队', 'apply/group')
 			);
 		}
-		if($this->CI->delegate_model->get_delegate($id, 'seat'))
+		if($this->CI->seat_model->get_delegate_selectability($id))
 		{
 			$this->delegate_panel['seat'] = array(
-				array('席位', 'seat/placard')
+				array('席位', 'apply/seat')
 			);
 		}
 		if($this->CI->interview_model->get_interview_ids('delegate', $id) != false)
 		{
 			$this->delegate_panel['interview'] = array(
 				array('面试', 'apply/interview')
-			);
-		}
-		if($this->CI->invoice_model->get_invoice_ids('delegate', $id) != false)
-		{
-			$this->delegate_panel['invoice'] = array(
-				array('帐单', 'apply/invoice')
 			);
 		}
 	}

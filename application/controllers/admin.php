@@ -60,7 +60,7 @@ class Admin extends CI_Controller
 		$vars['admin'] = $admin;
 		
 		//欢迎界面
-		if(!user_option('ui_admin_dismiss_welcome', false))
+		if(!user_option('ui_dismiss_welcome', false))
 			$vars['welcome'] = true;
 		else
 			$vars['welcome'] = false;
@@ -220,7 +220,7 @@ class Admin extends CI_Controller
 		{
 			if($this->user_model->is_admin(uid()))
 			{
-				$this->user_model->edit_user_option('ui_admin_dismiss_welcome', true);
+				$this->user_model->edit_user_option('ui_dismiss_welcome', true);
 				
 				$json['result'] = true;
 			}
