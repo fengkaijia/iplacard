@@ -1233,7 +1233,9 @@ class Delegate extends CI_Controller
 					$delegate = $this->delegate_model->get_delegate($id);
 
 					//操作
-					$operation = anchor("delegate/profile/$id", icon('info-circle', false).'信息').' '.anchor("ticket/manage/?delegate=$id", icon('comments', false).'工单');
+					$operation = anchor("delegate/profile/$id", icon('info-circle', false).'信息');
+					if($this->admin_model->capable('administrator'))
+						$operation .= ' '.anchor("account/sudo/$id", icon('user-md', false).'SUDO');
 					
 					//姓名
 					$hd_text = '';
