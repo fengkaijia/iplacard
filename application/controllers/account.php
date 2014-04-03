@@ -550,6 +550,56 @@ class Account extends CI_Controller
 	}
 	
 	/**
+	 * 启用SUDO模式
+	 */
+	function sudo($id = '')
+	{
+		$this->load->model('admin_model');
+		
+		if(!$this->user_model->is_admin(uid(true)) && !$this->admin_model->capable('administrator', uid(true)))
+		{
+			$this->ui->alert('权限不足。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
+		//退出SUDO模式
+		if(is_sudo())
+		{
+			$sudoer = uid(true);
+			
+			$this->session->unset_userdata(array(
+				'sudoer' => ''
+			));
+			
+			$this->ui->alert('已经退出 SUDO 模式。', 'success', true);
+			
+			$this->_do_logout('sudo_operation', true, false);
+			$this->_do_login($sudoer, true, false);
+			redirect('');
+			return;
+		}
+		
+		//进入SUDO模式
+		if(!$this->user_model->is_delegate($id))
+		{
+			$this->ui->alert('对象实体不满足 SUDO 条件。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
+		$sudoer = uid();
+		$this->session->set_userdata(array(
+			'sudoer' => $sudoer
+		));
+		
+		$this->ui->alert(sprintf('已经启用 SUDO 模式，当前以%s代表视角登录 iPlacard。', $this->user_model->get_user($id, 'name')), 'success', true);
+		
+		$this->_do_logout('sudo_operation', true, true);
+		$this->_do_login($id, $sudoer, true);
+	}
+	
+	/**
 	 * 邮箱更改验证
 	 */
 	function email($action, $uid, $key)
@@ -1553,8 +1603,10 @@ class Account extends CI_Controller
 	/**
 	 * 执行登录操作
 	 * @param int $id 用户ID
+	 * @param int $sudo SUDO管理员ID
+	 * @param boolean $sudo_in 是否启动SUDO
 	 */
-	function _do_login($id)
+	function _do_login($id, $sudo = false, $sudo_in = false)
 	{
 		//如果成功登录则重定向
 		$redirect = $this->session->flashdata('redirect');
@@ -1568,7 +1620,7 @@ class Account extends CI_Controller
 		//设置Session数据
 		$this->session->set_userdata(array(
 			'uid' => intval($user['id']),
-			'sudo' => false,
+			'sudo' => $sudo_in ? true : false,
 			'name' => $user['name'],
 			'email' => $user['email'],
 			'type' => $user['type'],
@@ -1579,17 +1631,27 @@ class Account extends CI_Controller
 		$system_sess_id = $this->system_model->get_session_id($session_id);
 
 		//写入日志
-		$is_mobile = $this->agent->is_mobile();
-		$this->system_model->log('logged_in', array(
-			'ip' => $this->input->ip_address(),
-			'session' => $system_sess_id,
-			'type' => ($is_mobile) ? 'mobile' : 'desktop',
-			'browser' => ($is_mobile) ? $this->agent->mobile() : $this->agent->browser(),
-			'ua' => $this->agent->agent_string()
-		), $id);
+		if(!$sudo)
+		{
+			$is_mobile = $this->agent->is_mobile();
+			$this->system_model->log('logged_in', array(
+				'ip' => $this->input->ip_address(),
+				'session' => $system_sess_id,
+				'type' => ($is_mobile) ? 'mobile' : 'desktop',
+				'browser' => ($is_mobile) ? $this->agent->mobile() : $this->agent->browser(),
+				'ua' => $this->agent->agent_string()
+			), $id);
+		}
+		elseif($sudo_in)
+		{
+			$this->system_model->log('sudoed_in', array(
+				'session' => $system_sess_id,
+				'delegate' => $id
+			), $sudo);
+		}
 
 		//发送登录通知
-		if(user_option('account_notice_login_enabled', false))
+		if(!$sudo && user_option('account_notice_login_enabled', false))
 		{
 			//生成链接
 			$halt = (string) $system_sess_id.(string) rand(1000, 9999);
@@ -1622,7 +1684,7 @@ class Account extends CI_Controller
 		if($this->user_model->is_admin($id))
 		{
 			//页面跳转
-			if(!empty($redirect))
+			if(!$sudo && !empty($redirect))
 			{
 				redirect(urldecode($redirect));
 				return;
@@ -1649,7 +1711,7 @@ class Account extends CI_Controller
 			$this->ui->alert(sprintf('您有<a href="%s" class="alert-link">附加信息</a>需要补充。', base_url('apply/profile')), 'info', true);
 		}
 
-		if(!empty($redirect))
+		if(!$sudo && !empty($redirect))
 		{
 			redirect(urldecode($redirect));
 			return;
@@ -1661,8 +1723,10 @@ class Account extends CI_Controller
 	/**
 	 * 执行登出操作
 	 * @param string $operation 登出原因
+	 * @param int $sudo SUDO管理员ID
+	 * @param boolean $sudo_in 是否启动SUDO
 	 */
-	function _do_logout($operation = 'user_operation')
+	function _do_logout($operation = 'user_operation', $sudo = false, $sudo_in = true)
 	{
 		$uid = uid();
 		
@@ -1679,7 +1743,10 @@ class Account extends CI_Controller
 		));
 		
 		//写入日志
-		$this->system_model->log('logged_out', array('ip' => $this->input->ip_address(), 'operation' => $operation), $uid);
+		if($sudo && !$sudo_in)
+			$this->system_model->log('sudoed_out', array('delegate' => $uid), $sudo);
+		elseif(!$sudo)
+			$this->system_model->log('logged_out', array('ip' => $this->input->ip_address(), 'operation' => $operation), $uid);
 	}
 	
 	/**
