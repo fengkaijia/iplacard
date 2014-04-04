@@ -1621,7 +1621,22 @@ class Delegate extends CI_Controller
 	 */
 	function _sidebar_administration($delegate)
 	{
-		return '';
+		$return = '<h3 id="administration_operation">管理</h3>';
+		
+		$vars = array(
+			'uid' => $delegate['id'],
+			'delegate' => $delegate
+		);
+		
+		//SUDO
+		if($this->admin_model->capable('administrator'))
+		{
+			$return .= $this->load->view('admin/admission/sudo', $vars, true);
+		}
+		
+		if($return == '<h3 id="administration_operation">管理</h3>')
+			return '';
+		return $return.'<hr />';
 	}
 	
 	/**
