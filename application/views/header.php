@@ -97,7 +97,7 @@
 							<?php if($this->session->userdata('logged_in') && $this->session->userdata('type') == 'delegate' && option('tos')) { ?><li><a href="<?php echo base_url('apply/tos');?>">服务条款</a></li><?php } ?>
 							<li><a href="<?php echo base_url('help/knowledgebase');?>">知识库</a></li>
 							<li class="divider"></li>
-							<li><a href="<?php echo base_url('account/logout');?>">登出</a></li>
+							<li><?php if(is_sudo()) { ?><a href="<?php echo base_url('account/sudo');?>">退出 SUDO</a><?php } else { ?><a href="<?php echo base_url('account/logout');?>">登出</a><?php } ?></li>
 						</ul><?php } else { ?>
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">登录 <b class="caret"></b></a>
 						<ul class="dropdown-menu">
