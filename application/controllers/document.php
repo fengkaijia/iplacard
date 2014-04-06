@@ -424,6 +424,7 @@ class Document extends CI_Controller
 			$filename = "{$organization}-{$document['title']}-{$file['id']}.{$file['filetype']}";
 		
 		//弹出下载
+		$this->output->set_content_type($file['filetype']);
 		force_download($filename, $data);
 	}
 
