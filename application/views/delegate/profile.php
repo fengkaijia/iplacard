@@ -91,7 +91,7 @@
 		<h3>编辑信息</h3>
 		<p>由于会务变动需要，您提交的申请单中可能并没有包含全部的申请及会务信息。随着会议准备工作的进行，我们将会不断添加更多信息编辑请求。</p>
 		<?php
-		$editable = option('profile_list_general', array()) + option("profile_list_{$delegate['application_type']}", array());
+		$editable = option('profile_edit_general', array()) + option("profile_edit_{$delegate['application_type']}", array());
 		if(!empty($editable)) { ?>
 		<p>当前有 <strong><?php echo count($editable);?></strong> 项信息可编辑。</p>
 		<p><a class="btn btn-primary" href="<?php echo base_url('apply/edit');?>"><?php echo icon('edit');?>编辑信息</a></p>
