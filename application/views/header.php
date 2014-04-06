@@ -71,16 +71,31 @@
 			</div>
 			<div class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
-					<?php foreach($this->ui->panel() as $name => $column)
+					<?php foreach($this->ui->get_panel() as $name => $menu)
 					{
-						if(count($column) == 1) { ?><li <?php if(!empty($this->ui->now_page) && $this->ui->now_page == $name) { ?>class="active"<?php } ?>><?php echo anchor($column[0][1], $column[0][0]);?></li><?php }
-						else { ?><li class="dropdown<?php //TODO: 高亮当前?>">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $column[0][0];?></a>
+						if(empty($menu['sub']))
+						{
+							$class = !empty($this->ui->now_page) && $this->ui->now_page == $name ? ' class="active"' : '';
+							echo '<li'.$class.'>'.anchor($menu['url'], $menu['title']).'</li>';
+						}
+						else
+						{ ?><li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $menu['title'];?></a>
 						<ul class="dropdown-menu">
-							<?php foreach($column as $item) { ?><li><?php
-								echo anchor($item[1], $item[0]);
-								if($this->session->userdata('type') == 'admin' && $item[2] == true)
-								{ ?></li><li class="divider"><?php } ?></li><?php } ?>
+							<?php $divideable = true;
+							foreach($menu['sub'] as $item)
+							{
+								if($item['type'] == 'menu')
+								{
+									echo '<li>'.anchor($item['url'], $item['title']).'</li>';
+									$divideable = true;
+								}
+								elseif($item['type'] == 'divider' && $divideable && end($menu['sub']) !== $item)
+								{
+									echo '<li class="divider"></li>';
+									$divideable = false;
+								}
+							} ?>
 						</ul><?php }
 					} ?>
 				</ul>

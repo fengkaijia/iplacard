@@ -76,55 +76,9 @@ class UI
 	var $sidebar = array();
 	
 	/**
-	 * @var array 代表界面菜单
+	 * @var array 菜单
 	 */
-	var $delegate_panel = array(
-		'status' => array(
-			array('申请', 'apply/status'),
-		),
-		'profile' => array(
-			array('个人信息', 'apply/profile')
-		)
-	);
-	
-	/**
-	 * @var array 管理员界面菜单
-	 */
-	var $admin_panel = array(
-		'delegate' => array(
-			array('代表', 'delegate/manage?type=delegate', 'administrator', false),
-			array('观察员', 'delegate/manage?type=observer', 'administrator', false),
-			array('志愿者', 'delegate/manage?type=volunteer', 'administrator', false),
-			array('带队老师', 'delegate/manage?type=teacher', 'administrator', true),
-			array('退会代表', 'delegate/manage?status=quitted', 'administrator', false),
-		),
-		'interview' => array(
-			array('面试', 'interview/manage?interviewer=u', 'interviewer', false),
-			array('面试队列', 'interview/manage', 'administrator', false),
-		),
-		'committee' => array(
-			array('委员会', 'committee/manage', '', false),
-			array('添加委员会', 'committee/edit', 'administrator', false),
-		),
-		'seat' => array(
-			array('席位', 'seat/manage?committee=u', '', false),
-			array('全部席位列表', 'seat/manage', 'administrator', true),
-			array('添加席位', 'seat/edit', 'administrator', false),
-		),
-		'document' => array(
-			array('文件', 'document/manage', '', false),
-			array('添加文件', 'document/edit', 'administrator', false),
-		),
-		'group' => array(
-			array('团队', 'group/manage', 'administrator', false),
-			array('添加团队', 'group/edit', 'administrator', false),
-		),
-		'site' => array(
-			array('管理', 'admin/dashboard', 'administrator', true),
-			array('用户', 'user/manage', 'bureaucrat', false),
-			array('添加用户', 'user/edit', 'bureaucrat', false),
-		),
-	);
+	private $menu = array();
 	
 	function __construct($data = '')
 	{
@@ -146,6 +100,9 @@ class UI
 		$alert_flashdata = $this->CI->session->userdata('alert');
 		if(!empty($alert_flashdata))
 			$this->alert = $alert_flashdata;
+		
+		//处理菜单
+		$this->panel();
 	}
 	
 	/**
@@ -245,31 +202,113 @@ class UI
 	/**
 	 * 编译菜单
 	 */
-	function panel($uid = '')
+	function panel()
 	{
-		if(empty($uid))
-			$uid = uid();
-		
 		switch($this->side)
 		{
 			case 'delegate':
-				$this->_set_delegate_panel($uid);
-				return $this->_delegate_panel($uid);
+				$this->_delegate_panel();
+				break;
 			case 'admin':
-				return $this->_admin_panel($uid);
+				$this->_admin_panel();
+				break;
 			case 'account':
-				//未登录情况不显示附加菜单
 				if(!is_logged_in())
 					return array();
 				
-				if($this->CI->user_model->is_admin($uid))
-				{
-					$this->CI->load->model('admin_model');
-					return $this->_admin_panel($uid);
-				}
-				return $this->_delegate_panel($uid);	
+				if($this->CI->user_model->is_admin(uid()))
+					$this->_admin_panel();
+				else
+					$this->_delegate_panel();
 		}
-		return false;
+		
+		$link = option('ui_menu_additional_link', array());
+		if(!empty($link))
+		{
+			$link_number = 0;
+			foreach($link as $name => $url)
+			{
+				$this->add_menu("link_{$link_number}", $name, $url);
+				$link_number++;
+			}
+		}
+	}
+	
+	/**
+	 * 获取菜单信息
+	 */
+	function get_panel()
+	{
+		return $this->menu;
+	}
+	
+	/**
+	 * 添加母菜单
+	 */
+	function add_menu($id, $title, $url = '')
+	{
+		if(isset($this->menu[$id]))
+			return false;
+		
+		return $this->menu[$id] = array(
+			'title' => $title,
+			'url' => $url,
+			'sub' => array()
+		);
+	}
+	
+	/**
+	 * 移除菜单
+	 */
+	function remove_menu($id)
+	{
+		if(!isset($this->menu[$id]))
+			return false;
+		
+		unset($this->menu[$id]);
+	}
+	
+	/**
+	 * 添加子菜单
+	 */
+	function add_sub_menu($id, $parent, $title, $url = '', $divider = false)
+	{
+		if(!isset($this->menu[$parent]))
+			return false;
+		
+		$this->menu[$parent]['sub'][$id] = array(
+			'id' => $id,
+			'title' => $title,
+			'type' => 'menu',
+			'url' => $url
+		);
+		
+		if($divider)
+			$this->add_divider($parent);
+	}
+	
+	/**
+	 * 移除菜单
+	 */
+	function remove_sub_menu($id, $parent)
+	{
+		if(!isset($this->menu[$parent]['sub'][$id]))
+			return false;
+		
+		unset($this->panel[$parent]['sub'][$id]);
+	}
+	
+	/**
+	 * 增加分割符号
+	 */
+	function add_divider($parent)
+	{
+		$count = count($this->menu[$parent]['sub']);
+		
+		$this->menu[$parent]['sub'][$count] = array(
+			'id' => $count,
+			'type' => 'divider'
+		);
 	}
 	
 	/**
@@ -366,22 +405,111 @@ class UI
 	}
 	
 	/**
-	 * 编译管理员界面菜单
+	 * 增加管理员界面菜单
 	 */
-	private function _admin_panel($id)
+	private function _admin_panel()
 	{
-		$panel = array();
-		foreach($this->admin_panel as $name => $list)
+		$this->CI->load->model('admin_model');
+		
+		//代表
+		if($this->CI->admin_model->capable('administrator'))
 		{
-			foreach($list as $val)
-			{
-				if(empty($val[2]) || $this->CI->admin_model->capable($val[2], $id))
-				{
-					$panel[$name][] = array($val[0], $val[1], $val[3]);
-				}
-			}
+			$this->add_menu('delegate', '代表');
+			$this->add_sub_menu('delegate', 'delegate', '代表', 'delegate/manage?type=delegate');
+			$this->add_sub_menu('observer', 'delegate', '观察员', 'delegate/manage?type=observer');
+			$this->add_sub_menu('volunteer', 'delegate', '志愿者', 'delegate/manage?type=volunteer');
+			$this->add_sub_menu('teacher', 'delegate', '领队老师', 'delegate/manage?type=teacher', true);
 		}
-		return $panel;
+		
+		if($this->CI->admin_model->capable('dais'))
+		{
+			$this->add_menu('delegate', '代表');
+			$committee = $this->CI->admin_model->get_admin(uid(), 'committee');
+			if(!empty($committee))
+				$this->add_sub_menu('dais_delegate', 'delegate', '委员会代表', 'delegate/manage?committee='.$committee, true);
+		}
+		
+		if($this->CI->admin_model->capable('interviewer'))
+		{
+			$this->add_menu('delegate', '代表');
+			$this->add_sub_menu('interviewer_delegate', 'delegate', '面试代表', 'delegate/manage?interviewer='.uid(), true);
+		}
+		
+		if($this->CI->admin_model->capable('administrator'))
+		{
+			$this->add_sub_menu('quitted', 'delegate', '退会代表', 'delegate/manage?status=quitted');
+		}
+		
+		//面试
+		if($this->CI->admin_model->capable('administrator'))
+		{
+			$this->add_menu('interview', '面试');
+			$this->add_sub_menu('all', 'interview', '全部面试', 'interview/manage');
+			$this->add_sub_menu('pending', 'interview', '全部未完成面试', 'interview/manage?status=assigned,arranged', true);
+		}
+		
+		if($this->CI->admin_model->capable('interviewer'))
+		{
+			$this->add_menu('interview', '面试');
+			$this->add_sub_menu('my_all', 'interview', '面试队列', 'interview/manage?interviewer='.uid());
+			$this->add_sub_menu('my_pending', 'interview', '未完成面试', 'interview/manage?status=assigned,arranged&interviewer='.uid());
+			$this->add_sub_menu('my_finished', 'interview', '已完成面试', 'interview/manage?status=completed,failed,exempted&interviewer='.uid());
+		}
+		
+		//团队
+		if($this->CI->admin_model->capable('administrator'))
+		{
+			$this->add_menu('group', '团队');
+			$this->add_sub_menu('manage', 'group', '代表团', 'group/manage');
+			$this->add_sub_menu('add', 'group', '添加代表团', 'group/edit');
+		}
+		
+		//文件
+		$this->add_menu('document', '文件');
+		$this->add_sub_menu('manage', 'document', '文件', 'document/manage');
+		if($this->CI->admin_model->capable('dais'))
+		{
+			$committee = $this->CI->admin_model->get_admin(uid(), 'committee');
+			if(!empty($committee))
+				$this->add_sub_menu('my', 'document', '委员会文件', 'document/manage?committee='.$committee);
+		}
+		
+		if($this->CI->admin_model->capable('administrator') || $this->CI->admin_model->capable('dais'))
+		{
+			$this->add_sub_menu('add', 'document', '添加文件', 'document/edit');
+		}
+		
+		//委员会
+		$this->add_menu('committee', '委员会');
+		$this->add_sub_menu('manage', 'committee', '委员会', 'committee/manage');
+		if($this->CI->admin_model->capable('administrator'))
+		{
+			$this->add_sub_menu('add', 'committee', '添加委员会', 'committee/edit');
+		}
+		
+		//席位
+		$committee = $this->CI->admin_model->get_admin(uid(), 'committee');
+		if(!empty($committee))
+		{
+			$this->add_menu('seat', '席位');
+			$this->add_sub_menu('committee', 'seat', '委员会席位', 'document/manage?committee='.$committee, true);
+		}
+		
+		if($this->CI->admin_model->capable('administrator'))
+		{
+			$this->add_sub_menu('manage', 'seat', '全部席位', 'document/manage');
+			$this->add_sub_menu('add', 'seat', '添加席位', 'document/edit');
+		}
+		
+		//管理
+		$this->add_menu('manage', '管理');
+		$this->add_sub_menu('dashboard', 'manage', '控制板', 'admin/dashboard', true);
+		
+		if($this->CI->admin_model->capable('bureaucrat'))
+		{
+			$this->add_sub_menu('user_manage', 'manage', '用户', 'user/manage');
+			$this->add_sub_menu('user_add', 'manage', '添加用户', 'user/edit');
+		}
 	}
 	
 	/**
@@ -389,50 +517,44 @@ class UI
 	 */
 	private function _delegate_panel()
 	{
-		$panel = array();
-		foreach($this->delegate_panel as $name => $list)
-		{
-			foreach($list as $val)
-			{
-				$panel[$name][] = array($val[0], $val[1]);
-			}
-		}
-		$link = option('additional_menu_link', array());
-		if(!empty($link))
-		{
-			foreach($link as $name => $url)
-			{
-				$panel[$name][] = array($name, $url);
-			}
-		}
-		return $panel;
-	}
-	
-	/**
-	 * 根据特定情况设置代表界面菜单显示内容
-	 */
-	private function _set_delegate_panel($id)
-	{
 		$this->CI->load->model('delegate_model');
 		$this->CI->load->model('seat_model');
 		$this->CI->load->model('interview_model');
-		if($this->CI->delegate_model->get_delegate($id, 'group'))
+		
+		//SUDO模式提示
+		if(is_sudo())
 		{
-			$this->delegate_panel['group'] = array(
-				array('团队', 'apply/group')
-			);
+			$this->add_menu('sudo', 'SUDO');
+			$this->add_sub_menu('quit', 'sudo', '退出 SUDO', 'account/sudo');
 		}
-		if($this->CI->seat_model->get_delegate_selectability($id))
+		
+		//申请
+		$this->add_menu('status', '申请', 'apply/status');
+		
+		//个人资料
+		$this->add_menu('profile', '个人资料', 'apply/profile');
+		
+		$application = $this->CI->delegate_model->get_delegate(uid(), 'application_type');
+		$editable = option('profile_edit_general', array()) + option("profile_edit_{$application}", array());
+		if(!empty($editable))
+			$this->add_sub_menu('edit', 'profile', '编辑资料', 'apply/edit');
+		
+		//团队
+		if($this->CI->delegate_model->get_delegate(uid(), 'group'))
 		{
-			$this->delegate_panel['seat'] = array(
-				array('席位', 'apply/seat')
-			);
+			$this->add_menu('group', '团队', 'apply/group');
 		}
-		if($this->CI->interview_model->get_interview_ids('delegate', $id) != false)
+		
+		//席位
+		if($this->CI->seat_model->get_delegate_selectability(uid()))
 		{
-			$this->delegate_panel['interview'] = array(
-				array('面试', 'apply/interview')
-			);
+			$this->add_menu('seat', '席位', 'apply/seat');
+		}
+		
+		//面试
+		if($this->CI->interview_model->get_interview_ids('delegate', uid()) != false)
+		{
+			$this->add_menu('interview', '面试', 'apply/interview');
 		}
 	}
 }
