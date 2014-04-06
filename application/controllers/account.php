@@ -1705,12 +1705,6 @@ class Account extends CI_Controller
 		if($delegate['status'] == 'invoice_issued' && option('notice_check_status_invoice_issued', false))
 			$this->ui->alert(sprintf('您有<a href="%s" class="alert-link">帐单</a>需要支付，请在帐单到期之前完成支付。', base_url('apply/invoice')), 'info', true);
 
-		$addition = option('additional_information_all', array());
-		if(!empty($addition) && !$this->delegate_model->get_editable_profile_ids($delegate['id'], 'delegate'))
-		{
-			$this->ui->alert(sprintf('您有<a href="%s" class="alert-link">附加信息</a>需要补充。', base_url('apply/profile')), 'info', true);
-		}
-
 		if(!$sudo && !empty($redirect))
 		{
 			redirect(urldecode($redirect));
