@@ -79,7 +79,7 @@
 							echo '<li'.$class.'>'.anchor($menu['url'], $menu['title']).'</li>';
 						}
 						else
-						{ ?><li class="dropdown">
+						{ ?><li class="dropdown<?php if(!empty($this->ui->now_page) && $this->ui->now_page == $name) echo ' active';?>">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $menu['title'];?></a>
 						<ul class="dropdown-menu">
 							<?php $divideable = true;
