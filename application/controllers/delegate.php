@@ -564,7 +564,7 @@ class Delegate extends CI_Controller
 
 					$this->sms->to($uid);
 					$this->sms->message('您的参会申请已经通过审核，请登录 iPlacard 系统查看申请状态。');
-					$this->sms->send();
+					$this->sms->queue();
 				}
 				
 				$this->ui->alert('参会申请已经通过。', 'success', true);
@@ -634,7 +634,7 @@ class Delegate extends CI_Controller
 
 					$this->sms->to($uid);
 					$this->sms->message('您的参会申请未能通过审核，如有疑问请与我们联系，感谢您的参与。');
-					$this->sms->send();
+					$this->sms->queue();
 				}
 				
 				$this->ui->alert('参会申请已经拒绝。', 'success', true);
@@ -716,7 +716,7 @@ class Delegate extends CI_Controller
 
 					$this->sms->to($uid);
 					$this->sms->message('我们已经为您分配了面试官，他将会在近期内与您取得联系，请登录 iPlacard 系统查看申请状态。');
-					$this->sms->send();
+					$this->sms->queue();
 				}
 				
 				$this->ui->alert("已经指派{$interviewer['name']}面试此代表。", 'success', true);
@@ -784,7 +784,7 @@ class Delegate extends CI_Controller
 
 					$this->sms->to($uid);
 					$this->sms->message('您的参会申请符合免试分配条件，将有面试官直接为您分配席位，请登录 iPlacard 系统查看申请状态。');
-					$this->sms->send();
+					$this->sms->queue();
 				}
 				
 				$this->ui->alert("已经通过免试分配并指派{$interviewer['name']}分配席位。", 'success', true);
@@ -854,7 +854,7 @@ class Delegate extends CI_Controller
 
 					$this->sms->to($uid);
 					$this->sms->message('您的面试官已经安排面试时间，请登录 iPlacard 系统查看申请状态。');
-					$this->sms->send();
+					$this->sms->queue();
 				}
 				
 				$this->ui->alert("已经安排了与{$delegate['name']}代表的面试时间，届时我们将提前通知准备面试。", 'success', true);
@@ -916,7 +916,7 @@ class Delegate extends CI_Controller
 
 					$this->sms->to($uid);
 					$this->sms->message('您的面试官已经取消了面试安排，我们将会尽快为您分配新的面试官，请登录 iPlacard 系统查看申请状态。');
-					$this->sms->send();
+					$this->sms->queue();
 				}
 				
 				$this->ui->alert("已经回退了与{$delegate['name']}代表的面试安排。", 'success', true);
@@ -987,7 +987,7 @@ class Delegate extends CI_Controller
 
 					$this->sms->to($uid);
 					$this->sms->message('您的面试官已经取消了面试安排，他将在近期内重新安排面试时间，请登录 iPlacard 系统查看申请状态。');
-					$this->sms->send();
+					$this->sms->queue();
 				}
 				
 				$this->ui->alert("已经取消了与{$delegate['name']}代表的面试安排。", 'success', true);
@@ -1101,7 +1101,7 @@ class Delegate extends CI_Controller
 
 							$this->sms->to($uid);
 							$this->sms->message('您将需要进行二次面试，我们将在近期内为您重新分配面试官，请登录 iPlacard 系统查看申请状态。');
-							$this->sms->send();
+							$this->sms->queue();
 						}
 						
 						$this->ui->alert("已经通知{$delegate['name']}代表的准备二次面试。", 'success', true);
@@ -1126,7 +1126,7 @@ class Delegate extends CI_Controller
 
 							$this->sms->to($uid);
 							$this->sms->message('您将需要进行二次面试，我们将在近期内为您重新分配面试官，请登录 iPlacard 系统查看申请状态。');
-							$this->sms->send();
+							$this->sms->queue();
 						}
 						
 						$this->ui->alert("已经将{$delegate['name']}代表移动至等待队列。", 'success', true);
@@ -1154,7 +1154,7 @@ class Delegate extends CI_Controller
 
 						$this->sms->to($uid);
 						$this->sms->message('您已成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。');
-						$this->sms->send();
+						$this->sms->queue();
 					}
 
 					$this->ui->alert("已经通过{$delegate['name']}代表的面试。", 'success', true);
