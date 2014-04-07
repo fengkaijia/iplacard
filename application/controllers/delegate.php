@@ -342,7 +342,7 @@ class Delegate extends CI_Controller
 				);
 				
 				//通知此代表
-				$this->email->to($delegate['name']);
+				$this->email->to($delegate['email']);
 				$this->email->subject('您已调整为个人代表');
 				$this->email->html($this->parser->parse_string(option('email_group_delegate_removed', "您已于 {time} 由管理员操作退出{group_old_name}代表团，如为误操作请立即与管理员取得联系。"), $data, true));
 				$this->email->send();
