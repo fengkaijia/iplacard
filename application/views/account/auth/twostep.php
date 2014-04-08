@@ -33,6 +33,6 @@ $this->load->view('header');?>
 <?php echo form_close();?>
 
 <?php
-$this->ui->js('footer', '$("input[name=\'code\']").numeric()');
+$this->ui->js('footer', '$("input[name=\'code\']").numeric();');
 $this->ui->js('footer', 'form_auth_center();');
 $this->load->view('footer'); ?>

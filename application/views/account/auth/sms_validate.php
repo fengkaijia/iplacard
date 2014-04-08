@@ -65,6 +65,6 @@ $('button[name=resend]').countdown(countdate.getTime() + {$resend_time} * 1000)
 EOT;
 $this->ui->js('footer', $resend_js);
 
-$this->ui->js('footer', '$("input[name=\'code\']").numeric()');
+$this->ui->js('footer', '$("input[name=\'code\']").numeric();');
 $this->ui->js('footer', 'form_auth_center();');
 $this->load->view('footer'); ?>
