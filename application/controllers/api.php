@@ -75,8 +75,7 @@ class Api extends CI_Controller
 			exit;
 		}
 		
-		//数据完整性校验
-		if($post['crypt'] != crypt(sha1($post['data']), $post['access_token']))
+		if($post['crypt'] != crypt(sha1($post['data']), '$1$'.substr($post['access_token'], 0, 10).'&'))
 		{
 			$this->_error(99, 'CRYPT data incorrect.');
 			exit;
