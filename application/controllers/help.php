@@ -115,6 +115,23 @@ class Help extends CI_Controller
 	}
 	
 	/**
+	 * 显示浏览器升级提示
+	 */
+	function browser($operation = 'none')
+	{
+		if($operation == 'dismiss')
+		{
+			$this->session->set_userdata('dismiss_browser_notice', true);
+			redirect('');
+			return;
+		}
+		
+		$this->ui->title('浏览器支持');
+		$this->ui->disable_menu();
+		$this->load->view('help/browser');
+	}
+	
+	/**
 	 * 获取辅助模块知识库文章
 	 */
 	function _get_top_kbs($count = 5)
