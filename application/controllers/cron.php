@@ -34,6 +34,7 @@ class Cron extends CI_Controller
 	function minutely()
 	{
 		echo "\nProcessing Cron Minutely.\n\n";
+		$this->_send_sms();
 	}
 	
 	function hourly()
@@ -199,6 +200,41 @@ class Cron extends CI_Controller
 		else
 		{
 			echo "No Interview to be reminded.\n";
+		}
+	}
+	
+	/**
+	 * 处理短信队列
+	 */
+	private function _send_sms()
+	{
+		$this->load->model('sms_model');
+		$this->load->library('sms');
+		
+		$ids = $this->sms_model->get_sms_ids('status', 'queue');
+		if($ids)
+		{
+			$count = count($ids);
+			echo "{$count} SMS(s) to be sent.\n";
+			
+			foreach($ids as $id)
+			{
+				echo "Sending SMS ID {$id}.\n";
+				
+				if(!$this->sms->api_send($id))
+				{
+					echo "Failed to send SMS ID {$id}.\n";
+					$this->system_model->log('sms_failed', array('id' => $id));
+				}
+				else
+				{
+					echo "SMS ID {$id} sent.\n";
+				}
+			}
+		}
+		else
+		{
+			echo "No SMS to be sent.\n";
 		}
 	}
 }
