@@ -79,7 +79,9 @@ class Token_model extends CI_Model
 		else
 			$permissions = $id;
 		
-		if(!in_array($permission, $permissions))
+		if(is_null($permissions))
+			return false;
+		if(!in_array('*', $permissions) && !in_array($permission, $permissions))
 			return false;
 		return true;
 	}
