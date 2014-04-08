@@ -230,7 +230,7 @@ class Api extends CI_Controller
 				'url' => base_url(),
 			);
 
-			$this->email->to($user['email']);
+			$this->email->to($this->data['email']);
 			$this->email->subject('iPlacard 帐户登录信息');
 			$this->email->html($this->parser->parse_string(option('email_delegate_account_created', "您的参会申请已经导入 iPlacard 系统并开始审核。您的 iPlacard 帐户已经于 {time} 创建。帐户信息如下：\n\n"
 					. "\t登录邮箱：{email}\n"
