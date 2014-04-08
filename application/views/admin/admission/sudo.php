@@ -1,13 +1,13 @@
 <p>开启 SUDO 模式以此代表视角登录 iPlacard。</p>
 
-<a class="btn btn-primary" href="#" data-toggle="modal" data-target="#refuse_application"><?php echo icon('user-md');?>SUDO 模式</a>
+<a class="btn btn-primary" href="#" data-toggle="modal" data-target="#sudo"><?php echo icon('user-md');?>SUDO 模式</a>
 
 <?php echo form_open("account/sudo/$uid", array(
 	'class' => 'modal fade form-horizontal',
-	'id' => 'refuse_application',
+	'id' => 'sudo',
 	'tabindex' => '-1',
 	'role' => 'dialog',
-	'aria-labelledby' => 'refuse_label',
+	'aria-labelledby' => 'sudo_label',
 	'aria-hidden' => 'true'
 ));?><div class="modal-dialog">
 		<div class="modal-content">
@@ -19,7 +19,7 @@
 					'data-dismiss' => 'modal',
 					'aria-hidden' => 'true'
 				));?>
-				<h4 class="modal-title" id="refuse_label">启用 SUDO 模式</h4>
+				<h4 class="modal-title" id="sudo_label">启用 SUDO 模式</h4>
 			</div>
 			<div class="modal-body">
 				<p>您将启用 SUDO 模式。启用 SUDO 模式后，您将会切换到<?php echo icon('user', false).$delegate['name'];?>代表的视角，这将允许您完成部分后台无法操作的功能，例如协助代表修改邮箱等个人信息。</p>
