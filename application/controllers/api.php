@@ -262,7 +262,7 @@ class Api extends CI_Controller
 			$this->delegate_model->add_event($uid, 'application_imported');
 			$this->user_model->add_message($uid, '您的参会申请已经成功导入 iPlacard 系统并开始审核。');
 			
-			$this->system_model->log('application_imported', array('ip' => $this->input->ip_address()), $uid);
+			$this->system_model->log('application_imported', array('ip' => $this->input->ip_address(), 'id' => $uid), 0);
 			
 			//返回数据
 			$this->return['id'] = $uid;
