@@ -208,7 +208,7 @@ $this->load->view('header');?>
 				<?php if(!empty($profile['experience'])) { ?><h3>参会经历</h3>
 				<table class="table table-bordered table-striped table-hover">
 					<thead>
-						<?php $rules = option('profile_list_experience');
+						<?php $rules = option('profile_list_experience', array());
 						foreach($rules as $rule => $text) { ?><th><?php echo $text;?></th><?php } ?>
 					</thead>
 					<tbody>
@@ -222,7 +222,7 @@ $this->load->view('header');?>
 				<?php if(!empty($profile['club'])) { ?><h3>社会活动</h3>
 				<table class="table table-bordered table-striped table-hover">
 					<thead>
-						<?php $rules = option('profile_list_club');
+						<?php $rules = option('profile_list_club', array());
 						foreach($rules as $rule => $text) { ?><th><?php echo $text;?></th><?php } ?>
 					</thead>
 					<tbody>
@@ -236,7 +236,7 @@ $this->load->view('header');?>
 				<?php if(!empty($profile['test'])) { ?><h3 id="test">学术测试</h3>
 				<table class="table table-bordered table-striped table-hover">
 					<tbody>
-						<?php $questions = option('profile_list_test');
+						<?php $questions = option('profile_list_test', array());
 						foreach($questions as $qid => $question) { ?>
 						<tr><td><?php echo $question;?></td></tr>
 						<tr><td><?php echo nl2br($profile['test'][$qid]);?></td></tr><?php } ?>
