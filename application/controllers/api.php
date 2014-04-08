@@ -148,7 +148,7 @@ class Api extends CI_Controller
 			}
 			
 			//检查导入类型
-			if(!in_array($this->data['type'], array('delegate', 'observer', 'volunteer')))
+			if(!in_array($this->data['type'], array('delegate', 'observer', 'volunteer', 'teacher')))
 			{
 				$this->_error(21, 'Unknown delegate type.');
 				return;
