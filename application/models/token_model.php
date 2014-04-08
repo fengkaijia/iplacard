@@ -141,7 +141,7 @@ class Token_model extends CI_Model
 	 */
 	function update_last_activity($id)
 	{
-		return $this->edit_token(array('last_activity', time()), $id);
+		return $this->edit_token(array('last_activity' => time()), $id);
 	}
 	
 	/**
