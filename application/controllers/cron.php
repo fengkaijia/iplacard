@@ -18,7 +18,7 @@ class Cron extends CI_Controller
 			exit('iPlacard Cron Job must be run from the command line.');
 		
 		$time = date('Y-m-d H:i:s');
-		echo "iPlacard Cron Job started at $time\n";
+		echo "iPlacard Cron Job started at $time.\n";
 	}
 	
 	function __destruct()
@@ -113,13 +113,13 @@ class Cron extends CI_Controller
 				
 				if(!$this->email->send())
 				{
-					echo "Failed to send Interview Reminder to {$interviewer['email']}\n";
+					echo "Failed to send Interview Reminder to {$interviewer['email']}.\n";
 					$this->system_model->log('notice_failed', array('id' => $interviewer['id'], 'type' => 'email', 'content' => 'cron_interview_reminder'), 0);
 					$sent = false;
 				}
 				else
 				{
-					echo "Interview Reminder sent to {$interviewer['email']}\n";
+					echo "Interview Reminder sent to {$interviewer['email']}.\n";
 				}
 				
 				$this->email->clear();
@@ -135,13 +135,13 @@ class Cron extends CI_Controller
 					
 					if(!$this->sms->send())
 					{
-						echo "Failed to send Interview Reminder SMS to {$interviewer['phone']}\n";
+						echo "Failed to send Interview Reminder SMS to {$interviewer['phone']}.\n";
 						$this->system_model->log('notice_failed', array('id' => $interviewer['id'], 'type' => 'sms', 'content' => 'cron_interview_reminder'), 0);
 						$sent = false;
 					}
 					else
 					{
-						echo "Interview Reminder SMS sent to {$interviewer['phone']}\n";
+						echo "Interview Reminder SMS sent to {$interviewer['phone']}.\n";
 					}
 					
 					$this->sms->clean();
@@ -177,13 +177,13 @@ class Cron extends CI_Controller
 						$this->sms->message($this->parser->parse_string('与{interviewer_name}的面试将在 {time} 进行，请预留充足时间。', $data, true));
 						if(!$this->sms->send())
 						{
-							echo "Failed to send Interview Reminder SMS to {$delegate['phone']}\n";
+							echo "Failed to send Interview Reminder SMS to {$delegate['phone']}.\n";
 							$this->system_model->log('notice_failed', array('id' => $delegate['id'], 'type' => 'sms', 'content' => 'cron_interview_reminder'));
 							$sent = false;
 						}
 						else
 						{
-							echo "Interview Reminder SMS sent to {$delegate['phone']}\n";
+							echo "Interview Reminder SMS sent to {$delegate['phone']}.\n";
 						}
 						
 						$this->sms->clean();
