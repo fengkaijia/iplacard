@@ -1154,7 +1154,7 @@ class Account extends CI_Controller
 
 					$this->email->to($user['email']);
 					$this->email->subject('iPlacard 邮件通知设置已经变更');
-					$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的邮件通知设置已经于 {time} 由来自 IP {ip} 的用户变革。本邮件列出了变更列表，\n\n"
+					$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的邮件通知设置已经于 {time} 由来自 IP {ip} 的用户变更。本邮件列出了变更列表，\n\n"
 							. "{enabled}"
 							. "{disabled}"
 							. "如非本人操作请立即登录 iPlacard 还原以上更改并考虑修改密码。"), $data, true));
