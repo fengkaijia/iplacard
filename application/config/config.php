@@ -298,7 +298,7 @@ $config['csrf_protection'] = TRUE;
 $config['csrf_token_name'] = 'csrf';
 $config['csrf_cookie_name'] = 'iplacardcsrf';
 $config['csrf_expire'] = 7200;
-$config['csrf_exclude_uris'] = array();
+$config['csrf_exclude_uris'] = array('api/delegate/import');
 
 /*
 |--------------------------------------------------------------------------
