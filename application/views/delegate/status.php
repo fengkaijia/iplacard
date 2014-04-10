@@ -83,7 +83,7 @@ $this->load->view('header');?>
 				<?php foreach($feed as $num => $news) { ?><a href="<?php echo $news['link'];?>" target="_blank" class="list-group-item">
 					<h4 class="list-group-item-heading"><?php echo $news['title'];?> <small><?php echo nicetime(strtotime($news['date']));?></small></h4>
 					<div class="list-group-item-text">
-						<?php echo character_limiter(strip_tags($news['description']), 300);?>
+						<?php echo character_limiter(strip_tags(empty($news['content']) ? $news['description'] : $news['content']), 300);?>
 					</div>
 				</a><?php } ?>
 			</div>

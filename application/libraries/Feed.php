@@ -49,6 +49,7 @@ class Feed
 					$data = array();
 					$data['title'] = (string) $item->title;
 					$data['description'] = (string) $item->description;
+					$data['content'] = (string) $item->children('content', true)->encoded;
 					$data['date'] = (string) $item->pubDate;
 					$data['link'] = (string) $item->link;
 					$dc = $item->children('http://purl.org/dc/elements/1.1/');
@@ -67,6 +68,7 @@ class Feed
 					$data['id'] = (string) $item->id;
 					$data['title'] = (string) $item->title;
 					$data['description'] = (string) $item->content;
+					$data['content'] = (string) $item->children('content', true)->encoded;
 					$data['date'] = (string) $item->published;
 					$data['link'] = (string) $item->link['href'];
 					$dc = $item->children('http://purl.org/dc/elements/1.1/');
