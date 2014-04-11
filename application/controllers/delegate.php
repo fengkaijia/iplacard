@@ -853,7 +853,7 @@ class Delegate extends CI_Controller
 					$this->load->library('sms');
 
 					$this->sms->to($uid);
-					$this->sms->message('您的面试官已经安排面试时间，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->message(sprintf('您的面试官已经将面试安排于 %s 进行，请登录 iPlacard 系统查看申请状态。', $data['schedule_time']));
 					$this->sms->queue();
 				}
 				
