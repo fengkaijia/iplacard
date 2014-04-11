@@ -1125,7 +1125,7 @@ class Delegate extends CI_Controller
 							$this->load->library('sms');
 
 							$this->sms->to($uid);
-							$this->sms->message('您将需要进行二次面试，我们将在近期内为您重新分配面试官，请登录 iPlacard 系统查看申请状态。');
+							$this->sms->message('很遗憾您未能通过二次面试，您的申请已经移入等待队列，请登录 iPlacard 系统查看申请状态。');
 							$this->sms->queue();
 						}
 						
