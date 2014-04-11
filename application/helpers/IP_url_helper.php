@@ -80,9 +80,10 @@ function back_redirect()
 /**
  * 静态文件CDN地址
  */
-function static_url($uri)
+function static_url($uri = '')
 {
-	return base_url(IP_STATIC_CDN.$uri);
+	$CI =& get_instance();
+	return $CI->config->static_url($uri);
 }
 
 /* End of file IP_url_helper.php */
