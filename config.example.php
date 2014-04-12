@@ -70,6 +70,31 @@ define('IP_MULTISITE', false);
 define('IP_STATIC_CDN', '');
 
 /**
+ * 是否启用SMTP
+ */
+define('IP_SMTP', false);
+
+/**
+ * SMTP服务器
+ */
+define('IP_SMTP_HOST', '');
+
+/**
+ * SMTP用户名
+ */
+define('IP_SMTP_USER', '');
+
+/**
+ * SMTP密码
+ */
+define('IP_SMTP_PASS', '');
+
+/**
+ * SMTP端口
+ */
+define('IP_SMTP_PORT', '');
+
+/**
  * 反向代理IP列表
  */
 define('IP_REVERSE_PROXY', join(',', array(

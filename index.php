@@ -79,6 +79,15 @@ if(IP_MULTISITE)
 			 */
 			define('IP_INSTANCE_API_ACCESS_KEY', $instance['api_access_key']);
 			define('IP_INSTANCE_API_SECRET_KEY', $instance['api_secret_key']);
+			
+			/**
+			 * SMTP
+			 */
+			define('IP_INSTANCE_SMTP', $instance['smtp']);
+			define('IP_INSTANCE_SMTP_HOST', $instance['smtp_host']);
+			define('IP_INSTANCE_SMTP_USER', $instance['smtp_user']);
+			define('IP_INSTANCE_SMTP_PASS', $instance['smtp_pass']);
+			define('IP_INSTANCE_SMTP_PORT', $instance['smtp_port']);
 
 			/**
 			 * 实例主域名
@@ -106,6 +115,13 @@ else
 	//使用默认API密钥
 	define('IP_INSTANCE_API_ACCESS_KEY', IP_DEFAULT_API_ACCESS_KEY);
 	define('IP_INSTANCE_API_SECRET_KEY', IP_DEFAULT_API_SECRET_KEY);
+	
+	//使用默认SMTP设置
+	define('IP_INSTANCE_SMTP', IP_SMTP);
+	define('IP_INSTANCE_SMTP_HOST', IP_SMTP_HOST);
+	define('IP_INSTANCE_SMTP_USER', IP_SMTP_USER);
+	define('IP_INSTANCE_SMTP_PASS', IP_SMTP_PASS);
+	define('IP_INSTANCE_SMTP_PORT', IP_SMTP_PORT);
 	
 	//不设置ID
 	define('IP_INSTANCE_ID', 0);
