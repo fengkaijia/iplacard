@@ -109,7 +109,7 @@ class Cron extends CI_Controller
 				//通知面试官
 				$this->email->to($interviewer['email']);
 				$this->email->subject('iPlacard 面试提醒');
-				$this->email->html($this->parser->parse_string($this->system->option('email_cron_interview_reminder', '您将于 {time} 面试{delegate_name}代表，请预留充足时间并按照约定的方式与代表联系。'), $data, true));
+				$this->email->html($this->parser->parse_string(option('email_cron_interview_reminder', '您将于 {time} 面试{delegate_name}代表，请预留充足时间并按照约定的方式与代表联系。'), $data, true));
 				
 				if(!$this->email->send())
 				{
@@ -148,11 +148,11 @@ class Cron extends CI_Controller
 				}
 				
 				//通知代表
-				if($this->system->option('cron_remind_delegate_interview', true))
+				if(option('cron_remind_delegate_interview', true))
 				{
 					$this->email->to($delegate['email']);
 					$this->email->subject('iPlacard 面试提醒');
-					$this->email->html($this->parser->parse_string($this->system->option('email_cron_delegate_interview_reminder', '您与面试官{interviewer_name}的面试将于 {time} 进行，请预留充足时间并按照约定的方式与面试官联系。'), $data, true));
+					$this->email->html($this->parser->parse_string(option('email_cron_delegate_interview_reminder', '您与面试官{interviewer_name}的面试将于 {time} 进行，请预留充足时间并按照约定的方式与面试官联系。'), $data, true));
 					
 					if(!$this->email->send())
 					{
