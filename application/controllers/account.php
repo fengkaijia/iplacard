@@ -622,6 +622,7 @@ class Account extends CI_Controller
 		$change_time = user_option('account_email_change_time', false, $uid);
 		$old_email = user_option('account_email_old', false, $uid);
 		$cancel_key = user_option('account_email_cancel_key', false, $uid);
+		$sudo = user_option('account_email_pending_sudo', false, $uid);
 		
 		//验证登录情况
 		if(is_logged_in())
@@ -637,7 +638,7 @@ class Account extends CI_Controller
 		}
 		else
 		{
-			if($action == 'confirm')
+			if($action == 'confirm' && !$sudo)
 			{
 				$this->ui->alert('请登录 iPlacard 以完成验证。在完成验证之前，登录时您的帐户仍然为旧的电子邮箱地址。', 'info', true);
 				login_redirect();
@@ -672,6 +673,7 @@ class Account extends CI_Controller
 			$this->user_model->delete_user_option('account_email_pending', $uid);
 			$this->user_model->delete_user_option('account_email_change_key', $uid);
 			$this->user_model->delete_user_option('account_email_change_time', $uid);
+			$this->user_model->delete_user_option('account_email_pending_sudo', $uid);
 			$this->user_model->edit_user_option('account_email_old', $user['email'], $uid);
 
 			$this->ui->alert('您的新邮箱已经完成验证，现在你可以使用新邮箱登录 iPlacard。', 'success', true);
@@ -742,6 +744,7 @@ class Account extends CI_Controller
 			$this->user_model->delete_user_option('account_email_change_time', $uid);
 			$this->user_model->delete_user_option('account_email_change_time', $uid);
 			$this->user_model->delete_user_option('account_email_cancel_key', $uid);
+			$this->user_model->delete_user_option('account_email_pending_sudo', $uid);
 
 			$this->ui->alert('您的邮箱更改已经取消。', 'success', true);
 
@@ -1442,6 +1445,12 @@ class Account extends CI_Controller
 					$this->user_model->edit_user_option('account_email_change_time', $change_time);
 					$this->user_model->edit_user_option('account_email_change_key', $change_key);
 					$this->user_model->edit_user_option('account_email_cancel_key', $cancel_key);
+					
+					//确定是否需要强制登录
+					if(is_sudo())
+						$this->user_model->edit_user_option('account_email_pending_sudo', true);
+					else
+						$this->user_model->edit_user_option('account_email_pending_sudo', false);
 					
 					//发送邮件
 					$data = array(
