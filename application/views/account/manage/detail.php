@@ -189,7 +189,12 @@
 							<h4 class="modal-title" id="submit_label">确认更改个人信息</h4>
 						</div>
 						<div class="modal-body">
-							<p>您将更改您的个人信息，请输入您的登录密码并点击确认更改按钮继续操作。</p>
+							<p><?php
+							if(is_sudo())
+								echo '您将以 SUDO 授权更改代表的个人信息，请输入您管理员帐号的登录密码并点击确认更改按钮继续操作。';
+							else
+								echo '您将更改您的个人信息，请输入您的登录密码并点击确认更改按钮继续操作。';
+							?></p>
 
 							<div class="form-group <?php if(form_has_error('password')) echo 'has-error';?>">
 								<?php echo form_label('登录密码', 'password', array('class' => 'col-lg-3 control-label'));?>

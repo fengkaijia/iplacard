@@ -1947,7 +1947,7 @@ class Account extends CI_Controller
 	 */
 	function _check_password($str, $global_message = '')
 	{
-		if($this->user_model->check_password(uid(), $str))
+		if($this->user_model->check_password(uid(true), $str))
 			return true;
 		
 		//全局消息
