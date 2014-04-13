@@ -1,6 +1,5 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-
-/**
+/*
 | -------------------------------------------------------------------
 | EMAIL CONFIG VARIABLES
 | -------------------------------------------------------------------
@@ -32,12 +31,10 @@
 */
 $config['useragent'] = 'iPlacard';
 
-$config['protocol'] = 'mail';
-
 if(IP_INSTANCE_SMTP)
 {
 	$config['protocol'] = 'smtp';
-	
+
 	$config['smtp_host'] = IP_INSTANCE_SMTP_HOST;
 	$config['smtp_user'] = IP_INSTANCE_SMTP_USER;
 	$config['smtp_pass'] = IP_INSTANCE_SMTP_PASS;
