@@ -1192,8 +1192,8 @@ class Account extends CI_Controller
 			$this->form_validation->set_rules('old_password', '旧密码', 'trim|required|callback__check_password');
 			$this->form_validation->set_rules('password', '新密码', 'trim|required|not[matches.old_password]|min_length[8]');
 			$this->form_validation->set_rules('password_repeat', '重复密码', 'trim|required|matches[password]');
-			$this->form_validation->set_message('_check_old_password', '旧密码有误，请重新输入。');
-			$this->form_validation->set_message('not', '新密码不能与旧密码相同。');
+			$this->form_validation->set_message('_check_password', is_sudo() ? '管理员密码有误，请重新输入。' : '旧密码有误，请重新输入。');
+			$this->form_validation->set_message('not', is_sudo() ? '代表新密码不能与您的管理员密码相同。' : '新密码不能与旧密码相同。');
 
 			if($this->form_validation->run() == true)
 			{
