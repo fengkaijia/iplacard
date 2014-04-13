@@ -14,9 +14,9 @@ class IP_Email extends CI_Email
 	 */
 	var $subject = '';
 	
-	function __construct()
+	function __construct($config = array())
 	{
-		parent::__construct();
+		parent::__construct($config);
 		
 		$this->CI =& get_instance();
 		
