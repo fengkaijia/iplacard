@@ -11,7 +11,9 @@
 	
 	<div class="col-md-9">
 		<?php echo form_open('account/settings/pin', array('class' => 'well form-horizontal'));?>
-			<?php echo form_fieldset('设置安全码'); ?>
+			<?php echo form_fieldset('设置安全码', is_sudo() ? 'disabled' : ''); ?>
+				<?php if(is_sudo()) { ?><p class="text-danger"><?php echo icon('info-circle');?>由于系统原因，您无法在 SUDO 模式下修改代表的安全码。</p><?php } ?>
+				
 				<p>安全码是与第三方硬件（例如会场中使用的 WIFI 等）服务对接时使用的密码。由于硬件服务可能不支持加密传输，安全码将会以明文方式储存在 iPlacard 中，请勿使用您的常用密码作为安全码。</p>
 				
 				<div class="form-group <?php if(form_has_error('password')) echo 'has-error';?>">
@@ -57,7 +59,7 @@
 						'name' => 'submit',
 						'content' => '修改安全码',
 						'type' => 'submit',
-						'class' => 'btn btn-primary',
+						'class' => is_sudo() ? 'btn btn-primary disabled' : 'btn btn-primary',
 						'onclick' => 'loader(this);'
 					));?>
 				</div>

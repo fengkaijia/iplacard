@@ -12,10 +12,15 @@
 	<div class="col-md-9">
 		<?php echo form_open('account/settings/password', array('class' => 'well form-horizontal'));?>
 			<?php echo form_fieldset('修改密码'); ?>
-				<p>新密码的长度不得低于 8 位。一个安全的密码应当同时包含数字和大小写字母，请牢记您的新密码，如果忘记密码，您可以通过找回密码功能重置您的密码。</p>
+				<p><?php
+				if(is_sudo())
+					echo '新密码的长度不得低于 8 位。一个安全的密码应当同时包含数字和大小写字母。您将以 SUDO 授权更改代表的登录密码，请输入您管理员帐号的密码以验证修改，密码修改后您需要手动告知代表新的密码。';
+				else
+					echo '新密码的长度不得低于 8 位。一个安全的密码应当同时包含数字和大小写字母，请牢记您的新密码，如果忘记密码，您可以通过找回密码功能重置您的密码。';
+				?></p>
 		
 				<div class="form-group <?php if(form_has_error('old_password')) echo 'has-error';?>">
-					<?php echo form_label('旧密码', 'old_password', array('class' => 'col-lg-2 control-label'));?>
+					<?php echo form_label(is_sudo() ? '管理员密码': '旧密码', 'old_password', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-4">
 						<?php echo form_password(array(
 							'name' => 'old_password',

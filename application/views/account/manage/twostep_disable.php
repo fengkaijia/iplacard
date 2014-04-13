@@ -13,7 +13,12 @@
 		<?php echo form_open('account/settings/twostep/disable', array('class' => 'well form-horizontal'));?>
 			<?php echo form_fieldset('两步验证已经启用'); ?>
 				<p>两步验证使用您手机中的 Google 身份验证器应用生成验证码，可为您的 iPlacard 帐户增加额外的安全保障。</p>
-				<p>您已经启用两步验证保护您的 iPlacard 帐户。您可以在本页面中停用两步验证功能，我们强烈不建议停用此功能。如需停用两步验证，请输入您的登录密码并点击确认。</p>
+				<p><?php
+				if(is_sudo())
+					echo '此代表已经启用两步验证保护 iPlacard 帐户。您可以在本页面中停用此代表的两步验证功能，我们强烈不建议停用此功能。您将以 SUDO 授权更改代表的两步验证设置，请输入您管理员帐号的登录密码并点击确认以停用两步验证。';
+				else
+					echo '您已经启用两步验证保护您的 iPlacard 帐户。您可以在本页面中停用两步验证功能，我们强烈不建议停用此功能。如需停用两步验证，请输入您的登录密码并点击确认。';
+				?></p>
 				
 				<div class="form-group <?php if(form_has_error('password')) echo 'has-error';?>">
 					<?php echo form_label('密码', 'password', array('class' => 'col-lg-2 control-label'));?>
