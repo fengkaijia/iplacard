@@ -100,6 +100,7 @@ class Delegate extends CI_Controller
 	{
 		$this->load->model('interview_model');
 		$this->load->model('group_model');
+		$this->load->helper('unicode');
 		$this->load->helper('avatar');
 		$this->load->helper('date');
 		
@@ -119,6 +120,7 @@ class Delegate extends CI_Controller
 		
 		//代表资料数据
 		$profile = $this->delegate_model->get_delegate($uid);
+		$profile['pinyin'] = pinyin($profile['name']);
 		$profile['application_type_text'] = $this->delegate_model->application_type_text($profile['application_type']);
 		$profile['status_text'] = $this->delegate_model->status_text($profile['status']);
 		$profile['status_code'] = $this->delegate_model->status_code($profile['status']);

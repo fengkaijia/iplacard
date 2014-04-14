@@ -44,8 +44,14 @@ $this->load->view('header');?>
 						) + option('profile_list_general', array()) + option("profile_list_{$profile['application_type']}", array());
 						foreach($rules as $rule => $text) { ?><tr>
 							<td><?php echo $text;?></td>
-							<td><?php if(!empty($profile[$rule])) echo $profile[$rule];?></td>
-						</tr><?php } ?>
+							<td><?php if($rule == 'name' && $profile['pinyin'])
+								echo "<span class='delegate_name' data-original-title='{$profile['pinyin']}' data-toggle='tooltip'>{$profile['name']}</span>";
+							elseif(!empty($profile[$rule]))
+								echo $profile[$rule];
+							?></td>
+						</tr><?php }
+						$this->ui->js('footer', "$('.delegate_name').tooltip();");
+						?>
 					</tbody>
 				</table>
 
