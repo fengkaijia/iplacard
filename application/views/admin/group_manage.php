@@ -49,10 +49,8 @@ $(document).ready(function() {
 			{ "bSortable": false, "aTargets": [ 0, 3, 4, 5, 6, 9 ] }
 		],
 		"bProcessing": true,
-		"sAjaxSource": '{$ajax_url}',
-		"fnInitComplete": function() {
-			this.fnAdjustColumnSizing();
-		}
+		"bAutoWidth": false,
+		"sAjaxSource": '{$ajax_url}'
 	} );
 } );
 EOT;

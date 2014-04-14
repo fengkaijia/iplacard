@@ -39,9 +39,9 @@ $(document).ready(function() {
 			{ "bSortable": false, "aTargets": [ 0, 7 ] }
 		],
 		"bProcessing": true,
+		"bAutoWidth": false,
 		"sAjaxSource": '{$ajax_url}',
 		"fnInitComplete": function() {
-			this.fnAdjustColumnSizing();
 			{$hide_column}
 			$('.committee_list').popover();
 			$('.version_list').popover();

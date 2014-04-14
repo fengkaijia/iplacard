@@ -36,9 +36,9 @@ $(document).ready(function() {
 			{ "bSortable": false, "aTargets": [ 0 ] }
 		],
 		"bProcessing": true,
+		"bAutoWidth": false,
 		"sAjaxSource": '{$ajax_url}',
 		"fnInitComplete": function() {
-			this.fnAdjustColumnSizing();
 			$('.dais_list').popover();
 		}
 	} );

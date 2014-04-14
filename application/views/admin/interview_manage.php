@@ -54,9 +54,9 @@ $(document).ready(function() {
 			{ "bSortable": false, "aTargets": [ 0, 7 ] }
 		],
 		"bProcessing": true,
+		"bAutoWidth": false,
 		"sAjaxSource": '{$ajax_url}',
 		"fnInitComplete": function() {
-			this.fnAdjustColumnSizing();
 			$('.contact_list').popover();
 		}
 	} );
