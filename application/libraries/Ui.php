@@ -492,14 +492,14 @@ class UI
 		if(!empty($committee))
 		{
 			$this->add_menu('seat', '席位');
-			$this->add_sub_menu('committee', 'seat', '委员会席位', 'document/manage?committee='.$committee, true);
+			$this->add_sub_menu('committee', 'seat', '委员会席位', 'seat/manage?committee='.$committee, true);
 		}
 		
 		if($this->CI->admin_model->capable('administrator'))
 		{
 			$this->add_menu('seat', '席位');
-			$this->add_sub_menu('manage', 'seat', '全部席位', 'document/manage');
-			$this->add_sub_menu('add', 'seat', '添加席位', 'document/edit');
+			$this->add_sub_menu('manage', 'seat', '全部席位', 'seat/manage');
+			$this->add_sub_menu('add', 'seat', '添加席位', 'seat/edit');
 		}
 		
 		//管理
