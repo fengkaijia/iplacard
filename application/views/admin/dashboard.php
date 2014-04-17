@@ -63,27 +63,26 @@
 				<h3 class="panel-title"><?php echo icon('bolt');?>快速访问</h3>
 			</div>
 			<div class="panel-body">
-				<?php echo form_open('', array('style' => 'margin-bottom: 10.5px;'));?>
-					<div class="input-group">
-						<span class="input-group-addon"><?php echo icon('user', false);?></span>
-						<?php echo form_input(array(
-							'name' => 'keyword',
-							'value' => set_value('keyword'),
-							'class' => 'form-control',
-							'placeholder' => '代表信息',
-							'onclick' => "$('#spdy_go').removeClass('disabled');"
+				<div class="input-group" style="margin-bottom: 10.5px;">
+					<span id="spdy_icon" class="input-group-addon"><?php echo icon('user', false);?></span>
+					<?php echo form_input(array(
+						'id' => 'spdy_input',
+						'name' => 'keyword',
+						'value' => set_value('keyword'),
+						'class' => 'form-control',
+						'placeholder' => '代表信息',
+						'onclick' => "$('#spdy_go').removeClass('disabled');"
+					));?>
+					<span class="input-group-btn">
+						<?php echo form_button(array(
+							'id' => 'spdy_go',
+							'content' => icon('sign-in', false),
+							'type' => 'button',
+							'class' => 'btn btn-primary disabled',
+							'onclick' => 'loader(this); spdy();'
 						));?>
-						<span class="input-group-btn">
-							<?php echo form_button(array(
-								'id' => 'spdy_go',
-								'content' => icon('sign-in', false),
-								'type' => 'button',
-								'class' => 'btn btn-primary disabled',
-								'onclick' => 'loader(this); spdy();'
-							));?>
-						</span>
-					</div>
-				<?php echo form_close();?>
+					</span>
+				</div>
 				
 				<small>输入代表ID、姓名、Email、手机或其他唯一身份标识符快速访问代表信息。</small>
 			</div>
@@ -96,7 +95,7 @@
 				$spdy_button = icon('sign-in', false);
 				$spdy_js = "function spdy()
 				{
-					keyword = $('input[name=keyword]').val();
+					keyword = $('#spdy_input').val();
 					
 					if(keyword !== '')
 					{
@@ -143,6 +142,16 @@
 					$('#spdy_go').html('{$spdy_button}');
 				}";
 				$this->ui->js('footer', $spdy_js);
+				
+				//回车自动激活
+				$keypress_js = "$('#spdy_input').keypress(function(event)
+				{
+					if(event.which == 13)
+					{
+						spdy();
+					}
+				});";
+				$this->ui->js('footer', $keypress_js);
 				?>
 		</div>
 	</div>
