@@ -112,6 +112,7 @@ class Admin extends CI_Controller
 		$vars['count'] = $count;
 		
 		//待办事项
+		$task = array();
 		$has_task = false;
 		
 		//待审申请
