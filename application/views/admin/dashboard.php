@@ -152,6 +152,15 @@
 					}
 				});";
 				$this->ui->js('footer', $keypress_js);
+				
+				//小屏幕不显示图标
+				$this->ui->html('footer', "<style>
+					@media (max-width: 767px) {
+						#spdy_icon {
+							display: none;
+						}
+					}
+				</style>");
 				?>
 		</div>
 	</div>
