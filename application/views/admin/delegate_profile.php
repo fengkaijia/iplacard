@@ -37,6 +37,7 @@ $this->load->view('header');?>
 					<tbody>
 						<?php $rules = array(
 							'name' => '姓名',
+							'id' => '用户 ID',
 							'email' => '电子邮箱地址',
 							'phone' => '电话号码',
 							'application_type_text' => '申请类型',
