@@ -427,6 +427,14 @@ class Account extends CI_Controller
 			return;
 		}
 		
+		//验证数据传入
+		if(empty($uid) || empty($key))
+		{
+			$this->ui->alert('无效的密码重置请求。', 'danger', true);
+			redirect('account/recover');
+			return;
+		}
+		
 		$user = $this->user_model->get_user($uid);
 		$recover_key = user_option('account_recover_key', false, $uid);
 		$recover_time = user_option('account_recover_time', false, $uid);
