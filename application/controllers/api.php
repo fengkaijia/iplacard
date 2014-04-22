@@ -169,8 +169,7 @@ class Api extends CI_Controller
 			}
 			
 			//验证邮箱
-			$this->load->helper('email');
-			if(!valid_email($this->data['email']))
+			if(!filter_var($this->data['email'], FILTER_VALIDATE_EMAIL))
 			{
 				$this->_error(24, 'Invalid email address.');
 				return;
