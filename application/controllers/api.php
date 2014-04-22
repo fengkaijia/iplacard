@@ -8,7 +8,7 @@
 class Api extends CI_Controller
 {
 	/**
-	 * @var string 访问令牌 
+	 * @var string 访问令牌
 	 */
 	private $token;
 	
@@ -53,7 +53,10 @@ class Api extends CI_Controller
 		//计时开始
 		$this->benchmark->mark('exec_start');
 		
-		$post = $this->input->get_post(NULL, true);
+		//数据
+		$post = $this->input->post(NULL, true);
+		if(empty($post))
+			$post = $this->input->get(NULL, true);
 		
 		//令牌有效性校验
 		if(!isset($post['access_token']) || strlen($post['access_token']) != 32)
