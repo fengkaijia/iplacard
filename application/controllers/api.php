@@ -250,7 +250,7 @@ class Api extends CI_Controller
 				$this->load->library('sms');
 
 				$this->sms->to($uid);
-				$this->sms->message('您的参会申请已导入 iPlacard 系统并开始审核，一封含有登录信息的邮件已经发送到您的电子邮箱，请通过提供的信息登录 iPlacard 了解申请进度。');
+				$this->sms->message('您的参会申请已导入 iPlacard 系统并开始审核，一封含有登录信息的邮件已经发送到您的电子邮箱，请通过提供的信息登录 iPlacard 了解申请进度。如果未能收到通知邮件，请与我们联系。');
 				
 				if(!$this->sms->queue())
 				{
