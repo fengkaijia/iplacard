@@ -186,9 +186,6 @@ $(document).ready(function() {
 		"bProcessing": true,
 		"bAutoWidth": false,
 		"sAjaxSource": '{$ajax_url}',
-		"fnInitComplete": function() {
-			$('.contact_list').popover();
-		},
 		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 			$(nRow).attr("id", 'seat-' + aData[0]);
 		}
