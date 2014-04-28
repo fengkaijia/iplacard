@@ -444,6 +444,10 @@ class Seat extends CI_Controller
 			$param = $this->_filter_check($this->input->get());
 			$input_param = array();
 			
+			//席位ID
+			if(isset($param['id']))
+				$input_param['id'] = $param['id'];
+			
 			//席位状态
 			if(isset($param['status']))
 				$input_param['status'] = $param['status'];
@@ -627,6 +631,21 @@ class Seat extends CI_Controller
 	function _filter_check($post, $return_uri = false)
 	{
 		$return = array();
+		
+		//席位ID
+		if(isset($post['id']))
+		{
+			$ids = $this->seat_model->get_seat_ids();
+			
+			$id = array();
+			foreach(explode(',', $post['id']) as $param_id)
+			{
+				if(in_array($param_id, $ids))
+					$id[] = $param_id;
+			}
+			if(!empty($id))
+				$return['id'] = $id;
+		}
 		
 		//席位状态
 		if(isset($post['status']))
