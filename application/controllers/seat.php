@@ -491,19 +491,31 @@ class Seat extends CI_Controller
 
 					//操作
 					$operation = '';
-					if($this->admin_model->capable('administrator'))
-						$operation .= anchor("seat/edit/$id", icon('edit', false).'编辑').' ';
 					
-					if(in_array($seat['status'], array('available', 'preserved')) && ($seat['committee'] == $admin_committee || $this->admin_model->capable('administrator')))
+					if($this->input->get('operation') == 'assign')
 					{
-						if($seat['status'] == 'preserved')
-							$operation .= '<a href="#" data-toggle="modal" data-target="#open_seat" onclick="set_seat_box('.$seat['id'].', \'open\');">'.icon('eye', false).'开放</a> ';
-						else
-							$operation .= '<a href="#" data-toggle="modal" data-target="#preserve_seat" onclick="set_seat_box('.$seat['id'].', \'preserve\');">'.icon('eye-slash', false).'保留</a> ';
+						if($seat['status'] != 'preserved' || $seat['committee'] == $admin_committee)
+						{
+							$operation .= '<a href="#" onclick="add_seat('.$seat['id'].', true);">'.icon('plus-square', false).'主项</a> ';
+							$operation .= '<a href="#" onclick="add_seat('.$seat['id'].', false);">'.icon('plus-square-o', false).'备选</a>';
+						}
 					}
+					else
+					{
+						if($this->admin_model->capable('administrator'))
+							$operation .= anchor("seat/edit/$id", icon('edit', false).'编辑').' ';
 					
-					if(empty($seat['primary']) && $this->admin_model->capable('administrator'))
-						$operation .= anchor("seat/edit/?primary=$id", icon('plus-circle', false).'增加').' ';
+						if(in_array($seat['status'], array('available', 'preserved')) && ($seat['committee'] == $admin_committee || $this->admin_model->capable('administrator')))
+						{
+							if($seat['status'] == 'preserved')
+								$operation .= '<a href="#" data-toggle="modal" data-target="#open_seat" onclick="set_seat_box('.$seat['id'].', \'open\');">'.icon('eye', false).'开放</a> ';
+							else
+								$operation .= '<a href="#" data-toggle="modal" data-target="#preserve_seat" onclick="set_seat_box('.$seat['id'].', \'preserve\');">'.icon('eye-slash', false).'保留</a> ';
+						}
+
+						if(empty($seat['primary']) && $this->admin_model->capable('administrator'))
+							$operation .= anchor("seat/edit/?primary=$id", icon('plus-circle', false).'增加 ');
+					}
 					
 					//席位名称
 					$name_line = flag($seat['iso'], true).$seat['name'];
