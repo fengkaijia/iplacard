@@ -100,6 +100,8 @@ class Delegate extends CI_Controller
 	{
 		$this->load->model('interview_model');
 		$this->load->model('group_model');
+		$this->load->model('committee_model');
+		$this->load->model('seat_model');
 		$this->load->helper('unicode');
 		$this->load->helper('avatar');
 		$this->load->helper('date');
@@ -228,12 +230,12 @@ class Delegate extends CI_Controller
 		//席位数据
 		if(!empty($profile['seat']))
 		{
-			$this->load->model('committee_model');
-			$this->load->model('seat_model');
-			
 			$vars['seat'] = $this->seat_model->get_seat($profile['seat']);
 			$vars['committee'] = $this->committee_model->get_committee($vars['seat']['committee']);
 		}
+		
+		//席位选择数据
+		$vars['selectabilities'] = $this->seat_model->get_delegate_selectability($uid);
 		
 		$vars['uid'] = $uid;
 		
