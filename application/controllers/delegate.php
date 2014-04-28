@@ -227,6 +227,12 @@ class Delegate extends CI_Controller
 		$vars['group'] = $group;
 		$vars['head_delegate'] = $head_delegate;
 		
+		//席位选择阶段
+		$seat_open = false;
+		if($profile['application_type'] == 'delegate' && $profile['status_code'] >= $this->delegate_model->status_code('interview_completed') && $profile['status_code'] != $this->delegate_model->status_code('review_refused'))
+			$seat_open = true;
+		$vars['seat_open'] = $seat_open;
+		
 		//席位数据
 		if(!empty($profile['seat']))
 		{
