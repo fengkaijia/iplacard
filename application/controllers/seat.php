@@ -628,7 +628,7 @@ class Seat extends CI_Controller
 	{
 		$return = array();
 		
-		//申请状态
+		//席位状态
 		if(isset($post['status']))
 		{
 			$status = array();
