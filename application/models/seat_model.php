@@ -627,7 +627,8 @@ class Seat_model extends CI_Model
 				'delegate' => $delegate,
 				'admin' => $admin,
 				'primary' => $primary,
-				'recommended' => $recommended
+				'recommended' => $recommended,
+				'time' => time()
 			);
 			
 			$data[] = $insert;
