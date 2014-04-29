@@ -443,7 +443,7 @@ $(document).ready(function() {
 		"bProcessing": true,
 		"bAutoWidth": false,
 		"sAjaxSource": '{$seat_url}',
-		"sDom": "<'row'r>t<'col-xs-4'l><'col-xs-8'p>>",
+		"sDom": "<'row'<'col-xs-6'l><'col-xs-6'f>r>t<'row'<'col-xs-4'i><'col-xs-8'p>>",
 		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 			$(nRow).attr("id", 'seat-' + aData[0]);
 			if($.inArray(aData[0], {$seat_opened_ids}) !== -1) {
