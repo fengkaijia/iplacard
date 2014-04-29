@@ -141,6 +141,7 @@ class Delegate extends CI_Controller
 		
 		//面试数据
 		$interviews = array();
+		$current_interview = NULL;
 		
 		$iids = $this->interview_model->get_interview_ids('delegate', $uid);
 		if($iids)
@@ -181,9 +182,10 @@ class Delegate extends CI_Controller
 				$interviews[$interview['id']] = $interview;
 			}
 			
-			$vars['current_interview'] = $this->interview_model->get_current_interview_id($uid);
+			$current_interview = $this->interview_model->get_current_interview_id($uid);
 		}
 		
+		$vars['current_interview'] = $current_interview;
 		$vars['interviews'] = $interviews;
 		
 		//TODO: 用户事件数据
@@ -232,6 +234,14 @@ class Delegate extends CI_Controller
 		if($profile['application_type'] == 'delegate' && $profile['status_code'] >= $this->delegate_model->status_code('interview_completed') && $profile['status_code'] != $this->delegate_model->status_code('review_refused'))
 			$seat_open = true;
 		$vars['seat_open'] = $seat_open;
+		
+		//显示席位选择
+		$seat_assignable = false;
+		if(!empty($current_interview) && $interviews[$current_interview]['interviewer']['id'] == uid())
+		{
+			$seat_assignable = true;
+		}
+		$vars['seat_assignable'] = $seat_assignable;
 		
 		//席位数据
 		if(!empty($profile['seat']))

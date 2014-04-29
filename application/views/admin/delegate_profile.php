@@ -334,7 +334,7 @@ $this->load->view('header');?>
 			<?php if($seat_open) { ?><div class="tab-pane" id="seat">
 				<?php if($selectabilities) { ?><div id="seat_now">
 					<h3>开放席位分配</h3>
-					<p>以下席位权限已经开放给<?php echo icon('user', false).$profile['name'];?>代表，代表可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候选席位。如需向代表开放分配更多席位选择权限，请点击增加席位分配。</p>
+					<p>以下席位权限已经开放给<?php echo icon('user', false).$profile['name'];?>代表，代表可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候选席位。</p>
 					<table id="selectability_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
 						<thead>
 							<tr>
@@ -352,15 +352,19 @@ $this->load->view('header');?>
 						</tbody>
 					</table>
 					
-					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('th-list');?>增加席位分配</a></p>
-				</div><?php $this->ui->js('footer', "
-						jQuery(function($){
-							$('#seat_add').hide();
-						});
-					");
-				} ?>
+					<?php
+					if($seat_assignable)
+					{
+						$this->ui->js('footer', "
+							jQuery(function($){
+								$('#seat_add').hide();
+							});
+						");
+					?><p>如需向代表开放分配更多席位选择权限，请点击增加席位分配。</p>
+					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('plus');?>增加席位分配</a></p><?php } ?>
+				</div><?php } ?>
 				
-				<div id="seat_add">
+				<?php if($seat_assignable) { ?><div id="seat_add">
 					<h3>分配席位</h3>
 					<p>将会向<?php echo icon('user', false).$profile['name'];?>代表分配席位选择权限。之后，代表将可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候选席位。</p>
 					<table id="seat_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
@@ -383,7 +387,7 @@ $this->load->view('header');?>
 					</table>
 					
 					<?php if($selectabilities) { ?><p><a class="btn btn-primary" onclick="$('#seat_now').show(); $('#seat_add').hide();"><?php echo icon('th-list');?>返回以分配席位列表</a></p><?php } ?>
-				</div>
+				</div><?php } ?>
 			</div><?php } ?>
 		</div>
 	</div>
