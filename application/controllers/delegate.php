@@ -251,7 +251,7 @@ class Delegate extends CI_Controller
 		}
 		
 		//席位选择数据
-		$vars['selectabilities'] = $this->seat_model->get_delegate_selectability($uid);
+		$vars['selectabilities'] = $this->seat_model->get_delegate_selectability($uid, false, false, 'seat');
 		
 		$vars['uid'] = $uid;
 		

@@ -429,6 +429,9 @@ EOT;
 if($selectabilities)
 	$this->ui->js('footer', $selectability_js);
 
+$seat_opened_ids = json_encode(array());
+if($selectabilities)
+	$seat_opened_ids = json_encode ($selectabilities);
 $seat_url = base_url('seat/ajax/list?operation=assign');
 $seat_js = <<<EOT
 $(document).ready(function() {
@@ -443,6 +446,9 @@ $(document).ready(function() {
 		"sDom": "<'row'r>t<'col-xs-4'l><'col-xs-8'p>>",
 		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 			$(nRow).attr("id", 'seat-' + aData[0]);
+			if($.inArray(aData[0], {$seat_opened_ids}) !== -1) {
+				$(nRow).children().eq(5).html('<p class="text-success">已经开放</p>');
+			}
 		}
 	} );
 } );
