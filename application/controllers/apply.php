@@ -287,6 +287,37 @@ class Apply extends CI_Controller
 	}
 	
 	/**
+	 * 席位信息
+	 */
+	function seat()
+	{
+		$this->load->model('seat_model');
+		
+		$selectabilities = $this->seat_model->get_delegate_selectability($this->uid);
+		if(!$selectabilities)
+		{
+			$this->ui->alert('面试官尚未为您分配席位。', 'warning', true);
+			back_redirect();
+			return;
+		}
+		$selectability_count = count($selectabilities);
+		$selectability_primary_count = 0;
+		
+		$selectabilities_primary = $this->seat_model->get_delegate_selectability($this->uid, true);
+		if($selectabilities_primary)
+			$selectability_primary_count = count($selectabilities_primary);
+		
+		$vars = array(
+			'selectability_count' => $selectability_count,
+			'selectability_primary_count' => $selectability_primary_count
+		);
+		
+		$this->ui->now('seat');
+		$this->ui->title('席位');
+		$this->load->view('delegate/seat', $vars);
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = '')
@@ -304,6 +335,45 @@ class Apply extends CI_Controller
 			else
 			{
 				$json['result'] = false;
+			}
+		}
+		elseif($action == 'list_selectability')
+		{
+			$this->load->model('committee_model');
+			$this->load->helper('date');
+			
+			$slids = $this->seat_model->get_delegate_selectability($this->uid);
+			if($slids)
+			{
+				foreach($slids as $slid)
+				{
+					$selectability = $this->seat_model->get_selectability($slid);
+					$seat = $this->seat_model->get_seat($selectability['seat']);
+					
+					//席位名称
+					$name_text = $selectability['recommended'] ? "<strong>{$seat['name']}</strong>" : $seat['name'];
+					$name_line = flag($seat['iso'], true).$name_text;
+					if(!empty($seat['primary']))
+						$name_line .= ' <span class="label label-primary">子席位</span>';
+					elseif(!$this->seat_model->is_single_seat($seat['id']))
+						$name_line .= ' <span class="label label-primary">多代席位</span>';
+					
+					$data = array(
+						$seat['id'], //ID
+						$name_line, //席位名称
+						$this->committee_model->get_committee($seat['committee'], 'name'), //委员会
+						$selectability['primary'] ? '<span class="text-success">主分配席位</span>' : '<span class="text-primary">候选分配席位</span>', //类型
+						sprintf('%1$s（%2$s）', date('n月j日', $selectability['time']), nicetime($selectability['time'])), //开放时间
+					);
+					
+					$datum[] = $data;
+				}
+				
+				$json = array('aaData' => $datum);
+			}
+			else
+			{
+				$json = array('aaData' => array());
 			}
 		}
 		
