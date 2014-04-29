@@ -386,7 +386,7 @@ $this->load->view('header');?>
 						</tbody>
 					</table>
 					
-					<?php if($selectabilities) { ?><p><a class="btn btn-primary" onclick="$('#seat_now').show(); $('#seat_add').hide();"><?php echo icon('th-list');?>返回以分配席位列表</a></p><?php } ?>
+					<?php if($selectabilities) { ?><p><a class="btn btn-primary" onclick="$('#seat_now').show(); $('#seat_add').hide();"><?php echo icon('th-list');?>返回已分配席位列表</a></p><?php } ?>
 				</div><?php } ?>
 			</div><?php } ?>
 		</div>
