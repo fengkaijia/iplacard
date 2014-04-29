@@ -1717,6 +1717,8 @@ class Delegate extends CI_Controller
 			//分配席位选择
 			case 'interview_completed':
 			case 'seat_assigned':
+			case 'invoice_issued':
+			case 'payment_received':
 				if(!$this->admin_model->capable('interviewer'))
 					break;
 				
