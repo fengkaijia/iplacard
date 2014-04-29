@@ -503,6 +503,10 @@ class Seat extends CI_Controller
 							$operation .= '<a href="#" onclick="add_seat('.$seat['id'].', true);">'.icon('plus-square', false).'主项</a> ';
 							$operation .= '<a href="#" onclick="add_seat('.$seat['id'].', false);">'.icon('plus-square-o', false).'备选</a>';
 						}
+						else
+						{
+							$operation .= '<p class="text-warning">不可操作</p>';
+						}
 					}
 					else
 					{
