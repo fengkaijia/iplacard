@@ -50,7 +50,11 @@ elseif($interview['status'] == 'completed' && $score_level) { ?><p>代表于 <em
 elseif($interview['status'] == 'exempted') { ?><p>代表于 <em><?php echo date('Y-m-d H:i', $interview['assign_time']);?></em> 免试通过面试。<?php } ?>
 
 <div id="pre_assign">
-	<p>现在您可以为代表分配席位选择。</p>
+	<?php if(!$assigned)
+		echo '<p>现在您可以为代表分配席位选择。</p>';
+	else
+		echo "<p>您已经为代表开放了 {$selectability_count} 个席位，其中包括 {$selectability_primary_count} 个主项席位。在申请锁定之前，您仍可以追加分配更多席位。</p>";
+	?>
 	<p><a class="btn btn-primary" href="#seat" data-toggle="tab" onclick="open_seat();"><?php echo icon('th-list');?>分配席位</a></p>
 </div>
 

@@ -1719,6 +1719,8 @@ class Delegate extends CI_Controller
 			case 'seat_assigned':
 			case 'invoice_issued':
 			case 'payment_received':
+				$this->load->model('seat_model');
+				
 				if(!$this->admin_model->capable('interviewer'))
 					break;
 				
@@ -1759,6 +1761,23 @@ class Delegate extends CI_Controller
 				}
 				
 				$vars['score_total'] = option('interview_score_total', 5);
+				
+				//已经分配过席位情况
+				$assigned = false;
+				
+				$selectabilities = $this->seat_model->get_delegate_selectability($delegate['id']);
+				if($selectabilities)
+				{
+					$vars['selectability_count'] = count($selectabilities);
+					
+					$selectabilities_primary = $this->seat_model->get_delegate_selectability($delegate['id'], true);
+					if($selectabilities_primary)
+						$vars['selectability_primary_count'] = count($selectabilities_primary);
+					
+					$assigned = true;
+				}
+				
+				$vars['assigned'] = $assigned;
 				
 				return $this->load->view('admin/admission/assign_seat', $vars, true);
 		}
