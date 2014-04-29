@@ -1,4 +1,8 @@
 <?php
+$this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/bootstrap.datatables.css' : 'static/css/bootstrap.datatables.min.css').'" rel="stylesheet">');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.datatables.js' : 'static/js/jquery.datatables.min.js').'"></script>');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/jquery.datatables.locale.js': 'static/js/locales/jquery.datatables.locale.min.js').'"></script>');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.datatables.js' : 'static/js/bootstrap.datatables.min.js').'"></script>');
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/flags.css' : 'static/css/flags.min.css').'" rel="stylesheet">');
 $this->load->view('header');?>
 
@@ -20,7 +24,7 @@ $this->load->view('header');?>
 			<ul class="nav nav-tabs nav-menu">
 				<li class="active"><a href="#application" data-toggle="tab">个人信息</a></li>
 				<li><a href="#interview" data-toggle="tab">面试审核</a></li>
-				<?php if($profile['application_type'] == 'delegate' && $profile['status_code'] >= $this->delegate_model->status_code('interview_completed')) { ?><li><a href="<?php echo base_url("seat/assign/$uid");?>">席位分配</a></li><?php } ?>
+				<?php if($seat_open) { ?><li id="seat_tab"><a href="#seat" data-toggle="tab">席位分配</a></li><?php } ?>
 			</ul>
 		</div>
 	</div>
@@ -326,6 +330,65 @@ $this->load->view('header');?>
 				<h3>事件日志</h3>
 				<?php //TODO ?>
 			</div>
+			
+			<?php if($seat_open) { ?><div class="tab-pane" id="seat">
+				<?php if($selectabilities) { ?><div id="seat_now">
+					<h3>开放席位分配</h3>
+					<p>以下席位权限已经开放给<?php echo icon('user', false).$profile['name'];?>代表，代表可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候选席位。</p>
+					<table id="selectability_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>席位名称</th>
+								<th>委员会</th>
+								<th>等级</th>
+								<th>主项</th>
+								<th>推荐</th>
+							</tr>
+						</thead>
+
+						<tbody>
+
+						</tbody>
+					</table>
+					
+					<?php
+					if($seat_assignable)
+					{
+						$this->ui->js('footer', "
+							jQuery(function($){
+								$('#seat_add').hide();
+							});
+						");
+					?><p>如需向代表开放分配更多席位选择权限，请点击增加席位分配。</p>
+					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('plus');?>增加席位分配</a></p><?php } ?>
+				</div><?php } ?>
+				
+				<?php if($seat_assignable) { ?><div id="seat_add">
+					<h3>分配席位</h3>
+					<p>将会向<?php echo icon('user', false).$profile['name'];?>代表分配席位选择权限。之后，代表将可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候选席位。</p>
+					<table id="seat_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>席位名称</th>
+								<th>委员会</th>
+								<th>席位状态</th>
+								<th>等级</th>
+								<th>分配代表</th>
+								<th>可分配情况</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+
+						<tbody>
+
+						</tbody>
+					</table>
+					
+					<?php if($selectabilities) { ?><p><a class="btn btn-primary" onclick="$('#seat_now').show(); $('#seat_add').hide();"><?php echo icon('th-list');?>返回已分配席位列表</a></p><?php } ?>
+				</div><?php } ?>
+			</div><?php } ?>
 		</div>
 	</div>
 	
@@ -349,6 +412,50 @@ $this->load->view('header');?>
 </div>
 
 <?php
+$selectability_url = base_url("seat/ajax/list_selectability?delegate=$uid");
+$selectability_js = <<<EOT
+$(document).ready(function() {
+	$('#selectability_list').dataTable( {
+		"aoColumnDefs": [
+			{ "bSortable": false, "aTargets": [ 0 ] }
+		],
+		"bProcessing": true,
+		"bAutoWidth": false,
+		"sAjaxSource": '{$selectability_url}',
+		"sDom": "<'row'r>t<'col-xs-8 col-xs-offset-4'p>>"
+	} );
+} );
+EOT;
+if($selectabilities)
+	$this->ui->js('footer', $selectability_js);
+
+$seat_opened_ids = json_encode(array());
+if($selectabilities)
+	$seat_opened_ids = json_encode ($selectabilities);
+$seat_url = base_url('seat/ajax/list?operation=assign');
+$seat_js = <<<EOT
+$(document).ready(function() {
+	$('#seat_list').dataTable( {
+		"aoColumnDefs": [
+			{ "bSortable": false, "aTargets": [ 0, 7 ] },
+			{ "bVisible": false, "aTargets": [ 5, 6 ] }
+		],
+		"bProcessing": true,
+		"bAutoWidth": false,
+		"sAjaxSource": '{$seat_url}',
+		"sDom": "<'row'<'col-xs-6'l><'col-xs-6'f>r>t<'row'<'col-xs-4'i><'col-xs-8'p>>",
+		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+			$(nRow).attr("id", 'seat-' + aData[0]);
+			if($.inArray(aData[0], {$seat_opened_ids}) !== -1) {
+				$(nRow).children().eq(5).html('<p class="text-success">已经开放</p>');
+			}
+		}
+	} );
+} );
+EOT;
+if($seat_assignable)
+	$this->ui->js('footer', $seat_js);
+
 $ajax_url = base_url("delegate/ajax/sidebar?id=$uid");
 $operation_js = <<<EOT
 $.ajax({

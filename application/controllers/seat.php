@@ -444,6 +444,10 @@ class Seat extends CI_Controller
 			$param = $this->_filter_check($this->input->get());
 			$input_param = array();
 			
+			//席位ID
+			if(isset($param['id']))
+				$input_param['id'] = $param['id'];
+			
 			//席位状态
 			if(isset($param['status']))
 				$input_param['status'] = $param['status'];
@@ -491,19 +495,35 @@ class Seat extends CI_Controller
 
 					//操作
 					$operation = '';
-					if($this->admin_model->capable('administrator'))
-						$operation .= anchor("seat/edit/$id", icon('edit', false).'编辑').' ';
 					
-					if(in_array($seat['status'], array('available', 'preserved')) && ($seat['committee'] == $admin_committee || $this->admin_model->capable('administrator')))
+					if($this->input->get('operation') == 'assign')
 					{
-						if($seat['status'] == 'preserved')
-							$operation .= '<a href="#" data-toggle="modal" data-target="#open_seat" onclick="set_seat_box('.$seat['id'].', \'open\');">'.icon('eye', false).'开放</a> ';
+						if($seat['status'] != 'preserved' || $seat['committee'] == $admin_committee)
+						{
+							$operation .= '<a href="#" onclick="add_seat('.$seat['id'].', true);">'.icon('plus-square', false).'主项</a> ';
+							$operation .= '<a href="#" onclick="add_seat('.$seat['id'].', false);">'.icon('plus-square-o', false).'备选</a>';
+						}
 						else
-							$operation .= '<a href="#" data-toggle="modal" data-target="#preserve_seat" onclick="set_seat_box('.$seat['id'].', \'preserve\');">'.icon('eye-slash', false).'保留</a> ';
+						{
+							$operation .= '<p class="text-warning">不可操作</p>';
+						}
 					}
+					else
+					{
+						if($this->admin_model->capable('administrator'))
+							$operation .= anchor("seat/edit/$id", icon('edit', false).'编辑').' ';
 					
-					if(empty($seat['primary']) && $this->admin_model->capable('administrator'))
-						$operation .= anchor("seat/edit/?primary=$id", icon('plus-circle', false).'增加').' ';
+						if(in_array($seat['status'], array('available', 'preserved')) && ($seat['committee'] == $admin_committee || $this->admin_model->capable('administrator')))
+						{
+							if($seat['status'] == 'preserved')
+								$operation .= '<a href="#" data-toggle="modal" data-target="#open_seat" onclick="set_seat_box('.$seat['id'].', \'open\');">'.icon('eye', false).'开放</a> ';
+							else
+								$operation .= '<a href="#" data-toggle="modal" data-target="#preserve_seat" onclick="set_seat_box('.$seat['id'].', \'preserve\');">'.icon('eye-slash', false).'保留</a> ';
+						}
+
+						if(empty($seat['primary']) && $this->admin_model->capable('administrator'))
+							$operation .= anchor("seat/edit/?primary=$id", icon('plus-circle', false).'增加 ');
+					}
 					
 					//席位名称
 					$name_line = flag($seat['iso'], true).$seat['name'];
@@ -568,17 +588,57 @@ class Seat extends CI_Controller
 					);
 					
 					$datum[] = $data;
-
-					$json = array('aaData' => $datum);
 				}
+				
+				$json = array('aaData' => $datum);
 			}
 			else
 			{
 				$json = array('aaData' => array());
 			}
-			
-			echo json_encode($json);
 		}
+		elseif($action == 'list_selectability')
+		{
+			$uid = intval($this->input->get('delegate'));
+			if(empty($uid))
+				return;
+			
+			$slids = $this->seat_model->get_delegate_selectability($uid);
+			if($slids)
+			{
+				foreach($slids as $slid)
+				{
+					$selectability = $this->seat_model->get_selectability($slid);
+					$seat = $this->seat_model->get_seat($selectability['seat']);
+					
+					//席位名称
+					$name_line = flag($seat['iso'], true).$seat['name'];
+					if(!empty($seat['primary']))
+						$name_line .= ' <span class="label label-primary">子席位</span>';
+					elseif(!$this->seat_model->is_single_seat($id))
+						$name_line .= ' <span class="label label-primary">多代席位</span>';
+					
+					$data = array(
+						$seat['id'], //ID
+						$name_line, //席位名称
+						$this->committee_model->get_committee($seat['committee'], 'abbr'), //委员会
+						$seat['level'], //席位等级
+						$selectability['primary'] ? '<span class="text-success">'.icon('check-circle', false).'</span>' : '', //主项
+						$selectability['recommended'] ? '<span class="text-success">'.icon('star', false).'</span>' : '', //推荐
+					);
+					
+					$datum[] = $data;
+				}
+				
+				$json = array('aaData' => $datum);
+			}
+			else
+			{
+				$json = array('aaData' => array());
+			}
+		}
+		
+		echo json_encode($json);
 	}
 	
 	/**
@@ -616,7 +676,22 @@ class Seat extends CI_Controller
 	{
 		$return = array();
 		
-		//申请状态
+		//席位ID
+		if(isset($post['id']))
+		{
+			$ids = $this->seat_model->get_seat_ids();
+			
+			$id = array();
+			foreach(explode(',', $post['id']) as $param_id)
+			{
+				if(in_array($param_id, $ids))
+					$id[] = $param_id;
+			}
+			if(!empty($id))
+				$return['id'] = $id;
+		}
+		
+		//席位状态
 		if(isset($post['status']))
 		{
 			$status = array();
