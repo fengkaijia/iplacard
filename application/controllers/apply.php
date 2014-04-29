@@ -341,11 +341,13 @@ class Apply extends CI_Controller
 			case 'seat_assigned':
 				$w['seat'] = '席位已分配';
 			case 'interview_assigned':
-				$w['interview'] = '已分配面试';
 			case 'interview_arranged':
-				$w['interview'] = '已安排面试';
 			case 'interview_completed':
 				$w['interview'] = '面试已通过';
+				if($status == 'interview_assigned')
+					$w['interview'] = '已分配面试';
+				elseif($status == 'interview_arranged')
+					$w['interview'] = '已安排面试';
 			case 'review_passed':
 				$w['admit'] = '初审已通过';
 			case 'application_imported':
