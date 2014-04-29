@@ -81,7 +81,7 @@ elseif($interview['status'] == 'exempted') { ?><p>代表于 <em><?php echo date(
 	
 		<?php echo form_button(array(
 			'name' => 'submit',
-			'content' => icon('th-list').'提交分配',
+			'content' => icon('check').'提交分配',
 			'type' => 'submit',
 			'class' => 'btn btn-primary',
 			'onclick' => 'loader(this);'
