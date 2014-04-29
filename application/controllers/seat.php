@@ -615,7 +615,7 @@ class Seat extends CI_Controller
 					$name_line = flag($seat['iso'], true).$seat['name'];
 					if(!empty($seat['primary']))
 						$name_line .= ' <span class="label label-primary">子席位</span>';
-					elseif(!$this->seat_model->is_single_seat($id))
+					elseif(!$this->seat_model->is_single_seat($seat['id']))
 						$name_line .= ' <span class="label label-primary">多代席位</span>';
 					
 					$data = array(
