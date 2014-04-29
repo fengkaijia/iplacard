@@ -1267,7 +1267,7 @@ class Delegate extends CI_Controller
 						
 						$this->email->to($delegate['email']);
 						$this->email->subject('席位已分配');
-						$this->email->html($this->parser->parse_string(option('email_delegate_seat_assigned', "我们已经向您分配了总计 {count} 个席位，您将可以在其中选择 1 个席位为其主席位，同时您还可以选择最多 {backorder} 个席位为候选席位，请尽快登录 iPlacard 系统选择您的席位。"), $data, true));
+						$this->email->html($this->parser->parse_string(option('email_delegate_seat_assigned', "我们已经向您分配了总计 {count} 个席位，您将可以在其中选择 1 个席位为您的主席位，同时您还可以选择最多 {backorder} 个席位为候选席位，请尽快登录 iPlacard 系统选择您的席位。"), $data, true));
 						$this->email->send();
 
 						//短信通知代表
