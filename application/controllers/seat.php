@@ -584,17 +584,57 @@ class Seat extends CI_Controller
 					);
 					
 					$datum[] = $data;
-
-					$json = array('aaData' => $datum);
 				}
+				
+				$json = array('aaData' => $datum);
 			}
 			else
 			{
 				$json = array('aaData' => array());
 			}
-			
-			echo json_encode($json);
 		}
+		elseif($action == 'list_selectability')
+		{
+			$uid = intval($this->input->get('delegate'));
+			if(empty($uid))
+				return;
+			
+			$slids = $this->seat_model->get_delegate_selectability($uid);
+			if($slids)
+			{
+				foreach($slids as $slid)
+				{
+					$selectability = $this->seat_model->get_selectability($slid);
+					$seat = $this->seat_model->get_seat($selectability['seat']);
+					
+					//席位名称
+					$name_line = flag($seat['iso'], true).$seat['name'];
+					if(!empty($seat['primary']))
+						$name_line .= ' <span class="label label-primary">子席位</span>';
+					elseif(!$this->seat_model->is_single_seat($id))
+						$name_line .= ' <span class="label label-primary">多代席位</span>';
+					
+					$data = array(
+						$seat['id'], //ID
+						$name_line, //席位名称
+						$this->committee_model->get_committee($seat['committee'], 'abbr'), //委员会
+						$seat['level'], //席位等级
+						$selectability['primary'] ? '<span class="text-success">'.icon('check-circle', false).'</span>' : '', //主项
+						$selectability['recommended'] ? '<span class="text-success">'.icon('star', false).'</span>' : '', //推荐
+					);
+					
+					$datum[] = $data;
+				}
+				
+				$json = array('aaData' => $datum);
+			}
+			else
+			{
+				$json = array('aaData' => array());
+			}
+		}
+		
+		echo json_encode($json);
 	}
 	
 	/**
