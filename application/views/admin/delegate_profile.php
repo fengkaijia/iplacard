@@ -426,7 +426,8 @@ $(document).ready(function() {
 	} );
 } );
 EOT;
-$this->ui->js('footer', $selectability_js);
+if($selectabilities)
+	$this->ui->js('footer', $selectability_js);
 
 $seat_url = base_url('seat/ajax/list?operation=assign');
 $seat_js = <<<EOT
@@ -446,7 +447,8 @@ $(document).ready(function() {
 	} );
 } );
 EOT;
-$this->ui->js('footer', $seat_js);
+if($seat_assignable)
+	$this->ui->js('footer', $seat_js);
 
 $ajax_url = base_url("delegate/ajax/sidebar?id=$uid");
 $operation_js = <<<EOT
