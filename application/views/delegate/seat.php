@@ -95,8 +95,10 @@ $this->load->view('header');?>
 						?>
 					</div>
 					<?php $this->ui->js('footer', "$('select[name=\"primary\"]').change(function () {
-						deselect_primary($('input[name=seat_primary]').val());
-						select_primary($('select[name=\"primary\"]').val());
+						if($('select[name=\"primary\"]').val() != null) {
+							deselect_primary($('input[name=seat_primary]').val());
+							select_primary($('select[name=\"primary\"]').val());
+						}
 					});");?>
 				</div>
 
@@ -156,7 +158,8 @@ $icon_add_backorder = icon('plus-square-o', false);
 $select_js = <<<EOT
 function select_seat(id, primary) {
 	if(primary === true) {
-		deselect_primary($('input[name=seat_primary]').val());
+		if($('input[name=seat_primary]').val() != '')
+			deselect_primary($('input[name=seat_primary]').val());
 		select_primary(id);
 	} else {
 		select_backorder(id);
