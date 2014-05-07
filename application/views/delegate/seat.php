@@ -243,6 +243,8 @@ $('.selectpicker').selectpicker({
 	iconBase: 'fa',
 	tickIcon: 'fa-check'
 });
+
+$('.selectpicker').selectpicker('val', null);
 EOT;
 $this->ui->js('footer', $selectpicker_js);
 $this->load->view('footer');?>
