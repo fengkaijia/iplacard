@@ -63,6 +63,16 @@ class Invoice_model extends CI_Model
 	}
 	
 	/**
+	 * 获取指定代表的所有帐单
+	 */
+	function get_delegate_invoices($delegate, $only_unpaid = false)
+	{
+		if($only_unpaid)
+			return $this->get_invoice_ids('delegate', $delegate, 'status', 'unpaid');
+		return $this->get_invoice_ids('delegate', $delegate);
+	}
+	
+	/**
 	 * 编辑/添加帐单
 	 * @return int 新的帐单ID
 	 */
