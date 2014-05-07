@@ -1569,7 +1569,7 @@ class Delegate extends CI_Controller
 						$queue = !$queues ? 0 : count($queues);
 
 						$committee = empty($admin['committee']) ? 0 : $admin['committee'];
-						if($committee > 0 && !isset($committees['committee']))
+						if($committee > 0 && !isset($committees[$committee]))
 							$committees[$committee] = $this->committee_model->get_committee($committee);
 
 						$select[$committee][] = array(
