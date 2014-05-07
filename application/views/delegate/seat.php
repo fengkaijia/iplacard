@@ -132,10 +132,6 @@ $this->load->view('header');?>
 </div>
 
 <?php
-$seat_primary_ids = json_encode(array());
-if($selectability_primary)
-	$seat_primary_ids = json_encode($selectability_primary);
-
 $selectability_js = <<<EOT
 $(document).ready(function() {
 	$('#selectability_list').dataTable( {
@@ -151,6 +147,9 @@ EOT;
 $this->ui->js('footer', $selectability_js);
 
 //TODO
+$seat_primary_ids = json_encode(array());
+if($selectability_primary)
+	$seat_primary_ids = json_encode($selectability_primary);
 $icon_remove = icon('minus-square', false);
 $icon_add_primary = icon('plus-square', false);
 $icon_add_backorder = icon('plus-square-o', false);
