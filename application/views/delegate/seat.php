@@ -78,7 +78,7 @@ $this->load->view('header');?>
 			{
 				$this->ui->js('footer', "$('#seat_confirm_lock').popover();");
 				?><a id="seat_confirm_lock" data-original-title="席位选择尚未开放" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="现在您尚不能选择席位，席位选择功能将在稍后统一开放。" title="">确认席位选择</a><?php } else { ?>
-			<a id="seat_confirm_start" href="#" class="btn btn-primary" onclick="$('#pre_select').hide(); $('#do_select').show();">确认席位选择</a><?php } ?>
+			<a id="seat_confirm_start" href="#" class="btn btn-primary" onclick="$('#pre_select').hide(); $('#do_select').show(); $('#selectability_list').dataTable().fnSetColumnVis( 5, true );">确认席位选择</a><?php } ?>
 		</div>
 		
 		<div id="do_select">
@@ -140,7 +140,7 @@ $selectability_js = <<<EOT
 $(document).ready(function() {
 	$('#selectability_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bVisible": false, "aTargets": [ 0 ] }
+			{ "bVisible": false, "aTargets": [ 0, 5 ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,
