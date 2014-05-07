@@ -111,7 +111,7 @@
 			
 			<br />
 			
-			<?php echo form_fieldset('个人头像'); ?>
+			<?php echo form_fieldset('个人头像', array('id' => 'avatar')); ?>
 				<p>您可以设置您的个人头像，它将显示在 iPlacard 界面和与 iPlacard 关联的应用中，如果您未设置个人头像，我们将使用 Gravatar 代替显示头像。</p>
 				
 				<div class="form-group">

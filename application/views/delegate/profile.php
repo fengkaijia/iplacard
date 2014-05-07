@@ -4,7 +4,7 @@
 	<div class="row">
 		<div class="col-md-8">
 			<h1 style="position: relative;">
-				<a class="thumbnail" style="width: 50px; height: 50px; position: absolute; margin-top: -2px;">
+				<a href="<?php echo base_url('account/settings/home#avatar');?>" class="thumbnail" style="width: 50px; height: 50px; position: absolute; margin-top: -2px;">
 					<?php echo avatar($delegate['id'], 40, 'img');?>
 				</a>
 				<span style="margin-left: 58px;">个人信息</span>
