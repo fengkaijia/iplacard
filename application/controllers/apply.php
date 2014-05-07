@@ -317,7 +317,7 @@ class Apply extends CI_Controller
 			//主要席位统计
 			if($selectability['primary'])
 			{
-				$selectability_primary[] = $selectability['seat'];
+				$selectability_primary[] = intval($selectability['seat']);
 				$selectability_primary_count++;
 			}
 			
