@@ -137,6 +137,23 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}interview` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='面试' AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}invoice` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '帐单ID',
+  `delegate` int(11) NOT NULL COMMENT '代表ID',
+  `title` text NOT NULL COMMENT '帐单名称',
+  `items` text COMMENT '帐单明细',
+  `discounts` text COMMENT '折扣明细',
+  `amount` decimal(10,0) NOT NULL COMMENT '帐单总额',
+  `generate_time` int(11) NOT NULL COMMENT '帐单生成时间',
+  `due_time` int(11) NOT NULL COMMENT '帐单到期时间',
+  `receive_time` int(11) DEFAULT NULL COMMENT '帐单支付时间',
+  `status` text NOT NULL COMMENT '支付状态',
+  `trigger` text COMMENT '操作触发器',
+  `transaction` text COMMENT '转账明细',
+  `cashier` int(11) DEFAULT NULL COMMENT '确认管理员ID',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='帐单' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}knowledgebase` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '文章ID',
   `kb` int(11) NOT NULL DEFAULT '0' COMMENT '显示ID',
