@@ -73,6 +73,31 @@ class Invoice_model extends CI_Model
 	}
 	
 	/**
+	 * 转换状态为文本
+	 * @param string|int $status 状态或帐单ID
+	 * @return string 状态文本
+	 */
+	function status_text($status)
+	{
+		//如果为帐单ID
+		if(is_int($status) || intval($status) != 0)
+			$status = $this->get_invoice($status, 'status');
+		
+		switch($status)
+		{
+			case 'unpaid':
+				return '未支付';
+			case 'paid':
+				return '已支付';
+			case 'cancelled':
+				return '已取消';
+			case 'refunded':
+				return '已退款';
+		}
+		return false;
+	}
+	
+	/**
 	 * 编辑/添加帐单
 	 * @return int 新的帐单ID
 	 */
