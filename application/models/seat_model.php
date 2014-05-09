@@ -260,8 +260,15 @@ class Seat_model extends CI_Model
 			return false;
 		
 		$data = array('status' => $status);
-		if($change_time)
-			$data['time'] = time();
+		if($change_time != false)
+		{
+			if(is_null($change_time))
+				$data['time'] = NULL;
+			elseif($change_time != true)
+				$data['time'] = $change_time;
+			else
+				$data['time'] = time();
+		}
 		
 		return $this->edit_seat($data, $id);
 	}
