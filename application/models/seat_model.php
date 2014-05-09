@@ -408,6 +408,26 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
+	 * 获取指定代表的所有候选席位
+	 */
+	function get_delegate_backorder($delegate, $only_valid = true)
+	{
+		if(!$only_valid)
+			return $this->get_backorder_ids('delegate', $delegate);
+		
+		$non_forever = $this->get_backorder_ids('delegate', $delegate, 'expire_time >=', time());
+		if(!$non_forever)
+			$non_forever = array();
+		
+		$forever = $this->get_backorder_ids('delegate', $delegate, 'expire_time', 0);
+		if(!$forever)
+			$forever = array();
+		
+		$all = array_merge($forever, $non_forever);
+		return empty($all) ? false : $all;
+	}
+	
+	/**
 	 * 编辑/添加席位延期请求
 	 * @return int 新的延期请求ID
 	 */
