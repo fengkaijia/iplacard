@@ -125,6 +125,14 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
+	 * 获取代表选定席位
+	 */
+	function get_delegate_seat($delegate)
+	{
+		return $this->get_seat_id('delegate', $delegate);
+	}
+	
+	/**
 	 * 转换状态为文本
 	 * @param string|int $status 状态或席位ID
 	 * @return string 状态文本
