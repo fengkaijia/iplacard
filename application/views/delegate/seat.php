@@ -8,13 +8,13 @@ foreach($selectabilities as $selectability)
 	$groupname = $committees[$selectability['seat']['committee']]['name'];
 	
 	if($selectability['primary'])
-		$option_primary[$groupname][$selectability['id']] = $selectability['seat']['name'];
+		$option_primary[$groupname][$selectability['seat']['id']] = $selectability['seat']['name'];
 	
-	$option_backorder[$groupname][$selectability['id']] = $selectability['seat']['name'];
-	$option_html[$selectability['id']] = flag($selectability['seat']['iso'], true, true, false, false).$selectability['seat']['name'];
+	$option_backorder[$groupname][$selectability['seat']['id']] = $selectability['seat']['name'];
+	$option_html[$selectability['seat']['id']] = flag($selectability['seat']['iso'], true, true, false, false).$selectability['seat']['name'];
 	
 	if($selectability['recommended'])
-		$option_highlight[] = $selectability['id'];
+		$option_highlight[] = $selectability['seat']['id'];
 }
 
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/bootstrap.datatables.css' : 'static/css/bootstrap.datatables.min.css').'" rel="stylesheet">');
