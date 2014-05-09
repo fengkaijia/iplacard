@@ -636,7 +636,7 @@ class Seat_model extends CI_Model
 	function edit_selectability($data, $id = '')
 	{
 		$this->db->where('id', $id);
-		return $this->db->update('seat', $data);
+		return $this->db->update('seat_selectability', $data);
 	}
 	
 	/**
