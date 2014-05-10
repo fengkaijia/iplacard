@@ -127,7 +127,7 @@ else
 	define('IP_INSTANCE_ID', 0);
 	
 	//默认使用访问请求的域名
-	define('IP_INSTANCE_DOMAIN', IP_REQUEST_DOMAIN);
+	define('IP_INSTANCE_DOMAIN', IP_DOMAIN);
 }
 
 /* End of iPlacard Instances initialization */

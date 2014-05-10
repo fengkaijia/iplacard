@@ -14,7 +14,7 @@
 | path to your installation.
 |
 */
-$config['base_url']	= '';
+$config['base_url']	= IP_SSL ? 'https://'.IP_INSTANCE_DOMAIN.'/' : 'http://'.IP_INSTANCE_DOMAIN.'/';
 
 /*
 |--------------------------------------------------------------------------

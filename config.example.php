@@ -65,6 +65,11 @@ define('IP_DEFAULT_API_SECRET_KEY', '');
 define('IP_MULTISITE', false);
 
 /**
+ * 默认域名（多站点模式启用情况下被IP_INSTANCE_DOMAIN代替）
+ */
+define('IP_DOMAIN', '');
+
+/**
  * 静态文件CDN
  */
 define('IP_STATIC_CDN', '');
