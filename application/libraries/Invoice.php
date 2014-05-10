@@ -303,8 +303,8 @@ class Invoice extends CI_Model
 			$this->CI->sms->queue();
 		}
 		
-		$this->delegate_model->add_event($this->delegate, 'invoice_generated', array('invoice' => $this->id));
-		$this->system_model->log('invoice_generated', array('invoice' => $this->id));
+		$this->CI->delegate_model->add_event($this->delegate, 'invoice_generated', array('invoice' => $this->id));
+		$this->CI->system_model->log('invoice_generated', array('invoice' => $this->id));
 		
 		//无需支付情况
 		if($this->amount == 0)
@@ -326,8 +326,8 @@ class Invoice extends CI_Model
 		
 		$this->CI->invoice_model->edit_invoice($data, $this->id);
 		
-		$this->delegate_model->add_event($this->delegate, 'invoice_updated', array('invoice' => $this->id));
-		$this->system_model->log('invoice_updated', array('invoice' => $this->id));
+		$this->CI->delegate_model->add_event($this->delegate, 'invoice_updated', array('invoice' => $this->id));
+		$this->CI->system_model->log('invoice_updated', array('invoice' => $this->id));
 		
 		if($notice)
 		{
@@ -413,8 +413,8 @@ class Invoice extends CI_Model
 			$this->CI->sms->queue();
 		}
 		
-		$this->delegate_model->add_event($this->delegate, 'invoice_received', array('invoice' => $this->id));
-		$this->system_model->log('invoice_received', array('invoice' => $this->id));
+		$this->CI->delegate_model->add_event($this->delegate, 'invoice_received', array('invoice' => $this->id));
+		$this->CI->system_model->log('invoice_received', array('invoice' => $this->id));
 	}
 	
 	/**
@@ -464,8 +464,8 @@ class Invoice extends CI_Model
 			$this->CI->sms->queue();
 		}
 		
-		$this->delegate_model->add_event($this->delegate, 'invoice_cancelled', array('invoice' => $this->id));
-		$this->system_model->log('invoice_cancelled', array('invoice' => $this->id));
+		$this->CI->delegate_model->add_event($this->delegate, 'invoice_cancelled', array('invoice' => $this->id));
+		$this->CI->system_model->log('invoice_cancelled', array('invoice' => $this->id));
 	}
 	
 	/**
