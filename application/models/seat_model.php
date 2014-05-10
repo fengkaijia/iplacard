@@ -604,7 +604,7 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
-	 * 根据一组席位许可ID获取对应代表ID
+	 * 根据一组席位许可ID获取对应席位ID
 	 * @param int|array $ids 一个或一组席位许可ID
 	 */
 	function get_seats_by_selectabilities($ids)
