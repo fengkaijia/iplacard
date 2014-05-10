@@ -14,6 +14,8 @@ class IP_Email extends CI_Email
 	 */
 	var $subject = '';
 	
+	var $_attach_new_name = array();
+	
 	function __construct($config = array())
 	{
 		parent::__construct($config);
@@ -62,8 +64,46 @@ class IP_Email extends CI_Email
 	{
 		parent::clear($clear_attachments);
 		
+		if($clear_attachments !== false)
+			$this->_attach_new_name = array();
+		
 		$this->subject = '';
 		$this->_set_default();
+	}
+	
+	/**
+	 * 附件支持重命名
+	 */
+	public function attach($filename, $disposition = 'attachment', $new_name = NULL)
+	{
+		parent::attach($filename, $disposition);
+		
+		$this->_attach_new_name[] = $new_name;
+	}
+	
+	/**
+	 * 生成邮件内容
+	 */
+	protected function _build_message()
+	{
+		parent::_build_message();
+		
+		$new = array();
+		$old = array();
+		
+		for($i=0; $i < count($this->_attach_name); $i++)
+		{
+			$filename = $this->_attach_name[$i];
+			$basename = basename($filename);
+			
+			$old[] = "name=\"".$basename."\"";
+			$new[] = ($this->_attach_new_name[$i] === NULL) ? "name=\"".$basename."\"" : "name=\"".$this->_attach_new_name[$i]."\"";
+		}
+		
+		if(!empty($old))
+			$this->_finalbody = str_replace($old, $new, $this->_finalbody);
+		
+		return;
 	}
 	
 	/**
