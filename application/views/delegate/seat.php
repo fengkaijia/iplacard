@@ -89,7 +89,7 @@ $this->load->view('header');?>
 				<div class="form-group <?php if(form_has_error('primary')) echo 'has-error';?>">
 					<?php echo form_label('席位', 'primary', array('class' => 'control-label'));?>
 					<div>
-						<?php echo form_dropdown_select('primary', $option_primary, array(), $selectability_primary_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-width="100%" title="选择主席位"');
+						<?php echo form_dropdown_select('primary', $option_primary, !$selected_seat ? array() : $selected_seat, $selectability_primary_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-width="100%" title="选择主席位"');
 						if(form_has_error('primary'))
 							echo form_error('primary');
 						?>
@@ -105,7 +105,7 @@ $this->load->view('header');?>
 				<div class="form-group <?php if(form_has_error('backorder')) echo 'has-error';?>">
 					<?php echo form_label('候选席位', 'backorder', array('class' => 'control-label'));?>
 					<div>
-						<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, array(), $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个候选席位"');
+						<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, !$selected_backorder ? array() : $selected_backorder, $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个候选席位"');
 						if(form_has_error('backorder'))
 							echo form_error('backorder');
 						?>
@@ -246,8 +246,10 @@ $('.selectpicker').selectpicker({
 	iconBase: 'fa',
 	tickIcon: 'fa-check'
 });
-
-$('.selectpicker').selectpicker('val', null);
 EOT;
 $this->ui->js('footer', $selectpicker_js);
+
+if(!$selected_seat)
+	$this->ui->js('footer', "$('.selectpicker').selectpicker('val', null);");
+
 $this->load->view('footer');?>

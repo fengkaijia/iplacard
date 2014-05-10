@@ -509,6 +509,13 @@ class Apply extends CI_Controller
 			}
 		}
 		
+		//选定席位
+		$selected_seat = $this->seat_model->get_delegate_seat($this->uid);
+		$selected_backorder = $this->seat_model->get_delegate_backorder($this->uid);
+		if($selected_backorder)
+			$selected_backorder = $this->seat_model->get_seats_by_backorders($selected_backorder);
+		
+		//席位选择
 		$selectability_primary = array();
 		$selectability_primary_count = 0;
 		
@@ -541,6 +548,8 @@ class Apply extends CI_Controller
 			'selectability_count' => $selectability_count,
 			'selectability_primary' => $selectability_primary,
 			'selectability_primary_count' => $selectability_primary_count,
+			'selected_seat' => $selected_seat,
+			'selected_backorder' => $selected_backorder,
 			'select_open' => $select_open,
 			'select_backorder_max' => $select_backorder_max
 		);
