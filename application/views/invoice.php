@@ -24,22 +24,19 @@ $transaction_amount = 0;
 		</tr>
 	</table>
 
+	<h3 style="padding-bottom: 8px;">帐单 #<?php echo $invoice['id'];?></h3>
+	
+	<h4><?php echo $invoice['title'];?></h4>
+	
 	<table width="100%">
 		<tr>
 			<td width="65%">
-				<h3>帐单 #<?php echo $invoice['id'];?></h3>
-				<div style="height: 5px;"></div>
-				
-				<h4><?php echo $invoice['title'];?></h4>
 				<p>生成日期：<?php echo date('Y年m月d日', $invoice['generate_time']);?></p>
 				<p>到期时间：<?php echo date('Y年m月d日', $invoice['due_time']);?></p>
 			</td>
 			<td width="35%">
-				<h3></h3>
-				<div style="height: 5px;"></div>
-				
-				<h4>支付状态：<strong class="text-<?php echo $invoice['status_class'];?>"><?php echo $invoice['status_text'];?></strong></h4>
-				<p><?php if($invoice['status'] == 'paid') echo '支付于'.date('Y年m月d日', $invoice['receive_time']);?></p>
+				<p>支付状态：<strong class="text-<?php echo $invoice['status_class'];?>"><?php echo $invoice['status_text'];?></strong></p>
+				<p><?php if($invoice['status'] == 'paid') echo '支付于'.date('Y年m月d日', $invoice['receive_time']);?>&nbsp;</p>
 			</td>
 		</tr>
 	</table>
