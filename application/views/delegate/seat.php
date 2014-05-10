@@ -83,7 +83,7 @@ $this->load->view('header');?>
 		
 		<div id="do_select">
 			<?php
-			echo form_open_multipart('apply/seat', array('id' => 'seat_form'), array('seat_primary' => ''));?>
+			echo form_open_multipart('apply/seat/select', array('id' => 'seat_form'), array('seat_primary' => ''));?>
 				<p>请在下方下拉框中选择您的参会席位和候选席位。完成选择后请点击提交席位选择按钮。</p>
 
 				<div class="form-group <?php if(form_has_error('primary')) echo 'has-error';?>">
