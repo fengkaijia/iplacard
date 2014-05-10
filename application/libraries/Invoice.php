@@ -469,6 +469,14 @@ class Invoice extends CI_Model
 	}
 	
 	/**
+	 * 获取帐单信息
+	 */
+	function get($item)
+	{
+		return $this->{$item};
+	}
+	
+	/**
 	 * 载入帐单
 	 */
 	function load($id)
