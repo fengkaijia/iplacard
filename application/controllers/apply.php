@@ -385,7 +385,7 @@ class Apply extends CI_Controller
 				
 				$original_backorder = $this->seat_model->get_delegate_backorder($this->uid);
 				if($original_backorder)
-					$backorder_remove = $original_backorder;
+					$backorder_remove = $this->seat_model->get_seats_by_backorders($original_backorder);
 				
 				$select_backorder_info = array();
 				foreach($select_backorders as $select_backorder)

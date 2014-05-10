@@ -388,6 +388,34 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
+	 * 根据一组延期请求ID获取对应席位ID
+	 * @param int|array $ids 一个或一组延期请求ID
+	 */
+	function get_seats_by_backorders($ids)
+	{
+		//仅单个延期请求ID
+		if(is_int($ids) || is_string($ids))
+			$ids = array($ids);
+		
+		$this->db->where_in('id', $ids);
+		
+		$query = $this->db->get('seat_backorder');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回ID
+		foreach($query->result_array() as $data)
+		{
+			$array[] = $data['seat'];
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
 	 * 获取指定席位的所有延期请求
 	 */
 	function get_seat_backorders($seat, $only_valid = true)
