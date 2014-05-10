@@ -37,7 +37,7 @@ class Seat_model extends CI_Model
 			
 			foreach($data as $key => $value)
 			{
-				if(empty($value))
+				if(empty($value) && !in_array($key, array('delegate', 'status', 'time')))
 					$data[$key] = $primary[$key];
 			}
 		}
