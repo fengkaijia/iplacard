@@ -314,9 +314,10 @@ class Apply extends CI_Controller
 			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 		
 			$this->form_validation->set_rules('primary', '主席位', 'trim|required|callback__check_selectability[primary]');
-			$this->form_validation->set_rules('backorder', '候选席位', "max_count[{$select_backorder_max}]|callback__check_selectability[backorder]");
+			$this->form_validation->set_rules('backorder', '候选席位', "max_count[{$select_backorder_max}]|callback__check_primary_backorder|callback__check_selectability[backorder]");
 			$this->form_validation->set_message('max_count', "最多可以选择 {$select_backorder_max} 个席位。");
 			$this->form_validation->set_message('_check_selectability', '席位选择不符合设定条件。');
+			$this->form_validation->set_message('_check_primary_backorder', '主席位不能同时被选定为候选席位。');
 
 			if($this->form_validation->run() == true)
 			{
@@ -910,6 +911,19 @@ class Apply extends CI_Controller
 			if(!in_array($one, $selectabilities))
 				return false;
 		}
+		
+		return true;
+	}
+	
+	/**
+	 * 主席位为候选席位检查回调函数
+	 */
+	function _check_primary_backorder($array)
+	{
+		$primary = $this->input->post('primary');
+		
+		if(in_array($primary, $array))
+			return false;
 		
 		return true;
 	}
