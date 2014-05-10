@@ -260,7 +260,7 @@ class Seat_model extends CI_Model
 			return false;
 		
 		$data = array('status' => $status);
-		if($change_time != false)
+		if($change_time !== false)
 		{
 			if(is_null($change_time))
 				$data['time'] = NULL;
