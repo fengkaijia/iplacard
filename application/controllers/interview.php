@@ -197,7 +197,7 @@ class Interview extends CI_Controller
 					$operation = anchor("delegate/profile/{$interview['delegate']}", icon('user', false).'代表信息');
 					if(($interview['status'] == 'completed' || $interview['status'] == 'exempted') && $interview['id'] == $this->interview_model->get_current_interview_id($interview['delegate']) && $interview['interviewer'] == uid() && !$this->seat_model->get_delegate_selectability($interview['delegate']))
 					{
-						$operation .= ' '.anchor("seat/assign/{$interview['delegate']}", icon('th-list', false).'分配席位');
+						$operation .= ' '.anchor("delegate/profile/{$interview['delegate']}#seat", icon('th-list', false).'分配席位');
 					}
 					
 					//姓名
