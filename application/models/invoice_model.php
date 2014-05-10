@@ -104,21 +104,27 @@ class Invoice_model extends CI_Model
 	function edit_invoice($data, $id = '')
 	{
 		//帐单明细
-		if(isset($data['items']) && !empty($data['items']))
+		if(isset($data['items']))
 		{
 			$data['items'] = json_encode($data['items']);
 		}
 		
 		//折扣明细
-		if(isset($data['discounts']) && !empty($data['discounts']))
+		if(isset($data['discounts']))
 		{
 			$data['discounts'] = json_encode($data['discounts']);
 		}
 		
 		//转账记录
-		if(isset($data['transaction']) && !empty($data['transaction']))
+		if(isset($data['transaction']))
 		{
 			$data['transaction'] = json_encode($data['transaction']);
+		}
+		
+		//触发器
+		if(isset($data['trigger']))
+		{
+			$data['trigger'] = json_encode($data['trigger']);
 		}
 		
 		//新增帐单
