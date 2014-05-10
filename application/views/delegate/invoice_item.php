@@ -43,7 +43,7 @@ $this->load->view('header');?>
 					<div class="modal-body">
 						<div style="padding-bottom: 10px;"><?php echo option('invoice_payment_offline_info', '');?></div>
 
-						<div><span class="label label-primary">注意</span> 如果任何问题请<?php echo mailto(option('site_contact_email', 'contact@iplacard.com'), '联系管理员'); ?>。</div>
+						<div><span class="label label-primary">注意</span> 如有任何问题请<?php echo mailto(option('site_contact_email', 'contact@iplacard.com'), '联系管理员'); ?>。</div>
 					</div>
 
 					<div class="modal-footer">
