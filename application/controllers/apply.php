@@ -893,7 +893,7 @@ class Apply extends CI_Controller
 	}
 	
 	/**
-	 * 密码检查回调函数
+	 * 席位可选择性检查回调函数
 	 */
 	function _check_selectability($array, $type = 'primary')
 	{
