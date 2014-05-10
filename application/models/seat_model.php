@@ -520,7 +520,7 @@ class Seat_model extends CI_Model
 		if(!in_array($status, $available))
 			return false;
 		
-		return $this->edit_backorder($id, array('status' => $status));
+		return $this->edit_backorder(array('status' => $status), $id);
 	}
 	
 	/**
