@@ -521,6 +521,7 @@ class UI
 		$this->CI->load->model('delegate_model');
 		$this->CI->load->model('seat_model');
 		$this->CI->load->model('interview_model');
+		$this->CI->load->model('invoice_model');
 		
 		//SUDO模式提示
 		if(is_sudo())
@@ -556,6 +557,12 @@ class UI
 		if($this->CI->interview_model->get_interview_ids('delegate', uid()) != false)
 		{
 			$this->add_menu('interview', '面试', 'apply/interview');
+		}
+		
+		//面试
+		if($this->CI->invoice_model->get_delegate_invoices(uid()) != false)
+		{
+			$this->add_menu('invoice', '帐单', 'apply/invoice');
 		}
 	}
 }

@@ -318,6 +318,50 @@ class Apply extends CI_Controller
 	}
 	
 	/**
+	 * 帐单信息
+	 */
+	function invoice($id = '')
+	{
+		$this->load->model('invoice_model');
+		$this->load->library('invoice');
+		$this->load->helper('form');
+		
+		//显示代表第一份未支付帐单
+		if(empty($id))
+		{
+			$invoices = $this->invoice_model->get_delegate_invoices($this->uid, true);
+			
+			if(!$invoices)
+			{
+				$this->ui->alert('您当前没有帐单需要处理。', 'success', true);
+				back_redirect();
+				return;
+			}
+			else
+			{
+				$id = $invoices[0];
+			}
+		}
+		
+		$this->invoice->load($id);
+		
+		if($this->invoice->get('delegate') != $this->uid)
+		{
+			$this->ui->alert('无权访问帐单信息。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
+		$vars['invoice_html'] = $this->invoice->display();
+		$vars['due_time'] = $this->invoice->get('due_time');
+		$vars['unpaid'] = $this->invoice_model->is_unpaid($id);
+		
+		$this->ui->now('invoice');
+		$this->ui->title('帐单');
+		$this->load->view('delegate/invoice_item', $vars);
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = '')
