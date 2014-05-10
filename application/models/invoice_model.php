@@ -183,7 +183,7 @@ class Invoice_model extends CI_Model
 	 */
 	function cancel_invoice($id, $cashier = 0)
 	{
-		if($this->is_paid($id))
+		if(!$this->is_unpaid($id))
 			return false;
 		
 		$data = array(
@@ -200,7 +200,7 @@ class Invoice_model extends CI_Model
 	 */
 	function refund_invoice($id, $cashier = 0)
 	{
-		if(!$this->is_paid($id))
+		if($this->is_unpaid($id))
 			return false;
 		
 		$data = array(
@@ -223,11 +223,11 @@ class Invoice_model extends CI_Model
 	}
 	
 	/**
-	 * 检查帐单是否已经支付完成
+	 * 检查帐单是否尚未已经支付完成
 	 */
-	function is_paid($id)
+	function is_unpaid($id)
 	{
-		if($this->get_invoice($id, 'status') == 'paid')
+		if($this->get_invoice($id, 'status') == 'unpaid')
 			return true;
 		return false;
 	}
