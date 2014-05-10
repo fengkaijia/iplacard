@@ -431,7 +431,7 @@ if($selectabilities)
 
 $seat_opened_ids = json_encode(array());
 if($selectabilities)
-	$seat_opened_ids = json_encode ($selectabilities);
+	$seat_opened_ids = json_encode($selectabilities);
 $seat_url = base_url('seat/ajax/list?operation=assign');
 $seat_js = <<<EOT
 $(document).ready(function() {

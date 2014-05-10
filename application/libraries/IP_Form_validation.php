@@ -23,6 +23,31 @@ class IP_Form_validation extends CI_Form_validation {
 		return !$this->{$param[0]}($str, $param[1]);
 	}
 	
+	/**
+	 * 多项元素最大数量
+	 */
+	public function max_count($array, $val)
+	{
+		if(preg_match("/[^0-9]/", $val))
+		{
+			return false;
+		}
+
+		return (count($array) > $val) ? false : true;
+	}
+	
+	/**
+	 * 多项元素最小数量
+	 */
+	public function min_count($array, $val)
+	{
+		if(preg_match("/[^0-9]/", $val))
+		{
+			return false;
+		}
+
+		return (count($array) < $val) ? false : true;
+	}
 }
 
 /* End of file IP_Form_validation.php */

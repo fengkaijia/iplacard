@@ -125,6 +125,14 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
+	 * 获取代表选定席位
+	 */
+	function get_delegate_seat($delegate)
+	{
+		return $this->get_seat_id('delegate', $delegate);
+	}
+	
+	/**
 	 * 转换状态为文本
 	 * @param string|int $status 状态或席位ID
 	 * @return string 状态文本
@@ -252,8 +260,15 @@ class Seat_model extends CI_Model
 			return false;
 		
 		$data = array('status' => $status);
-		if($change_time)
-			$data['time'] = time();
+		if($change_time !== false)
+		{
+			if(is_null($change_time))
+				$data['time'] = NULL;
+			elseif($change_time != true)
+				$data['time'] = $change_time;
+			else
+				$data['time'] = time();
+		}
 		
 		return $this->edit_seat($data, $id);
 	}
@@ -373,6 +388,34 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
+	 * 根据一组延期请求ID获取对应席位ID
+	 * @param int|array $ids 一个或一组延期请求ID
+	 */
+	function get_seats_by_backorders($ids)
+	{
+		//仅单个延期请求ID
+		if(is_int($ids) || is_string($ids))
+			$ids = array($ids);
+		
+		$this->db->where_in('id', $ids);
+		
+		$query = $this->db->get('seat_backorder');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回ID
+		foreach($query->result_array() as $data)
+		{
+			$array[] = $data['seat'];
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
 	 * 获取指定席位的所有延期请求
 	 */
 	function get_seat_backorders($seat, $only_valid = true)
@@ -380,11 +423,31 @@ class Seat_model extends CI_Model
 		if(!$only_valid)
 			return $this->get_backorder_ids('seat', $seat);
 		
-		$non_forever = $this->get_backorder_ids('seat', $seat, 'expire_time >=', time());
+		$non_forever = $this->get_backorder_ids('seat', $seat, 'status', 'pending', 'expire_time >=', time());
 		if(!$non_forever)
 			$non_forever = array();
 		
-		$forever = $this->get_backorder_ids('seat', $seat, 'expire_time', 0);
+		$forever = $this->get_backorder_ids('seat', $seat, 'status', 'pending', 'expire_time', 0);
+		if(!$forever)
+			$forever = array();
+		
+		$all = array_merge($forever, $non_forever);
+		return empty($all) ? false : $all;
+	}
+	
+	/**
+	 * 获取指定代表的所有候选席位
+	 */
+	function get_delegate_backorder($delegate, $only_valid = true)
+	{
+		if(!$only_valid)
+			return $this->get_backorder_ids('delegate', $delegate);
+		
+		$non_forever = $this->get_backorder_ids('delegate', $delegate, 'status', 'pending', 'expire_time >=', time());
+		if(!$non_forever)
+			$non_forever = array();
+		
+		$forever = $this->get_backorder_ids('delegate', $delegate, 'status', 'pending', 'expire_time', 0);
 		if(!$forever)
 			$forever = array();
 		
@@ -457,7 +520,7 @@ class Seat_model extends CI_Model
 		if(!in_array($status, $available))
 			return false;
 		
-		return $this->edit_backorder($id, array('status' => $status));
+		return $this->edit_backorder(array('status' => $status), $id);
 	}
 	
 	/**
@@ -541,7 +604,7 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
-	 * 根据一组席位许可ID获取对应代表ID
+	 * 根据一组席位许可ID获取对应席位ID
 	 * @param int|array $ids 一个或一组席位许可ID
 	 */
 	function get_seats_by_selectabilities($ids)
@@ -601,7 +664,7 @@ class Seat_model extends CI_Model
 	function edit_selectability($data, $id = '')
 	{
 		$this->db->where('id', $id);
-		return $this->db->update('seat', $data);
+		return $this->db->update('seat_selectability', $data);
 	}
 	
 	/**
