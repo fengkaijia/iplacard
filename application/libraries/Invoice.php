@@ -113,14 +113,14 @@ class Invoice extends CI_Model
 	 * @param bool $confirm 交易是否确认
 	 * @param array $extra 附加信息
 	 */
-	function transaction($gateway, $transaction_id, $amount, $confirm = true, $extra = array())
+	function transaction($gateway, $transaction_id, $amount, $time, $confirm = true, $extra = array())
 	{
 		$data = array(
 			'gateway' => $gateway,
 			'amount' => $amount,
 			'transaction' => $transaction_id,
 			'confirm' => $confirm,
-			'time' => time(),
+			'time' => $time,
 			'extra' => $extra
 		);
 		
