@@ -544,7 +544,7 @@ class Invoice extends CI_Model
 			{
 				if($trigger['type'] == $type)
 				{
-					call_user_func_array(array($this, "_trigger_{$trigger['function']}"), $trigger['args']);
+					call_user_func_array(array($this, "_trigger_{$trigger['function']}"), array($trigger['args']));
 				}
 			}
 			
@@ -552,6 +552,19 @@ class Invoice extends CI_Model
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * 更新申请状态触发器
+	 */
+	private function _trigger_change_status($args)
+	{
+		$this->CI->load->model('delegate_model');
+		
+		$uid = $args['delegate'];
+		$status = $args['status'];
+		
+		$this->CI->delegate_model->change_status($uid, $status);
 	}
 }
 
