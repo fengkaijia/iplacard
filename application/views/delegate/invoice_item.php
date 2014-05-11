@@ -74,11 +74,12 @@ $this->load->view('header');?>
 				<div class="form-group <?php if(form_has_error('time')) echo 'has-error';?>">
 					<?php echo form_label('转帐时间', 'gateway', array('class' => 'control-label'));?>
 					<div class="input-group date form_datetime">
-						<?php echo form_input(array(
+						<?php $value = set_value('time', date('Y-m-d H:i', $transaction['time']));
+						echo form_input(array(
 							'name' => 'time',
 							'class' => 'form-control',
 							'size' => '16',
-							'value' => !empty(set_value('time', $transaction['time'])) ? set_value('time', date('Y-m-d H:i', $transaction['time'])) : ''
+							'value' => !empty($value) ? $value : ''
 						)); ?>
 						<span class="input-group-addon"><span class="glyphicon glyphicon-th" ><?php echo icon('calendar', false);?></span></span>
 					</div>
