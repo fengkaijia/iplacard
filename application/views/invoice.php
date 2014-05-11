@@ -106,13 +106,13 @@ $discount_amount = 0;
 		</thead>
 		<tbody>
 			<?php if(!empty($invoice['transaction'])) { ?><tr>
-				<td><?php echo unix_to_human($invoice['transaction']['time']);?></td>
-				<td><?php echo $invoice['transaction']['gateway'];?></td>
-				<td><?php echo $invoice['transaction']['transaction'];
+				<td><?php echo !empty($invoice['transaction']['time']) ? unix_to_human($invoice['transaction']['time']) : 'N/A';?></td>
+				<td><?php echo !empty($invoice['transaction']['gateway']) ? $invoice['transaction']['gateway'] : 'N/A';?></td>
+				<td><?php echo !empty($invoice['transaction']['transaction']) ? $invoice['transaction']['transaction'] : 'N/A'; 
 				if(!$invoice['transaction']['confirm'])
 					echo '<abbr title="此笔交易尚未被管理员确认。">'.icon('question-circle', false).'</abbr>';
 				?></td>
-				<td><?php echo $currency['sign'].number_format($invoice['transaction']['amount'], 2).' '.$currency['text'];?></td>
+				<td><?php echo !empty($invoice['transaction']['amount']) ? ($currency['sign'].number_format($invoice['transaction']['amount'], 2).' '.$currency['text']) : 'N/A';?></td>
 			</tr><?php } else { ?><tr><td style="text-align: center;" colspan="4">暂无记录</td></tr><?php } ?>
 		</tbody>
 		
