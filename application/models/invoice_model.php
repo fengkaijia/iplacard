@@ -31,6 +31,7 @@ class Invoice_model extends CI_Model
 		$data['items'] = json_decode($data['items'], true);
 		$data['discounts'] = json_decode($data['discounts'], true);
 		$data['transaction'] = json_decode($data['transaction'], true);
+		$data['trigger'] = json_decode($data['trigger'], true);
 		
 		//返回结果
 		if(empty($part))
