@@ -333,7 +333,7 @@ class Apply extends CI_Controller
 		//显示代表第一份未支付帐单
 		if(empty($id))
 		{
-			$invoices = $this->invoice_model->get_delegate_invoices($this->uid, true);
+			$invoices = $this->invoice_model->get_delegate_invoices($this->uid);
 			
 			if(!$invoices)
 			{
