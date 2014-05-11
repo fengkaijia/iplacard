@@ -78,7 +78,7 @@ $this->load->view('header');?>
 							'name' => 'time',
 							'class' => 'form-control',
 							'size' => '16',
-							'value' => !empty(set_value('time', $transaction['time'])) ? date('Y-m-d H:i', set_value('time', $transaction['time'])) : ''
+							'value' => !empty(set_value('time', $transaction['time'])) ? set_value('time', date('Y-m-d H:i', $transaction['time'])) : ''
 						)); ?>
 						<span class="input-group-addon"><span class="glyphicon glyphicon-th" ><?php echo icon('calendar', false);?></span></span>
 					</div>
