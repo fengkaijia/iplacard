@@ -379,7 +379,9 @@ class Invoice extends CI_Model
 		
 		$this->clear();
 		$this->CI->invoice_model->receive_invoice($id, $cashier);
-		$this->load($id);
+		$this->load($id);		
+		
+		$this->do_trigger('receive');
 		
 		//发送邮件
 		$this->CI->load->library('email');
@@ -529,6 +531,27 @@ class Invoice extends CI_Model
 		$this->trigger = array();
 		$this->transaction = array();
 		$this->cashier = 0;
+	}
+	
+	/**
+	 * 触发器
+	 */
+	function do_trigger($type)
+	{
+		if(!empty($this->trigger))
+		{
+			foreach($this->trigger as $trigger)
+			{
+				if($trigger['type'] == $type)
+				{
+					call_user_func_array(array($this, "_trigger_{$trigger['function']}"), $trigger['args']);
+				}
+			}
+			
+			return true;
+		}
+		
+		return false;
 	}
 }
 
