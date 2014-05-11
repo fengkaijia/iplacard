@@ -9,17 +9,17 @@ class Billing extends CI_Controller
 {
 	var $currency_sign = '';
 	var $currency_text = '';
+	var $gateway = array();
 	
 	function __construct()
 	{
 		parent::__construct();
 		$this->load->library('session');
-		$this->load->library('form_validation');
 		$this->load->library('ui', array('side' => 'admin'));
 		$this->load->model('admin_model');
 		$this->load->model('delegate_model');
 		$this->load->model('invoice_model');
-		$this->load->helper('form');
+		$this->load->library('invoice');
 		
 		//检查登录情况
 		if(!is_logged_in())
@@ -37,6 +37,9 @@ class Billing extends CI_Controller
 		
 		$this->currency_sign = option('invoice_currency_sign', '￥');
 		$this->currency_text = option('invoice_currency_text', 'RMB');
+		
+		$gateway = option('invoice_payment_gateway', array('汇款', '网银转帐', '支付宝', '其他'));
+		$this->gateway = array_combine($gateway, $gateway);
 		
 		$this->ui->now('billing');
 	}
@@ -111,6 +114,71 @@ class Billing extends CI_Controller
 		
 		$this->ui->title($title, '帐单列表');
 		$this->load->view('admin/invoice_manage', $vars);
+	}
+	
+	/**
+	 * 查看帐单信息
+	 */
+	function invoice($id, $action = 'view')
+	{
+		$this->load->library('form_validation');
+		$this->load->helper('form');
+		
+		if(!$this->invoice->load($id))
+		{
+			$this->ui->alert('帐单信息不存在。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
+		//代表信息
+		$delegate = $this->delegate_model->get_delegate($this->invoice->get('delegate'));
+		$vars['delegate'] = $delegate;
+		
+		//编辑转帐信息
+		if($action == 'transaction')
+		{
+			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+
+			$this->form_validation->set_rules('time', '转帐时间', 'trim|required|strtotime');
+			$this->form_validation->set_rules('gateway', '交易渠道', 'trim|required');
+			$this->form_validation->set_rules('transaction', '交易流水号', 'trim|required');
+			$this->form_validation->set_rules('amount', '转帐金额', 'trim|required|numeric');
+
+			if($this->form_validation->run() == true)
+			{
+				$time = $this->input->post('time');
+				$gateway = $this->input->post('gateway');
+				$transaction = $this->input->post('transaction');
+				$amount = (float) $this->input->post('amount');
+				
+				$this->invoice->transaction(
+					!empty($gateway) ? $gateway : '',
+					!empty($transaction) ? $transaction : '',
+					!empty($amount) ? $amount : '',
+					!empty($time) ? $time : '',
+					true
+				);
+				
+				$this->invoice->update(false);
+				
+				$this->invoice->receive(uid());
+				
+				$this->system_model->log('invoice_received', array('invoice' => $id, 'transaction' => $this->invoice->get('transaction')));
+				
+				$this->ui->alert('已经确认收款并更新帐单状态。', 'success');
+			}
+		}
+		
+		$vars['invoice_html'] = $this->invoice->display();
+		$vars['due_time'] = $this->invoice->get('due_time');
+		$vars['transaction'] = $this->invoice->get('transaction');
+		$vars['gateway'] = $this->gateway;
+		$vars['unpaid'] = $this->invoice_model->is_unpaid($id);
+		
+		$this->ui->now('billing');
+		$this->ui->title("帐单 #{$id}", '查看帐单');
+		$this->load->view('admin/invoice_item', $vars);
 	}
 	
 	/**
