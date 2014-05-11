@@ -1,7 +1,6 @@
 <?php
 $item_amount = 0;
 $discount_amount = 0;
-$transaction_amount = 0;
 ?><div id="invoice">
 	<table class="table table-bordered">
 		<tr>
@@ -106,27 +105,21 @@ $transaction_amount = 0;
 			<th width="25%">转帐金额</th>
 		</thead>
 		<tbody>
-			<?php
-			if(!empty($invoice['transaction']))
-			{
-				foreach($invoice['transaction'] as $transaction)
-				{
-					$transaction_amount += $transaction['amount']; ?><tr>
-					<td><?php echo unix_to_human($transaction['time']);?></td>
-					<td><?php echo $transaction['gateway'];?></td>
-					<td><?php echo $transaction['transaction'];
-					if(!$transaction['confirm'])
-						echo '<abbr title="此笔交易尚未被管理员确认。">'.icon('question-circle', false).'</abbr>';
-					?></td>
-					<td><?php echo $currency['sign'].number_format($transaction['amount'], 2).' '.$currency['text'];?></td>
-				</tr><?php }
-			} else { ?><tr><td style="text-align: center;" colspan="4">暂无记录</td></tr><?php } ?>
+			<?php if(!empty($invoice['transaction'])) { ?><tr>
+				<td><?php echo unix_to_human($invoice['transaction']['time']);?></td>
+				<td><?php echo $invoice['transaction']['gateway'];?></td>
+				<td><?php echo $invoice['transaction']['transaction'];
+				if(!$invoice['transaction']['confirm'])
+					echo '<abbr title="此笔交易尚未被管理员确认。">'.icon('question-circle', false).'</abbr>';
+				?></td>
+				<td><?php echo $currency['sign'].number_format($invoice['transaction']['amount'], 2).' '.$currency['text'];?></td>
+			</tr><?php } else { ?><tr><td style="text-align: center;" colspan="4">暂无记录</td></tr><?php } ?>
 		</tbody>
 		
 		<tfoot>
 			<tr>
 				<td style="font-weight: 700; text-align: right;" colspan="3">总计</td>
-				<td style="font-weight: 700;"><?php echo $currency['sign'].number_format($transaction_amount, 2).' '.$currency['text'];?></td>
+				<td style="font-weight: 700;"><?php echo $currency['sign'].number_format($invoice['transaction']['amount'], 2).' '.$currency['text'];?></td>
 			</tr>
 		</tfoot>
 	</table>

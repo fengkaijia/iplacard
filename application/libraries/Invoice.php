@@ -124,7 +124,7 @@ class Invoice extends CI_Model
 			'extra' => $extra
 		);
 		
-		$this->transaction[] = $data;
+		$this->transaction = $data;
 	}
 	
 	/**
