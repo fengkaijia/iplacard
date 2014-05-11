@@ -374,6 +374,9 @@ class Invoice extends CI_Model
 	{
 		$id = $this->id;
 		
+		if($cashier == '')
+			$cashier = uid();
+		
 		$this->clear();
 		$this->CI->invoice_model->receive_invoice($id, $cashier);
 		$this->load($id);
@@ -424,6 +427,9 @@ class Invoice extends CI_Model
 	function cancel($cashier = '')
 	{
 		$id = $this->id;
+		
+		if($cashier == '')
+			$cashier = uid();
 		
 		$this->clear();
 		$this->CI->invoice_model->cancel_invoice($id, $cashier);
