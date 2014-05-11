@@ -500,6 +500,8 @@ class Invoice extends CI_Model
 		$this->cashier = $invoice['cashier'];
 		
 		$this->to($invoice['delegate']);
+		
+		return true;
 	}
 	
 	/**
