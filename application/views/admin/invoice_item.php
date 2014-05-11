@@ -18,58 +18,18 @@ $this->load->view('header');?>
 	</div>
 	
 	<?php if($unpaid) { ?><div class="col-md-4">
-		<h3>支付</h3>
+		<h3>收到汇款</h3>
 		
-		<div id="pre_pay">
-			<p>您将需要 <span id="clock_overdue">00:00:00</span> 秒（<?php echo date('Y年m月d日', $due_time);?>前）内完成支付。如果您未能在帐单到期时间前完成汇款，请与我们联系以延长帐单支付时间。</p>
-			<p><a class="btn btn-primary" href="#" data-toggle="modal" data-target="#payment_offline"><?php echo icon('info-circle');?>查看汇款详情</a></p>
-			<?php if(empty($transaction)) { ?><p>通过线下支付的汇款将需要经过人工验证。如果已经完成支付，请点击下方按钮填写相关信息以便我们确认。</p>
-			<p><a class="btn btn-primary" href="#" onclick="$('#do_pay').show(); $('#pre_pay').hide();"><?php echo icon('check-circle');?>已经完成支付</a></p><?php
-			} else { ?><p>通过线下支付的汇款将需要经过人工验证。您已经填写过转帐信息，如果需要更新转帐信息请点击下方按钮。</p>
-			<p><a class="btn btn-primary" href="#" onclick="$('#do_pay').show(); $('#pre_pay').hide();"><?php echo icon('edit');?>更新转帐信息</a></p><?php } ?>
-
-			<?php echo form_open("", array(
-				'class' => 'modal fade form-horizontal',
-				'id' => 'payment_offline',
-				'tabindex' => '-1',
-				'role' => 'dialog',
-				'aria-labelledby' => 'offline_label',
-				'aria-hidden' => 'true'
-			));?><div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-							<?php echo form_button(array(
-								'content' => '&times;',
-								'class' => 'close',
-								'type' => 'button',
-								'data-dismiss' => 'modal',
-								'aria-hidden' => 'true'
-							));?>
-							<h4 class="modal-title" id="offline_label">线下汇款详情</h4>
-						</div>
-
-						<div class="modal-body">
-							<div style="padding-bottom: 10px;"><?php echo option('invoice_payment_offline_info', '');?></div>
-
-							<div><span class="label label-primary">注意</span> 如有任何问题请<?php echo mailto(option('site_contact_email', 'contact@iplacard.com'), '联系管理员'); ?>。</div>
-						</div>
-
-						<div class="modal-footer">
-							<?php echo form_button(array(
-								'content' => '关闭',
-								'type' => 'button',
-								'class' => 'btn btn-primary',
-								'data-dismiss' => 'modal'
-							)); ?>
-						</div>
-					</div>
-				</div>
-			<?php echo form_close(); ?>
+		<div id="pre_receive">
+			<p>您将会在 <span id="clock_overdue">00:00:00</span> 秒（<?php echo date('Y年m月d日', $due_time);?>前）内来自<?php echo anchor("delegate/profile/{$delegate['id']}", icon('user', false).$delegate['name']);?>收到汇款。</p>
+			<p>收到汇款后请点击确认汇款信息。</p>
+			<p><a class="btn btn-primary" href="#" onclick="$('#do_receive').show(); $('#pre_receive').hide();"><?php echo icon('check-circle');?>确认收款</a></p>
 		</div>
 		
-		<div id="do_pay">
-			<?php echo form_open("apply/invoice/{$invoice['id']}/transaction"); ?>
-				<p>完成线下支付后，请在此处填写汇款信息，这些信息将大大加快我们的汇款速度。通常，这些信息可以在您的交易凭条中找到。</p>
+		<div id="do_receive">
+			<?php echo form_open("billing/invoice/{$invoice['id']}/transaction"); ?>
+				<p>请填写收款信息，这些信息将在提交确认收款后显示在帐单中。提交后您将无法更改这些信息，请仔细核对。</p>
+				<?php if(!empty($transaction)) { ?><p>在此之前，代表填写了转帐信息，请在此基础上核对并更新收款信息。</p><?php } ?>
 				
 				<div class="form-group <?php if(form_has_error('time')) echo 'has-error';?>">
 					<?php echo form_label('转帐时间', 'gateway', array('class' => 'control-label'));?>
@@ -141,21 +101,19 @@ $this->load->view('header');?>
 				<div class="form-group">
 					<?php echo form_button(array(
 						'name' => 'submit',
-						'content' => '提交信息',
+						'content' => icon('check-circle').'确定收到汇款',
 						'type' => 'submit',
 						'class' => 'btn btn-primary',
 						'onclick' => 'loader(this);'
 					)); ?>
 				</div>
-				
-				<p>收到您的汇款后，我们将尽快进行确认帐单。您将会收到确认短信和邮件，同时您可以登录 iPlacard 查看汇款状态。</p>
 			<?php echo form_close(); ?>
 		</div>
 		<?php
 		if(validation_errors())
-			$this->ui->js('footer', "$('#pre_pay').hide();");
+			$this->ui->js('footer', "$('#pre_receive').hide();");
 		else
-			$this->ui->js('footer', "$('#do_pay').hide();");
+			$this->ui->js('footer', "$('#do_receive').hide();");
 		?>
 	</div><?php } ?>
 </div>

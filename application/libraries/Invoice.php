@@ -113,18 +113,18 @@ class Invoice extends CI_Model
 	 * @param bool $confirm 交易是否确认
 	 * @param array $extra 附加信息
 	 */
-	function transaction($gateway, $transaction_id, $amount, $confirm = true, $extra = array())
+	function transaction($gateway, $transaction_id, $amount, $time, $confirm = true, $extra = array())
 	{
 		$data = array(
 			'gateway' => $gateway,
 			'amount' => $amount,
 			'transaction' => $transaction_id,
 			'confirm' => $confirm,
-			'time' => time(),
+			'time' => $time,
 			'extra' => $extra
 		);
 		
-		$this->transaction[] = $data;
+		$this->transaction = $data;
 	}
 	
 	/**
@@ -165,6 +165,7 @@ class Invoice extends CI_Model
 	function display($full = false)
 	{
 		$this->CI->load->library('ui');
+		$this->CI->load->helper('date');
 		
 		$delegate = $this->delegate_info;
 		$delegate['application_type_text'] = $this->CI->delegate_model->application_type_text($delegate['application_type']);
@@ -373,9 +374,14 @@ class Invoice extends CI_Model
 	{
 		$id = $this->id;
 		
+		if($cashier == '')
+			$cashier = uid();
+		
 		$this->clear();
 		$this->CI->invoice_model->receive_invoice($id, $cashier);
-		$this->load($id);
+		$this->load($id);		
+		
+		$this->do_trigger('receive');
 		
 		//发送邮件
 		$this->CI->load->library('email');
@@ -423,6 +429,9 @@ class Invoice extends CI_Model
 	function cancel($cashier = '')
 	{
 		$id = $this->id;
+		
+		if($cashier == '')
+			$cashier = uid();
 		
 		$this->clear();
 		$this->CI->invoice_model->cancel_invoice($id, $cashier);
@@ -500,6 +509,8 @@ class Invoice extends CI_Model
 		$this->cashier = $invoice['cashier'];
 		
 		$this->to($invoice['delegate']);
+		
+		return true;
 	}
 	
 	/**
@@ -520,6 +531,40 @@ class Invoice extends CI_Model
 		$this->trigger = array();
 		$this->transaction = array();
 		$this->cashier = 0;
+	}
+	
+	/**
+	 * 触发器
+	 */
+	function do_trigger($type)
+	{
+		if(!empty($this->trigger))
+		{
+			foreach($this->trigger as $trigger)
+			{
+				if($trigger['type'] == $type)
+				{
+					call_user_func_array(array($this, "_trigger_{$trigger['function']}"), array($trigger['args']));
+				}
+			}
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * 更新申请状态触发器
+	 */
+	private function _trigger_change_status($args)
+	{
+		$this->CI->load->model('delegate_model');
+		
+		$uid = $args['delegate'];
+		$status = $args['status'];
+		
+		$this->CI->delegate_model->change_status($uid, $status);
 	}
 }
 

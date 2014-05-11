@@ -502,6 +502,15 @@ class UI
 			$this->add_sub_menu('add', 'seat', '添加席位', 'seat/edit');
 		}
 		
+		//帐单
+		if($this->CI->admin_model->capable('cashier'))
+		{
+			$this->add_menu('billing', '帐单');
+			$this->add_sub_menu('manage', 'billing', '全部帐单', 'billing/manage');
+			$this->add_sub_menu('manage_unpaid', 'billing', '未支付帐单', 'billing/manage?status=unpaid&transaction=0');
+			$this->add_sub_menu('manage_pending', 'billing', '待确认帐单', 'billing/manage?status=unpaid&transaction=1');
+		}
+		
 		//管理
 		$this->add_menu('manage', '管理');
 		$this->add_sub_menu('dashboard', 'manage', '控制板', 'admin/dashboard', true);

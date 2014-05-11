@@ -563,16 +563,20 @@ class Apply extends CI_Controller
 	/**
 	 * 帐单信息
 	 */
-	function invoice($id = '')
+	function invoice($id = '', $action = 'view')
 	{
 		$this->load->model('invoice_model');
 		$this->load->library('invoice');
+		$this->load->library('form_validation');
 		$this->load->helper('form');
+		
+		$gateways = option('invoice_payment_gateway', array('汇款', '网银转帐', '支付宝', '其他'));
+		$gateways = array_combine($gateways, $gateways);
 		
 		//显示代表第一份未支付帐单
 		if(empty($id))
 		{
-			$invoices = $this->invoice_model->get_delegate_invoices($this->uid, true);
+			$invoices = $this->invoice_model->get_delegate_invoices($this->uid);
 			
 			if(!$invoices)
 			{
@@ -595,8 +599,43 @@ class Apply extends CI_Controller
 			return;
 		}
 		
+		//编辑转帐信息
+		if($action == 'transaction')
+		{
+			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+
+			$this->form_validation->set_rules('time', '转帐时间', 'trim|required|strtotime');
+			$this->form_validation->set_rules('gateway', '交易渠道', 'trim|required');
+			$this->form_validation->set_rules('transaction', '交易流水号', 'trim');
+			$this->form_validation->set_rules('amount', '转帐金额', 'trim|required|numeric');
+
+			if($this->form_validation->run() == true)
+			{
+				$time = $this->input->post('time');
+				$gateway = $this->input->post('gateway');
+				$transaction = $this->input->post('transaction');
+				$amount = (float) $this->input->post('amount');
+				
+				$this->invoice->transaction(
+					!empty($gateway) ? $gateway : '',
+					!empty($transaction) ? $transaction : '',
+					!empty($amount) ? $amount : '',
+					!empty($time) ? $time : '',
+					false
+				);
+				
+				$this->invoice->update();
+				
+				$this->system_model->log('invoice_updated', array('invoice' => $id, 'transaction' => $this->invoice->get('transaction')));
+				
+				$this->ui->alert('转帐信息已经保存。', 'success');
+			}
+		}
+		
 		$vars['invoice_html'] = $this->invoice->display();
 		$vars['due_time'] = $this->invoice->get('due_time');
+		$vars['transaction'] = $this->invoice->get('transaction');
+		$vars['gateway'] = $gateways;
 		$vars['unpaid'] = $this->invoice_model->is_unpaid($id);
 		
 		$this->ui->now('invoice');
