@@ -165,6 +165,7 @@ class Invoice extends CI_Model
 	function display($full = false)
 	{
 		$this->CI->load->library('ui');
+		$this->CI->load->helper('date');
 		
 		$delegate = $this->delegate_info;
 		$delegate['application_type_text'] = $this->CI->delegate_model->application_type_text($delegate['application_type']);
