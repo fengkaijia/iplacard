@@ -21,12 +21,12 @@ $this->load->view('header');?>
 		<h3>支付</h3>
 		
 		<div id="pre_pay">
-			<p>您将需要 <span id="clock_overdue">00:00:00</span> 秒（<?php echo date('Y年m月d日', $due_time);?>前）内完成支付。如果您未能在帐单到期时间前完成汇款，请与我们联系以延长帐单支付时间。</p>
+			<p>您将需要 <span id="clock_overdue">00:00:00</span> 秒（<?php echo date('Y年m月d日', $due_time);?>前）内完成支付。如果您未能在账单到期时间前完成汇款，请与我们联系以延长账单支付时间。</p>
 			<p><a class="btn btn-primary" href="#" data-toggle="modal" data-target="#payment_offline"><?php echo icon('info-circle');?>查看汇款详情</a></p>
 			<?php if(empty($transaction)) { ?><p>通过线下支付的汇款将需要经过人工验证。如果已经完成支付，请点击下方按钮填写相关信息以便我们确认。</p>
 			<p><a class="btn btn-primary" href="#" onclick="$('#do_pay').show(); $('#pre_pay').hide();"><?php echo icon('check-circle');?>已经完成支付</a></p><?php
-			} else { ?><p>通过线下支付的汇款将需要经过人工验证。您已经填写过转帐信息，如果需要更新转帐信息请点击下方按钮。</p>
-			<p><a class="btn btn-primary" href="#" onclick="$('#do_pay').show(); $('#pre_pay').hide();"><?php echo icon('edit');?>更新转帐信息</a></p><?php } ?>
+			} else { ?><p>通过线下支付的汇款将需要经过人工验证。您已经填写过转账信息，如果需要更新转账信息请点击下方按钮。</p>
+			<p><a class="btn btn-primary" href="#" onclick="$('#do_pay').show(); $('#pre_pay').hide();"><?php echo icon('edit');?>更新转账信息</a></p><?php } ?>
 
 			<?php echo form_open("", array(
 				'class' => 'modal fade form-horizontal',
@@ -72,7 +72,7 @@ $this->load->view('header');?>
 				<p>完成线下支付后，请在此处填写汇款信息，这些信息将大大加快我们的汇款速度。通常，这些信息可以在您的交易凭条中找到。</p>
 				
 				<div class="form-group <?php if(form_has_error('time')) echo 'has-error';?>">
-					<?php echo form_label('转帐时间', 'gateway', array('class' => 'control-label'));?>
+					<?php echo form_label('转账时间', 'gateway', array('class' => 'control-label'));?>
 					<div class="input-group date form_datetime">
 						<?php $value = set_value('time', $transaction['time']);
 						echo form_input(array(
@@ -85,7 +85,7 @@ $this->load->view('header');?>
 					</div>
 					<?php if(form_has_error('time'))
 						echo form_error('time');
-					else { ?><div class="help-block">转帐操作时间，如果允许，请精确到分钟。</div><?php } ?>
+					else { ?><div class="help-block">转账操作时间，如果允许，请精确到分钟。</div><?php } ?>
 				</div><?php
 				$this->ui->js('footer', '$(".form_datetime").datetimepicker({
 					language:  "zh-CN",
@@ -127,7 +127,7 @@ $this->load->view('header');?>
 				</div>
 				
 				<div class="form-group <?php if(form_has_error('amount')) echo 'has-error';?>">
-					<?php echo form_label('转帐金额', 'amount', array('class' => 'control-label'));
+					<?php echo form_label('转账金额', 'amount', array('class' => 'control-label'));
 					echo form_input(array(
 						'name' => 'amount',
 						'id' => 'amount',
@@ -149,7 +149,7 @@ $this->load->view('header');?>
 					)); ?>
 				</div>
 				
-				<p>收到您的汇款后，我们将尽快进行确认帐单。您将会收到确认短信和邮件，同时您可以登录 iPlacard 查看汇款状态。</p>
+				<p>收到您的汇款后，我们将尽快进行确认账单。您将会收到确认短信和邮件，同时您可以登录 iPlacard 查看汇款状态。</p>
 			<?php echo form_close(); ?>
 		</div>
 		<?php

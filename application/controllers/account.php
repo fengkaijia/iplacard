@@ -1720,7 +1720,7 @@ class Account extends CI_Controller
 			$this->ui->alert(sprintf('面试官已经为您分配了席位，请在<a href="%s" class="alert-link">席位信息页面</a>确认您的席位。', base_url('seat/placard')), 'info', true);
 
 		if($delegate['status'] == 'invoice_issued' && option('notice_check_status_invoice_issued', false))
-			$this->ui->alert(sprintf('您有<a href="%s" class="alert-link">帐单</a>需要支付，请在帐单到期之前完成支付。', base_url('apply/invoice')), 'info', true);
+			$this->ui->alert(sprintf('您有<a href="%s" class="alert-link">账单</a>需要支付，请在账单到期之前完成支付。', base_url('apply/invoice')), 'info', true);
 
 		if(!$sudo && !empty($redirect))
 		{

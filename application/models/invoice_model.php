@@ -1,7 +1,7 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
- * 帐单模块
+ * 账单模块
  * @package iPlacard
  * @since 2.0
  */
@@ -13,8 +13,8 @@ class Invoice_model extends CI_Model
 	}
 	
 	/**
-	 * 获取帐单信息
-	 * @param int $id 帐单ID
+	 * 获取账单信息
+	 * @param int $id 账单ID
 	 * @param string $part 指定部分
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
@@ -40,8 +40,8 @@ class Invoice_model extends CI_Model
 	}
 	
 	/**
-	 * 查询符合条件的第一个帐单ID
-	 * @return int|false 符合查询条件的第一个帐单ID，如不存在返回FALSE
+	 * 查询符合条件的第一个账单ID
+	 * @return int|false 符合查询条件的第一个账单ID，如不存在返回FALSE
 	 */
 	function get_invoice_id()
 	{
@@ -52,8 +52,8 @@ class Invoice_model extends CI_Model
 	}
 	
 	/**
-	 * 查询符合条件的所有帐单ID
-	 * @return array|false 符合查询条件的所有帐单ID，如不存在返回FALSE
+	 * 查询符合条件的所有账单ID
+	 * @return array|false 符合查询条件的所有账单ID，如不存在返回FALSE
 	 */
 	function get_invoice_ids()
 	{
@@ -64,7 +64,7 @@ class Invoice_model extends CI_Model
 	}
 	
 	/**
-	 * 获取指定代表的所有帐单
+	 * 获取指定代表的所有账单
 	 */
 	function get_delegate_invoices($delegate, $only_unpaid = false)
 	{
@@ -75,12 +75,12 @@ class Invoice_model extends CI_Model
 	
 	/**
 	 * 转换状态为文本
-	 * @param string|int $status 状态或帐单ID
+	 * @param string|int $status 状态或账单ID
 	 * @return string 状态文本
 	 */
 	function status_text($status)
 	{
-		//如果为帐单ID
+		//如果为账单ID
 		if(is_int($status) || intval($status) != 0)
 			$status = $this->get_invoice($status, 'status');
 		
@@ -99,12 +99,12 @@ class Invoice_model extends CI_Model
 	}
 	
 	/**
-	 * 编辑/添加帐单
-	 * @return int 新的帐单ID
+	 * 编辑/添加账单
+	 * @return int 新的账单ID
 	 */
 	function edit_invoice($data, $id = '')
 	{
-		//帐单明细
+		//账单明细
 		if(isset($data['items']))
 		{
 			$data['items'] = json_encode($data['items']);
@@ -128,21 +128,21 @@ class Invoice_model extends CI_Model
 			$data['trigger'] = json_encode($data['trigger']);
 		}
 		
-		//新增帐单
+		//新增账单
 		if(empty($id))
 		{
 			$this->db->insert('invoice', $data);
 			return $this->db->insert_id();
 		}
 		
-		//更新帐单
+		//更新账单
 		$this->db->where('id', $id);
 		return $this->db->update('invoice', $data);
 	}
 	
 	/**
-	 * 添加帐单
-	 * @return int 新的帐单ID
+	 * 添加账单
+	 * @return int 新的账单ID
 	 */
 	function generate_invoice($delegate, $title, $amount, $due_time, $items = array(), $discounts = array(), $trigger = array())
 	{
@@ -161,7 +161,7 @@ class Invoice_model extends CI_Model
 			'trigger' => $trigger
 		);
 		
-		//返回新帐单ID
+		//返回新账单ID
 		return $this->edit_invoice($data);
 	}
 	
@@ -180,7 +180,7 @@ class Invoice_model extends CI_Model
 	}
 	
 	/**
-	 * 取消帐单
+	 * 取消账单
 	 */
 	function cancel_invoice($id, $cashier = 0)
 	{
@@ -213,8 +213,8 @@ class Invoice_model extends CI_Model
 	}
 	
 	/**
-	 * 删除帐单
-	 * @param int $id 帐单ID
+	 * 删除账单
+	 * @param int $id 账单ID
 	 * @return boolean 是否完成删除
 	 */
 	function delete_invoice($id)
@@ -224,7 +224,7 @@ class Invoice_model extends CI_Model
 	}
 	
 	/**
-	 * 检查帐单是否尚未已经支付完成
+	 * 检查账单是否尚未已经支付完成
 	 */
 	function is_unpaid($id)
 	{

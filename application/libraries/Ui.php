@@ -502,13 +502,13 @@ class UI
 			$this->add_sub_menu('add', 'seat', '添加席位', 'seat/edit');
 		}
 		
-		//帐单
+		//账单
 		if($this->CI->admin_model->capable('cashier'))
 		{
-			$this->add_menu('billing', '帐单');
-			$this->add_sub_menu('manage', 'billing', '全部帐单', 'billing/manage');
-			$this->add_sub_menu('manage_unpaid', 'billing', '未支付帐单', 'billing/manage?status=unpaid&transaction=0');
-			$this->add_sub_menu('manage_pending', 'billing', '待确认帐单', 'billing/manage?status=unpaid&transaction=1');
+			$this->add_menu('billing', '账单');
+			$this->add_sub_menu('manage', 'billing', '全部账单', 'billing/manage');
+			$this->add_sub_menu('manage_unpaid', 'billing', '未支付账单', 'billing/manage?status=unpaid&transaction=0');
+			$this->add_sub_menu('manage_pending', 'billing', '待确认账单', 'billing/manage?status=unpaid&transaction=1');
 		}
 		
 		//管理
@@ -571,7 +571,7 @@ class UI
 		//面试
 		if($this->CI->invoice_model->get_delegate_invoices(uid()) != false)
 		{
-			$this->add_menu('invoice', '帐单', 'apply/invoice');
+			$this->add_menu('invoice', '账单', 'apply/invoice');
 		}
 	}
 }

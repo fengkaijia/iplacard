@@ -23,7 +23,7 @@ $discount_amount = 0;
 		</tr>
 	</table>
 
-	<h3 style="padding-bottom: 8px;">帐单 #<?php echo $invoice['id'];?></h3>
+	<h3 style="padding-bottom: 8px;">账单 #<?php echo $invoice['id'];?></h3>
 	
 	<h4><?php echo $invoice['title'];?></h4>
 	
@@ -44,7 +44,7 @@ $discount_amount = 0;
 
 	<table class="table table-bordered table-striped table-hover table-middle">
 		<thead>
-			<th width="75%">帐单项目</th>
+			<th width="75%">账单项目</th>
 			<th width="25%">金额</th>
 		</thead>
 		<tbody>
@@ -74,7 +74,7 @@ $discount_amount = 0;
 		</tbody>
 		<tfoot>
 			<tr>
-				<td style="text-align: right;">帐单小计</td>
+				<td style="text-align: right;">账单小计</td>
 				<td><?php echo $currency['sign'].number_format($item_amount, 2).' '.$currency['text'];?></td>
 			</tr>
 			<tr>
@@ -95,14 +95,14 @@ $discount_amount = 0;
 	
 	<br />
 	
-	<h4>转帐记录</h4>
+	<h4>转账记录</h4>
 	
 	<table class="table table-bordered table-striped table-hover table-middle">
 		<thead>
-			<th width="25%">转帐时间</th>
+			<th width="25%">转账时间</th>
 			<th width="25%">交易渠道</th>
 			<th width="25%">交易流水号</th>
-			<th width="25%">转帐金额</th>
+			<th width="25%">转账金额</th>
 		</thead>
 		<tbody>
 			<?php if(!empty($invoice['transaction'])) { ?><tr>
@@ -125,8 +125,8 @@ $discount_amount = 0;
 	</table>
 	
 	<p><small>
-		* 在支付页面显示的收款人信息可能与支付界面、银行帐户显示信息不同。<br />
-		* 根据相关会费政策，减免或优惠可能不会体现在帐单中。<br />
+		* 在支付页面显示的收款人信息可能与支付界面、银行账户显示信息不同。<br />
+		* 根据相关会费政策，减免或优惠可能不会体现在账单中。<br />
 		* 显示有<?php echo icon('question-circle', false);?>标记的交易尚未被管理员确认。
 	</small></p>
 </div>

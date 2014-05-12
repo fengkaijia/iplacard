@@ -28,11 +28,11 @@ $this->load->view('header');?>
 		
 		<div id="do_receive">
 			<?php echo form_open("billing/invoice/{$invoice['id']}/transaction"); ?>
-				<p>请填写收款信息，这些信息将在提交确认收款后显示在帐单中。提交后您将无法更改这些信息，请仔细核对。</p>
-				<?php if(!empty($transaction)) { ?><p>在此之前，代表填写了转帐信息，请在此基础上核对并更新收款信息。</p><?php } ?>
+				<p>请填写收款信息，这些信息将在提交确认收款后显示在账单中。提交后您将无法更改这些信息，请仔细核对。</p>
+				<?php if(!empty($transaction)) { ?><p>在此之前，代表填写了转账信息，请在此基础上核对并更新收款信息。</p><?php } ?>
 				
 				<div class="form-group <?php if(form_has_error('time')) echo 'has-error';?>">
-					<?php echo form_label('转帐时间', 'gateway', array('class' => 'control-label'));?>
+					<?php echo form_label('转账时间', 'gateway', array('class' => 'control-label'));?>
 					<div class="input-group date form_datetime">
 						<?php echo form_input(array(
 							'name' => 'time',
@@ -44,7 +44,7 @@ $this->load->view('header');?>
 					</div>
 					<?php if(form_has_error('time'))
 						echo form_error('time');
-					else { ?><div class="help-block">转帐操作时间，如果允许，请精确到分钟。</div><?php } ?>
+					else { ?><div class="help-block">转账操作时间，如果允许，请精确到分钟。</div><?php } ?>
 				</div><?php
 				$this->ui->js('footer', '$(".form_datetime").datetimepicker({
 					language:  "zh-CN",
@@ -86,7 +86,7 @@ $this->load->view('header');?>
 				</div>
 				
 				<div class="form-group <?php if(form_has_error('amount')) echo 'has-error';?>">
-					<?php echo form_label('转帐金额', 'amount', array('class' => 'control-label'));
+					<?php echo form_label('转账金额', 'amount', array('class' => 'control-label'));
 					echo form_input(array(
 						'name' => 'amount',
 						'id' => 'amount',

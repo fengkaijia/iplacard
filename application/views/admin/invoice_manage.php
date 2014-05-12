@@ -16,9 +16,9 @@ $this->load->view('header');?>
 		});');
 		if(!empty($part)) { ?><div class="col-md-4 menu-tabs">
 			<ul class="nav nav-tabs nav-menu">
-				<li<?php if($part == 'all') echo ' class="active"';?>><?php echo anchor('billing/manage?'.$param_tab['all'], '全部帐单');?></li>
-				<li<?php if($part == 'unpaid') echo ' class="active"';?>><?php echo anchor('billing/manage?'.$param_tab['unpaid'], '未支付帐单');?></li>
-				<li<?php if($part == 'pending') echo ' class="active"';?>><?php echo anchor('billing/manage?'.$param_tab['pending'], '待确认帐单');?></li>
+				<li<?php if($part == 'all') echo ' class="active"';?>><?php echo anchor('billing/manage?'.$param_tab['all'], '全部账单');?></li>
+				<li<?php if($part == 'unpaid') echo ' class="active"';?>><?php echo anchor('billing/manage?'.$param_tab['unpaid'], '未支付账单');?></li>
+				<li<?php if($part == 'pending') echo ' class="active"';?>><?php echo anchor('billing/manage?'.$param_tab['pending'], '待确认账单');?></li>
 			</ul>
 		</div><?php } ?>
 	</div>
@@ -31,13 +31,13 @@ $this->load->view('header');?>
 		<tr>
 			<th>ID</th>
 			<th>代表</th>
-			<th>帐单标题</th>
+			<th>账单标题</th>
 			<th>金额</th>
 			<th>生成时间</th>
 			<th>到期时间</th>
-			<th>帐单状态</th>
+			<th>账单状态</th>
 			<th>转账确认</th>
-			<th>转帐时间</th>
+			<th>转账时间</th>
 			<th>交易渠道</th>
 			<th>流水号</th>
 			<th>交易金额</th>

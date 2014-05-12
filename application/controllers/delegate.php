@@ -598,7 +598,7 @@ class Delegate extends CI_Controller
 					
 					if($fee > 0)
 					{
-						//TODO: 生成帐单
+						//TODO: 生成账单
 					}
 					else
 					{

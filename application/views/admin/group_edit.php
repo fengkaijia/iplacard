@@ -10,10 +10,10 @@
 			<div class="panel-heading">帮助</div>
 			<div class="panel-body"><?php if($action == 'edit') { ?>
 				<p>您可以通过此页面修改代表团的名称和支付方式。</p>
-				<p style="margin-bottom: 0;">根据设定的团队支付方式，代表帐单生成模式将有所不同。团队领队可在对应的代表资料页面中设置。</p>
+				<p style="margin-bottom: 0;">根据设定的团队支付方式，代表账单生成模式将有所不同。团队领队可在对应的代表资料页面中设置。</p>
 				<?php } else { ?>
 				<p>您可以通过此页面添加代表团。</p>
-				<p style="margin-bottom: 0;">根据设定的团队支付方式，代表帐单生成模式将有所不同。团队领队可在对应的代表资料页面中设置。</p>
+				<p style="margin-bottom: 0;">根据设定的团队支付方式，代表账单生成模式将有所不同。团队领队可在对应的代表资料页面中设置。</p>
 			<?php } ?></div>
 		</div>
 	</div>
@@ -44,7 +44,7 @@
 						echo form_dropdown('group_payment', array(true => '团队支付', false => '代表个人支付'), set_value('group_payment', $action == 'add' ? true : $group['group_payment']), 'class="form-control" id="committee"');
 						if(form_has_error('group_payment'))
 							echo form_error('group_payment');
-						else { ?><div class="help-block">选定是否由团队支付此团队所有代表的帐单。</div><?php } ?>
+						else { ?><div class="help-block">选定是否由团队支付此团队所有代表的账单。</div><?php } ?>
 					</div>
 				</div>
 			<?php echo form_fieldset_close();?>

@@ -1,7 +1,7 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
- * 帐单控制器
+ * 账单控制器
  * @package iPlacard
  * @since 2.0
  */
@@ -38,7 +38,7 @@ class Billing extends CI_Controller
 		$this->currency_sign = option('invoice_currency_sign', '￥');
 		$this->currency_text = option('invoice_currency_text', 'RMB');
 		
-		$gateway = option('invoice_payment_gateway', array('汇款', '网银转帐', '支付宝', '其他'));
+		$gateway = option('invoice_payment_gateway', array('汇款', '网银转账', '支付宝', '其他'));
 		$this->gateway = array_combine($gateway, $gateway);
 		
 		$this->ui->now('billing');
@@ -55,7 +55,7 @@ class Billing extends CI_Controller
 		$param_tab = array();
 		
 		//显示标题
-		$title = '全部帐单';
+		$title = '全部账单';
 		
 		if(isset($param['status']))
 		{
@@ -64,7 +64,7 @@ class Billing extends CI_Controller
 			{
 				$text_status[] = $this->invoice_model->status_text($one);
 			}
-			$title = sprintf("%s帐单列表", join('、', $text_status));
+			$title = sprintf("%s账单列表", join('、', $text_status));
 			
 			if(count($param['status']) == 1 && in_array('unpaid', $param['status']) && isset($param['transaction']) && in_array('0', $param['transaction']))
 				$part = 'unpaid';
@@ -87,7 +87,7 @@ class Billing extends CI_Controller
 			{
 				$text_group[] = $this->group_model->get_group($one, 'name');
 			}
-			$title = sprintf("%s代表团帐单列表", join('、', $text_group));
+			$title = sprintf("%s代表团账单列表", join('、', $text_group));
 		}
 		
 		//标签地址
@@ -112,12 +112,12 @@ class Billing extends CI_Controller
 			'title' => $title,
 		);
 		
-		$this->ui->title($title, '帐单列表');
+		$this->ui->title($title, '账单列表');
 		$this->load->view('admin/invoice_manage', $vars);
 	}
 	
 	/**
-	 * 查看帐单信息
+	 * 查看账单信息
 	 */
 	function invoice($id, $action = 'view')
 	{
@@ -126,7 +126,7 @@ class Billing extends CI_Controller
 		
 		if(!$this->invoice->load($id))
 		{
-			$this->ui->alert('帐单信息不存在。', 'danger', true);
+			$this->ui->alert('账单信息不存在。', 'danger', true);
 			back_redirect();
 			return;
 		}
@@ -135,15 +135,15 @@ class Billing extends CI_Controller
 		$delegate = $this->delegate_model->get_delegate($this->invoice->get('delegate'));
 		$vars['delegate'] = $delegate;
 		
-		//编辑转帐信息
+		//编辑转账信息
 		if($action == 'transaction')
 		{
 			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 
-			$this->form_validation->set_rules('time', '转帐时间', 'trim|required|strtotime');
+			$this->form_validation->set_rules('time', '转账时间', 'trim|required|strtotime');
 			$this->form_validation->set_rules('gateway', '交易渠道', 'trim|required');
 			$this->form_validation->set_rules('transaction', '交易流水号', 'trim|required');
-			$this->form_validation->set_rules('amount', '转帐金额', 'trim|required|numeric');
+			$this->form_validation->set_rules('amount', '转账金额', 'trim|required|numeric');
 
 			if($this->form_validation->run() == true)
 			{
@@ -166,7 +166,7 @@ class Billing extends CI_Controller
 				
 				$this->system_model->log('invoice_received', array('invoice' => $id, 'transaction' => $this->invoice->get('transaction')));
 				
-				$this->ui->alert('已经确认收款并更新帐单状态。', 'success');
+				$this->ui->alert('已经确认收款并更新账单状态。', 'success');
 			}
 		}
 		
@@ -177,7 +177,7 @@ class Billing extends CI_Controller
 		$vars['unpaid'] = $this->invoice_model->is_unpaid($id);
 		
 		$this->ui->now('billing');
-		$this->ui->title("帐单 #{$id}", '查看帐单');
+		$this->ui->title("账单 #{$id}", '查看账单');
 		$this->load->view('admin/invoice_item', $vars);
 	}
 	
@@ -195,11 +195,11 @@ class Billing extends CI_Controller
 			$param = $this->_filter_check($this->input->get());
 			$input_param = array();
 			
-			//帐单状态
+			//账单状态
 			if(isset($param['status']))
 				$input_param['status'] = $param['status'];
 			
-			//转帐记录
+			//转账记录
 			if(isset($param['transaction']))
 			{
 				$transaction = $param['transaction'][0];
@@ -238,7 +238,7 @@ class Billing extends CI_Controller
 					$delegate = $this->delegate_model->get_delegate($invoice['delegate']);
 
 					//操作
-					$operation = anchor("billing/invoice/{$invoice['id']}", icon('file-text', false).'帐单');
+					$operation = anchor("billing/invoice/{$invoice['id']}", icon('file-text', false).'账单');
 					$operation .= ' '.anchor("delegate/profile/{$invoice['delegate']}", icon('user', false).'代表');
 					
 					//姓名
@@ -259,7 +259,7 @@ class Billing extends CI_Controller
 								$status_text = '已逾期';
 							}
 							
-							//转帐记录
+							//转账记录
 							if(!empty($invoice['transaction']))
 							{
 								$status_class = 'primary';
@@ -281,13 +281,13 @@ class Billing extends CI_Controller
 					$data = array(
 						$invoice['id'], //ID
 						$name_line, //姓名
-						$invoice['title'], //帐单标题
+						$invoice['title'], //账单标题
 						$this->currency_sign.number_format($invoice['amount'], 2).' '.$this->currency_text, //金额
 						!empty($invoice['generate_time']) ? sprintf('%1$s（%2$s）', date('n月j日', $invoice['generate_time']), nicetime($invoice['generate_time'])) : 'N/A', //生成时间
 						!empty($invoice['due_time']) ? sprintf('%1$s（%2$s）', date('n月j日', $invoice['due_time']), nicetime($invoice['due_time'])) : 'N/A', //到期时间
 						$status_line, //状态
-						!empty($invoice['transaction']) ? ($invoice['transaction']['confirm'] ? "<span class='label label-success'>已确认</span>" : "<span class='label label-warning'>待确认</span>") : '', //转帐确认
-						!empty($invoice['transaction']) ? unix_to_human($invoice['transaction']['time']) : '', //转帐时间
+						!empty($invoice['transaction']) ? ($invoice['transaction']['confirm'] ? "<span class='label label-success'>已确认</span>" : "<span class='label label-warning'>待确认</span>") : '', //转账确认
+						!empty($invoice['transaction']) ? unix_to_human($invoice['transaction']['time']) : '', //转账时间
 						!empty($invoice['transaction']) ? $invoice['transaction']['gateway'] : '', //交易渠道
 						!empty($invoice['transaction']) ? $invoice['transaction']['transaction'] : '', //流水号
 						!empty($invoice['transaction']) ? $this->currency_sign.number_format($invoice['transaction']['amount'], 2).' '.$this->currency_text : '', //交易金额
@@ -315,7 +315,7 @@ class Billing extends CI_Controller
 	{
 		$return = array();
 		
-		//帐单状态
+		//账单状态
 		if(isset($post['status']))
 		{
 			$status = array();

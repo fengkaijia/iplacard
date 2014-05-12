@@ -437,7 +437,7 @@ class Apply extends CI_Controller
 					
 					$this->delegate_model->change_status($this->uid, 'invoice_issued');
 					
-					//生成帐单
+					//生成账单
 					$this->invoice->title(option('invoice_title_fee_delegate', option('invoice_title_fee', '参会会费')));
 					$this->invoice->to($this->uid);
 					$this->invoice->item(option('invoice_title_fee_delegate', option('invoice_title_fee', '参会会费')), option('invoice_amount_delegate', 1000), option('invoice_item_fee_delegate', option('invoice_item_fee', array())));
@@ -561,7 +561,7 @@ class Apply extends CI_Controller
 	}
 	
 	/**
-	 * 帐单信息
+	 * 账单信息
 	 */
 	function invoice($id = '', $action = 'view')
 	{
@@ -570,17 +570,17 @@ class Apply extends CI_Controller
 		$this->load->library('form_validation');
 		$this->load->helper('form');
 		
-		$gateways = option('invoice_payment_gateway', array('汇款', '网银转帐', '支付宝', '其他'));
+		$gateways = option('invoice_payment_gateway', array('汇款', '网银转账', '支付宝', '其他'));
 		$gateways = array_combine($gateways, $gateways);
 		
-		//显示代表第一份未支付帐单
+		//显示代表第一份未支付账单
 		if(empty($id))
 		{
 			$invoices = $this->invoice_model->get_delegate_invoices($this->uid);
 			
 			if(!$invoices)
 			{
-				$this->ui->alert('您当前没有帐单需要处理。', 'success', true);
+				$this->ui->alert('您当前没有账单需要处理。', 'success', true);
 				back_redirect();
 				return;
 			}
@@ -594,20 +594,20 @@ class Apply extends CI_Controller
 		
 		if($this->invoice->get('delegate') != $this->uid)
 		{
-			$this->ui->alert('无权访问帐单信息。', 'danger', true);
+			$this->ui->alert('无权访问账单信息。', 'danger', true);
 			back_redirect();
 			return;
 		}
 		
-		//编辑转帐信息
+		//编辑转账信息
 		if($action == 'transaction')
 		{
 			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 
-			$this->form_validation->set_rules('time', '转帐时间', 'trim|required|strtotime');
+			$this->form_validation->set_rules('time', '转账时间', 'trim|required|strtotime');
 			$this->form_validation->set_rules('gateway', '交易渠道', 'trim|required');
 			$this->form_validation->set_rules('transaction', '交易流水号', 'trim');
-			$this->form_validation->set_rules('amount', '转帐金额', 'trim|required|numeric');
+			$this->form_validation->set_rules('amount', '转账金额', 'trim|required|numeric');
 
 			if($this->form_validation->run() == true)
 			{
@@ -628,7 +628,7 @@ class Apply extends CI_Controller
 				
 				$this->system_model->log('invoice_updated', array('invoice' => $id, 'transaction' => $this->invoice->get('transaction')));
 				
-				$this->ui->alert('转帐信息已经保存。', 'success');
+				$this->ui->alert('转账信息已经保存。', 'success');
 			}
 		}
 		
@@ -639,7 +639,7 @@ class Apply extends CI_Controller
 		$vars['unpaid'] = $this->invoice_model->is_unpaid($id);
 		
 		$this->ui->now('invoice');
-		$this->ui->title('帐单');
+		$this->ui->title('账单');
 		$this->load->view('delegate/invoice_item', $vars);
 	}
 	

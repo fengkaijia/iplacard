@@ -72,7 +72,7 @@ $this->load->view('header');?>
 		<h3>选择席位</h3>
 		<div id="pre_select">
 			<p>提交席位选择后，您选择的席位将被临时保留，其他人无法继续选择其为参会席位。</p>
-			<p>点击提交席位选择后，我们将为您生成会费帐单，您将可以在 <?php echo option('seat_payment_timeout', 7);?> 天内完成会费支付，支付完成后您的席位将被锁定。如果未能在 <?php echo option('seat_payment_timeout', 7);?> 天内完成会费支付，您的席位将会自动解锁。</p>
+			<p>点击提交席位选择后，我们将为您生成会费账单，您将可以在 <?php echo option('seat_payment_timeout', 7);?> 天内完成会费支付，支付完成后您的席位将被锁定。如果未能在 <?php echo option('seat_payment_timeout', 7);?> 天内完成会费支付，您的席位将会自动解锁。</p>
 			<?php
 			if(!$select_open)
 			{

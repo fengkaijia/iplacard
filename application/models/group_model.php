@@ -106,7 +106,7 @@ class Group_model extends CI_Model
 	}
 	
 	/**
-	 * 检查代表团是否支付代表帐单
+	 * 检查代表团是否支付代表账单
 	 */
 	function is_group_paying($id)
 	{

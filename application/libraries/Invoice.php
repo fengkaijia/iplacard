@@ -1,7 +1,7 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
- * 帐单类库
+ * 账单类库
  * @package iPlacard
  * @since 2.0
  */
@@ -31,7 +31,7 @@ class Invoice extends CI_Model
 	protected $delegate_info = array();
 	
 	/**
-	 * @var string PDF帐单文件存放路径
+	 * @var string PDF账单文件存放路径
 	 */
 	private $path = '';
 	
@@ -47,7 +47,7 @@ class Invoice extends CI_Model
 	}
 	
 	/**
-	 * 设置帐单名称
+	 * 设置账单名称
 	 */
 	function title($title)
 	{
@@ -55,7 +55,7 @@ class Invoice extends CI_Model
 	}
 	
 	/**
-	 * 设置帐单对象
+	 * 设置账单对象
 	 */
 	function to($delegate)
 	{
@@ -106,10 +106,10 @@ class Invoice extends CI_Model
 	}
 	
 	/**
-	 * 增加转帐记录
+	 * 增加转账记录
 	 * @param string $gateway 通道
 	 * @param string $transaction_id 交易流水号 
-	 * @param float $amount 转帐金额
+	 * @param float $amount 转账金额
 	 * @param bool $confirm 交易是否确认
 	 * @param array $extra 附加信息
 	 */
@@ -160,7 +160,7 @@ class Invoice extends CI_Model
 	}
 	
 	/**
-	 * 显示帐单
+	 * 显示账单
 	 */
 	function display($full = false)
 	{
@@ -221,7 +221,7 @@ class Invoice extends CI_Model
 	}
 	
 	/**
-	 * 生成PDF帐单
+	 * 生成PDF账单
 	 */
 	function pdf()
 	{
@@ -254,7 +254,7 @@ class Invoice extends CI_Model
 	}
 	
 	/**
-	 * 生成帐单
+	 * 生成账单
 	 */
 	function generate()
 	{
@@ -282,12 +282,12 @@ class Invoice extends CI_Model
 		$pdf_data = $this->pdf();
 		
 		$this->CI->email->to($this->delegate_info['email']);
-		$this->CI->email->subject('新的帐单已经生成');
-		$this->CI->email->html($this->parser->parse_string(option('email_invoice_generated', "新的帐单 #{id} 已经生成，帐单的信息如下：\n\n"
-				. "\t帐单名称：{title}\n\n"
-				. "\t帐单生成时间：{generate_time}\n\n"
-				. "\t帐单到期时间：{due_time}\n\n"
-				. "请与帐单到期前完成支付，请访问 {url} 查看并支付帐单。"), $email_data, true));
+		$this->CI->email->subject('新的账单已经生成');
+		$this->CI->email->html($this->parser->parse_string(option('email_invoice_generated', "新的账单 #{id} 已经生成，账单的信息如下：\n\n"
+				. "\t账单名称：{title}\n\n"
+				. "\t账单生成时间：{generate_time}\n\n"
+				. "\t账单到期时间：{due_time}\n\n"
+				. "请与账单到期前完成支付，请访问 {url} 查看并支付账单。"), $email_data, true));
 		if($pdf_data)
 			$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 		$this->CI->email->send();
@@ -300,7 +300,7 @@ class Invoice extends CI_Model
 			$this->load->library('sms');
 
 			$this->CI->sms->to($this->delegate);
-			$this->CI->sms->message("新的帐单 #{$this->id} 已经生成，请登录 iPlacard 系统查看详细信息并完成支付。");
+			$this->CI->sms->message("新的账单 #{$this->id} 已经生成，请登录 iPlacard 系统查看详细信息并完成支付。");
 			$this->CI->sms->queue();
 		}
 		
@@ -313,7 +313,7 @@ class Invoice extends CI_Model
 	}
 	
 	/**
-	 * 更新帐单
+	 * 更新账单
 	 */
 	function update($notice = false)
 	{
@@ -347,8 +347,8 @@ class Invoice extends CI_Model
 			$pdf_data = $this->pdf();
 
 			$this->CI->email->to($this->delegate_info['email']);
-			$this->CI->email->subject('帐单已经更新');
-			$this->CI->email->html($this->parser->parse_string(option('email_invoice_updated', '帐单 #{id} 已经更新，请访问 {url} 查看新的帐单信息。'), $email_data, true));
+			$this->CI->email->subject('账单已经更新');
+			$this->CI->email->html($this->parser->parse_string(option('email_invoice_updated', '账单 #{id} 已经更新，请访问 {url} 查看新的账单信息。'), $email_data, true));
 			if($pdf_data)
 				$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 			$this->CI->email->send();
@@ -361,14 +361,14 @@ class Invoice extends CI_Model
 				$this->load->library('sms');
 
 				$this->CI->sms->to($this->delegate);
-				$this->CI->sms->message("您的帐单 #{$this->id} 已经更新，请登录 iPlacard 系统查看新的帐单信息。");
+				$this->CI->sms->message("您的账单 #{$this->id} 已经更新，请登录 iPlacard 系统查看新的账单信息。");
 				$this->CI->sms->queue();
 			}
 		}
 	}
 	
 	/**
-	 * 收到帐单
+	 * 收到账单
 	 */
 	function receive($cashier = '')
 	{
@@ -401,8 +401,8 @@ class Invoice extends CI_Model
 		$pdf_data = $this->pdf();
 
 		$this->CI->email->to($this->delegate_info['email']);
-		$this->CI->email->subject('帐单支付完成');
-		$this->CI->email->html($this->parser->parse_string(option('email_invoice_received', '帐单 #{id} 已经完成支付，请访问 {url} 查看帐单信息。'), $email_data, true));
+		$this->CI->email->subject('账单支付完成');
+		$this->CI->email->html($this->parser->parse_string(option('email_invoice_received', '账单 #{id} 已经完成支付，请访问 {url} 查看账单信息。'), $email_data, true));
 		if($pdf_data)
 			$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 		$this->CI->email->send();
@@ -415,7 +415,7 @@ class Invoice extends CI_Model
 			$this->load->library('sms');
 
 			$this->CI->sms->to($this->delegate);
-			$this->CI->sms->message("您的帐单 #{$this->id} 已经完成支付，请登录 iPlacard 系统查看帐单信息。");
+			$this->CI->sms->message("您的账单 #{$this->id} 已经完成支付，请登录 iPlacard 系统查看账单信息。");
 			$this->CI->sms->queue();
 		}
 		
@@ -424,7 +424,7 @@ class Invoice extends CI_Model
 	}
 	
 	/**
-	 * 取消帐单
+	 * 取消账单
 	 */
 	function cancel($cashier = '')
 	{
@@ -455,8 +455,8 @@ class Invoice extends CI_Model
 		$pdf_data = $this->pdf();
 
 		$this->CI->email->to($this->delegate_info['email']);
-		$this->CI->email->subject('帐单已经取消');
-		$this->CI->email->html($this->parser->parse_string(option('email_invoice_cancelled', '帐单 #{id} 已经取消，请访问 {url} 查看帐单信息。'), $email_data, true));
+		$this->CI->email->subject('账单已经取消');
+		$this->CI->email->html($this->parser->parse_string(option('email_invoice_cancelled', '账单 #{id} 已经取消，请访问 {url} 查看账单信息。'), $email_data, true));
 		if($pdf_data)
 			$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 		$this->CI->email->send();
@@ -469,7 +469,7 @@ class Invoice extends CI_Model
 			$this->load->library('sms');
 
 			$this->CI->sms->to($this->delegate);
-			$this->CI->sms->message("您的帐单 #{$this->id} 已经取消，请登录 iPlacard 系统查看帐单信息。");
+			$this->CI->sms->message("您的账单 #{$this->id} 已经取消，请登录 iPlacard 系统查看账单信息。");
 			$this->CI->sms->queue();
 		}
 		
@@ -478,7 +478,7 @@ class Invoice extends CI_Model
 	}
 	
 	/**
-	 * 获取帐单信息
+	 * 获取账单信息
 	 */
 	function get($item)
 	{
@@ -486,7 +486,7 @@ class Invoice extends CI_Model
 	}
 	
 	/**
-	 * 载入帐单
+	 * 载入账单
 	 */
 	function load($id)
 	{
