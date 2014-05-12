@@ -313,11 +313,12 @@ class Apply extends CI_Controller
 		{
 			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 		
-			$this->form_validation->set_rules('primary', '主席位', 'trim|required|callback__check_selectability[primary]');
+			$this->form_validation->set_rules('primary', '主席位', 'trim|required|callback__check_selectability[primary]|callback__check_availability');
 			$this->form_validation->set_rules('backorder', '候选席位', "max_count[{$select_backorder_max}]|callback__check_primary_backorder|callback__check_selectability[backorder]");
 			$this->form_validation->set_message('max_count', "最多可以选择 {$select_backorder_max} 个席位。");
 			$this->form_validation->set_message('_check_selectability', '席位选择不符合设定条件。');
 			$this->form_validation->set_message('_check_primary_backorder', '主席位不能同时被选定为候选席位。');
+			$this->form_validation->set_message('_check_availability', '主席位已被分配不可选择。');
 
 			if($this->form_validation->run() == true)
 			{
@@ -526,15 +527,22 @@ class Apply extends CI_Controller
 		{
 			$selectability = $this->seat_model->get_selectability($slid);
 			
+			//席位详细信息
+			$selectability['seat'] = $this->seat_model->get_seat($selectability['seat']);
+			
 			//主要席位统计
 			if($selectability['primary'])
 			{
-				$selectability_primary[] = intval($selectability['seat']);
-				$selectability_primary_count++;
+				if(empty($selectability['seat']['delegate']) || ($selectability['seat']['status'] == 'assigned' && $selectability['seat']['delegate'] == $this->uid))
+				{
+					$selectability_primary[] = intval($selectability['seat']['id']);
+					$selectability_primary_count++;
+				}
+				else
+				{
+					$selectability['primary'] = false;
+				}
 			}
-			
-			//席位详细信息
-			$selectability['seat'] = $this->seat_model->get_seat($selectability['seat']);
 			
 			$committee = $selectability['seat']['committee'];
 			if(!isset($committees[$committee]))
@@ -1008,6 +1016,24 @@ class Apply extends CI_Controller
 		$primary = $this->input->post('primary');
 		
 		if(in_array($primary, $array))
+			return false;
+		
+		return true;
+	}
+	
+	/**
+	 * 检查主席位是否可选
+	 */
+	function _check_availability($str)
+	{
+		$seat = $this->seat_model->get_seat($str);
+		if(!$seat)
+			return false;
+		
+		if($seat['status'] == 'locked')
+			return false;
+		
+		if($seat['status'] == 'assigned' && $seat['delegate'] != $this->uid)
 			return false;
 		
 		return true;
