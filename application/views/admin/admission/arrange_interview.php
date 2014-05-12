@@ -4,7 +4,7 @@
 <script>
 	$('.form_datetime').datetimepicker({
 		language:  'zh-CN',
-		format: "yyyy-mm-dd HH:ii",
+		format: "yyyy-mm-dd hh:ii",
 		weekStart: 1,
 		todayBtn: 1,
 		autoclose: 1,
