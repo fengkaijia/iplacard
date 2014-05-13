@@ -7,6 +7,16 @@
  */
 class Admin extends CI_Controller
 {
+	/**
+	 * @var array 待办事项统计
+	 */
+	private $task = array();
+	
+	/**
+	 * @var bool 是否有待办事项
+	 */
+	private $has_task = false;
+	
 	function __construct()
 	{
 		parent::__construct();
@@ -114,56 +124,33 @@ class Admin extends CI_Controller
 		$vars['count'] = $count;
 		
 		//待办事项
-		$task = array();
-		$has_task = false;
-		
-		//待审申请
 		if($this->admin_model->capable('reviewer'))
 		{
+			//待审申请
 			$task_review_ids = $this->delegate_model->get_delegate_ids('status', 'application_imported');
 			if($task_review_ids)
-			{
-				$task['review'] = count($task_review_ids);
-				$has_task = true;
-			}
-			else
-				$task['review'] = 0;
-		}
-		
-		//待分配面试
-		if($this->admin_model->capable('reviewer'))
-		{
+				$this->_task('review', count($task_review_ids));
+			
+			//待分配面试
 			$task_interview_assign_ids = $this->delegate_model->get_delegate_ids('status', 'review_passed');
 			if($task_interview_assign_ids)
-			{
-				$task['interview_assign'] = count($task_interview_assign_ids);
-				$has_task = true;
-			}
-			else
-				$task['interview_assign'] = 0;
+				$this->_task('interview_assign', count($task_interview_assign_ids));
 		}
 		
-		//待安排时间面试
 		if($this->admin_model->capable('interviewer'))
 		{
 			$this->load->model('interview_model');
+			
+			//待安排时间面试
 			$task_interview_arrange_ids = $this->interview_model->get_interview_ids('interviewer', $admin['id'], 'status', 'assigned');
 			if($task_interview_arrange_ids)
-			{
-				$task['interview_arrange'] = count($task_interview_arrange_ids);
-				$has_task = true;
-			}
-			else
-				$task['interview_arrange'] = 0;
-		}
-		
-		//等待面试
-		if($this->admin_model->capable('interviewer'))
-		{
+				$this->_task('interview_arrange', count($task_interview_arrange_ids));
+			
+			//等待面试
 			$task_interview_do_ids = $this->interview_model->get_interview_ids('interviewer', $admin['id'], 'status', 'arranged');
 			if($task_interview_do_ids)
 			{
-				$task['interview_do'] = count($task_interview_do_ids);
+				$this->_task('interview_do', count($task_interview_do_ids));
 
 				//最近面试
 				$newest = 0;
@@ -175,18 +162,13 @@ class Admin extends CI_Controller
 						$newest = $interview_time;
 				}
 
-				$task['interview_next_schedule'] = $newest;
-
-				$has_task = true;
+				$this->_task('interview_next_schedule', $newest);
 			}
-			else
-				$task['interview_do'] = 0;
 		}
 		
-		$vars['task'] = $task;
-		
-		$vars['has_task'] = $has_task;
-		if(!$has_task)
+		$vars['task'] = $this->task;
+		$vars['has_task'] = $this->has_task;
+		if(!$this->has_task)
 			unset($sidebar['task']);
 		
 		//RSS
@@ -281,6 +263,15 @@ class Admin extends CI_Controller
 		}
 		
 		echo json_encode($json);
+	}
+	
+	/**
+	 * 增加待办事项数据
+	 */
+	private function _task($item, $count = 0)
+	{
+		$this->task[$item] = $count;
+		$this->has_task = true;
 	}
 }
 

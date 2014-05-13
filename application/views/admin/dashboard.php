@@ -172,16 +172,13 @@
 			</div>
 			<div class="list-group">
 				<?php
-				if(isset($task['review']) && $task['review'] != 0)
+				if(isset($task['review']))
 					echo anchor('delegate/manage/?status=application_imported', "{$task['review']} 份参会申请正在等待审核。", 'class="list-group-item"');
-				
-				if(isset($task['interview_assign']) && $task['interview_assign'] != 0)
+				if(isset($task['interview_assign']))
 					echo anchor('delegate/manage/?status=review_passed', "{$task['interview_assign']} 位代表正在等待分配面试官。", 'class="list-group-item"');
-				
-				if(isset($task['interview_arrange']) && $task['interview_arrange'] != 0)
+				if(isset($task['interview_arrange']))
 					echo anchor('interview/manage?interviewer=u&status=assigned', "{$task['interview_arrange']} 位代表正在等待安排面试时间。", 'class="list-group-item"');
-				
-				if(isset($task['interview_do']) && $task['interview_do'] != 0)
+				if(isset($task['interview_do']))
 					echo anchor('interview/manage?interviewer=u&status=arranged', sprintf('%1$s 场面试等待进行，最近的面试安排在 %2$s（%3$s）。', $task['interview_do'], date('m-d H:i', $task['interview_next_schedule']), nicetime($task['interview_next_schedule'])), 'class="list-group-item"');
 				?>
 			</div>
