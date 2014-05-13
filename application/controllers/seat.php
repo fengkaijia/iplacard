@@ -570,7 +570,7 @@ class Seat extends CI_Controller
 					
 					$selectability = $this->seat_model->get_selectability_ids('seat', $seat['id']);
 					if($selectability)
-						$condition_line .= '<span class="label label-primary">可选</span> '.count($selectability);
+						$condition_line .= '<span class="label label-primary">可选</span> '.count($selectability).' ';
 					
 					$backorder = $this->seat_model->get_seat_backorders($seat['id']);
 					if($backorder)
