@@ -58,7 +58,11 @@ $this->load->view('header');?>
 					<td><?php echo flag($seat['iso'], true);
 					echo $selectability['recommended'] ? "<strong>{$seat['name']}</strong>" : $seat['name'];?></td>
 					<td><?php echo $committees[$seat['committee']]['name'];?></td>
-					<td><?php echo $selectability['primary'] ? '<span class="text-success">主分配席位</span>' : '<span class="text-primary">候选分配席位</span>';?></td>
+					<td><?php
+					if($selectability['seat']['delegate'] != $delegate['id'])
+						echo $selectability['primary'] ? '<span class="text-success">主分配席位</span>' : '<span class="text-primary">候选分配席位</span>';
+					else
+						echo '<span class="text-success">已选为主席位</span>';?></td>
 					<td><?php printf('%1$s（%2$s）', date('n月j日', $selectability['time']), nicetime($selectability['time']));?></td>
 					<td><?php if($selectability['primary'] && $seat['status'] != 'assigned')
 						echo '<a href="#seat-'.$seat['id'].'" onclick="select_seat('.$seat['id'].', true);">'.icon('plus-square', false).'席位</a> ';

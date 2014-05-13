@@ -538,7 +538,7 @@ class Apply extends CI_Controller
 					$selectability_primary[] = intval($selectability['seat']['id']);
 					$selectability_primary_count++;
 				}
-				else
+				elseif($selectability['seat']['delegate'] != $this->uid)
 				{
 					$selectability['primary'] = false;
 				}
@@ -552,6 +552,7 @@ class Apply extends CI_Controller
 		}
 		
 		$vars = array(
+			'delegate' => $this->delegate,
 			'committees' => $committees,
 			'selectabilities' => $selectabilities,
 			'selectability_count' => $selectability_count,
