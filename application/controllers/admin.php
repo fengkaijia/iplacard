@@ -164,6 +164,57 @@ class Admin extends CI_Controller
 
 				$this->_task('interview_next_schedule', $newest);
 			}
+			
+			$task_interview_finish_ids = $this->interview_model->get_interview_ids('interviewer', $admin['id'], 'status', 'completed');
+			if($task_interview_finish_ids)
+			{
+				$interviewer_delegate_ids = $this->interview_model->get_delegates_by_interviews($task_interview_finish_ids);
+				
+				//待分配席位
+				$task_seat_assign_ids = $this->delegate_model->get_delegate_ids('id', $interviewer_delegate_ids, 'status', 'interview_completed');
+				if($task_seat_assign_ids)
+					$this->_task('seat_assign', count($task_seat_assign_ids));
+				
+				//待选择席位
+				$task_seat_select_ids = $this->delegate_model->get_delegate_ids('id', $interviewer_delegate_ids, 'status', 'seat_assigned');
+				if($task_seat_select_ids)
+					$this->_task('seat_select', count($task_seat_select_ids));
+			}
+		}
+		
+		if($this->admin_model->capable('administrator'))
+		{
+			$this->load->model('interview_model');
+			
+			//全局待安排时间面试
+			$task_global_interview_arrange_ids = $this->interview_model->get_interview_ids('status', 'assigned');
+			if($task_global_interview_arrange_ids)
+				$this->_task('interview_global_arrange', count($task_global_interview_arrange_ids));
+			
+			//全局等待面试
+			$task_global_interview_do_ids = $this->interview_model->get_interview_ids('status', 'arranged');
+			if($task_global_interview_do_ids)
+				$this->_task('interview_global_do', count($task_global_interview_do_ids));
+			
+			//全局待分配席位
+			$task_global_seat_assign_ids = $this->delegate_model->get_delegate_ids('status', 'interview_completed');
+			if($task_global_seat_assign_ids)
+				$this->_task('seat_global_assign', count($task_global_seat_assign_ids));
+
+			//全局待选择席位
+			$task_global_seat_select_ids = $this->delegate_model->get_delegate_ids('status', 'seat_assigned');
+			if($task_global_seat_select_ids)
+				$this->_task('seat_global_select', count($task_global_seat_select_ids));
+		}
+		
+		if($this->admin_model->capable('cashier'))
+		{
+			$this->load->model('invoice_model');
+			
+			//待确认账单
+			$task_invoice_receive_ids = $this->invoice_model->get_invoice_ids('status', 'unpaid', 'transaction IS NOT NULL', NULL);
+			if($task_invoice_receive_ids)
+				$this->_task('invoice_receive', count($task_invoice_receive_ids));
 		}
 		
 		$vars['task'] = $this->task;

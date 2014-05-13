@@ -178,8 +178,22 @@
 					echo anchor('delegate/manage/?status=review_passed', "{$task['interview_assign']} 位代表正在等待分配面试官。", 'class="list-group-item"');
 				if(isset($task['interview_arrange']))
 					echo anchor('interview/manage?interviewer=u&status=assigned', "{$task['interview_arrange']} 位代表正在等待安排面试时间。", 'class="list-group-item"');
+				if(isset($task['seat_assign']))
+					echo anchor('delegate/manage?type=delegate&status=interview_completed&interviewer=u', "{$task['seat_assign']} 位代表正在等待分配席位。", 'class="list-group-item"');
+				if(isset($task['seat_select']))
+					echo anchor('delegate/manage?type=delegate&status=seat_assigned&interviewer=u', "{$task['seat_select']} 位代表尚未选择席位。", 'class="list-group-item"');
 				if(isset($task['interview_do']))
 					echo anchor('interview/manage?interviewer=u&status=arranged', sprintf('%1$s 场面试等待进行，最近的面试安排在 %2$s（%3$s）。', $task['interview_do'], date('m-d H:i', $task['interview_next_schedule']), nicetime($task['interview_next_schedule'])), 'class="list-group-item"');
+				if(isset($task['interview_global_arrange']))
+					echo anchor('interview/manage?status=assigned', "全局共 {$task['interview_global_arrange']} 位代表尚未安排面试时间。", 'class="list-group-item"');
+				if(isset($task['interview_global_do']))
+					echo anchor('interview/manage?status=assigned', "全局共 {$task['interview_global_arrange']} 位代表等待面试。", 'class="list-group-item"');
+				if(isset($task['seat_global_assign']))
+					echo anchor('delegate/manage?type=delegate&status=interview_completed', "全局共 {$task['seat_global_assign']} 位代表等待分配席位。", 'class="list-group-item"');
+				if(isset($task['seat_global_select']))
+					echo anchor('delegate/manage?type=delegate&status=seat_assigned', "全局共 {$task['seat_global_select']} 位代表尚未选择席位。", 'class="list-group-item"');	
+				if(isset($task['invoice_receive']))
+					echo anchor('billing/manage?status=unpaid&transaction=1', "{$task['invoice_receive']} 份账单已经标记支付并等待确认。", 'class="list-group-item"');
 				?>
 			</div>
 		</div><?php } ?>
