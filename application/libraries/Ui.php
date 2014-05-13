@@ -195,6 +195,12 @@ class UI
 		if(empty($sidebar))
 			return $this->sidebar;
 		
+		foreach($sidebar as $item => $data)
+		{
+			if(isset($data[2]) && !empty($data[2]) && !$this->CI->admin_model->capable($data[2]))
+				unset($sidebar[$item]);
+		}
+		
 		$this->sidebar = $sidebar;
 		$this->enable_sidebar();
 	}

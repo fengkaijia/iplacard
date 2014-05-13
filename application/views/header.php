@@ -133,9 +133,9 @@
 		<ul class="nav nav-sidebar">
 			<?php foreach($this->ui->sidebar() as $item)
 			{
-				echo isset($item[3]) && $item[3] ? '<li class="active">' : '<li>';
-				echo anchor(!empty($item[1]) ? $item[1] : '#', $item[0], isset($item[2]) && $item[2] ? "onclick=\"$('.sidebar li').removeClass('active'); $(this).parent().addClass('active');\"" : '', isset($item[2]) ? $item[2] : false);
-				echo isset($item[4]) && $item[4] ? '</li></ul><ul class="nav nav-sidebar">' : '</li>';
+				echo isset($item[4]) && $item[4] ? '<li class="active">' : '<li>';
+				echo anchor(!empty($item[1]) ? $item[1] : '#', $item[0], isset($item[3]) && $item[3] ? "onclick=\"$('.sidebar li').removeClass('active'); $(this).parent().addClass('active');\"" : '', isset($item[3]) ? $item[3] : false);
+				echo isset($item[5]) && $item[5] ? '</li></ul><ul class="nav nav-sidebar">' : '</li>';
 			} ?>
 		</ul>
 	</div><?php } ?>
