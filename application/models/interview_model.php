@@ -81,6 +81,34 @@ class Interview_model extends CI_Model
 	}
 	
 	/**
+	 * 根据一组面试ID获取对应代表ID
+	 * @param int|array $ids 一个或一组面试ID
+	 */
+	function get_delegates_by_interviews($ids)
+	{
+		//仅单个面试ID
+		if(is_int($ids) || is_string($ids))
+			$ids = array($ids);
+		
+		$this->db->where_in('id', $ids);
+		
+		$query = $this->db->get('interview');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回ID
+		foreach($query->result_array() as $data)
+		{
+			$array[] = $data['delegate'];
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
 	 * 显示当前面试分数平均分布
 	 * @param int $min 最小样本
 	 * @return array|false 数据分布数组，如达不到最小样本返回FALSE
