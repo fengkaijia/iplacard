@@ -188,6 +188,9 @@ $(document).ready(function() {
 		"sAjaxSource": '{$ajax_url}',
 		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 			$(nRow).attr("id", 'seat-' + aData[0]);
+		},
+		"fnInitComplete": function() {
+			$('.contact_list').popover();
 		}
 	} );
 } );
