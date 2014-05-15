@@ -30,13 +30,6 @@ class Document extends CI_Controller
 			return;
 		}
 		
-		//检查权限
-		if(!$this->user_model->is_admin(uid()) || (!$this->admin_model->capable('administrator') && !$this->admin_model->capable('dais')))
-		{
-			redirect('');
-			return;
-		}
-		
 		//文件路径
 		$this->path = './data/'.IP_INSTANCE_ID.'/document/';
 		
@@ -48,6 +41,13 @@ class Document extends CI_Controller
 	 */
 	function manage()
 	{
+		//检查权限
+		if(!$this->user_model->is_admin(uid()) || (!$this->admin_model->capable('administrator') && !$this->admin_model->capable('dais')))
+		{
+			redirect('');
+			return;
+		}
+		
 		//查询过滤
 		$post = $this->input->get();
 		$param = $this->_filter_check($post);
@@ -83,6 +83,12 @@ class Document extends CI_Controller
 		$this->load->helper('file');
 		
 		//检查权限
+		if(!$this->user_model->is_admin(uid()) || (!$this->admin_model->capable('administrator') && !$this->admin_model->capable('dais')))
+		{
+			redirect('');
+			return;
+		}
+		
 		if(!$this->admin_model->capable('administrator') && !$this->admin_model->capable('dais'))
 		{
 			$this->ui->alert('需要管理员或主席权限以编辑文件。', 'warning', true);
@@ -310,6 +316,13 @@ class Document extends CI_Controller
 	 */
 	function delete($id)
 	{
+		//检查权限
+		if(!$this->user_model->is_admin(uid()) || (!$this->admin_model->capable('administrator') && !$this->admin_model->capable('dais')))
+		{
+			redirect('');
+			return;
+		}
+		
 		//文件检查
 		$document = $this->document_model->get_document($id);
 		if(!$document)
