@@ -253,6 +253,7 @@ class Document extends CI_Controller
 				$email_data = array(
 					'id' => $id,
 					'title' => $post['title'],
+					'url' => base_url("document/download/$id/$file_id"),
 					'time' => unix_to_human(time())
 				);
 				
@@ -276,12 +277,16 @@ class Document extends CI_Controller
 					if($action == 'add')
 					{
 						$this->email->subject('新的文件可供下载');
-						$this->email->html($this->parser->parse_string(option('email_document_added', "新的文件《{title}》已经于 {time} 上传到 iPlacard，请访问 iPlacard 下载文件。"), $email_data, true));
+						$this->email->html($this->parser->parse_string(option('email_document_added', "新的文件《{title}》已经于 {time} 上传到 iPlacard，请访问\n\n"
+								. "\t{url}\n\n"
+								. "下载文件。"), $email_data, true));
 					}
 					else
 					{
 						$this->email->subject('文件已经更新');
-						$this->email->html($this->parser->parse_string(option('email_document_updated', "文件《{title}》已经于 {time} 更新，请访问 iPlacard 下载文件更新。"), $email_data, true));
+						$this->email->html($this->parser->parse_string(option('email_document_updated', "文件《{title}》已经于 {time} 更新，请访问\n\n"
+								. "\t{url}\n\n"
+								. "下载文件更新。"), $email_data, true));
 					}
 
 					foreach($users as $user)
