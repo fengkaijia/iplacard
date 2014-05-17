@@ -280,25 +280,26 @@ class Document extends CI_Controller
 				
 				if($users)
 				{
-					if($action == 'add')
-					{
-						$this->email->subject('新的文件可供下载');
-						$this->email->html($this->parser->parse_string(option('email_document_added', "新的文件《{title}》已经于 {time} 上传到 iPlacard，请访问\n\n"
-								. "\t{url}\n\n"
-								. "下载文件。"), $email_data, true));
-					}
-					else
-					{
-						$this->email->subject('文件已经更新');
-						$this->email->html($this->parser->parse_string(option('email_document_updated', "文件《{title}》已经于 {time} 更新，请访问\n\n"
-								. "\t{url}\n\n"
-								. "下载文件更新。"), $email_data, true));
-					}
-
 					foreach($users as $user)
 					{
+						if($action == 'add')
+						{
+							$this->email->subject('新的文件可供下载');
+							$this->email->html($this->parser->parse_string(option('email_document_added', "新的文件《{title}》已经于 {time} 上传到 iPlacard，请访问\n\n"
+									. "\t{url}\n\n"
+									. "下载文件。"), $email_data, true));
+						}
+						else
+						{
+							$this->email->subject('文件已经更新');
+							$this->email->html($this->parser->parse_string(option('email_document_updated', "文件《{title}》已经于 {time} 更新，请访问\n\n"
+									. "\t{url}\n\n"
+									. "下载文件更新。"), $email_data, true));
+						}
+						
 						$this->email->to($this->user_model->get_user($user, 'email'));
 						$this->email->send();
+						$this->email->clear();
 					}
 				}
 			}
