@@ -245,7 +245,7 @@ class Delegate extends CI_Controller
 		
 		//显示席位选择
 		$seat_assignable = false;
-		if(!empty($current_interview) && $interviews[$current_interview]['interviewer']['id'] == uid() && $profile['status'] != 'locked')
+		if(!empty($current_interview) && $interviews[$current_interview]['interviewer']['id'] == uid() && $profile['status'] != 'locked' && $profile['status'] != 'quitted')
 		{
 			$seat_assignable = true;
 		}
