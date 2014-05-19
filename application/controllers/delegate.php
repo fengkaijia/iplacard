@@ -1491,8 +1491,6 @@ class Delegate extends CI_Controller
 
 					//操作
 					$operation = anchor("delegate/profile/$id", icon('info-circle', false).'信息');
-					if($this->admin_model->capable('administrator'))
-						$operation .= ' '.anchor("account/sudo/$id", icon('user-md', false).'SUDO');
 					
 					//姓名
 					$hd_text = '';
@@ -1908,7 +1906,7 @@ class Delegate extends CI_Controller
 		);
 		
 		//SUDO
-		if($this->admin_model->capable('administrator'))
+		if($this->admin_model->capable('administrator') && ($delegate['status'] != 'quitted' || user_option('quit_time', 0, $delegate['id']) + option('delegate_quit_lock', 7) * 24 * 60 * 60 > time()))
 		{
 			$html .= $this->load->view('admin/admission/sudo', $vars, true);
 		}

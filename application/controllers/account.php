@@ -609,6 +609,12 @@ class Account extends CI_Controller
 			back_redirect();
 			return;
 		}
+		elseif($this->delegate_model->get_delegate($id, 'status') == 'quitted' && user_option('quit_time', 0, $id) + option('delegate_quit_lock', 7) * 24 * 60 * 60 < time())
+		{
+			$this->ui->alert('SUDO 对象帐户已退会停用。', 'danger', true);
+			back_redirect();
+			return;
+		}
 		
 		$sudoer = uid();
 		$this->session->set_userdata(array(
