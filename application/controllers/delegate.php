@@ -1790,7 +1790,8 @@ class Delegate extends CI_Controller
 	 */
 	function _sidebar_administration($delegate)
 	{
-		$return = '<h3 id="administration_operation">管理</h3>';
+		$html = '';
+		$title = '<h3 id="administration_operation">管理</h3>';
 		
 		$vars = array(
 			'uid' => $delegate['id'],
@@ -1800,12 +1801,12 @@ class Delegate extends CI_Controller
 		//SUDO
 		if($this->admin_model->capable('administrator'))
 		{
-			$return .= $this->load->view('admin/admission/sudo', $vars, true);
+			$html .= $this->load->view('admin/admission/sudo', $vars, true);
 		}
 		
-		if($return == '<h3 id="administration_operation">管理</h3>')
+		if(empty($html))
 			return '';
-		return $return.'<hr />';
+		return $title.$html.'<hr />';
 	}
 	
 	/**
