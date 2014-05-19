@@ -696,6 +696,14 @@ class Apply extends CI_Controller
 		if($interviews && count($interviews) == 1)
 			$w['interview'] = '等待二次面试';
 		
+		//退会显示原状态
+		$quitted = false;
+		if($status == 'quitted')
+		{
+			$quitted = true;
+			$status = user_option('quit_status', 'application_imported', $this->uid);
+		}
+		
 		//进度条状态文字
 		switch($status)
 		{
@@ -736,7 +744,7 @@ class Apply extends CI_Controller
 				$w['lock'] = '队列等待中';
 				break;
 		}
-		if($status == 'quitted')
+		if($quitted)
 			$w['lock'] = '已经退会';
 		
 		//进度条状态显示
@@ -763,20 +771,19 @@ class Apply extends CI_Controller
 			case 'moved_to_waiting_list':
 				$current = 'lock';
 				break;
-			case 'quitted':
-				$current = 'quit';
-				break;
 		}
+		if($quitted)
+			$current = 'lock';
 		
 		//生成状态组信息
 		foreach(array('signin', 'admit', 'interview', 'seat', 'pay', 'lock') as $one)
 		{
 			if(!empty($w[$one]))
 			{
-				if($current == $one || ($one == 'lock' && $status == 'quitted'))
-					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => true);
+				if($current == $one)
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro(($one == 'lock' && $quitted) ? 'quit' : $one), 'current' => true);
 				else
-					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
 			}
 		}
 		
@@ -796,6 +803,14 @@ class Apply extends CI_Controller
 		$w['admit'] = '等待通过审核';
 		$w['pay'] = '等待支付会费';
 		$w['lock'] = '等待确认完成';
+		
+		//退会显示原状态
+		$quitted = false;
+		if($status == 'quitted')
+		{
+			$quitted = true;
+			$status = user_option('quit_status', 'application_imported', $this->uid);
+		}
 		
 		//进度条状态文字
 		switch($status)
@@ -817,7 +832,7 @@ class Apply extends CI_Controller
 				$w['lock'] = NULL;
 				break;
 		}
-		if($status == 'quitted')
+		if($quitted)
 			$w['lock'] = '已经退会';
 		
 		//进度条状态显示
@@ -844,18 +859,17 @@ class Apply extends CI_Controller
 			case 'moved_to_waiting_list':
 				$current = 'lock';
 				break;
-			case 'quitted':
-				$current = 'quit';
-				break;
 		}
+		if($quitted)
+			$current = 'lock';
 		
 		//生成状态组信息
 		foreach(array('signin', 'admit', 'pay', 'lock') as $one)
 		{
 			if(!empty($w[$one]))
 			{
-				if($current == $one || ($one == 'lock' && $status == 'quitted'))
-					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => true);
+				if($current == $one)
+					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro(($one == 'lock' && $quitted) ? 'quit' : $one), 'current' => true);
 				else
 					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
 			}
@@ -877,6 +891,14 @@ class Apply extends CI_Controller
 		$w['admit'] = '等待通过审核';
 		$w['lock'] = '等待完成';
 		
+		//退会显示原状态
+		$quitted = false;
+		if($status == 'quitted')
+		{
+			$quitted = true;
+			$status = user_option('quit_status', 'application_imported', $this->uid);
+		}
+		
 		//进度条状态文字
 		switch($status)
 		{
@@ -892,7 +914,7 @@ class Apply extends CI_Controller
 				$w['lock'] = NULL;
 				break;
 		}
-		if($status == 'quitted')
+		if($quitted)
 			$w['lock'] = '已经退会';
 		
 		//进度条状态显示
@@ -907,18 +929,17 @@ class Apply extends CI_Controller
 			case 'locked':
 				$current = 'lock';
 				break;
-			case 'quitted':
-				$current = 'quit';
-				break;
 		}
+		if($quitted)
+			$current = 'lock';
 		
 		//生成状态组信息
 		foreach(array('signin', 'admit', 'lock') as $one)
 		{
 			if(!empty($w[$one]))
 			{
-				if($current == $one || ($one == 'lock' && $status == 'quitted'))
-					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => true);
+				if($current == $one)
+					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro(($one == 'lock' && $quitted) ? 'quit' : $one), 'current' => true);
 				else
 					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
 			}
