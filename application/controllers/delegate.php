@@ -1364,6 +1364,20 @@ class Delegate extends CI_Controller
 					$this->user_model->edit_user_option('quit_affected_seat', $seat_id, $uid);
 				}
 				
+				//取消候选席位
+				$backorder_ids = $this->seat_model->get_delegate_backorder($uid, true);
+				if($backorder_ids)
+				{
+					foreach($backorder_ids as $backorder_id)
+					{
+						$this->seat_model->change_backorder_status($backorder_id, 'cancelled');
+						
+						$this->delegate_model->add_event($uid, 'backorder_cancelled', array('backorder' => $backorder_id));
+					}
+					
+					$this->user_model->edit_user_option('quit_affected_backorder', $backorder_ids, $uid);
+				}
+				
 				//取消账单
 				$invoice_ids = $this->invoice_model->get_delegate_invoices($uid, true);
 				if($invoice_ids)
