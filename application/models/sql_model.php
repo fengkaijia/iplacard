@@ -26,7 +26,7 @@ class Sql_model extends CI_Model
 		if(!$ids)
 			return false;
 		
-		return $ids[0];
+		return intval($ids[0]);
 	}
 	
 	/**
@@ -60,7 +60,7 @@ class Sql_model extends CI_Model
 		//返回ID
 		foreach($query->result_array() as $data)
 		{
-			$array[] = $data['id'];
+			$array[] = intval($data['id']);
 		}
 		$query->free_result();
 		
