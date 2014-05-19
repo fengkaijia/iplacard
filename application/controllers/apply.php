@@ -300,6 +300,9 @@ class Apply extends CI_Controller
 		$select_open = option('seat_select_open', true);
 		$select_backorder_max = option('seat_backorder_max', 2);
 		
+		if($this->delegate['status'] == 'quitted')
+			$select_open = false;
+		
 		$slids = $this->seat_model->get_delegate_selectability($this->uid);
 		if(!$slids)
 		{
