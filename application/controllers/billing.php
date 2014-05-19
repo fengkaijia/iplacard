@@ -270,8 +270,6 @@ class Billing extends CI_Controller
 							$status_class = 'success';
 							break;
 						case 'cancelled':
-							$status_class = 'muted';
-							break;
 						case 'refunded':
 							$status_class = 'info';
 							break;
