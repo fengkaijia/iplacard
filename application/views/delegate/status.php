@@ -49,7 +49,7 @@ $this->load->view('header');?>
 				$now = $step + 1;
 				$label = $one['current'] ? 'default' : 'primary';
 				$text = "<span class=\"label label-$label\">{$now}</span> {$one['text']}";
-				echo anchor('#', $text, $attr, true);
+				echo "<a $attr>$text</a>";
 			}
 			$this->ui->js('footer', "$('.status_intro').popover();");
 			?>
