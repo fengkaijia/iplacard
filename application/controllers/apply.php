@@ -998,7 +998,15 @@ class Apply extends CI_Controller
 				break;
 			case 'quitted':
 			case 'quit':
-				$intro = '<p>您已退会，帐号即将删除，如果有任何疑问，请立即联系管理员。</p>';
+				$this->load->helper('date');
+				
+				$lock_time = user_option('quit_time', time()) + option('delegate_quit_lock', 7) * 24 * 60 * 60;
+				$intro = '<p>您已退会，您的 iPlacard 帐户数据将在 <span id=\'clock_lock\'>'.nicetime($lock_time).'</span> 秒内删除，届时您将无法登录系统。如果这是管理员的误操作请立即联系管理员恢复帐户。</p>';
+				
+				$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.countdown.js': 'static/js/jquery.countdown.min.js').'"></script>');
+				$this->ui->js('footer', "$('#clock_lock').countdown({$lock_time} * 1000, function(event) {
+					$(this).html(event.strftime('%d 天 %H:%M:%S'));
+				});");
 				break;
 			default:
 				$intro = '';
