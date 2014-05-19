@@ -139,6 +139,14 @@ class Delegate extends CI_Controller
 		
 		$vars['profile'] = $profile;
 		
+		//退会提示
+		if($profile['status'] == 'quitted')
+		{
+			$quit_time = user_option('quit_time', time(), $uid);
+			
+			$this->ui->alert(sprintf('此代表已经于%s退会。', date('Y年m月d日', $quit_time)));
+		}
+		
 		//面试数据
 		$interviews = array();
 		$current_interview = NULL;
