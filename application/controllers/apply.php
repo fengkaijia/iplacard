@@ -300,6 +300,9 @@ class Apply extends CI_Controller
 		$select_open = option('seat_select_open', true);
 		$select_backorder_max = option('seat_backorder_max', 2);
 		
+		if($this->delegate['status'] == 'quitted')
+			$select_open = false;
+		
 		$slids = $this->seat_model->get_delegate_selectability($this->uid);
 		if(!$slids)
 		{
@@ -696,6 +699,14 @@ class Apply extends CI_Controller
 		if($interviews && count($interviews) == 1)
 			$w['interview'] = '等待二次面试';
 		
+		//退会显示原状态
+		$quitted = false;
+		if($status == 'quitted')
+		{
+			$quitted = true;
+			$status = user_option('quit_status', 'application_imported', $this->uid);
+		}
+		
 		//进度条状态文字
 		switch($status)
 		{
@@ -736,7 +747,7 @@ class Apply extends CI_Controller
 				$w['lock'] = '队列等待中';
 				break;
 		}
-		if($status == 'quitted')
+		if($quitted)
 			$w['lock'] = '已经退会';
 		
 		//进度条状态显示
@@ -763,20 +774,19 @@ class Apply extends CI_Controller
 			case 'moved_to_waiting_list':
 				$current = 'lock';
 				break;
-			case 'quitted':
-				$current = 'quit';
-				break;
 		}
+		if($quitted)
+			$current = 'lock';
 		
 		//生成状态组信息
 		foreach(array('signin', 'admit', 'interview', 'seat', 'pay', 'lock') as $one)
 		{
 			if(!empty($w[$one]))
 			{
-				if($current == $one || ($one == 'lock' && $status == 'quitted'))
-					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => true);
+				if($current == $one)
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro(($one == 'lock' && $quitted) ? 'quit' : $one), 'current' => true);
 				else
-					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
 			}
 		}
 		
@@ -796,6 +806,14 @@ class Apply extends CI_Controller
 		$w['admit'] = '等待通过审核';
 		$w['pay'] = '等待支付会费';
 		$w['lock'] = '等待确认完成';
+		
+		//退会显示原状态
+		$quitted = false;
+		if($status == 'quitted')
+		{
+			$quitted = true;
+			$status = user_option('quit_status', 'application_imported', $this->uid);
+		}
 		
 		//进度条状态文字
 		switch($status)
@@ -817,7 +835,7 @@ class Apply extends CI_Controller
 				$w['lock'] = NULL;
 				break;
 		}
-		if($status == 'quitted')
+		if($quitted)
 			$w['lock'] = '已经退会';
 		
 		//进度条状态显示
@@ -844,18 +862,17 @@ class Apply extends CI_Controller
 			case 'moved_to_waiting_list':
 				$current = 'lock';
 				break;
-			case 'quitted':
-				$current = 'quit';
-				break;
 		}
+		if($quitted)
+			$current = 'lock';
 		
 		//生成状态组信息
 		foreach(array('signin', 'admit', 'pay', 'lock') as $one)
 		{
 			if(!empty($w[$one]))
 			{
-				if($current == $one || ($one == 'lock' && $status == 'quitted'))
-					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => true);
+				if($current == $one)
+					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro(($one == 'lock' && $quitted) ? 'quit' : $one), 'current' => true);
 				else
 					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
 			}
@@ -877,6 +894,14 @@ class Apply extends CI_Controller
 		$w['admit'] = '等待通过审核';
 		$w['lock'] = '等待完成';
 		
+		//退会显示原状态
+		$quitted = false;
+		if($status == 'quitted')
+		{
+			$quitted = true;
+			$status = user_option('quit_status', 'application_imported', $this->uid);
+		}
+		
 		//进度条状态文字
 		switch($status)
 		{
@@ -892,7 +917,7 @@ class Apply extends CI_Controller
 				$w['lock'] = NULL;
 				break;
 		}
-		if($status == 'quitted')
+		if($quitted)
 			$w['lock'] = '已经退会';
 		
 		//进度条状态显示
@@ -907,18 +932,17 @@ class Apply extends CI_Controller
 			case 'locked':
 				$current = 'lock';
 				break;
-			case 'quitted':
-				$current = 'quit';
-				break;
 		}
+		if($quitted)
+			$current = 'lock';
 		
 		//生成状态组信息
 		foreach(array('signin', 'admit', 'lock') as $one)
 		{
 			if(!empty($w[$one]))
 			{
-				if($current == $one || ($one == 'lock' && $status == 'quitted'))
-					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => true);
+				if($current == $one)
+					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro(($one == 'lock' && $quitted) ? 'quit' : $one), 'current' => true);
 				else
 					$wizard[] = array('text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
 			}
@@ -977,7 +1001,15 @@ class Apply extends CI_Controller
 				break;
 			case 'quitted':
 			case 'quit':
-				$intro = '<p>您已退会，帐号即将删除，如果有任何疑问，请立即联系管理员。</p>';
+				$this->load->helper('date');
+				
+				$lock_time = user_option('quit_time', time()) + option('delegate_quit_lock', 7) * 24 * 60 * 60;
+				$intro = '<p>您已退会，您的 iPlacard 帐户数据将在 <span id=\'clock_lock\'>'.nicetime($lock_time).'</span> 秒内删除，届时您将无法登录系统。如果这是管理员的误操作请立即联系管理员恢复帐户。</p>';
+				
+				$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.countdown.js': 'static/js/jquery.countdown.min.js').'"></script>');
+				$this->ui->js('footer', "$('#clock_lock').countdown({$lock_time} * 1000, function(event) {
+					$(this).html(event.strftime('%d 天 %H:%M:%S'));
+				});");
 				break;
 			default:
 				$intro = '';

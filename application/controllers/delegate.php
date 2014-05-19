@@ -139,6 +139,14 @@ class Delegate extends CI_Controller
 		
 		$vars['profile'] = $profile;
 		
+		//退会提示
+		if($profile['status'] == 'quitted')
+		{
+			$quit_time = user_option('quit_time', time(), $uid);
+			
+			$this->ui->alert(sprintf('此代表已经于%s退会。', date('Y年m月d日', $quit_time)));
+		}
+		
 		//面试数据
 		$interviews = array();
 		$current_interview = NULL;
@@ -237,7 +245,7 @@ class Delegate extends CI_Controller
 		
 		//显示席位选择
 		$seat_assignable = false;
-		if(!empty($current_interview) && $interviews[$current_interview]['interviewer']['id'] == uid() && $profile['status'] != 'locked')
+		if(!empty($current_interview) && $interviews[$current_interview]['interviewer']['id'] == uid() && $profile['status'] != 'locked' && $profile['status'] != 'quitted')
 		{
 			$seat_assignable = true;
 		}
@@ -1312,6 +1320,129 @@ class Delegate extends CI_Controller
 					$this->ui->alert('没有任何席位被分配开放。', 'warning', true);
 				
 				break;
+			
+			//退会
+			case 'quit':
+				$this->load->model('seat_model');
+				$this->load->model('interview_model');
+				$this->load->model('invoice_model');
+				$this->load->library('invoice');
+				
+				if($delegate['status'] == 'quitted')
+				{
+					$this->ui->alert('代表已经退会。', 'danger', true);
+					break;
+				}
+				
+				//退会原因
+				$reason = $this->input->post('reason');
+				if(empty($reason))
+				{
+					$this->ui->alert('退会原因为空，退会操作未执行。', 'warning', true);
+					break;
+				}
+				
+				$lock_time = option('delegate_quit_lock', 7);
+				
+				//取消未完成面试
+				$interview_id = $this->interview_model->get_current_interview_id($uid);
+				if($interview_id)
+				{
+					$interview = $this->interview_model->get_interview($interview_id);
+					if(!in_array($interview['status'], array('completed', 'exempted', 'cancelled')))
+					{
+						$this->interview_model->cancel_interview($interview['id']);
+						$this->delegate_model->add_event($uid, 'interview_cancelled', array('interview' => $interview['id'], 'quit' => true));
+					}
+					
+					$this->user_model->edit_user_option('quit_affected_interview', $interview_id, $uid);
+				}
+				
+				//释放席位
+				$seat_id = $this->seat_model->get_delegate_seat($uid);
+				if($seat_id)
+				{
+					$this->seat_model->change_seat_status($seat_id, 'available', NULL);
+					$this->seat_model->assign_seat($seat_id, NULL);
+					
+					$this->delegate_model->add_event($uid, 'seat_cancelled', array('seat' => $seat_id));
+					
+					//TODO: 候选席位调整
+					
+					$this->user_model->edit_user_option('quit_affected_seat', $seat_id, $uid);
+				}
+				
+				//取消候选席位
+				$backorder_ids = $this->seat_model->get_delegate_backorder($uid, true);
+				if($backorder_ids)
+				{
+					foreach($backorder_ids as $backorder_id)
+					{
+						$this->seat_model->change_backorder_status($backorder_id, 'cancelled');
+						
+						$this->delegate_model->add_event($uid, 'backorder_cancelled', array('backorder' => $backorder_id));
+					}
+					
+					$this->user_model->edit_user_option('quit_affected_backorder', $backorder_ids, $uid);
+				}
+				
+				//取消账单
+				$invoice_ids = $this->invoice_model->get_delegate_invoices($uid, true);
+				if($invoice_ids)
+				{
+					foreach($invoice_ids as $invoice_id)
+					{
+						$this->invoice->load($invoice_id);
+						$this->invoice->cancel(uid());
+					}
+					
+					$this->user_model->edit_user_option('quit_affected_invoice', $invoice_ids, $uid);
+				}
+				
+				//操作退会
+				$this->delegate_model->change_status($uid, 'quitted');
+				
+				$this->user_model->edit_user_option('quit_status', $delegate['status'], $uid);
+				$this->user_model->edit_user_option('quit_time', time(), $uid);
+				$this->user_model->edit_user_option('quit_operator', uid(), $uid);
+				$this->user_model->edit_user_option('quit_reason', $reason, $uid);
+				
+				$this->user_model->add_message($uid, "您已退会，您的帐户数据即将被删除，如有任何疑问请立即与管理员联系。");
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'lock_period' => $lock_time,
+					'lock_time' => unix_to_human(time() + $lock_time * 24 * 60 * 60),
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('您已退会');
+				$this->email->html($this->parser->parse_string(option('email_delegate_quitted', "您已于 {time} 退会。\n\n"
+						. "您的 iPlacard 帐号将于 {lock_time}（退会操作执行后 {lock_period} 天内）删除，请立即登录 iPlacard 查看详情。如果这是管理员的误操作请立即联系管理员恢复帐户。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您已退会，请立即登录 iPlacard 查看详情。如果这是管理员的误操作请立即联系管理员恢复帐户。');
+					$this->sms->queue();
+				}
+				
+				$this->ui->alert("已经操作{$delegate['name']}代表退会。", 'success', true);
+				
+				$this->system_model->log('delegate_quitted', array('delegate' => $uid));
+				break;
 		}
 		
 		back_redirect();
@@ -1382,8 +1513,6 @@ class Delegate extends CI_Controller
 
 					//操作
 					$operation = anchor("delegate/profile/$id", icon('info-circle', false).'信息');
-					if($this->admin_model->capable('administrator'))
-						$operation .= ' '.anchor("account/sudo/$id", icon('user-md', false).'SUDO');
 					
 					//姓名
 					$hd_text = '';
@@ -1790,7 +1919,8 @@ class Delegate extends CI_Controller
 	 */
 	function _sidebar_administration($delegate)
 	{
-		$return = '<h3 id="administration_operation">管理</h3>';
+		$html = '';
+		$title = '<h3 id="administration_operation">管理</h3>';
 		
 		$vars = array(
 			'uid' => $delegate['id'],
@@ -1798,14 +1928,30 @@ class Delegate extends CI_Controller
 		);
 		
 		//SUDO
-		if($this->admin_model->capable('administrator'))
+		if($this->admin_model->capable('administrator') && ($delegate['status'] != 'quitted' || user_option('quit_time', 0, $delegate['id']) + option('delegate_quit_lock', 7) * 24 * 60 * 60 > time()))
 		{
-			$return .= $this->load->view('admin/admission/sudo', $vars, true);
+			$html .= $this->load->view('admin/admission/sudo', $vars, true);
 		}
 		
-		if($return == '<h3 id="administration_operation">管理</h3>')
+		if(!empty($html))
+			$html = $title.'<div id="operation_action" style="margin-bottom: 12px;">'.$html.'</div>';
+		
+		//危险操作
+		$html_danger = '';
+		$title_danger = '<p><a onclick="$( \'#danger_action\' ).toggle();" class="text-muted" id="danger_button">'.icon('exclamation-triangle').'危险操作</a></p>';
+		
+		//退会
+		if($this->admin_model->capable('administrator') && $delegate['status'] != 'quitted')
+		{
+			$html_danger .= $this->load->view('admin/admission/quit', $vars, true);
+		}
+		
+		if(!empty($html_danger))
+			$html .= $title_danger.'<div id="danger_action">'.$html_danger.'</div><script>$("#danger_action").hide();</script>';
+		
+		if(empty($html))
 			return '';
-		return $return.'<hr />';
+		return $html.'<hr />';
 	}
 	
 	/**

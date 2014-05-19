@@ -68,6 +68,19 @@ class Account extends CI_Controller
 			$id = $this->user_model->login($this->input->post('email'), $this->input->post('password'));
 			if($id != false)
 			{
+				//退会检查
+				if($this->user_model->is_delegate($id))
+				{
+					$this->load->model('delegate_model');
+					
+					if($this->delegate_model->get_delegate($id, 'status') == 'quitted' && user_option('quit_time', 0, $id) + option('delegate_quit_lock', 7) * 24 * 60 * 60 < time())
+					{
+						$this->ui->alert('您已退会，您的帐号已经停用，如有任何疑问请联系管理员。', 'info', true);
+						back_redirect();
+						return;
+					}
+				}
+				
 				//两步验证
 				if(user_option('twostep_enabled', false, $id))
 				{
@@ -79,6 +92,7 @@ class Account extends CI_Controller
 					{
 						$this->session->set_userdata('uid_twostep', $id);
 						redirect('account/twostep');
+						return;
 					}
 				}
 				
@@ -592,6 +606,12 @@ class Account extends CI_Controller
 		if(!$this->user_model->is_delegate($id))
 		{
 			$this->ui->alert('对象实体不满足 SUDO 条件。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		elseif($this->delegate_model->get_delegate($id, 'status') == 'quitted' && user_option('quit_time', 0, $id) + option('delegate_quit_lock', 7) * 24 * 60 * 60 < time())
+		{
+			$this->ui->alert('SUDO 对象帐户已退会停用。', 'danger', true);
 			back_redirect();
 			return;
 		}

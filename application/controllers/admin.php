@@ -83,7 +83,7 @@ class Admin extends CI_Controller
 		$this->load->model('delegate_model');
 		foreach(array('delegate', 'observer', 'volunteer', 'teacher') as $delegate_type)
 		{
-			$delegate_ids = $this->delegate_model->get_delegate_ids('application_type', $delegate_type);
+			$delegate_ids = $this->delegate_model->get_delegate_ids('application_type', $delegate_type, 'status !=', 'quitted');
 			if($delegate_ids)
 				$count[$delegate_type] = count($delegate_ids);
 			else
