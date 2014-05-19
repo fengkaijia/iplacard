@@ -30,7 +30,7 @@
 				<p>将会拒绝<?php echo icon('user', false).$delegate['name'];?>的参会申请，你可以为拒绝此参会申请提供详细的原因。</p>
 
 				<div class="form-group <?php if(form_has_error('reason')) echo 'has-error';?>">
-					<?php echo form_label('拒绝', 'reason', array('class' => 'col-lg-3 control-label'));?>
+					<?php echo form_label('拒绝原因', 'reason', array('class' => 'col-lg-3 control-label'));?>
 					<div class="col-lg-9">
 						<?php echo form_textarea(array(
 							'name' => 'reason',
