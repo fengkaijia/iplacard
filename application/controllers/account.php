@@ -577,6 +577,7 @@ class Account extends CI_Controller
 	function sudo($id = '')
 	{
 		$this->load->model('admin_model');
+		$this->load->model('delegate_model');
 		
 		if(!$this->user_model->is_admin(uid(true)) && !$this->admin_model->capable('administrator', uid(true)))
 		{
