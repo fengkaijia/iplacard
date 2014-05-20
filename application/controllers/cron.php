@@ -46,11 +46,13 @@ class Cron extends CI_Controller
 	function daily()
 	{
 		echo "\nProcessing Cron Daily.\n\n";
+		$this->_remind_invoice_overdue();
 	}
 	
 	function weekly()
 	{
 		echo "\nProcessing Cron Weekly.\n\n";
+		$this->_remind_invoice();
 	}
 	
 	/**
@@ -200,6 +202,59 @@ class Cron extends CI_Controller
 		else
 		{
 			echo "No Interview to be reminded.\n";
+		}
+	}
+	
+	/**
+	 * 提醒账单到期
+	 */
+	private function _remind_invoice()
+	{
+		$this->load->model('invoice_model');
+		$this->load->library('invoice');
+		
+		$ids = $this->invoice_model->get_invoice_ids('status', 'unpaid', 'due_time >=', time(), 'transaction IS NULL', NULL);
+		if($ids)
+		{
+			$count = count($ids);
+			echo "{$count} Invoice(s) to be reminded.\n";
+			
+			foreach($ids as $id)
+			{
+				$this->invoice->load($id);
+				$this->invoice->remind();
+			}
+		}
+		else
+		{
+			echo "No Invoice to be reminded.\n";
+		}
+	}
+	
+	/**
+	 * 处理账单逾期
+	 */
+	private function _remind_invoice_overdue()
+	{
+		$this->load->model('invoice_model');
+		$this->load->library('invoice');
+		
+		$ids = $this->invoice_model->get_invoice_ids('status', 'unpaid', 'due_time <', time(), 'transaction IS NULL', NULL);
+		if($ids)
+		{
+			$count = count($ids);
+			echo "{$count} Overdued Invoice(s) to be reminded.\n";
+			
+			foreach($ids as $id)
+			{
+				$this->invoice->load($id);
+				$this->invoice->do_trigger('overdue');
+				$this->invoice->remind();
+			}
+		}
+		else
+		{
+			echo "No Overdued Invoice to be reminded.\n";
 		}
 	}
 	
