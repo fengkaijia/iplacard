@@ -8,5 +8,5 @@ else { ?><p>代表共有 <?php echo $invoice_count;?> 份账单。</p><?php } ?>
 		<li><a href="<?php echo base_url("billing/manage?delegate=$uid");?>">查看代表全部账单</a></li>
 	</ul>
 </div><?php } else { ?>
-<a class="btn btn-primary" href="<?php echo base_url("billing/manage?delegate=$uid");?>"><?php echo icon('file-text');?>查看代表账单</a>
+<p><a class="btn btn-primary" href="<?php echo base_url("billing/manage?delegate=$uid");?>"><?php echo icon('file-text');?>查看代表账单</a></p>
 <?php } ?>
