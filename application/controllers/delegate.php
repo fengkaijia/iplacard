@@ -1933,6 +1933,28 @@ class Delegate extends CI_Controller
 			$html .= $this->load->view('admin/admission/sudo', $vars, true);
 		}
 		
+		//账单
+		if($this->admin_model->capable('cashier'))
+		{
+			$this->load->model('invoice_model');
+			
+			$invoice_ids = $this->invoice_model->get_delegate_invoices($delegate['id']);
+			if($invoice_ids)
+			{
+				$invoice_unpaid = array();
+				foreach($invoice_ids as $invoice_id)
+				{
+					if($this->invoice_model->get_invoice($invoice_id, 'status') == 'unpaid')
+						$invoice_unpaid[] = $invoice_id;
+				}
+				
+				$vars['invoice_unpaid'] = $invoice_unpaid;
+				$vars['invoice_count'] = count($invoice_ids);
+				
+				$html .= $this->load->view('admin/admission/list_invoice', $vars, true);
+			}
+		}
+		
 		if(!empty($html))
 			$html = $title.'<div id="operation_action">'.$html.'</div>';
 		
