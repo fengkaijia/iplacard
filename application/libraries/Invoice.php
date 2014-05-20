@@ -633,14 +633,18 @@ class Invoice extends CI_Model
 			$this->CI->seat_model->change_seat_status($seat_id, 'available', NULL);
 			$this->CI->seat_model->assign_seat($seat_id, NULL);
 			
-			$this->CI->delegate_model->add_event($this->uid, 'seat_released', array('seat' => $seat_id));
-			$this->CI->user_model->add_message($this->uid, '您选定的席位由于账单逾期已经被释放。');
+			$this->CI->delegate_model->add_event($this->delegate, 'seat_released', array('seat' => $seat_id));
+			$this->CI->user_model->add_message($this->delegate, '您选定的席位由于账单逾期已经被释放。');
 			
 			//TODO: 候选席位调整
 
 			//发送邮件
+			$this->CI->load->library('email');
+			$this->CI->load->library('parser');
+			$this->CI->load->helper('date');
+			
 			$data = array(
-				'uid' => $this->uid,
+				'uid' => $this->delegate,
 				'delegate' => $this->delegate_info['name'],
 				'seat' => $seat['name'],
 				'time' => unix_to_human(time()),
