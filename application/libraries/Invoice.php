@@ -478,6 +478,59 @@ class Invoice extends CI_Model
 	}
 	
 	/**
+	 * 账单提醒
+	 */
+	function remind()
+	{
+		//发送邮件
+		$this->CI->load->library('email');
+		$this->CI->load->library('parser');
+		$this->CI->load->helper('date');
+		
+		$overdued = false;
+		if($this->due_time < time())
+			$overdued = true;
+		
+		$email_data = array(
+			'uid' => $this->delegate,
+			'id' => $this->id,
+			'title' => $this->title,
+			'generate_time' => unix_to_human($this->generate_time),
+			'due_time' => unix_to_human($this->due_time),
+			'url' => base_url("apply/invoice/{$this->id}"),
+		);
+
+		$pdf_data = $this->pdf();
+
+		$this->CI->email->to($this->delegate_info['email']);
+		$this->CI->email->subject($overdued ? '账单逾期提醒' : '账单待支付提醒');
+		
+		if(!$overdued)
+		{
+			$this->CI->email->html($this->parser->parse_string(option('email_invoice_overdue_reminder', "您的账单 #{id} 已经逾期，账单的信息如下：\n\n"
+				. "\t账单名称：{title}\n\n"
+				. "\t账单生成时间：{generate_time}\n\n"
+				. "\t账单到期时间：{due_time}\n\n"
+				. "如长时间未支付账单，您的申请将会被暂停。请立即访问 {url} 查看并支付账单。"), $email_data, true));
+		}
+		else
+		{
+			$this->CI->email->html($this->parser->parse_string(option('email_invoice_reminder', "您的账单 #{id} 正等待支付，账单的信息如下：\n\n"
+				. "\t账单名称：{title}\n\n"
+				. "\t账单生成时间：{generate_time}\n\n"
+				. "\t账单到期时间：{due_time}\n\n"
+				. "请与账单到期前完成支付，请访问 {url} 查看并支付账单。"), $email_data, true));
+		}
+		
+		if($pdf_data)
+			$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
+		$this->CI->email->send();
+		$this->CI->email->clear();
+		
+		$this->CI->system_model->log('invoice_reminded', array('invoice' => $this->id));
+	}
+	
+	/**
 	 * 获取账单信息
 	 */
 	function get($item)
