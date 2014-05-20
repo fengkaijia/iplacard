@@ -90,6 +90,16 @@ class Billing extends CI_Controller
 			$title = sprintf("%s代表团账单列表", join('、', $text_group));
 		}
 		
+		if(isset($param['delegate']))
+		{
+			$text_delegate = array();
+			foreach($param['delegate'] as $one)
+			{
+				$text_delegate[] = $this->delegate_model->get_delegate($one, 'name');
+			}
+			$title = sprintf("%s代表账单列表", join('、', $text_delegate));
+		}
+		
 		//标签地址
 		$params = $param;
 		
@@ -219,6 +229,10 @@ class Billing extends CI_Controller
 					$input_param['delegate'] = array(NULL);
 			}
 			
+			//代表
+			if(isset($param['delegate']))
+				$input_param['delegate'] = $param['delegate'];
+			
 			$args = array();
 			if(!empty($input_param))
 			{
@@ -345,6 +359,19 @@ class Billing extends CI_Controller
 			}
 			if(!empty($group))
 				$return['group'] = $group;
+		}
+		
+		//代表
+		if(isset($post['delegate']))
+		{
+			$delegate = array();
+			foreach(explode(',', $post['delegate']) as $param_delegate)
+			{
+				if(in_array($param_delegate, $this->delegate_model->get_delegate_ids()))
+					$delegate[] = $param_delegate;
+			}
+			if(!empty($delegate))
+				$return['delegate'] = $delegate;
 		}
 		
 		if(!$return_uri)
