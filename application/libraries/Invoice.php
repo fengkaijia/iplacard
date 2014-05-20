@@ -503,7 +503,7 @@ class Invoice extends CI_Model
 		$this->CI->email->to($this->delegate_info['email']);
 		$this->CI->email->subject($overdued ? '账单逾期提醒' : '账单待支付提醒');
 		
-		if(!$overdued)
+		if($overdued)
 		{
 			$this->CI->email->html($this->parser->parse_string(option('email_invoice_overdue_reminder', "您的账单 #{id} 已经逾期，账单的信息如下：\n\n"
 				. "\t账单名称：{title}\n\n"
