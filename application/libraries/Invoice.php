@@ -566,6 +566,55 @@ class Invoice extends CI_Model
 		
 		$this->CI->delegate_model->change_status($uid, $status);
 	}
+	
+	/**
+	 * 释放席位触发器
+	 */
+	private function _trigger_release_seat($args)
+	{
+		$this->CI->load->model('delegate_model');
+		$this->CI->load->model('seat_model');
+		
+		$seat_id = $this->CI->seat_model->get_delegate_seat($this->delegate);
+		if($seat_id)
+		{
+			$seat = $this->CI->seat_model->get_seat($seat_id);
+			
+			//释放席位
+			$this->CI->seat_model->change_seat_status($seat_id, 'available', NULL);
+			$this->CI->seat_model->assign_seat($seat_id, NULL);
+			
+			$this->CI->delegate_model->add_event($this->uid, 'seat_released', array('seat' => $seat_id));
+			$this->CI->user_model->add_message($this->uid, '您选定的席位由于账单逾期已经被释放。');
+			
+			//TODO: 候选席位调整
+
+			//发送邮件
+			$data = array(
+				'uid' => $this->uid,
+				'delegate' => $this->delegate_info['name'],
+				'seat' => $seat['name'],
+				'time' => unix_to_human(time()),
+			);
+
+			$this->CI->email->to($this->delegate_info['email']);
+			$this->CI->email->subject('选定席位已释放');
+			$this->CI->email->html($this->parser->parse_string(option('email_seat_overdue_released', '由于账单逾期，您选定的席位{seat}已于 {time} 释放，您可登录 iPlacard 系统重新选择席位。'), $data, true));
+			$this->CI->email->send();
+			$this->CI->email->clear();
+
+			//短信通知代表
+			if(option('sms_enabled', false))
+			{
+				$this->load->model('sms_model');
+				$this->load->library('sms');
+
+				$this->CI->sms->to($this->delegate);
+				$this->CI->sms->message("由于账单逾期，您选定的席位已被释放，请登录 iPlacard 系统重新选择席位。");
+				$this->CI->sms->queue();
+			}
+		}
+	}
 }
 
 /* End of file Invoice.php */
