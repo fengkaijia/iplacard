@@ -500,8 +500,6 @@ class Invoice extends CI_Model
 			'url' => base_url("apply/invoice/{$this->id}"),
 		);
 
-		$pdf_data = $this->pdf();
-
 		$this->CI->email->to($this->delegate_info['email']);
 		$this->CI->email->subject($overdued ? '账单逾期提醒' : '账单待支付提醒');
 		
@@ -522,8 +520,6 @@ class Invoice extends CI_Model
 				. "请与账单到期前完成支付，请访问 {url} 查看并支付账单。"), $email_data, true));
 		}
 		
-		if($pdf_data)
-			$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 		$this->CI->email->send();
 		$this->CI->email->clear();
 		
