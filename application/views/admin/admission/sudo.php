@@ -1,6 +1,6 @@
 <p>开启 SUDO 模式以此代表视角登录 iPlacard。</p>
 
-<a class="btn btn-primary" href="#" data-toggle="modal" data-target="#sudo"><?php echo icon('user-md');?>SUDO 模式</a>
+<p><a class="btn btn-primary" href="#" data-toggle="modal" data-target="#sudo"><?php echo icon('user-md');?>SUDO 模式</a></p>
 
 <?php echo form_open("account/sudo/$uid", array(
 	'class' => 'modal fade form-horizontal',

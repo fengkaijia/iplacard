@@ -1934,7 +1934,7 @@ class Delegate extends CI_Controller
 		}
 		
 		if(!empty($html))
-			$html = $title.'<div id="operation_action" style="margin-bottom: 12px;">'.$html.'</div>';
+			$html = $title.'<div id="operation_action">'.$html.'</div>';
 		
 		//危险操作
 		$html_danger = '';
