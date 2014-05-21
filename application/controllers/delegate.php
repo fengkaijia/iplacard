@@ -1534,7 +1534,7 @@ class Delegate extends CI_Controller
 					{
 						$this->load->model('group_model');
 						$group = $this->group_model->get_group($delegate['group']);
-						$group_line = anchor("delegate/manage/?group={$group['id']}", $group['name']);
+						$group_line = anchor("delegate/manage/?group={$group['id']}", '<span class="shorten">'.$group['name'].'</span>');
 					}
 					
 					//申请状态
