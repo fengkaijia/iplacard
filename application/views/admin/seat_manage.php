@@ -189,7 +189,7 @@ $(document).ready(function() {
 		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 			$(nRow).attr("id", 'seat-' + aData[0]);
 		},
-		"fnInitComplete": function() {
+		"fnDrawCallback": function() {
 			$('.contact_list').popover();
 		}
 	} );
