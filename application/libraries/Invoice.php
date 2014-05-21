@@ -487,6 +487,9 @@ class Invoice extends CI_Model
 		$this->CI->load->library('parser');
 		$this->CI->load->helper('date');
 		
+		if($this->status != 'unpaid')
+			return false;
+		
 		$overdued = false;
 		if($this->due_time < time())
 			$overdued = true;
