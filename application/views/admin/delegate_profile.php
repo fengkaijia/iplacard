@@ -3,6 +3,7 @@ $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/boots
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.datatables.js' : 'static/js/jquery.datatables.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/jquery.datatables.locale.js': 'static/js/locales/jquery.datatables.locale.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.datatables.js' : 'static/js/bootstrap.datatables.min.js').'"></script>');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.shorten.js': 'static/js/jquery.shorten.min.js').'"></script>');
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/flags.css' : 'static/css/flags.min.css').'" rel="stylesheet">');
 $this->load->view('header');?>
 
@@ -412,6 +413,9 @@ $this->load->view('header');?>
 </div>
 
 <?php
+$read_more = icon('caret-right', false);
+$read_less = icon('caret-left', false);
+
 $selectability_url = base_url("seat/ajax/list_selectability?delegate=$uid");
 $selectability_js = <<<EOT
 $(document).ready(function() {
@@ -422,7 +426,14 @@ $(document).ready(function() {
 		"bProcessing": true,
 		"bAutoWidth": false,
 		"sAjaxSource": '{$selectability_url}',
-		"sDom": "<'row'r>t<'col-xs-8 col-xs-offset-4'p>>"
+		"sDom": "<'row'r>t<'col-xs-8 col-xs-offset-4'p>>",
+		"fnDrawCallback": function() {
+			$('.shorten-select').shorten({
+				showChars: '25',
+				moreText: '{$read_more}',
+				lessText: '{$read_less}'
+			});
+		}
 	} );
 } );
 EOT;
@@ -449,7 +460,15 @@ $(document).ready(function() {
 			if($.inArray(aData[0], {$seat_opened_ids}) !== -1) {
 				$(nRow).children().eq(5).html('<p class="text-success">已经开放</p>');
 			}
-		}
+		},
+		/* TODO
+		"fnDrawCallback": function() {
+			$('.shorten').shorten({
+				showChars: '25',
+				moreText: '{$read_more}',
+				lessText: '{$read_less}'
+			});
+		}*/
 	} );
 } );
 EOT;
