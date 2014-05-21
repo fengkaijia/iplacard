@@ -480,7 +480,7 @@ class Invoice extends CI_Model
 	/**
 	 * 账单提醒
 	 */
-	function remind()
+	function remind($send_pdf = false)
 	{
 		//发送邮件
 		$this->CI->load->library('email');
@@ -500,6 +500,9 @@ class Invoice extends CI_Model
 			'url' => base_url("apply/invoice/{$this->id}"),
 		);
 
+		if($send_pdf)
+			$pdf_data = $this->pdf();
+		
 		$this->CI->email->to($this->delegate_info['email']);
 		$this->CI->email->subject($overdued ? '账单逾期提醒' : '账单待支付提醒');
 		
@@ -519,6 +522,9 @@ class Invoice extends CI_Model
 				. "\t账单到期时间：{due_time}\n\n"
 				. "请与账单到期前完成支付，请访问 {url} 查看并支付账单。"), $email_data, true));
 		}
+		
+		if($send_pdf && $pdf_data)
+			$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 		
 		$this->CI->email->send();
 		$this->CI->email->clear();
