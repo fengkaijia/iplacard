@@ -180,6 +180,14 @@ class Billing extends CI_Controller
 			}
 		}
 		
+		//发送催款邮件
+		if($action == 'remind' && $this->input->post('send') && $this->invoice->get('status') == 'unpaid')
+		{
+			$this->invoice->remind(true);
+			
+			$this->ui->alert('已经向代表发送账单提醒。', 'success');
+		}
+		
 		$vars['invoice_html'] = $this->invoice->display();
 		$vars['due_time'] = $this->invoice->get('due_time');
 		$vars['transaction'] = $this->invoice->get('transaction');

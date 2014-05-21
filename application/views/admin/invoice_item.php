@@ -24,6 +24,7 @@ $this->load->view('header');?>
 			<p>您将会在 <span id="clock_overdue">00:00:00</span> 秒（<?php echo date('Y年m月d日', $due_time);?>前）内来自<?php echo anchor("delegate/profile/{$delegate['id']}", icon('user', false).$delegate['name']);?>收到汇款。</p>
 			<p>收到汇款后请点击确认汇款信息。</p>
 			<p><a class="btn btn-primary" href="#" onclick="$('#do_receive').show(); $('#pre_receive').hide();"><?php echo icon('check-circle');?>确认收款</a></p>
+			<p>同时您可以手动<a href="#" data-toggle="modal" data-target="#remind_invoice"><?php echo icon('bullhorn', false);?>发送催款邮件</a>。</p>
 		</div>
 		
 		<div id="do_receive">
@@ -114,7 +115,48 @@ $this->load->view('header');?>
 			$this->ui->js('footer', "$('#pre_receive').hide();");
 		else
 			$this->ui->js('footer', "$('#do_receive').hide();");
-		?>
+		
+		echo form_open("billing/invoice/{$invoice['id']}/remind", array(
+			'class' => 'modal fade form-horizontal',
+			'id' => 'remind_invoice',
+			'tabindex' => '-1',
+			'role' => 'dialog',
+			'aria-labelledby' => 'remind_label',
+			'aria-hidden' => 'true'
+		), array('send' => true));?><div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<?php echo form_button(array(
+							'content' => '&times;',
+							'class' => 'close',
+							'type' => 'button',
+							'data-dismiss' => 'modal',
+							'aria-hidden' => 'true'
+						));?>
+						<h4 class="modal-title" id="remind_label">发送催款邮件</h4>
+					</div>
+					<div class="modal-body">
+						<p>iPlacard 系统将会自动发送账单提醒，同时您仍然可以通过此表单功能手动发送账单提醒。</p>
+						<p>将会向<?php echo icon('user', false).$delegate['name'];?>发送账单提醒邮件。</p>
+					</div>
+					<div class="modal-footer">
+						<?php echo form_button(array(
+							'content' => '取消',
+							'type' => 'button',
+							'class' => 'btn btn-link',
+							'data-dismiss' => 'modal'
+						));
+						echo form_button(array(
+							'name' => 'submit',
+							'content' => '确定发送',
+							'type' => 'submit',
+							'class' => 'btn btn-primary',
+							'onclick' => 'loader(this);'
+						)); ?>
+					</div>
+				</div>
+			</div>
+		<?php echo form_close(); ?>
 	</div><?php } ?>
 </div>
 
