@@ -65,8 +65,8 @@ $this->load->view('header');?>
 						echo '<span class="text-success">已选为主席位</span>';?></td>
 					<td><?php printf('%1$s（%2$s）', date('n月j日', $selectability['time']), nicetime($selectability['time']));?></td>
 					<td><?php if($selectability['primary'] && $seat['status'] != 'assigned')
-						echo '<a href="#seat-'.$seat['id'].'" onclick="select_seat('.$seat['id'].', true);">'.icon('plus-square', false).'席位</a> ';
-					echo '<a class="select_backorder_button" href="#seat-'.$seat['id'].'" onclick="select_seat('.$seat['id'].', false);">'.icon('plus-square-o', false).'候选</a>';?></td>
+						echo '<a style="cursor: pointer;" onclick="select_seat('.$seat['id'].', true);">'.icon('plus-square', false).'席位</a> ';
+					echo '<a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat('.$seat['id'].', false);">'.icon('plus-square-o', false).'候选</a>';?></td>
 				</tr><?php } ?>
 			</tbody>
 		</table>
@@ -218,14 +218,14 @@ function deselect_backorder(id) {
 }
 
 function select_text(id) {
-	$('#seat-' + id).children().eq(4).html('<a href="#seat-' + id + '" onclick="remove_seat(' + id + ');">{$icon_remove}移除</a>');
+	$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="remove_seat(' + id + ');">{$icon_remove}移除</a>');
 }
 
 function deselect_text(id) {
 	if($.inArray(id, {$seat_primary_ids}) !== -1) {
-		$('#seat-' + id).children().eq(4).html('<a href="#seat-' + id + '" onclick="select_seat(' + id + ', true);">{$icon_add_primary}席位</a> <a class="select_backorder_button" href="#seat-' + id + '" onclick="select_seat(' + id + ', false);">{$icon_add_backorder}候选</a>');
+		$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="select_seat(' + id + ', true);">{$icon_add_primary}席位</a> <a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat(' + id + ', false);">{$icon_add_backorder}候选</a>');
 	} else {
-		$('#seat-' + id).children().eq(4).html('<a class="select_backorder_button" href="#seat-' + id + '" onclick="select_seat(' + id + ', false);">{$icon_add_backorder}候选</a>');
+		$('#seat-' + id).children().eq(4).html('<a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat(' + id + ', false);">{$icon_add_backorder}候选</a>');
 	}
 }
 
