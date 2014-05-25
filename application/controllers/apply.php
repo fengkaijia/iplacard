@@ -300,7 +300,7 @@ class Apply extends CI_Controller
 		$select_open = option('seat_select_open', true);
 		$select_backorder_max = option('seat_backorder_max', 2);
 		
-		if($this->delegate['status'] == 'quitted')
+		if($this->delegate['status'] == 'quitted' || $this->delegate['status'] == 'locked')
 			$select_open = false;
 		
 		$slids = $this->seat_model->get_delegate_selectability($this->uid);
@@ -530,6 +530,12 @@ class Apply extends CI_Controller
 			$seat['committee'] = $this->committee_model->get_committee($seat['committee']);
 		}
 		$vars['seat'] = $seat;
+		
+		//席位是否可调整
+		$change_open = false;
+		if($seat_id && $this->delegate['status'] != 'locked')
+			$change_open = true;
+		$vars['change_open'] = $change_open;
 		
 		$backorders = array();
 		$backorder_ids = $this->seat_model->get_delegate_backorder($this->uid, true);
