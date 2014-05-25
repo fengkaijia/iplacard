@@ -500,8 +500,8 @@ class Seat extends CI_Controller
 					{
 						if($seat['status'] != 'preserved' || $seat['committee'] == $admin_committee)
 						{
-							$operation .= '<a href="#" onclick="add_seat('.$seat['id'].', true);">'.icon('plus-square', false).'主项</a> ';
-							$operation .= '<a href="#" onclick="add_seat('.$seat['id'].', false);">'.icon('plus-square-o', false).'备选</a>';
+							$operation .= '<a style="cursor: pointer;" onclick="add_seat('.$seat['id'].', true);">'.icon('plus-square', false).'主项</a> ';
+							$operation .= '<a style="cursor: pointer;" onclick="add_seat('.$seat['id'].', false);">'.icon('plus-square-o', false).'备选</a>';
 						}
 						else
 						{
