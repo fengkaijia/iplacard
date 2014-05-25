@@ -27,114 +27,199 @@ $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/flags
 $this->load->view('header');?>
 
 <div class="page-header">
-	<h1><?php echo icon('list-alt')?>席位信息</h1>
+	<div class="row">
+		<div class="col-md-<?php echo !empty($seat) ? '8' : '12';?>">
+			<h1><?php echo icon('list-alt')?>席位信息</h1>
+		</div>
+		<?php $this->ui->js('footer', 'nav_menu_top();
+		$(window).resize(function($){
+			nav_menu_top();
+		});');
+		if(!empty($seat)) { ?><div class="col-md-4 menu-tabs">
+			<ul class="nav nav-tabs nav-menu">
+				<li class="active"><a href="#seat" data-toggle="tab">我的席位</a></li>
+				<li id="select_tab"><a href="#select" data-toggle="tab">席位选择</a></li>
+			</ul>
+		</div><?php } ?>
+	</div>
 </div>
 
+<div class="menu-pills"></div>
+
 <div class="row">
-	<div class="col-md-8">
-		<h3>席位分配</h3>
-		<p>我们已经向您分配了 <?php echo $selectability_count;?> 个席位，其中包括了 <?php echo $selectability_primary_count;?> 个主分配席位和 <?php echo $selectability_count - $selectability_primary_count;?> 个候选分配席位。</p>
-		<p>您可以在主分配席位中选择 1 个席位为您的参会席位，同时您在主分配席位和候选分配席位中还可以选择最多 <?php echo $select_backorder_max;?> 个候选席位。由于其他原因（例如席位已经被其他代表选中或者我们尚未决定是否要设置此席位等），您的面试官无法开放部分席位为主分配席位，因此他将此类席位开放为候选分配席位，您可以现在选择这类席位为候选席位，当选中此席位的代表因故退会或调整席位时，您将有机会调整您的席位为此席位。</p>
-		<p>iPlacard 已经加粗显示了面试官推荐的席位。如果您认为您不适合分配的席位，您可以与您的面试官<?php echo anchor('apply/interview', '联系');?>，他将可以根据情况追加席位分配。</p>
-		
-		<table id="selectability_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>席位名称</th>
-					<th>委员会</th>
-					<th>类型</th>
-					<th>开放时间</th>
-					<th>操作</th>
-				</tr>
-			</thead>
+	<div class="tab-content">
+		<?php if(!empty($seat)) { ?>
+		<div class="tab-pane active" id="seat">
+			<div class="col-md-8">
+				<h3>已选择席位</h3>
+				<table class="table table-bordered table-striped table-hover flags-16">
+					<tbody>
+						<tr>
+							<td>席位名称</td>
+							<td><?php echo flag($seat['iso']).$seat['name'];?></td>
+						</tr>
+						<tr>
+							<td>委员会</td>
+							<td><?php echo "{$seat['committee']['name']}（{$seat['committee']['abbr']}）";?></td>
+						</tr>
+						<tr>
+							<td>选择时间</td>
+							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $seat['time']), nicetime($seat['time']));?></td>
+						</tr>
+						<tr>
+							<td>状态</td>
+							<td><?php echo $delegate['status'] == 'locked' ? '<span class="text-success">已经锁定</span>' : '<span class="text-primary">尚未锁定</span>';?></td>
+						</tr>
+					</tbody>
+				</table>
 
-			<tbody>
-				<?php foreach($selectabilities as $selectability)
+				<hr />
+
+				<?php if(!empty($backorders)) { ?>
+				<h3>席位候选</h3>
+				<p>您已候选了以下席位，在锁定席位前，您有可能被调整为以下席位。</p>
+				<table id="backorder_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
+					<thead>
+						<tr>
+							<th>席位名称</th>
+							<th>委员会</th>
+							<th>候选时间</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<?php foreach($backorders as $backorder)
+						{
+							$seat = $backorder['seat'];
+							?><tr>
+							<td><?php echo flag($seat['iso'], true).$seat['name'];?></td>
+							<td><?php echo $seat['committee']['name'];?></td>
+							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日', $backorder['order_time']), nicetime($backorder['order_time']));?></td>
+						</tr><?php } ?>
+					</tbody>
+				</table><?php } ?>
+			</div>
+			
+			<div class="col-md-4">
+				<h3>调整席位选择</h3>
+				<p>在您锁定前，您都可以调整您的席位选择。</p>
+				<?php
+				if(!$change_open)
 				{
-					$one_seat = $selectability['seat'];
-					?><tr id="seat-<?php echo $one_seat['id'];?>">
-					<td><?php echo $one_seat['id'];?></td>
-					<td><?php echo flag($one_seat['iso'], true);
-					echo $selectability['recommended'] ? "<strong>{$one_seat['name']}</strong>" : $one_seat['name'];?></td>
-					<td><?php echo $committees[$one_seat['committee']]['name'];?></td>
-					<td><?php
-					if($selectability['seat']['delegate'] != $delegate['id'])
-						echo $selectability['primary'] ? '<span class="text-success">主分配席位</span>' : '<span class="text-primary">候选分配席位</span>';
-					else
-						echo '<span class="text-success">已选为主席位</span>';?></td>
-					<td><?php printf('%1$s（%2$s）', date('n月j日', $selectability['time']), nicetime($selectability['time']));?></td>
-					<td><?php if($selectability['primary'] && $one_seat['status'] != 'assigned')
-						echo '<a style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].', true);">'.icon('plus-square', false).'席位</a> ';
-					echo '<a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].', false);">'.icon('plus-square-o', false).'候选</a>';?></td>
-				</tr><?php } ?>
-			</tbody>
-		</table>
-	</div>
-	
-	<div class="col-md-4">
-		<h3>选择席位</h3>
-		<div id="pre_select">
-			<p>提交席位选择后，您选择的席位将被临时保留，其他人无法继续选择其为参会席位。</p>
-			<p>点击提交席位选择后，我们将为您生成会费账单，您将可以在 <?php echo option('seat_payment_timeout', 7);?> 天内完成会费支付，支付完成后您的席位将被锁定。如果未能在 <?php echo option('seat_payment_timeout', 7);?> 天内完成会费支付，您的席位将会自动解锁。</p>
-			<?php
-			if(!$select_open)
-			{
-				$this->ui->js('footer', "$('#seat_confirm_lock').popover();");
-				if($delegate['status'] == 'quitted') { ?><a id="seat_confirm_lock" data-original-title="无法选择席位" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="您已退会无法选择席位。" title="">开始选择席位</a><?php }
-				else { ?><a id="seat_confirm_lock" data-original-title="席位选择尚未开放" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="现在您尚不能选择席位，席位选择功能将在稍后统一开放。" title="">开始选择席位</a><?php }
-			} else { ?><a id="seat_confirm_start" href="#" class="btn btn-primary" onclick="$('#pre_select').hide(); $('#do_select').show(); $('#selectability_list').dataTable().fnSetColumnVis( 5, true );">开始选择席位</a><?php } ?>
-		</div>
+					$this->ui->js('footer', "$('#seat_change_lock').popover();");
+					if($delegate['status'] == 'locked') { ?><a id="seat_change_lock" data-original-title="无法选择席位" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="您锁定席位，无法调整席位。" title="">调整席位</a><?php }
+				} else { ?><a id="seat_change_start" href="#" class="btn btn-primary" onclick="$('.nav-menu li').removeClass('active'); $('#select_tab').addClass('active'); $('#seat').hide(); $('#select').show();">调整席位</a><?php } ?>
+			</div>
+		</div><?php } ?>
 		
-		<div id="do_select">
-			<?php
-			echo form_open_multipart('apply/seat/select', array('id' => 'seat_form'), array('seat_primary' => empty($seat) ? '' : $seat['id']));?>
-				<p>请在下方下拉框中选择您的参会席位和候选席位。完成选择后请点击提交席位选择按钮。</p>
+		<div class="tab-pane<?php echo empty($seat) ? ' active' : '';?>" id="select">
+			<div class="col-md-8">
+				<h3>席位分配</h3>
+				<p>我们已经向您分配了 <?php echo $selectability_count;?> 个席位，其中包括了 <?php echo $selectability_primary_count;?> 个主分配席位和 <?php echo $selectability_count - $selectability_primary_count;?> 个候选分配席位。</p>
+				<p>您可以在主分配席位中选择 1 个席位为您的参会席位，同时您在主分配席位和候选分配席位中还可以选择最多 <?php echo $select_backorder_max;?> 个候选席位。由于其他原因（例如席位已经被其他代表选中或者我们尚未决定是否要设置此席位等），您的面试官无法开放部分席位为主分配席位，因此他将此类席位开放为候选分配席位，您可以现在选择这类席位为候选席位，当选中此席位的代表因故退会或调整席位时，您将有机会调整您的席位为此席位。</p>
+				<p>iPlacard 已经加粗显示了面试官推荐的席位。如果您认为您不适合分配的席位，您可以与您的面试官<?php echo anchor('apply/interview', '联系');?>，他将可以根据情况追加席位分配。</p>
 
-				<div class="form-group <?php if(form_has_error('primary')) echo 'has-error';?>">
-					<?php echo form_label('席位', 'primary', array('class' => 'control-label'));?>
-					<div>
-						<?php echo form_dropdown_select('primary', $option_primary, empty($seat) ? array() : $seat['id'], $selectability_primary_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-width="100%" title="选择主席位"');
-						if(form_has_error('primary'))
-							echo form_error('primary');
-						?>
-					</div>
-					<?php $this->ui->js('footer', "$('select[name=\"primary\"]').change(function () {
-						if($('select[name=\"primary\"]').val() != null) {
-							deselect_primary($('input[name=seat_primary]').val());
-							select_primary($('select[name=\"primary\"]').val());
-						}
-					});");?>
+				<table id="selectability_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>席位名称</th>
+							<th>委员会</th>
+							<th>类型</th>
+							<th>开放时间</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<?php foreach($selectabilities as $selectability)
+						{
+							$one_seat = $selectability['seat'];
+							?><tr id="seat-<?php echo $one_seat['id'];?>">
+							<td><?php echo $one_seat['id'];?></td>
+							<td><?php echo flag($one_seat['iso'], true);
+							echo $selectability['recommended'] ? "<strong>{$one_seat['name']}</strong>" : $one_seat['name'];?></td>
+							<td><?php echo $committees[$one_seat['committee']]['name'];?></td>
+							<td><?php
+							if($selectability['seat']['delegate'] != $delegate['id'])
+								echo $selectability['primary'] ? '<span class="text-success">主分配席位</span>' : '<span class="text-primary">候选分配席位</span>';
+							else
+								echo '<span class="text-success">已选为主席位</span>';?></td>
+							<td><?php printf('%1$s（%2$s）', date('n月j日', $selectability['time']), nicetime($selectability['time']));?></td>
+							<td><?php if($selectability['primary'] && $one_seat['status'] != 'assigned')
+								echo '<a style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].', true);">'.icon('plus-square', false).'席位</a> ';
+							echo '<a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].', false);">'.icon('plus-square-o', false).'候选</a>';?></td>
+						</tr><?php } ?>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="col-md-4">
+				<h3>选择席位</h3>
+				<div id="pre_select">
+					<p>提交席位选择后，您选择的席位将被临时保留，其他人无法继续选择其为参会席位。</p>
+					<p>点击提交席位选择后，我们将为您生成会费账单，您将可以在 <?php echo option('seat_payment_timeout', 7);?> 天内完成会费支付，支付完成后您的席位将被锁定。如果未能在 <?php echo option('seat_payment_timeout', 7);?> 天内完成会费支付，您的席位将会自动解锁。</p>
+					<?php
+					if(!$select_open)
+					{
+						$this->ui->js('footer', "$('#seat_confirm_lock').popover();");
+						if($delegate['status'] == 'quitted') { ?><a id="seat_confirm_lock" data-original-title="无法选择席位" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="您已退会无法选择席位。" title="">开始选择席位</a><?php }
+						elseif($delegate['status'] == 'locked') { ?><a id="seat_confirm_lock" data-original-title="无法选择席位" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="您已锁定席位。" title="">开始选择席位</a><?php }
+						else { ?><a id="seat_confirm_lock" data-original-title="席位选择尚未开放" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="现在您尚不能选择席位，席位选择功能将在稍后统一开放。" title="">开始选择席位</a><?php }
+					} else { ?><a id="seat_confirm_start" href="#" class="btn btn-primary" onclick="$('#pre_select').hide(); $('#do_select').show(); $('#selectability_list').dataTable().fnSetColumnVis( 5, true );">开始选择席位</a><?php } ?>
 				</div>
 
-				<div class="form-group <?php if(form_has_error('backorder')) echo 'has-error';?>">
-					<?php echo form_label('候选席位', 'backorder', array('class' => 'control-label'));?>
-					<div>
-						<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, empty($backorders) ? array() : $backordered_seats, $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个候选席位"');
-						if(form_has_error('backorder'))
-							echo form_error('backorder');
-						?>
-					</div>
-					<?php $this->ui->js('footer', "$('select[name=\"backorder[]\"]').change(function () {
-						if($('select[name=\"backorder[]\"] option:selected').length == $select_backorder_max) {
-							lock_backorder();
-						} else {
-							unlock_backorder();
-						}
-					});");?>
+				<div id="do_select">
+					<?php
+					echo form_open_multipart('apply/seat/select', array('id' => 'seat_form'), array('seat_primary' => empty($seat) ? '' : $seat['id']));?>
+						<p>请在下方下拉框中选择您的参会席位和候选席位。完成选择后请点击提交席位选择按钮。</p>
+
+						<div class="form-group <?php if(form_has_error('primary')) echo 'has-error';?>">
+							<?php echo form_label('席位', 'primary', array('class' => 'control-label'));?>
+							<div>
+								<?php echo form_dropdown_select('primary', $option_primary, empty($seat) ? array() : $seat['id'], $selectability_primary_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-width="100%" title="选择主席位"');
+								if(form_has_error('primary'))
+									echo form_error('primary');
+								?>
+							</div>
+							<?php $this->ui->js('footer', "$('select[name=\"primary\"]').change(function () {
+								if($('select[name=\"primary\"]').val() != null) {
+									deselect_primary($('input[name=seat_primary]').val());
+									select_primary($('select[name=\"primary\"]').val());
+								}
+							});");?>
+						</div>
+
+						<div class="form-group <?php if(form_has_error('backorder')) echo 'has-error';?>">
+							<?php echo form_label('候选席位', 'backorder', array('class' => 'control-label'));?>
+							<div>
+								<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, empty($backorders) ? array() : $backordered_seats, $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个候选席位"');
+								if(form_has_error('backorder'))
+									echo form_error('backorder');
+								?>
+							</div>
+							<?php $this->ui->js('footer', "$('select[name=\"backorder[]\"]').change(function () {
+								if($('select[name=\"backorder[]\"] option:selected').length == $select_backorder_max) {
+									lock_backorder();
+								} else {
+									unlock_backorder();
+								}
+							});");?>
+						</div>
+
+						<?php echo form_button(array(
+							'name' => 'submit',
+							'content' => '提交席位选择',
+							'type' => 'submit',
+							'class' => 'btn btn-primary',
+							'onclick' => 'loader(this);'
+						));?>
+
+					<?php echo form_close(); ?>
 				</div>
-
-				<?php echo form_button(array(
-					'name' => 'submit',
-					'content' => '提交席位选择',
-					'type' => 'submit',
-					'class' => 'btn btn-primary',
-					'onclick' => 'loader(this);'
-				));?>
-
-			<?php echo form_close(); ?>
+				<?php $this->ui->js('footer', "$('#do_select').hide();");?>
+			</div>
 		</div>
-		<?php $this->ui->js('footer', "$('#do_select').hide();");?>
 	</div>
 </div>
 
