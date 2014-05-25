@@ -99,6 +99,11 @@ class Interview extends CI_Controller
 			$title = sprintf("%s的面试队列", join('、', $text_interviewer));
 		}
 		
+		//显示面试官栏
+		$show_interviewer = false;
+		if(isset($post['display_interviewer']) && $post['display_interviewer'])
+			$show_interviewer = true;
+		
 		//标签地址
 		$params = $param;
 		
@@ -116,6 +121,7 @@ class Interview extends CI_Controller
 			'param_tab' => $param_tab,
 			'part' => $part,
 			'title' => $title,
+			'show_interviewer' => $show_interviewer
 		);
 		
 		$this->ui->title($title, '面试队列');
@@ -192,6 +198,7 @@ class Interview extends CI_Controller
 				{
 					$interview = $this->interview_model->get_interview($id);
 					$delegate = $this->delegate_model->get_delegate($interview['delegate']);
+					$admin = $this->admin_model->get_admin($interview['interviewer']);
 
 					//操作
 					$operation = anchor("delegate/profile/{$interview['delegate']}", icon('user', false).'代表信息');
@@ -268,6 +275,7 @@ class Interview extends CI_Controller
 					$data = array(
 						$interview['id'], //ID
 						$name_line, //姓名
+						$admin['name'], //面试官
 						$status_line, //面试状态
 						!empty($interview['assign_time']) ? sprintf('%1$s（%2$s）', date('n月j日', $interview['assign_time']), nicetime($interview['assign_time'])) : 'N/A', //分配时间
 						!empty($interview['schedule_time']) ? sprintf('%1$s（%2$s）', date('n月j日 H:i', $interview['schedule_time']), nicetime($interview['schedule_time'])) : 'N/A', //安排时间

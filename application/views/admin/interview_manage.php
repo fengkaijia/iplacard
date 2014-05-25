@@ -31,6 +31,7 @@ $this->load->view('header');?>
 		<tr>
 			<th>ID</th>
 			<th>面试者</th>
+			<th>面试官</th>
 			<th>面试状态</th>
 			<th>分配时间</th>
 			<th>安排时间</th>
@@ -46,12 +47,14 @@ $this->load->view('header');?>
 </table>
 
 <?php
+$interviewer_list = $show_interviewer ? '' : '2';
 $ajax_url = base_url('interview/ajax/list?'.$param_uri);
 $ajax_js = <<<EOT
 $(document).ready(function() {
 	$('#interview_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bSortable": false, "aTargets": [ 0, 7 ] }
+			{ "bSortable": false, "aTargets": [ 0, 7 ] },
+			{ "bVisible": false, "aTargets": [ {$interviewer_list} ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,
