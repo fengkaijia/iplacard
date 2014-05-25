@@ -1980,7 +1980,7 @@ class Delegate extends CI_Controller
 		
 		//危险操作
 		$html_danger = '';
-		$title_danger = '<p><a onclick="$( \'#danger_action\' ).toggle();" class="text-muted" id="danger_button">'.icon('exclamation-triangle').'危险操作</a></p>';
+		$title_danger = '<p><a style="cursor: pointer;" onclick="$( \'#danger_action\' ).toggle();" class="text-muted" id="danger_button">'.icon('exclamation-triangle').'危险操作</a></p>';
 		
 		//退会
 		if($this->admin_model->capable('administrator') && $delegate['status'] != 'quitted')
