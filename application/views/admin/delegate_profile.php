@@ -256,31 +256,6 @@ $this->load->view('header');?>
 			</div>
 			
 			<div class="tab-pane" id="interview">
-				<?php if(isset($seat) && !empty($seat)) { ?>
-				<h3>席位分配</h3>
-				<table class="table table-bordered table-striped table-hover flags-16">
-					<tbody>
-						<tr>
-							<td>席位名称</td>
-							<td><?php echo flag($seat['iso']).$seat['name'];?></td>
-						</tr>
-						<tr>
-							<td>委员会</td>
-							<td><?php echo "{$committee['name']}（{$committee['abbr']}）";?></td>
-						</tr>
-						<tr>
-							<td>分配时间</td>
-							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $seat['time']), nicetime($seat['time']));?></td>
-						</tr>
-						<tr>
-							<td>状态</td>
-							<td><?php echo $profile['status_code'] > $this->delegate_model->status_code('seat_assigned') ? '已经确认锁定' : '尚未确认锁定';?></td>
-						</tr>
-					</tbody>
-				</table>
-				
-				<hr /><?php } ?>
-				
 				<?php if(!empty($interviews)) {
 				foreach($interviews as $interview) { ?><h3><?php echo $interview['id'] == $current_interview ? '当前面试信息' : '早前面试信息';?></h3>
 				<table class="table table-bordered table-striped table-hover">
@@ -333,6 +308,61 @@ $this->load->view('header');?>
 			
 			<?php if($seat_open) { ?><div class="tab-pane" id="seat">
 				<?php if($selectabilities) { ?><div id="seat_now">
+					<?php if(!empty($seat)) { ?>
+					<h3>已选择席位</h3>
+					<p><?php echo icon('user', false).$profile['name'];?>代表当前已经选择如下席位。</p>
+					<table class="table table-bordered table-striped table-hover flags-16">
+						<tbody>
+							<tr>
+								<td>席位名称</td>
+								<td><?php echo flag($seat['iso']).$seat['name'];?></td>
+							</tr>
+							<tr>
+								<td>委员会</td>
+								<td><?php echo "{$seat['committee']['name']}（{$seat['committee']['abbr']}）";?></td>
+							</tr>
+							<tr>
+								<td>选择时间</td>
+								<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $seat['time']), nicetime($seat['time']));?></td>
+							</tr>
+							<tr>
+								<td>状态</td>
+								<td><?php echo $profile['status'] == 'locked' ? '<span class="text-success">已经锁定</span>' : '<span class="text-primary">尚未锁定</span>';?></td>
+							</tr>
+						</tbody>
+					</table>
+					
+					<hr /><?php } ?>
+					
+					<?php if(!empty($backorders)) { ?>
+					<h3>席位候选</h3>
+					<p><?php echo icon('user', false).$profile['name'];?>代表当前候选了以下席位，在候选窗口关闭之前，他都有可能调整为以下席位。</p>
+					
+					<table id="backorder_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>席位名称</th>
+								<th>委员会</th>
+								<th>候选时间</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<?php foreach($backorders as $backorder)
+							{
+								$seat = $backorder['seat'];
+								?><tr id="backorder-<?php echo $backorder['id'];?>">
+								<td><?php echo $seat['id'];?></td>
+								<td><?php echo flag($seat['iso'], true).$seat['name'];?></td>
+								<td><?php echo $seat['committee']['abbr'];?></td>
+								<td><?php echo sprintf('%1$s（%2$s）', date('n月j日', $backorder['order_time']), nicetime($backorder['order_time']));?></td>
+							</tr><?php } ?>
+						</tbody>
+					</table>
+					
+					<hr /><?php } ?>
+					
 					<h3>开放席位分配</h3>
 					<p>以下席位权限已经开放给<?php echo icon('user', false).$profile['name'];?>代表，代表可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候选席位。</p>
 					<table id="selectability_list" class="table table-striped table-bordered table-hover table-responsive flags-16">

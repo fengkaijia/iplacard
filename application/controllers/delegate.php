@@ -252,11 +252,31 @@ class Delegate extends CI_Controller
 		$vars['seat_assignable'] = $seat_assignable;
 		
 		//席位数据
-		if(!empty($profile['seat']))
+		$seat = array();
+		$seat_id = $this->seat_model->get_delegate_seat($uid);
+		if($seat_id)
 		{
-			$vars['seat'] = $this->seat_model->get_seat($profile['seat']);
-			$vars['committee'] = $this->committee_model->get_committee($vars['seat']['committee']);
+			$seat = $this->seat_model->get_seat($seat_id);
+			$seat['committee'] = $this->committee_model->get_committee($seat['committee']);
 		}
+		$vars['seat'] = $seat;
+		
+		$backorders = array();
+		$backorder_ids = $this->seat_model->get_delegate_backorder($uid, true);
+		if($backorder_ids)
+		{
+			foreach($backorder_ids as $backorder_id)
+			{
+				$backorder = $this->seat_model->get_backorder($backorder_id);
+				
+				$seat = $this->seat_model->get_seat($backorder['seat']);
+				$seat['committee'] = $this->committee_model->get_committee($seat['committee']);
+				$backorder['seat'] = $seat;
+				
+				$backorders[] = $backorder;
+			}
+		}
+		$vars['backorders'] = $backorders;
 		
 		//席位选择数据
 		$vars['selectabilities'] = $this->seat_model->get_delegate_selectability($uid, false, false, 'seat');
