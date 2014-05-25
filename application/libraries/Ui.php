@@ -450,8 +450,8 @@ class UI
 		if($this->CI->admin_model->capable('administrator'))
 		{
 			$this->add_menu('interview', '面试');
-			$this->add_sub_menu('all', 'interview', '全部面试', 'interview/manage');
-			$this->add_sub_menu('pending', 'interview', '全部未完成面试', 'interview/manage?status=assigned,arranged', true);
+			$this->add_sub_menu('all', 'interview', '全部面试', 'interview/manage?display_interviewer=1');
+			$this->add_sub_menu('pending', 'interview', '全部未完成面试', 'interview/manage?status=assigned,arranged?display_interviewer=1', true);
 		}
 		
 		if($this->CI->admin_model->capable('interviewer'))
