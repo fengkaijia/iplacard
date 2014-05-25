@@ -38,7 +38,7 @@ $(document).ready(function() {
 		"bProcessing": true,
 		"bAutoWidth": false,
 		"sAjaxSource": '{$ajax_url}',
-		"fnInitComplete": function() {
+		"fnDrawCallback": function() {
 			$('.dais_list').popover();
 		}
 	} );

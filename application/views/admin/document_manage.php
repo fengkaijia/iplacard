@@ -41,7 +41,7 @@ $(document).ready(function() {
 		"bProcessing": true,
 		"bAutoWidth": false,
 		"sAjaxSource": '{$ajax_url}',
-		"fnInitComplete": function() {
+		"fnDrawCallback": function() {
 			{$hide_column}
 			$('.committee_list').popover();
 			$('.version_list').popover();

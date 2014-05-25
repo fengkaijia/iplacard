@@ -1,5 +1,6 @@
 <?php
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/bootstrap.datatables.css' : 'static/css/bootstrap.datatables.min.css').'" rel="stylesheet">');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.shorten.js': 'static/js/jquery.shorten.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.datatables.js' : 'static/js/jquery.datatables.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/jquery.datatables.locale.js': 'static/js/locales/jquery.datatables.locale.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.datatables.js' : 'static/js/bootstrap.datatables.min.js').'"></script>');
@@ -176,6 +177,8 @@ echo form_open('seat/operation/open_seat/0', array(
 <?php echo form_close(); ?>
 
 <?php
+$read_more = icon('caret-right', false);
+$read_less = icon('caret-left', false);
 $ajax_url = base_url('seat/ajax/list?'.$param_uri);
 $ajax_js = <<<EOT
 $(document).ready(function() {
@@ -189,8 +192,14 @@ $(document).ready(function() {
 		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 			$(nRow).attr("id", 'seat-' + aData[0]);
 		},
-		"fnInitComplete": function() {
+		"fnDrawCallback": function() {
 			$('.contact_list').popover();
+		
+			$('.shorten').shorten({
+				showChars: '25',
+				moreText: '{$read_more}',
+				lessText: '{$read_less}'
+			});
 		}
 	} );
 } );

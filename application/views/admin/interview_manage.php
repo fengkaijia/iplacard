@@ -56,7 +56,7 @@ $(document).ready(function() {
 		"bProcessing": true,
 		"bAutoWidth": false,
 		"sAjaxSource": '{$ajax_url}',
-		"fnInitComplete": function() {
+		"fnDrawCallback": function() {
 			$('.contact_list').popover();
 		}
 	} );

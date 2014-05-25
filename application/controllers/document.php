@@ -533,7 +533,7 @@ class Document extends CI_Controller
 								$access_list .= '<p>'.icon('archive').$this->committee_model->get_committee($one, 'name').'</p>';
 							}
 							
-							$access_line .= '<a href="#" class="committee_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'可访问委员会\' data-toggle="popover" data-content=\''.$access_list.'\'>'.icon('info-circle', false).'</a>';
+							$access_line .= '<a style="cursor: pointer;" class="committee_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'可访问委员会\' data-toggle="popover" data-content=\''.$access_list.'\'>'.icon('info-circle', false).'</a>';
 						}
 					}
 					else
@@ -565,7 +565,7 @@ class Document extends CI_Controller
 								$version_list .= '<p>'.icon('file').$version_text.'</p>';
 							}
 							
-							$version_line .= '<a href="#" class="version_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'历史版本\' data-toggle="popover" data-content=\''.$version_list.'\'>'.icon('info-circle', false).'</a>';
+							$version_line .= '<a style="cursor: pointer;" class="version_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'历史版本\' data-toggle="popover" data-content=\''.$version_list.'\'>'.icon('info-circle', false).'</a>';
 						}
 						else
 							$version_line = '原始版本';

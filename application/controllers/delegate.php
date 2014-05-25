@@ -1544,7 +1544,7 @@ class Delegate extends CI_Controller
 							$hd_text = '<span class="label label-primary">领队</span> ';
 					}
 					$contact_list = '<p>'.icon('phone').$delegate['phone'].'</p><p>'.icon('envelope-o').$delegate['email'].'</p>';
-					$name_line = $hd_text.$delegate['name'].'<a href="#" class="contact_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\''
+					$name_line = $hd_text.$delegate['name'].'<a style="cursor: pointer;" class="contact_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\''
 							.$delegate['name']
 							.'\' data-toggle="popover" data-content=\''.$contact_list.'\'>'.icon('phone-square', false).'</a>';
 					
@@ -1554,7 +1554,7 @@ class Delegate extends CI_Controller
 					{
 						$this->load->model('group_model');
 						$group = $this->group_model->get_group($delegate['group']);
-						$group_line = anchor("delegate/manage/?group={$group['id']}", $group['name']);
+						$group_line = anchor("delegate/manage/?group={$group['id']}", '<span class="shorten">'.$group['name'].'</span>');
 					}
 					
 					//申请状态
