@@ -280,7 +280,7 @@ class Committee extends CI_Controller
 
 					//席位
 					$seat_available = $this->seat_model->get_seat_ids('committee', $id, 'status', array('unavailable', 'available', 'preserved'));
-					$seat_assigned = $this->seat_model->get_seat_ids('committee', $id, 'status', array('assigned'));
+					$seat_assigned = $this->seat_model->get_seat_ids('committee', $id, 'status', array('assigned', 'approved'));
 					$seat_locked = $this->seat_model->get_seat_ids('committee', $id, 'status', array('locked'));
 					
 					$seat_available_count = !$seat_available ? 0 : count($seat_available);
