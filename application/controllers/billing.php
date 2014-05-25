@@ -265,7 +265,7 @@ class Billing extends CI_Controller
 					
 					//姓名
 					$contact_list = '<p>'.icon('phone').$delegate['phone'].'</p><p>'.icon('envelope-o').$delegate['email'].'</p><p>'.icon('male').'ID '.$delegate['id'].'</p>';
-					$name_line = $delegate['name'].'<a href="#" class="contact_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\''
+					$name_line = $delegate['name'].'<a style="cursor: pointer;" class="contact_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\''
 							.$delegate['name']
 							.'\' data-toggle="popover" data-content=\''.$contact_list.'\'>'.icon('info-circle', false).'</a>';
 					

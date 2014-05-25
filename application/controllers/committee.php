@@ -260,7 +260,7 @@ class Committee extends CI_Controller
 						$dais_list = '无';
 					else
 						$dais_list = join("<br />", $dais);
-					$dais_text = $dais_count.' 位主席<a href="#" class="dais_list" data-html="1" data-placement="right" data-trigger="click" data-original-title="主席团列表" data-toggle="popover" data-content=\''.$dais_list.'\'>'.icon('info-circle', false).'</a>';
+					$dais_text = $dais_count.' 位主席<a style="cursor: pointer;" class="dais_list" data-html="1" data-placement="right" data-trigger="click" data-original-title="主席团列表" data-toggle="popover" data-content=\''.$dais_list.'\'>'.icon('info-circle', false).'</a>';
 
 					//委员会类型
 					if(in_array($committee['type'], array_keys($this->types)))
