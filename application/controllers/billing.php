@@ -302,7 +302,7 @@ class Billing extends CI_Controller
 						$invoice['id'], //ID
 						$name_line, //姓名
 						$invoice['title'], //账单标题
-						$this->currency_sign.number_format($invoice['amount'], 2).' '.$this->currency_text, //金额
+						$this->currency_sign.number_format((double) $invoice['amount'], 2).' '.$this->currency_text, //金额
 						!empty($invoice['generate_time']) ? sprintf('%1$s（%2$s）', date('n月j日', $invoice['generate_time']), nicetime($invoice['generate_time'])) : 'N/A', //生成时间
 						!empty($invoice['due_time']) ? sprintf('%1$s（%2$s）', date('n月j日', $invoice['due_time']), nicetime($invoice['due_time'])) : 'N/A', //到期时间
 						$status_line, //状态
@@ -310,7 +310,7 @@ class Billing extends CI_Controller
 						!empty($invoice['transaction']) ? unix_to_human($invoice['transaction']['time']) : '', //转账时间
 						!empty($invoice['transaction']) ? $invoice['transaction']['gateway'] : '', //交易渠道
 						!empty($invoice['transaction']) ? $invoice['transaction']['transaction'] : '', //流水号
-						!empty($invoice['transaction']) ? $this->currency_sign.number_format($invoice['transaction']['amount'], 2).' '.$this->currency_text : '', //交易金额
+						!empty($invoice['transaction']) ? $this->currency_sign.number_format((double) $invoice['transaction']['amount'], 2).' '.$this->currency_text : '', //交易金额
 						$operation, //操作
 					);
 					

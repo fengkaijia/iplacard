@@ -58,7 +58,7 @@ $discount_amount = 0;
 						foreach($item['detail'] as $detail) { ?><br /><small>- <?php echo $detail;?></small><?php }
 					} ?>
 				</td>
-				<td><?php echo $currency['sign'].number_format($item['amount'], 2).' '.$currency['text'];?></td>
+				<td><?php echo $currency['sign'].number_format((double) $item['amount'], 2).' '.$currency['text'];?></td>
 			</tr><?php }
 			if(!empty($invoice['discounts']))
 			{
@@ -68,27 +68,27 @@ $discount_amount = 0;
 					<td>
 						<?php echo $discount['title'];?>
 					</td>
-					<td><?php echo '-'.$currency['sign'].number_format($discount['amount'], 2).' '.$currency['text'];?></td>
+					<td><?php echo '-'.$currency['sign'].number_format((double) $discount['amount'], 2).' '.$currency['text'];?></td>
 				</tr><?php }
 			} ?>
 		</tbody>
 		<tfoot>
 			<tr>
 				<td style="text-align: right;">账单小计</td>
-				<td><?php echo $currency['sign'].number_format($item_amount, 2).' '.$currency['text'];?></td>
+				<td><?php echo $currency['sign'].number_format((double) $item_amount, 2).' '.$currency['text'];?></td>
 			</tr>
 			<tr>
 				<td style="text-align: right;">减免优惠</td>
 				<td><?php
 				if($discount_amount > 0)
-					echo '-'.$currency['sign'].number_format($discount_amount, 2).' '.$currency['text'];
+					echo '-'.$currency['sign'].number_format((double) $discount_amount, 2).' '.$currency['text'];
 				else
 					echo 'N/A';
 				?></td>
 			</tr>
 			<tr>
 				<td style="font-weight: 700; text-align: right;">总计</td>
-				<td style="font-size: larger; font-weight: 700; text-align: right;"><?php echo $currency['sign'].number_format($invoice['amount'], 2).' '.$currency['text'];?></td>
+				<td style="font-size: larger; font-weight: 700; text-align: right;"><?php echo $currency['sign'].number_format((double) $invoice['amount'], 2).' '.$currency['text'];?></td>
 			</tr>
 		</tfoot>
 	</table>
@@ -112,14 +112,14 @@ $discount_amount = 0;
 				if(!$invoice['transaction']['confirm'])
 					echo '<abbr title="此笔交易尚未被管理员确认。">'.icon('question-circle', false).'</abbr>';
 				?></td>
-				<td><?php echo !empty($invoice['transaction']['amount']) ? ($currency['sign'].number_format($invoice['transaction']['amount'], 2).' '.$currency['text']) : 'N/A';?></td>
+				<td><?php echo !empty($invoice['transaction']['amount']) ? ($currency['sign'].number_format((double) $invoice['transaction']['amount'], 2).' '.$currency['text']) : 'N/A';?></td>
 			</tr><?php } else { ?><tr><td style="text-align: center;" colspan="4">暂无记录</td></tr><?php } ?>
 		</tbody>
 		
 		<tfoot>
 			<tr>
 				<td style="font-weight: 700; text-align: right;" colspan="3">总计</td>
-				<td style="font-weight: 700;"><?php echo $currency['sign'].number_format($invoice['transaction']['amount'], 2).' '.$currency['text'];?></td>
+				<td style="font-weight: 700;"><?php echo $currency['sign'].number_format((double) $invoice['transaction']['amount'], 2).' '.$currency['text'];?></td>
 			</tr>
 		</tfoot>
 	</table>
