@@ -302,9 +302,9 @@ class Committee extends CI_Controller
 					);
 
 					$datum[] = $data;
-
-					$json = array('aaData' => $datum);
 				}
+				
+				$json = array('aaData' => $datum);
 			}
 			else
 			{

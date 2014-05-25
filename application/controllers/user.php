@@ -395,9 +395,9 @@ class User extends CI_Controller
 				);
 				
 				$datum[] = $data;
-				
-				$json = array('aaData' => $datum);
 			}
+			
+			$json = array('aaData' => $datum);
 		}
 		
 		echo json_encode($json);
