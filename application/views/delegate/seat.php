@@ -108,7 +108,7 @@ $this->load->view('header');?>
 				{
 					$this->ui->js('footer', "$('#seat_change_lock').popover();");
 					if($delegate['status'] == 'locked') { ?><a id="seat_change_lock" data-original-title="无法选择席位" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="您锁定席位，无法调整席位。" title="">调整席位</a><?php }
-				} else { ?><a id="seat_change_start" href="#" class="btn btn-primary" onclick="$('.nav-menu li').removeClass('active'); $('#select_tab').addClass('active'); $('#seat').hide(); $('#select').show();">调整席位</a><?php } ?>
+				} else { ?><a id="seat_change_start" href="#select" data-toggle="tab" class="btn btn-primary" onclick="$('.nav-menu li').removeClass('active'); $('#select_tab').addClass('active');">调整席位</a><?php } ?>
 			</div>
 		</div><?php } ?>
 		
