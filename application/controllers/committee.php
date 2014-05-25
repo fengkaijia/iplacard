@@ -282,14 +282,10 @@ class Committee extends CI_Controller
 					$seat_available = $this->seat_model->get_seat_ids('committee', $id, 'status', array('unavailable', 'available', 'preserved'));
 					$seat_assigned = $this->seat_model->get_seat_ids('committee', $id, 'status', array('assigned', 'approved'));
 					$seat_locked = $this->seat_model->get_seat_ids('committee', $id, 'status', array('locked'));
-					
-					$seat_available_count = !$seat_available ? 0 : count($seat_available);
-					$seat_assigned_count = !$seat_assigned ? 0 : count($seat_assigned);
-					$seat_locked_count = !$seat_locked ? 0 : count($seat_locked);
 
-					$seat_line = "<span class=\"label label-warning\">未选择</span> {$seat_available_count} ";
-					$seat_line .= "<span class=\"label label-primary\">已选择</span> {$seat_assigned_count} ";
-					$seat_line .= "<span class=\"label label-success\">已锁定</span> {$seat_locked_count}";
+					$seat_line = $seat_available ? anchor("seat/manage/?status=available,unavailable,preserved&committee={$id}", '<span class="label label-warning">未选择</span>').' '.count($seat_available).' ' : '';
+					$seat_line .= $seat_assigned ? anchor("seat/manage/?status=assigned,approved&committee={$id}", '<span class="label label-primary">已选择</span>').' '.count($seat_assigned).' ' : '';
+					$seat_line .= $seat_locked ? anchor("seat/manage/?status=locked&committee={$id}", '<span class="label label-success">已锁定</span>').' '.count($seat_locked).' ' : '';
 
 					$data = array(
 						$committee['id'], //ID
