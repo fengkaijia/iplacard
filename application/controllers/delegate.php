@@ -87,6 +87,7 @@ class Delegate extends CI_Controller
 		$vars = array(
 			'param_uri' => $this->_filter_build($param),
 			'title' => $title,
+			'profile_option' => option('profile_list_manage', array())
 		);
 		
 		$this->ui->title($title);
@@ -1527,6 +1528,9 @@ class Delegate extends CI_Controller
 			
 			if($ids)
 			{
+				//附加属性
+				$profile_option = option('profile_list_manage', array());
+				
 				foreach($ids as $id)
 				{
 					$delegate = $this->delegate_model->get_delegate($id);
@@ -1594,6 +1598,15 @@ class Delegate extends CI_Controller
 						$committee_line, //委员会
 						$operation, //操作
 					);
+					
+					//附加属性
+					if(!empty($profile_option))
+					{
+						foreach($profile_option as $profile_item)
+						{
+							$data[] = $this->delegate_model->get_profile_by_name($delegate['id'], $profile_item, '');
+						}
+					}
 
 					$datum[] = $data;
 				}

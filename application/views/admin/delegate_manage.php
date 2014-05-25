@@ -1,4 +1,15 @@
 <?php
+$hidden_array = array();
+$table_array = array();
+if(!empty($profile_option))
+{
+	for($i = 0; $i < count($profile_option); $i++)
+	{
+		$table_array[] = "<th>profile_{$profile_option[$i]}</th>";
+		$hidden_array[] = $i + 8;
+	}
+}
+
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/bootstrap.datatables.css' : 'static/css/bootstrap.datatables.min.css').'" rel="stylesheet">');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.datatables.js' : 'static/js/jquery.datatables.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/jquery.datatables.locale.js': 'static/js/locales/jquery.datatables.locale.min.js').'"></script>');
@@ -21,6 +32,7 @@ $this->load->view('header');?>
 			<th>申请提交日期</th>
 			<th>委员会</th>
 			<th>操作</th>
+			<?php echo join('', $table_array);?>
 		</tr>
 	</thead>
 	
@@ -32,12 +44,14 @@ $this->load->view('header');?>
 <?php
 $read_more = icon('caret-right', false);
 $read_less = icon('caret-left', false);
+$hidden_list = join(', ', $hidden_array);
 $ajax_url = base_url('delegate/ajax/list?'.$param_uri);
 $ajax_js = <<<EOT
 $(document).ready(function() {
 	$('#user_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bSortable": false, "aTargets": [ 0, 7 ] }
+			{ "bSortable": false, "aTargets": [ 0, 7 ] },
+			{ "bVisible": false, "aTargets": [ {$hidden_list} ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,
