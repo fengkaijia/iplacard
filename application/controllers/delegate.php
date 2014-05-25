@@ -1576,7 +1576,7 @@ class Delegate extends CI_Controller
 					$committee_line = '';
 					if($delegate['application_type'] == 'delegate')
 					{
-						$sid = $this->seat_model->get_seat_id('delegate', $delegate);
+						$sid = $this->seat_model->get_delegate_seat($delegate['id']);
 						if($sid)
 						{
 							$seat = $this->seat_model->get_seat($sid);
