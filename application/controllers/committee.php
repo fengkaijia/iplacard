@@ -287,8 +287,8 @@ class Committee extends CI_Controller
 					$seat_assigned_count = !$seat_assigned ? 0 : count($seat_assigned);
 					$seat_locked_count = !$seat_locked ? 0 : count($seat_locked);
 
-					$seat_line = "<span class=\"label label-primary\">未分配</span> {$seat_available_count} ";
-					$seat_line .= "<span class=\"label label-warning\">待确认</span> {$seat_assigned_count} ";
+					$seat_line = "<span class=\"label label-warning\">未选择</span> {$seat_available_count} ";
+					$seat_line .= "<span class=\"label label-primary\">已选择</span> {$seat_assigned_count} ";
 					$seat_line .= "<span class=\"label label-success\">已锁定</span> {$seat_locked_count}";
 
 					$data = array(
