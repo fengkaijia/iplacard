@@ -52,21 +52,21 @@ $this->load->view('header');?>
 			<tbody>
 				<?php foreach($selectabilities as $selectability)
 				{
-					$seat = $selectability['seat'];
-					?><tr id="seat-<?php echo $selectability['seat']['id'];?>">
-					<td><?php echo $seat['id'];?></td>
-					<td><?php echo flag($seat['iso'], true);
-					echo $selectability['recommended'] ? "<strong>{$seat['name']}</strong>" : $seat['name'];?></td>
-					<td><?php echo $committees[$seat['committee']]['name'];?></td>
+					$one_seat = $selectability['seat'];
+					?><tr id="seat-<?php echo $one_seat['id'];?>">
+					<td><?php echo $one_seat['id'];?></td>
+					<td><?php echo flag($one_seat['iso'], true);
+					echo $selectability['recommended'] ? "<strong>{$one_seat['name']}</strong>" : $one_seat['name'];?></td>
+					<td><?php echo $committees[$one_seat['committee']]['name'];?></td>
 					<td><?php
 					if($selectability['seat']['delegate'] != $delegate['id'])
 						echo $selectability['primary'] ? '<span class="text-success">主分配席位</span>' : '<span class="text-primary">候选分配席位</span>';
 					else
 						echo '<span class="text-success">已选为主席位</span>';?></td>
 					<td><?php printf('%1$s（%2$s）', date('n月j日', $selectability['time']), nicetime($selectability['time']));?></td>
-					<td><?php if($selectability['primary'] && $seat['status'] != 'assigned')
-						echo '<a style="cursor: pointer;" onclick="select_seat('.$seat['id'].', true);">'.icon('plus-square', false).'席位</a> ';
-					echo '<a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat('.$seat['id'].', false);">'.icon('plus-square-o', false).'候选</a>';?></td>
+					<td><?php if($selectability['primary'] && $one_seat['status'] != 'assigned')
+						echo '<a style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].', true);">'.icon('plus-square', false).'席位</a> ';
+					echo '<a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].', false);">'.icon('plus-square-o', false).'候选</a>';?></td>
 				</tr><?php } ?>
 			</tbody>
 		</table>
@@ -88,13 +88,13 @@ $this->load->view('header');?>
 		
 		<div id="do_select">
 			<?php
-			echo form_open_multipart('apply/seat/select', array('id' => 'seat_form'), array('seat_primary' => !$selected_seat ? '' : $selected_seat));?>
+			echo form_open_multipart('apply/seat/select', array('id' => 'seat_form'), array('seat_primary' => empty($seat) ? '' : $seat['id']));?>
 				<p>请在下方下拉框中选择您的参会席位和候选席位。完成选择后请点击提交席位选择按钮。</p>
 
 				<div class="form-group <?php if(form_has_error('primary')) echo 'has-error';?>">
 					<?php echo form_label('席位', 'primary', array('class' => 'control-label'));?>
 					<div>
-						<?php echo form_dropdown_select('primary', $option_primary, !$selected_seat ? array() : $selected_seat, $selectability_primary_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-width="100%" title="选择主席位"');
+						<?php echo form_dropdown_select('primary', $option_primary, empty($seat) ? array() : $seat['id'], $selectability_primary_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-width="100%" title="选择主席位"');
 						if(form_has_error('primary'))
 							echo form_error('primary');
 						?>
@@ -110,7 +110,7 @@ $this->load->view('header');?>
 				<div class="form-group <?php if(form_has_error('backorder')) echo 'has-error';?>">
 					<?php echo form_label('候选席位', 'backorder', array('class' => 'control-label'));?>
 					<div>
-						<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, !$selected_backorder ? array() : $selected_backorder, $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个候选席位"');
+						<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, empty($backorders) ? array() : $backordered_seats, $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个候选席位"');
 						if(form_has_error('backorder'))
 							echo form_error('backorder');
 						?>
@@ -254,7 +254,7 @@ $('.selectpicker').selectpicker({
 EOT;
 $this->ui->js('footer', $selectpicker_js);
 
-if(!$selected_seat)
+if(empty($seat))
 	$this->ui->js('footer', "$('.selectpicker').selectpicker('val', null);");
 
 $this->load->view('footer');?>
