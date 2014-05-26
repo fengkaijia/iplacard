@@ -198,11 +198,11 @@ class Event
 			
 			if(!empty($interview['feedback']['feedback']))
 			{
-				$this->text = "面试官{$interviewer_link}认定本次面试不通过。他对本次面试给出了 {$interview['score']} 的评分。<blockquote><p>{$interview['feedback']['feedback']}</p></blockquote>以上为面试官给出的面试不通过原因。";
+				$this->text = "面试官{$interviewer_link}认定本次面试不通过。他对本次面试给出了 {$interview['score']} 分的评分。<blockquote><p>{$interview['feedback']['feedback']}</p></blockquote>以上为面试官给出的面试不通过原因。";
 			}
 			else
 			{
-				$this->text = "面试官{$interviewer_link}认定本次面试不通过。他对本次面试给出了 {$interview['score']} 的评分。";
+				$this->text = "面试官{$interviewer_link}认定本次面试不通过。他对本次面试给出了 {$interview['score']} 分的评分。";
 			}
 		}
 	}
@@ -228,11 +228,11 @@ class Event
 			
 			if(!empty($interview['feedback']['feedback']))
 			{
-				$this->text = "面试官{$interviewer_link}对本次面试给出了 {$interview['score']} 的评分。<blockquote><p>{$interview['feedback']['feedback']}</p></blockquote>以上为面试官给出的详细评价。";
+				$this->text = "面试官{$interviewer_link}对本次面试给出了 {$interview['score']} 分的评分。<blockquote><p>{$interview['feedback']['feedback']}</p></blockquote>以上为面试官给出的详细评价。";
 			}
 			else
 			{
-				$this->text = "面试官{$interviewer_link}对本次面试给出了 {$interview['score']} 的评分。";
+				$this->text = "面试官{$interviewer_link}对本次面试给出了 {$interview['score']} 分的评分。";
 			}
 		}
 	}
