@@ -185,6 +185,26 @@ class Event
 		$this->title = '面试未通过';
 		$this->level = 'danger';
 		$this->icon = 'comments';
+		
+		if(!empty($this->info['interview']))
+		{
+			$this->CI->load->model('interview_model');
+			
+			$interview = $this->CI->interview_model->get_interview($this->info['interview']);
+			if(!$interview)
+				return;
+			
+			$interviewer_link = anchor_capable("interview/manage?interviewer={$interview['interviewer']}", icon('user', false).$this->CI->admin_model->get_admin($interview['interviewer'], 'name'), 'administrator');
+			
+			if(!empty($interview['feedback']['feedback']))
+			{
+				$this->text = "面试官{$interviewer_link}认定本次面试不通过。他对本次面试给出了 {$interview['score']} 的评分。<blockquote><p>{$interview['feedback']['feedback']}</p></blockquote>以上为面试官给出的面试不通过原因。";
+			}
+			else
+			{
+				$this->text = "面试官{$interviewer_link}认定本次面试不通过。他对本次面试给出了 {$interview['score']} 的评分。";
+			}
+		}
 	}
 	
 	/**
