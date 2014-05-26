@@ -310,7 +310,7 @@ $this->load->view('header');?>
 							<div class="timeline-badge <?php echo $event['class'];?>"><?php echo !empty($event['icon']) ? icon($event['icon'], false) : '';?></div>
 							<div class="timeline-panel">
 								<div class="timeline-heading">
-									<h4 class="timeline-title<?php if(!empty($event['text'])) echo ' nobody';?>"><?php echo $event['title'];?> <small class="text-muted"><?php echo icon('clock-o');
+									<h4 class="timeline-title<?php if(empty($event['text'])) echo ' nobody';?>"><?php echo $event['title'];?> <small class="text-muted"><?php echo icon('clock-o');
 									printf('%1$s（%2$s）', date('n月j日 H:i:s', $event['time']), nicetime($event['time']));?></small></h4>
 								</div>
 								<?php if(!empty($event['text'])) { ?><div class="timeline-body">
