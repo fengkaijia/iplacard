@@ -187,7 +187,7 @@
 				if(isset($task['interview_global_arrange']))
 					echo anchor('interview/manage?status=assigned&display_interviewer=1', "全局共 {$task['interview_global_arrange']} 位代表尚未安排面试时间。", 'class="list-group-item"');
 				if(isset($task['interview_global_do']))
-					echo anchor('interview/manage?status=assigned&display_interviewer=1', "全局共 {$task['interview_global_do']} 位代表等待面试。", 'class="list-group-item"');
+					echo anchor('interview/manage?status=arranged&display_interviewer=1', "全局共 {$task['interview_global_do']} 位代表等待面试。", 'class="list-group-item"');
 				if(isset($task['seat_global_assign']))
 					echo anchor('delegate/manage?type=delegate&status=interview_completed', "全局共 {$task['seat_global_assign']} 位代表等待分配席位。", 'class="list-group-item"');
 				if(isset($task['seat_global_select']))
