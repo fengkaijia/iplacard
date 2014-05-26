@@ -56,11 +56,14 @@ $this->load->view('header');?>
 			</div>
 		</div>
 		
-		<?php $head_profile = $delegates[$group['head_delegate']];?>
 		<div class="tab-pane" id="hd">
 			<div class="col-md-8">
 				<h3>领队信息</h3>
-				<table class="table table-bordered table-striped table-hover">
+				<?php
+				if(!empty($group['head_delegate']))
+				{
+					$head_profile = $delegates[$group['head_delegate']];
+				?><table class="table table-bordered table-striped table-hover">
 					<tbody>
 						<?php $rules = array(
 							'name' => '姓名',
@@ -73,7 +76,7 @@ $this->load->view('header');?>
 							<td><?php if(!empty($head_profile[$rule])) echo $head_profile[$rule];?></td>
 						</tr><?php } ?>
 					</tbody>
-				</table>
+				</table><?php } else { ?><p>当前代表团无领队，请联系管理员添加领队。</p><?php } ?>
 			</div>
 			
 			<div class="col-md-4">
