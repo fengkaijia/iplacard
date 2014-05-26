@@ -1076,8 +1076,11 @@ class Apply extends CI_Controller
 	{
 		$primary = $this->input->post('primary');
 		
-		if(in_array($primary, $array))
-			return false;
+		if(is_null($array))
+			return true;
+		
+		if(!in_array($primary, $array))
+			return true;
 		
 		return true;
 	}
