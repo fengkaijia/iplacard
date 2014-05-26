@@ -1283,7 +1283,7 @@ class Delegate extends CI_Controller
 					foreach($new_seat[$new_type] as $sid)
 					{
 						$seat = $this->seat_model->get_seat($sid);
-						if(!in_array($sid, $existing) && ($seat['type'] != 'preserved' || $seat['committee'] == $admin_committee))
+						if(!in_array($sid, $existing) && ($seat['status'] != 'preserved' || $seat['committee'] == $admin_committee))
 						{
 							$recommended = false;
 							if(in_array($sid, $new_recommended[$new_type]))
