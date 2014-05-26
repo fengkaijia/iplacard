@@ -37,8 +37,6 @@ class Invoice
 	
 	function __construct()
 	{
-		parent::__construct();
-		
 		$this->CI =& get_instance();
 		$this->CI->load->model('invoice_model');
 		
