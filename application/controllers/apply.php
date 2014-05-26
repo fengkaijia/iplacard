@@ -917,7 +917,7 @@ class Apply extends CI_Controller
 	}
 	
 	/**
-	 * 面试官申请状态信息
+	 * 志愿者申请状态信息
 	 */
 	function _status_volunteer()
 	{
