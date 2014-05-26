@@ -303,9 +303,24 @@ $this->load->view('header');?>
 				<hr />
 				<?php } } ?>
 
-				<h3>事件日志</h3>
-				<?php //TODO ?>
-			</div>
+				<?php if(!empty($events)) { ?><h3>事件日志</h3>
+				<div>
+					<ul class="timeline timeline-small">
+						<?php foreach($events as $event) { ?><li>
+							<div class="timeline-badge <?php echo $event['class'];?>"><?php echo !empty($event['icon']) ? icon($event['icon'], false) : '';?></div>
+							<div class="timeline-panel">
+								<div class="timeline-heading">
+									<h4 class="timeline-title<?php if(!empty($event['text'])) echo ' nobody';?>"><?php echo $event['title'];?> <small class="text-muted"><?php echo icon('clock-o');
+									printf('%1$s（%2$s）', date('n月j日 H:i:s', $event['time']), nicetime($event['time']));?></small></h4>
+								</div>
+								<?php if(!empty($event['text'])) { ?><div class="timeline-body">
+									<?php echo $event['text'];?>
+								</div><?php } ?>
+							</div>
+						</li><?php } ?>
+					</ul>
+				</div>
+			</div><?php } ?>
 			
 			<?php if($seat_open) { ?><div class="tab-pane" id="seat">
 				<?php if($selectabilities) { ?><div id="seat_now">

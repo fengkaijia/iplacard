@@ -103,6 +103,7 @@ class Delegate extends CI_Controller
 		$this->load->model('group_model');
 		$this->load->model('committee_model');
 		$this->load->model('seat_model');
+		$this->load->library('event');
 		$this->load->helper('unicode');
 		$this->load->helper('avatar');
 		$this->load->helper('date');
@@ -197,7 +198,32 @@ class Delegate extends CI_Controller
 		$vars['current_interview'] = $current_interview;
 		$vars['interviews'] = $interviews;
 		
-		//TODO: 用户事件数据
+		//用户事件数据
+		$events = array();
+		
+		$eids = $this->delegate_model->get_delegate_events($uid);
+		if($eids)
+		{
+			foreach($eids as $eid)
+			{
+				if($this->event->load($eid))
+				{
+					$event = array(
+						'title' => $this->event->get('title'),
+						'class' => $this->event->get('level'),
+						'icon' => $this->event->get('icon'),
+						'text' => $this->event->get('text'),
+						'time' => $this->event->get('time')
+					);
+					
+					$events[] = $event;
+				}
+				
+				$this->event->clear();
+			}
+		}
+		
+		$vars['events'] = $events;
 		
 		//所有团队数据
 		$groups = array();
