@@ -5,7 +5,7 @@
  * @package iPlacard
  * @since 2.0
  */
-class Invoice extends CI_Model
+class Invoice
 {
 	private $CI;
 
