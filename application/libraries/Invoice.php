@@ -281,7 +281,7 @@ class Invoice
 		
 		$this->CI->email->to($this->delegate_info['email']);
 		$this->CI->email->subject('新的账单已经生成');
-		$this->CI->email->html($this->parser->parse_string(option('email_invoice_generated', "新的账单 #{id} 已经生成，账单的信息如下：\n\n"
+		$this->CI->email->html($this->CI->parser->parse_string(option('email_invoice_generated', "新的账单 #{id} 已经生成，账单的信息如下：\n\n"
 				. "\t账单名称：{title}\n\n"
 				. "\t账单生成时间：{generate_time}\n\n"
 				. "\t账单到期时间：{due_time}\n\n"
@@ -346,7 +346,7 @@ class Invoice
 
 			$this->CI->email->to($this->delegate_info['email']);
 			$this->CI->email->subject('账单已经更新');
-			$this->CI->email->html($this->parser->parse_string(option('email_invoice_updated', '账单 #{id} 已经更新，请访问 {url} 查看新的账单信息。'), $email_data, true));
+			$this->CI->email->html($this->CI->parser->parse_string(option('email_invoice_updated', '账单 #{id} 已经更新，请访问 {url} 查看新的账单信息。'), $email_data, true));
 			if($pdf_data)
 				$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 			$this->CI->email->send();
@@ -400,7 +400,7 @@ class Invoice
 
 		$this->CI->email->to($this->delegate_info['email']);
 		$this->CI->email->subject('账单支付完成');
-		$this->CI->email->html($this->parser->parse_string(option('email_invoice_received', '账单 #{id} 已经完成支付，请访问 {url} 查看账单信息。'), $email_data, true));
+		$this->CI->email->html($this->CI->parser->parse_string(option('email_invoice_received', '账单 #{id} 已经完成支付，请访问 {url} 查看账单信息。'), $email_data, true));
 		if($pdf_data)
 			$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 		$this->CI->email->send();
@@ -454,7 +454,7 @@ class Invoice
 
 		$this->CI->email->to($this->delegate_info['email']);
 		$this->CI->email->subject('账单已经取消');
-		$this->CI->email->html($this->parser->parse_string(option('email_invoice_cancelled', '账单 #{id} 已经取消，请访问 {url} 查看账单信息。'), $email_data, true));
+		$this->CI->email->html($this->CI->parser->parse_string(option('email_invoice_cancelled', '账单 #{id} 已经取消，请访问 {url} 查看账单信息。'), $email_data, true));
 		if($pdf_data)
 			$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 		$this->CI->email->send();
@@ -509,7 +509,7 @@ class Invoice
 		
 		if($overdued)
 		{
-			$this->CI->email->html($this->parser->parse_string(option('email_invoice_overdue_reminder', "您的账单 #{id} 已经逾期，账单的信息如下：\n\n"
+			$this->CI->email->html($this->CI->parser->parse_string(option('email_invoice_overdue_reminder', "您的账单 #{id} 已经逾期，账单的信息如下：\n\n"
 				. "\t账单名称：{title}\n\n"
 				. "\t账单生成时间：{generate_time}\n\n"
 				. "\t账单到期时间：{due_time}\n\n"
@@ -517,7 +517,7 @@ class Invoice
 		}
 		else
 		{
-			$this->CI->email->html($this->parser->parse_string(option('email_invoice_reminder', "您的账单 #{id} 正等待支付，账单的信息如下：\n\n"
+			$this->CI->email->html($this->CI->parser->parse_string(option('email_invoice_reminder', "您的账单 #{id} 正等待支付，账单的信息如下：\n\n"
 				. "\t账单名称：{title}\n\n"
 				. "\t账单生成时间：{generate_time}\n\n"
 				. "\t账单到期时间：{due_time}\n\n"
@@ -659,7 +659,7 @@ class Invoice
 
 			$this->CI->email->to($this->delegate_info['email']);
 			$this->CI->email->subject('选定席位已释放');
-			$this->CI->email->html($this->parser->parse_string(option('email_seat_overdue_released', '由于账单逾期，您选定的席位{seat}已于 {time} 释放，您可登录 iPlacard 系统重新选择席位。'), $data, true));
+			$this->CI->email->html($this->CI->parser->parse_string(option('email_seat_overdue_released', '由于账单逾期，您选定的席位{seat}已于 {time} 释放，您可登录 iPlacard 系统重新选择席位。'), $data, true));
 			$this->CI->email->send();
 			$this->CI->email->clear();
 
