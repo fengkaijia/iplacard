@@ -231,7 +231,7 @@ class Invoice
 		);
 		
 		//获取结果
-		$return = $this->curl->simple_post($this->pdf_api, $data);
+		$return = $this->CI->curl->simple_post($this->pdf_api, $data);
 		
 		if(empty($return))
 			return false;
