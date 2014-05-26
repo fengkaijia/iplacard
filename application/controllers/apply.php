@@ -400,19 +400,24 @@ class Apply extends CI_Controller
 					$backorder_remove = $this->seat_model->get_seats_by_backorders($original_backorder);
 				
 				$select_backorder_info = array();
-				foreach($select_backorders as $select_backorder)
+				
+				//新候选
+				if(!empty($select_backorders))
 				{
-					//检查席位延期请求是否存在
-					if(($key = array_search($select_backorder, $backorder_remove)) !== false)
+					foreach($select_backorders as $select_backorder)
 					{
-					    unset($backorder_remove[$key]);
+						//检查席位延期请求是否存在
+						if(($key = array_search($select_backorder, $backorder_remove)) !== false)
+						{
+							unset($backorder_remove[$key]);
+						}
+						elseif(!in_array($select_backorder, $backorder_add))
+						{
+							$backorder_add[] = $select_backorder;
+						}
+
+						$select_backorder_info[] = $this->seat_model->get_seat($select_backorder);
 					}
-					elseif(!in_array($select_backorder, $backorder_add))
-					{
-						$backorder_add[] = $select_backorder;
-					}
-					
-					$select_backorder_info[] = $this->seat_model->get_seat($select_backorder);
 				}
 				
 				//处理延期请求
