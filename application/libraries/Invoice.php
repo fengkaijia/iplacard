@@ -215,7 +215,7 @@ class Invoice
 		$vars['currency']['sign'] = option('invoice_currency_sign', '￥');
 		$vars['currency']['text'] = option('invoice_currency_text', 'RMB');
 		
-		return $this->load->view($full ? 'invoice_print' : 'invoice', $vars, true);
+		return $this->CI->load->view($full ? 'invoice_print' : 'invoice', $vars, true);
 	}
 	
 	/**
@@ -223,7 +223,7 @@ class Invoice
 	 */
 	function pdf()
 	{
-		$this->load->library('curl');
+		$this->CI->load->library('curl');
 		
 		//生成数据
 		$data = array(
@@ -294,8 +294,8 @@ class Invoice
 		//短信通知代表
 		if($this->amount > 0 && option('sms_enabled', false))
 		{
-			$this->load->model('sms_model');
-			$this->load->library('sms');
+			$this->CI->load->model('sms_model');
+			$this->CI->load->library('sms');
 
 			$this->CI->sms->to($this->delegate);
 			$this->CI->sms->message("新的账单 #{$this->id} 已经生成，请登录 iPlacard 系统查看详细信息并完成支付。");
@@ -355,8 +355,8 @@ class Invoice
 			//短信通知代表
 			if($this->amount > 0 && option('sms_enabled', false))
 			{
-				$this->load->model('sms_model');
-				$this->load->library('sms');
+				$this->CI->load->model('sms_model');
+				$this->CI->load->library('sms');
 
 				$this->CI->sms->to($this->delegate);
 				$this->CI->sms->message("您的账单 #{$this->id} 已经更新，请登录 iPlacard 系统查看新的账单信息。");
@@ -409,8 +409,8 @@ class Invoice
 		//短信通知代表
 		if($this->amount > 0 && option('sms_enabled', false))
 		{
-			$this->load->model('sms_model');
-			$this->load->library('sms');
+			$this->CI->load->model('sms_model');
+			$this->CI->load->library('sms');
 
 			$this->CI->sms->to($this->delegate);
 			$this->CI->sms->message("您的账单 #{$this->id} 已经完成支付，请登录 iPlacard 系统查看账单信息。");
@@ -463,8 +463,8 @@ class Invoice
 		//短信通知代表
 		if($this->amount > 0 && option('sms_enabled', false))
 		{
-			$this->load->model('sms_model');
-			$this->load->library('sms');
+			$this->CI->load->model('sms_model');
+			$this->CI->load->library('sms');
 
 			$this->CI->sms->to($this->delegate);
 			$this->CI->sms->message("您的账单 #{$this->id} 已经取消，请登录 iPlacard 系统查看账单信息。");
@@ -666,8 +666,8 @@ class Invoice
 			//短信通知代表
 			if(option('sms_enabled', false))
 			{
-				$this->load->model('sms_model');
-				$this->load->library('sms');
+				$this->CI->load->model('sms_model');
+				$this->CI->load->library('sms');
 
 				$this->CI->sms->to($this->delegate);
 				$this->CI->sms->message("由于账单逾期，您选定的席位已被释放，请登录 iPlacard 系统重新选择席位。");
