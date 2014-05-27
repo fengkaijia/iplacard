@@ -488,6 +488,16 @@ class Event
 			$this->text = "代表账单 #{$invoice['id']} 已经更新。";
 		}
 	}
+	
+	/**
+	 * 申请完成事件
+	 */
+	function _event_locked()
+	{
+		$this->title = '申请完成';
+		$this->level = 'success';
+		$this->icon = 'star';
+	}
 }
 
 /* End of file Invoice.php */
