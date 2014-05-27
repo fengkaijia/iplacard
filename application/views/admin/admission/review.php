@@ -4,7 +4,7 @@
 
 <p>此代表的申请类型为<strong><?php echo $delegate['application_type_text'];?></strong>，根据审核政策你可以选择免试通过此代表。</p>
 
-<a class="btn btn-success" href="<?php echo base_url("delegate/operation/pass_application/$uid");?>"><?php echo icon('check');?>通过申请</a> 
+<a class="btn btn-success" href="<?php echo base_url("delegate/operation/pass_application/$uid");?>" onclick="loader(this);"><?php echo icon('check');?>通过申请</a> 
 <a class="btn btn-danger" href="#" data-toggle="modal" data-target="#refuse_application"><?php echo icon('times');?>拒绝申请</a>
 
 <?php echo form_open("delegate/operation/refuse_application/$uid", array(
