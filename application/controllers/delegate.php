@@ -649,11 +649,24 @@ class Delegate extends CI_Controller
 				//非代表情况
 				if($delegate['application_type'] != 'delegate')
 				{
-					$fee = option("fee_{$delegate['application_type']}", 0);
+					$fee = option("invoice_amount_{$delegate['application_type']}", 0);
 					
 					if($fee > 0)
 					{
-						//TODO: 生成账单
+						$this->load->library('invoice');
+					
+						$this->delegate_model->change_status($uid, 'invoice_issued');
+
+						//生成账单
+						$this->invoice->title(option("invoice_title_fee_{$delegate['application_type']}", option('invoice_title_fee', '参会会费')));
+						$this->invoice->to($uid);
+						$this->invoice->item(option("invoice_title_fee_{$delegate['application_type']}", option('invoice_title_fee', '参会会费')), $fee, option("invoice_item_fee_{$delegate['application_type']}", option('invoice_item_fee', array())));
+						$this->invoice->due_time(time() + option('invoice_due_fee', 15) * 24 * 60 * 60);
+
+						$this->invoice->trigger('receive', 'change_status', array('delegate' => $uid, 'status' => 'locked'));
+						$this->invoice->trigger('receive', 'notice_application_lock', array('delegate' => $uid));
+
+						$this->invoice->generate();
 					}
 					else
 					{
@@ -662,6 +675,34 @@ class Delegate extends CI_Controller
 						$this->delegate_model->add_event($uid, 'locked', array('admin' => uid()));
 						
 						$this->user_model->add_message($uid, '恭喜您！您的参会申请流程已经完成。');
+						
+						//发送邮件
+						$this->load->library('email');
+						$this->load->library('parser');
+						$this->load->helper('date');
+
+						$data = array(
+							'id' => $uid,
+							'name' => $delegate['name'],
+							'time' => unix_to_human(time())
+						);
+
+						$this->email->to($delegate['email']);
+						$this->email->subject('申请已经完成');
+						$this->email->html($this->parser->parse_string(option('email_application_locked', '感谢参与申请，您的申请流程已经于 {time} 锁定完成，请登录 iPlacard 查看申请状态。'), $data, true));
+						$this->email->send();
+						$this->email->clear();
+
+						//短信通知代表
+						if(option('sms_enabled', false))
+						{
+							$this->load->model('sms_model');
+							$this->load->library('sms');
+
+							$this->sms->to($uid);
+							$this->sms->message("感谢参与申请，您的申请流程已经完成，请登录 iPlacard 查看申请状态。");
+							$this->sms->queue();
+						}
 					}
 				}
 				break;
