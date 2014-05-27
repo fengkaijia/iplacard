@@ -624,6 +624,46 @@ class Invoice
 	}
 	
 	/**
+	 * 通知申请完成触发器
+	 */
+	private function _trigger_notice_application_lock($args)
+	{
+		$this->CI->load->model('delegate_model');
+		
+		$delegate = $this->CI->delegate_model->get_delegate($args['delegate']);
+		if(!$delegate)
+			return false;
+		
+		//发送邮件
+		$this->CI->load->library('email');
+		$this->CI->load->library('parser');
+		$this->CI->load->helper('date');
+
+		$data = array(
+			'id' => $delegate['id'],
+			'name' => $delegate['name'],
+			'time' => unix_to_human(time())
+		);
+
+		$this->CI->email->to($delegate['email']);
+		$this->CI->email->subject('申请已经完成');
+		$this->CI->email->html($this->CI->parser->parse_string(option('email_application_locked', '感谢参与申请，您的申请流程已经于 {time} 锁定完成，请登录 iPlacard 查看申请状态。'), $data, true));
+		$this->CI->email->send();
+		$this->CI->email->clear();
+
+		//短信通知代表
+		if(option('sms_enabled', false))
+		{
+			$this->CI->load->model('sms_model');
+			$this->CI->load->library('sms');
+
+			$this->CI->sms->to($delegate['id']);
+			$this->CI->sms->message("感谢参与申请，您的申请流程已经完成，请登录 iPlacard 查看申请状态。");
+			$this->CI->sms->queue();
+		}
+	}
+	
+	/**
 	 * 释放席位触发器
 	 */
 	private function _trigger_release_seat($args)

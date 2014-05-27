@@ -61,7 +61,17 @@ class Apply extends CI_Controller
 			$vars['welcome'] = false;
 		
 		//状态信息
-		$application_type_function = "_status_{$this->delegate['application_type']}";
+		$application_fee_amount = option("invoice_amount_{$this->delegate['application_type']}", 0);
+		
+		$application_fee = 'nonfee';
+		if($application_fee_amount > 0)
+			$application_fee = 'fee';
+		
+		$application_seat = 'nonseat';
+		if($this->delegate['application_type'] == 'delegate')
+			$application_seat = 'seat';
+		
+		$application_type_function = "_status_{$application_seat}_{$application_fee}";
 		$status_info = $this->$application_type_function();
 		$vars += $status_info;
 		
@@ -713,9 +723,9 @@ class Apply extends CI_Controller
 	}
 	
 	/**
-	 * 代表申请状态信息
+	 * 含席位含会费申请状态信息
 	 */
-	function _status_delegate()
+	function _status_seat_fee()
 	{
 		$status = $this->delegate['status'];
 		
@@ -829,9 +839,9 @@ class Apply extends CI_Controller
 	}
 	
 	/**
-	 * 观察员申请状态信息
+	 * 非席位含会费申请状态信息
 	 */
-	function _status_observer()
+	function _status_nonseat_fee()
 	{
 		$status = $this->delegate['status'];
 		
@@ -917,9 +927,9 @@ class Apply extends CI_Controller
 	}
 	
 	/**
-	 * 面试官申请状态信息
+	 * 非席位无会费申请状态信息
 	 */
-	function _status_volunteer()
+	function _status_nonseat_nonfee()
 	{
 		$status = $this->delegate['status'];
 		
