@@ -255,7 +255,7 @@ class Delegate_model extends CI_Model
 			case 'volunteer':
 				return '志愿者';
 			case 'teacher':
-				return '老师';
+				return '指导老师';
 		}
 		return false;
 	}
