@@ -57,13 +57,13 @@ $this->load->view('header');?>
 		</div>
 		
 		<div class="tab-pane" id="hd">
-			<div class="col-md-8">
+			<?php
+			if(!empty($group['head_delegate']))
+			{
+				$head_profile = $delegates[$group['head_delegate']];
+			?><div class="col-md-8">
 				<h3>领队信息</h3>
-				<?php
-				if(!empty($group['head_delegate']))
-				{
-					$head_profile = $delegates[$group['head_delegate']];
-				?><table class="table table-bordered table-striped table-hover">
+				<table class="table table-bordered table-striped table-hover">
 					<tbody>
 						<?php $rules = array(
 							'name' => '姓名',
@@ -76,7 +76,7 @@ $this->load->view('header');?>
 							<td><?php if(!empty($head_profile[$rule])) echo $head_profile[$rule];?></td>
 						</tr><?php } ?>
 					</tbody>
-				</table><?php } else { ?><p>当前代表团无领队，请联系管理员添加领队。</p><?php } ?>
+				</table>
 			</div>
 			
 			<div class="col-md-4">
@@ -89,7 +89,7 @@ $this->load->view('header');?>
 				<p>作为团队领队，您将负责<?php echo icon('users', false).$group['name'];?>代表团的信息沟通和其他事项安排。</p>
 				<p>如团队成员的申请遇到问题，我们会优先与您联系。</p>
 				<?php } ?>
-			</div>
+			</div><?php } else { ?><p>当前代表团无领队，请联系管理员添加领队。</p><?php } ?>
 		</div>
 	</div>
 </div>
