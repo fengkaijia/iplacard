@@ -1308,7 +1308,12 @@ class Delegate extends CI_Controller
 				}
 				
 				$new_recommended['primary'] = $this->input->post('recommended_primary');
+				if(empty($new_recommended['primary']))
+					$new_recommended['primary'] = array();
+				
 				$new_recommended['backorder'] = $this->input->post('recommended_backorder');
+				if(empty($new_recommended['backorder']))
+					$new_recommended['backorder'] = array();
 				
 				//已经开放许可
 				$existing = $this->seat_model->get_delegate_selectability($delegate['id'], false, false, 'seat');
