@@ -8,6 +8,7 @@
         strike: '删除线',
         clear: '清除格式',
         height: '行高',
+		name: '字体',
         size: '字号'
       },
       image: {
@@ -21,7 +22,8 @@
         floatNone: '不浮动',
         dragImageHere: '将图片拖至此处',
         selectFromFiles: '从本地上传',
-        url: '图片地址'
+        url: '图片地址',
+		remove: '删除图片'
       },
       link: {
         link: '链接',
@@ -37,7 +39,7 @@
         videoLink: '视频链接',
         insert: '插入视频',
         url: '视频地址',
-        providers: '(优酷, Instagram, Youtube等)'
+        providers: '（优酷，土豆，Youtube等）'
       },
       table: {
         table: '表格'
