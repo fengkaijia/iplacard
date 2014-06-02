@@ -535,6 +535,8 @@ class UI
 	{
 		$this->CI->load->model('delegate_model');
 		$this->CI->load->model('seat_model');
+		$this->CI->load->model('committee_model');
+		$this->CI->load->model('document_model');
 		$this->CI->load->model('interview_model');
 		$this->CI->load->model('invoice_model');
 		
@@ -574,7 +576,21 @@ class UI
 			$this->add_menu('interview', '面试', 'apply/interview');
 		}
 		
-		//面试
+		//文件
+		$committee = 0;
+		if($application == 'delegate')
+		{
+			$seat = $this->CI->seat_model->get_delegate_seat($this->uid);
+			if($seat)
+				$committee = $this->CI->seat_model->get_seat($seat, 'committee');
+		}
+		
+		if($this->CI->document_model->get_committee_documents($committee))
+		{
+			$this->add_menu('document', '文件', 'apply/document');
+		}
+		
+		//账单
 		if($this->CI->invoice_model->get_delegate_invoices(uid()) != false)
 		{
 			$this->add_menu('invoice', '账单', 'apply/invoice');
