@@ -246,6 +246,192 @@ class Admin extends CI_Controller
 	}
 	
 	/**
+	 * 广播通知
+	 */
+	function broadcast($action = 'email')
+	{
+		//检查权限
+		if(!$this->admin_model->capable('administrator'))
+		{
+			redirect('');
+			return;
+		}
+		
+		$this->load->model('seat_model');
+		$this->load->model('delegate_model');
+		$this->load->model('committee_model');
+		
+		$vars = array();
+		switch($action)
+		{
+			case 'email':
+				$title = '群发邮件';
+				break;
+			case 'sms':
+				$title = '群发短信';
+				break;
+			case 'message':
+				$title = '广播站内消息';
+				break;
+			default:
+				return;
+		}
+		$vars['title'] = $title;
+		
+		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+		
+		if($action == 'email')
+			$this->form_validation->set_rules('title', '标题', 'trim|required');
+		$this->form_validation->set_rules('content', '内容', 'required');
+		
+		if($this->form_validation->run() == true)
+		{
+			//代表
+			$target_delegate['status'] = $this->input->post('status');
+			$target_delegate['type'] = $this->input->post('type');
+			$target_delegate['committee'] = $this->input->post('committee');
+			$target_delegates = $this->_get_target_delegates($target_delegate, 'delegate');
+			
+			//管理用户
+			$target_admin['role'] = $this->input->post('role');
+			$target_admins = $this->_get_target_admins($target_admin, 'admin');
+			
+			$ids = array_unique(array_merge($target_admins, $target_delegates));
+			$count = count($ids);
+			
+			if($count > 0)
+			{
+				$content = $this->input->post('content');
+				
+				switch($action)
+				{
+					case 'email':
+						$subject = trim($this->input->post('title'));
+						
+						//发送邮件
+						$this->load->library('email');
+						foreach($ids as $id)
+						{
+							$this->email->to($this->user_model->get_user($id, 'email'));
+							$this->email->subject($subject);
+							$this->email->html($content, false);
+
+							$this->email->send();
+							$this->email->clear();
+						}
+						
+						$this->ui->alert("已经向 {$count} 位代表或管理用户发送邮件通知。", 'success');
+						break;
+					case 'sms':
+						//短信通知
+						if(option('sms_enabled', false))
+						{
+							$this->load->model('sms_model');
+							$this->load->library('sms');
+
+							$this->sms->set_mass(true);
+							foreach($ids as $id)
+							{
+								$this->sms->to($id);
+							}
+							
+							$this->sms->message($content);
+							$this->sms->queue();
+							
+							$this->ui->alert("已经向 {$count} 位代表或管理用户发送短信通知。", 'success');
+						}
+						else
+						{
+							$this->ui->alert("短信通道已关闭或未设置。", 'warning');
+						}
+						break;
+					case 'message':
+						foreach($ids as $id)
+						{
+							$this->user_model->add_message($id, $content);
+						}
+						
+						$this->ui->alert("已经向 {$count} 位代表或管理用户广播站内通知。", 'success');
+						break;
+				}
+				
+				$this->system_model->log('broadcast', array(
+					'type' => $action,
+					'target' => array_merge($target_delegate, $target_admin),
+					'client' => $ids,
+					'content' => $content,
+					'title' => isset($subject) ? $subject : NULL
+				));
+			}
+			else
+			{
+				$this->ui->alert('没有根据设定的群发对象筛选出需要通知的用户。', 'info');
+			}
+		}
+		
+		$select = array();
+		
+		//代表类型
+		$application_types = array(
+			'delegate',
+			'observer',
+			'volunteer',
+			'teacher'
+		);
+		foreach($application_types as $application_type)
+		{
+			$select['type'][$application_type] = $this->delegate_model->application_type_text($application_type);
+		}
+		
+		//申请状态
+		$status = array(
+			'application_imported',
+			'review_passed',
+			'review_refused',
+			'interview_assigned',
+			'interview_arranged',
+			'interview_completed',
+			'moved_to_waiting_list',
+			'seat_assigned',
+			'invoice_issued',
+			'payment_received',
+			'locked',
+			'quitted'
+		);
+		foreach($status as $status_one)
+		{
+			$select['status'][$status_one] = $this->delegate_model->status_text($status_one);
+		}
+		
+		//委员会
+		$committees = $this->committee_model->get_committee_ids();
+		
+		$select['committee'][0] = '无委员会代表';
+		foreach($committees as $committee)
+		{
+			$select['committee'][$committee] = $this->committee_model->get_committee($committee, 'name');
+		}
+		
+		//用户权限
+		$select['role'] = array(
+			'reviewer' => '资料审核',
+			'dais' => '主席',
+			'interviewer' => '面试官',
+			'cashier' => '财务管理',
+			'administrator' => '会务管理',
+			'bureaucrat' => '行政员',
+			'zero' => '无权限用户'
+		);
+		
+		$vars['select'] = $select;
+		
+		$vars['action'] = $action;
+		
+		$this->ui->title($title);
+		$this->load->view('admin/broadcast', $vars);
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = '')
@@ -323,6 +509,107 @@ class Admin extends CI_Controller
 	{
 		$this->task[$item] = $count;
 		$this->has_task = true;
+	}
+	
+	/**
+	 * 获取群发对象
+	 */
+	private function _get_target_delegates($target)
+	{
+		$param = array();
+		
+		//代表类型
+		if(!empty($target['type']))
+			$param['application_type'] = $target['type'];
+
+		//申请状态
+		if(!empty($target['status']))
+			$param['status'] = $target['status'];
+
+		//委员会
+		if(!empty($target['committee']))
+		{
+			$this->load->model('seat_model');
+
+			$param['id'] = array();
+
+			$sids = $this->seat_model->get_seat_ids('committee', $target['committee'], 'status', array('assigned', 'approved', 'locked'));
+			if($sids)
+			{
+				$dids = $this->seat_model->get_delegates_by_seats($sids);
+				if($dids)
+					$param['id'] = $dids;
+			}
+
+			//无委员会代表
+			if(in_array(0, $target['committee']))
+			{
+				$asids = $this->seat_model->get_seat_ids('status', array('assigned', 'approved', 'locked'));
+				if($asids)
+				{
+					$ndids = $this->seat_model->get_delegates_by_seats($asids);
+					if($ndids)
+					{
+						$adids = $this->delegate_model->get_delegate_ids('id NOT', $ndids);
+						if($adids)
+							$param['id'] = array_merge($param['id'], $adids);
+					}
+				}
+			}
+
+			if(empty($param['id']))
+				$param['id'] = array(NULL);
+		}
+
+		$args = array();
+		if(!empty($param))
+		{
+			foreach($param as $item => $value)
+			{
+				$args[] = $item;
+				$args[] = $value;
+			}
+		}
+		else
+			return false;
+
+		$ids = call_user_func_array(array($this->delegate_model, 'get_delegate_ids'), $args);
+		if(!$ids)
+			$ids = array();
+
+		return $ids;
+	}
+	
+	/**
+	 * 获取群发对象
+	 */
+	private function _get_target_admins($target)
+	{
+		$all = array();
+
+		//代表类型
+		if(!empty($target['role']))
+		{
+			foreach($target['role'] as $role)
+			{
+				if($role == 'zero')
+				{
+					$ids = $this->admin_model->get_admin_ids('role_reviewer', false, 'role_dais', false, 'role_interviewer', false, 'role_cashier', false, 'role_administrator', false, 'role_bureaucrat', false);
+				}
+				else
+				{
+					$ids = $this->admin_model->get_admin_ids("role_{$role}", true);
+				}
+
+				if($ids)
+					$all = array_merge($all, $ids);
+			}
+			
+			if(!empty($all))
+				return $all;
+		}
+		
+		return false;
 	}
 }
 
