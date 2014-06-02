@@ -603,7 +603,7 @@ class Document extends CI_Controller
 					$document = $this->document_model->get_document($id);
 
 					//操作
-					$operation = anchor("document/download/$id", icon('download', false).'下载');;
+					$operation = anchor("document/download/$id", icon('download', false).'下载');
 					if($this->admin_model->capable('administrator') || ($this->admin_model->capable('dais') && $admin == $document['user']))
 						$operation .= ' '.anchor("document/edit/$id", icon('edit', false).'编辑');
 					
