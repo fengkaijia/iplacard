@@ -383,6 +383,7 @@ class Document extends CI_Controller
 	 */
 	function download($id, $version = 0)
 	{
+		$this->load->library('user_agent');
 		$this->load->helper('file');
 		$this->load->helper('download');
 		
@@ -444,7 +445,16 @@ class Document extends CI_Controller
 		
 		//弹出下载
 		$this->output->set_content_type($file['filetype']);
-		force_download($filename, $data);
+		
+		if($this->agent->is_mobile())
+		{
+			//手机访问不强制弹出下载
+			$this->output->set_output($data);
+		}
+		else
+		{
+			force_download($filename, $data);
+		}
 	}
 
 	/**
