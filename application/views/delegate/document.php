@@ -24,7 +24,7 @@ $this->load->view('header');?>
 						<td><?php echo $document['description'];?></td>
 					</tr><?php } ?>
 					<tr>
-						<td>文件发布时间</td>
+						<td class="document_item">文件发布时间</td>
 						<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $document['create_time']), nicetime($document['create_time']));?></td>
 					</tr>
 					<?php if($document['file']['upload_time'] != $document['create_time']) { ?><tr>
@@ -112,6 +112,21 @@ $this->load->view('header');?>
 </div>
 
 <?php
+$width_js = <<<EOT
+$(document).ready(function() {
+	var lowest = Infinity;
+	
+	$('.document_item').each(function() {
+		if($(this).width() < lowest) {
+			lowest = $(this).width();
+		}
+	});
+	
+	$('.document_item').width(lowest);
+});
+EOT;
+$this->ui->js('footer', $width_js);
+
 $zip_js = "$('#submit').click(function(){
 	$('#download_zip').modal('show');
 });";
