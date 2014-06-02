@@ -456,6 +456,93 @@ class Document extends CI_Controller
 			force_download($filename, $data);
 		}
 	}
+	
+	/**
+	 * 下载文件压缩包
+	 */
+	function zip()
+	{
+		$this->load->library('zip');
+		$this->load->helper('file');
+		$this->load->helper('download');
+		
+		if($this->user_model->is_delegate(uid()))
+		{
+			$this->load->model('delegate_model');
+			
+			//仅允许访问全局分发文件
+			$committee = 0;
+			
+			//代表可访问委员会文件
+			if($this->delegate_model->get_delegate(uid(), 'application_type') == 'delegate')
+			{
+				$this->load->model('committee_model');
+				$this->load->model('seat_model');
+
+				$seat = $this->seat_model->get_delegate_seat(uid());
+				if($seat)
+					$committee = $this->seat_model->get_seat($seat, 'committee');
+			}
+			
+			$documents = $this->document_model->get_committee_documents($committee);
+		}
+		else
+		{
+			$documents = $this->document_model->get_document_ids();
+		}
+		
+		if(!$documents)
+		{
+			$this->ui->alert('无文件可供下载。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
+		$organization = option('organization', 'iPlacard');
+		
+		//导入文件
+		foreach($documents as $document_id)
+		{
+			$document = $this->document_model->get_document($document_id);
+
+			//可用性检查
+			$file = $this->document_model->get_file($document['file']);
+			if(!$file)
+			{
+				$this->ui->alert('请求下载的文件不存在。', 'danger', true);
+				back_redirect();
+				return;
+			}
+
+			//读取文件内容
+			$data = read_file("{$this->path}{$file['id']}.{$file['filetype']}");
+
+			if(empty($data) || sha1($data) != $file['hash'])
+			{
+				$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
+				back_redirect();
+				return;
+			}
+
+			//版权标识
+			list($data, $drm) = $this->_drm($data, $file['filetype']);
+
+			$this->document_model->add_download($file['id'], uid(), $drm);
+
+			//文件名
+			if(!empty($file['version']))
+				$filename = "{$organization}-{$document['title']}-{$file['version']}.{$file['filetype']}";
+			else
+				$filename = "{$organization}-{$document['title']}-{$file['id']}.{$file['filetype']}";
+			
+			//将文件加入到归档
+			$this->zip->add_data($filename, $data);
+		}
+		
+		//弹出下载
+		$time = date('Y-m-d-H-i-s');
+		$this->zip->download("{$organization}-{$time}.zip");
+	}
 
 	/**
 	 * AJAX
