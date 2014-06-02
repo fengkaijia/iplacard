@@ -524,7 +524,12 @@ class UI
 		if($this->CI->admin_model->capable('bureaucrat'))
 		{
 			$this->add_sub_menu('user_manage', 'manage', '用户', 'user/manage');
-			$this->add_sub_menu('user_add', 'manage', '添加用户', 'user/edit');
+			$this->add_sub_menu('user_add', 'manage', '添加用户', 'user/edit', true);
+		}
+		
+		if($this->CI->admin_model->capable('administrator'))
+		{
+			$this->add_sub_menu('broadcast', 'manage', '群发信息', 'admin/broadcast/email');
 		}
 	}
 	
