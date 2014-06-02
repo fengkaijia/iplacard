@@ -699,6 +699,65 @@ class Apply extends CI_Controller
 	}
 	
 	/**
+	 * 文件
+	 */
+	function document()
+	{
+		$this->load->model('document_model');
+		$this->load->helper('form');
+		$this->load->helper('file');
+		$this->load->helper('number');
+		
+		//仅允许访问全局分发文件
+		$committee_id = 0;
+
+		//代表可访问委员会文件
+		if($this->delegate['application_type'] == 'delegate')
+		{
+			$this->load->model('committee_model');
+			$this->load->model('seat_model');
+
+			$seat = $this->seat_model->get_delegate_seat($this->uid);
+			if($seat)
+			{
+				$committee_id = $this->seat_model->get_seat($seat, 'committee');
+				
+				$committee = $this->committee_model->get_committee($committee_id);
+				$vars['committee'] = $committee;
+			}
+		}
+
+		//所有可显示的文件
+		$document_ids = $this->document_model->get_committee_documents($committee_id);
+		if(!$document_ids)
+		{
+			$this->ui->alert('无文件可供访问。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
+		$vars['count'] = count($document_ids);
+		
+		$documents = array();
+		
+		//导入文件
+		foreach($document_ids as $document_id)
+		{
+			$document = $this->document_model->get_document($document_id);
+			$document['file'] = $this->document_model->get_file($document['file']);
+			$document['downloaded'] = $this->document_model->is_user_downloaded($this->uid, $document_id, 'document');
+			
+			$documents[] = $document;
+		}
+		
+		$vars['documents'] = $documents;
+		
+		$this->ui->now('document');
+		$this->ui->title('文件');
+		$this->load->view('delegate/document', $vars);
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = '')

@@ -65,7 +65,11 @@ class Document_model extends CI_Model
 	 */
 	function get_committee_documents($committee)
 	{
-		$this->db->where('access', array($committee, 0));
+		if($committee != 0)
+			$this->db->where_in('access', array($committee, 0));
+		else
+			$this->db->where('access', 0);
+		
 		$query = $this->db->get('document_access');
 		
 		//如果无结果
