@@ -498,6 +498,9 @@ class Document extends CI_Controller
 			return;
 		}
 		
+		//等待下载窗口弹出
+		sleep(2);
+		
 		$organization = option('organization', 'iPlacard');
 		
 		//导入文件
