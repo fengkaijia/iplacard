@@ -571,7 +571,7 @@ class Admin extends CI_Controller
 			}
 		}
 		else
-			return false;
+			return array();
 
 		$ids = call_user_func_array(array($this->delegate_model, 'get_delegate_ids'), $args);
 		if(!$ids)
@@ -609,7 +609,7 @@ class Admin extends CI_Controller
 				return $all;
 		}
 		
-		return false;
+		return array();
 	}
 }
 
