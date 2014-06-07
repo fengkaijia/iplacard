@@ -449,6 +449,7 @@ class Document extends CI_Controller
 		if($this->agent->is_mobile())
 		{
 			//手机访问不强制弹出下载
+			$this->output->set_header('Content-Length: '.strlen($data), false);
 			$this->output->set_output($data);
 		}
 		else
