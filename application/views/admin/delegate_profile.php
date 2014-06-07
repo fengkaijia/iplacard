@@ -422,7 +422,7 @@ $this->load->view('header');?>
 								<th>席位状态</th>
 								<th>等级</th>
 								<th>分配代表</th>
-								<th>可分配情况</th>
+								<th>分配情况</th>
 								<th>操作</th>
 							</tr>
 						</thead>
@@ -494,7 +494,7 @@ $(document).ready(function() {
 	$('#seat_list').dataTable( {
 		"aoColumnDefs": [
 			{ "bSortable": false, "aTargets": [ 0, 7 ] },
-			{ "bVisible": false, "aTargets": [ 5, 6 ] }
+			{ "bVisible": false, "aTargets": [ 5 ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,
