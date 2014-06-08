@@ -114,7 +114,7 @@ $this->load->view('header');?>
 				<br />
 				<p style="margin-bottom: 4px; margin-left: 104px;"><strong>联系方式</strong> <?php echo anchor('account/settings/home', icon('edit', false));?></p>
 				<p style="margin-bottom: 4px; margin-left: 104px;"><?php echo icon('envelope-o').$delegate['email'];?></p>
-				<p style="margin-bottom: 4px; margin-left: 104px;"><?php echo icon('user').$delegate['phone'];?></p>
+				<p style="margin-bottom: 4px; margin-left: 104px;"><?php echo icon('phone').$delegate['phone'];?></p>
 			</div>
 		</div>
 	</div>
