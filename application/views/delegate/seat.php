@@ -128,7 +128,11 @@ $this->load->view('header');?>
 							<td>委员会</td>
 							<td><?php echo "{$attached_primary['committee']['name']}（{$attached_primary['committee']['abbr']}）";?></td>
 						</tr>
-						<?php if(!empty($attached_primary['delegate'])) { ?><tr>
+						<?php if($attached_primary['id'] == $seat['id']) { ?><tr>
+							<td>状态</td>
+							<td>主席位为您的席位</td>
+						</tr><?php }
+						elseif(!empty($attached_primary['delegate'])) { ?><tr>
 							<td>代表</td>
 							<td><?php echo icon('user').$attached_primary['delegate']['name'];?></td>
 						</tr>
@@ -158,7 +162,7 @@ $this->load->view('header');?>
 						</tr><?php }
 						if($attached_seat['id'] == $seat['id']) { ?><tr>
 							<td>状态</td>
-							<td>您的席位</td>
+							<td>此席位为您的席位</td>
 						</tr><?php }
 						elseif(!empty($attached_seat['delegate'])) { ?><tr>
 							<td>代表</td>
