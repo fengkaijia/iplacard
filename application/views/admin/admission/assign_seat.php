@@ -27,7 +27,7 @@
 			$('select[name="recommended_backorder[]"]').append($('<option data-subtext="' + $('#seat-' + id).children().eq(2).html() + '"></option>').val($('#seat-' + id).children().eq(0).html()).html($('#seat-' + id).children().eq(1).html()));
 			$('<input>').attr('type','hidden').attr('name', 'seat_backorder[]').val(id).appendTo('#seat_form');		
 		}
-		$('#seat-' + id).children().eq(5).html('<a onclick="remove_seat(' + id + ');"><?php echo icon('minus-square', false);?>移除</a>');
+		$('#seat-' + id).children().eq(6).html('<a onclick="remove_seat(' + id + ');"><?php echo icon('minus-square', false);?>移除</a>');
 		
 		$('.selectpicker').selectpicker('refresh');
 	}
@@ -37,7 +37,7 @@
 		$('select[name="recommended_backorder[]"]').find('[value=' + id + ']').remove();
 		$('input[value=' + id + ']').remove();
 		
-		$('#seat-' + id).children().eq(5).html('<a onclick="add_seat(' + id + ', true);"><?php echo icon('plus-square', false);?>主项</a> <a onclick="add_seat(' + id + ', false);"><?php echo icon('plus-square-o', false);?>候选</a>');
+		$('#seat-' + id).children().eq(6).html('<a onclick="add_seat(' + id + ', true);"><?php echo icon('plus-square', false);?>主项</a> <a onclick="add_seat(' + id + ', false);"><?php echo icon('plus-square-o', false);?>候选</a>');
 		
 		$('.selectpicker').selectpicker('refresh');
 	}
