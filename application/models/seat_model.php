@@ -93,7 +93,7 @@ class Seat_model extends CI_Model
 			return $attach;
 		
 		//有席位且包含主席位
-		return array($id) + $attach;
+		return array_merge(array($id), $attach);
 	}
 	
 	/**
