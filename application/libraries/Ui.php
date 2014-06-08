@@ -585,7 +585,7 @@ class UI
 		$committee = 0;
 		if($application == 'delegate')
 		{
-			$seat = $this->CI->seat_model->get_delegate_seat($this->uid);
+			$seat = $this->CI->seat_model->get_delegate_seat(uid());
 			if($seat)
 				$committee = $this->CI->seat_model->get_seat($seat, 'committee');
 		}
