@@ -38,6 +38,7 @@ $this->load->view('header');?>
 		if(!empty($seat)) { ?><div class="col-md-4 menu-tabs">
 			<ul class="nav nav-tabs nav-menu">
 				<li class="active"><a href="#seat" data-toggle="tab">我的席位</a></li>
+				<?php if(!empty($attached_seats)) { ?><li id="attach_tab"><a href="#attach" data-toggle="tab">多代信息</a></li><?php } ?>
 				<li id="select_tab"><a href="#select" data-toggle="tab">席位选择</a></li>
 			</ul>
 		</div><?php } ?>
@@ -73,6 +74,10 @@ $this->load->view('header');?>
 					</tbody>
 				</table>
 				
+				<?php if(!empty($attached_seats)) { ?><p>当前席位为多代席位，您可以查看与您共同代表该席位的代表信息。</p>
+				<a id="seat_change_start" href="#attach" data-toggle="tab" class="btn btn-primary" onclick="$('.nav-menu li').removeClass('active'); $('#attach_tab').addClass('active');">查看席位多代信息</a><?php
+				} ?>
+				
 				<?php if(!empty($backorders)) { ?>
 				<hr />
 				
@@ -88,12 +93,9 @@ $this->load->view('header');?>
 					</thead>
 
 					<tbody>
-						<?php foreach($backorders as $backorder)
-						{
-							$seat = $backorder['seat'];
-							?><tr>
-							<td><?php echo flag($seat['iso'], true).$seat['name'];?></td>
-							<td><?php echo $seat['committee']['name'];?></td>
+						<?php foreach($backorders as $backorder) { ?><tr>
+							<td><?php echo flag($backorder['seat']['iso'], true).$backorder['seat']['name'];?></td>
+							<td><?php echo $backorder['seat']['committee']['name'];?></td>
 							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日', $backorder['order_time']), nicetime($backorder['order_time']));?></td>
 						</tr><?php } ?>
 					</tbody>
@@ -109,6 +111,78 @@ $this->load->view('header');?>
 					$this->ui->js('footer', "$('#seat_change_lock').popover();");
 					if($delegate['status'] == 'locked') { ?><a id="seat_change_lock" data-original-title="无法选择席位" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="您锁定席位，无法调整席位。" title="">调整席位</a><?php }
 				} else { ?><a id="seat_change_start" href="#select" data-toggle="tab" class="btn btn-primary" onclick="$('.nav-menu li').removeClass('active'); $('#select_tab').addClass('active');">调整席位</a><?php } ?>
+			</div>
+		</div><?php } ?>
+		
+		<?php if(!empty($attached_seats)) { ?>
+		<div class="tab-pane" id="attach">
+			<div class="col-md-8">
+				<h3>主席位</h3>
+				<table class="table table-bordered table-striped table-hover flags-16">
+					<tbody>
+						<tr>
+							<td class="attach_item">席位名称</td>
+							<td><?php echo flag($attached_primary['iso']).$attached_primary['name'];?></td>
+						</tr>
+						<tr>
+							<td>委员会</td>
+							<td><?php echo "{$attached_primary['committee']['name']}（{$attached_primary['committee']['abbr']}）";?></td>
+						</tr>
+						<?php if(!empty($attached_primary['delegate'])) { ?><tr>
+							<td>代表</td>
+							<td><?php echo icon('user').$attached_primary['delegate']['name'];?></td>
+						</tr>
+						<tr>
+							<td>代表邮箱</td>
+							<td><?php echo icon('envelope-o').$attached_primary['delegate']['email'];?></td>
+						</tr><?php } else { ?><tr>
+							<td>状态</td>
+							<td>席位尚未被分配</td>
+						</tr><?php } ?>
+					</tbody>
+				</table>
+				
+				<hr />
+				
+				<h3>子席位</h3>
+				<?php foreach($attached_seats as $attached_seat) { ?>
+				<table class="table table-bordered table-striped table-hover flags-16">
+					<tbody>
+						<tr>
+							<td class="attach_item">席位名称</td>
+							<td><?php echo flag($attached_seat['iso']).$attached_seat['name'];?></td>
+						</tr>
+						<?php if($attached_seat['committee']['id'] != $attached_primary['committee']['id']) { ?><tr>
+							<td>委员会</td>
+							<td><?php echo "{$attached_seat['committee']['name']}（{$attached_seat['committee']['abbr']}）";?></td>
+						</tr><?php }
+						if($attached_seat['id'] == $seat['id']) { ?><tr>
+							<td>状态</td>
+							<td>您的席位</td>
+						</tr><?php }
+						elseif(!empty($attached_seat['delegate'])) { ?><tr>
+							<td>代表</td>
+							<td><?php echo icon('user').$attached_seat['delegate']['name'];?></td>
+						</tr>
+						<tr>
+							<td>代表邮箱</td>
+							<td><?php echo icon('envelope-o').$attached_seat['delegate']['email'];?></td>
+						</tr><?php } else { ?><tr>
+							<td>状态</td>
+							<td>席位尚未被分配</td>
+						</tr><?php } ?>
+					</tbody>
+				</table>
+				
+				<br />
+				<?php } ?>
+			</div>
+			
+			<div class="col-md-4">
+				<h3>多代席位</h3>
+				<p>您选择的席位为多代席位，本页显示与您合作代表该席位的代表。</p>
+				<p>在显示的信息中，主席位和子席位可能存在等级关系，同时也可能没有区别（例如处理双代席位的情况）。部分尚无代表的席位将会提示尚未分配，随着代表录取和席位滚动的进行，多代信息的名单将会随时变化。</p>
+				<p>我们建议使用提供的电邮地址联系您的合作伙伴。</p>
 			</div>
 		</div><?php } ?>
 		
@@ -224,6 +298,23 @@ $this->load->view('header');?>
 </div>
 
 <?php
+//多代席位宽度
+$width_js = <<<EOT
+$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+	var lowest = Infinity;
+	
+	$('.attach_item').each(function() {
+		if($(this).width() < lowest) {
+			lowest = $(this).width();
+		}
+	});
+	
+	$('.attach_item').width(lowest);
+});
+EOT;
+if(!empty($attached_seats))
+	$this->ui->js('footer', $width_js);
+
 $selectability_js = <<<EOT
 $(document).ready(function() {
 	$('#selectability_list').dataTable( {

@@ -538,13 +538,47 @@ class Apply extends CI_Controller
 		
 		//席位和候选信息
 		$seat = array();
+		$attached_seats = array();
+		$attached_primary = array();
+		
 		$seat_id = $this->seat_model->get_delegate_seat($this->uid);
 		if($seat_id)
 		{
 			$seat = $this->seat_model->get_seat($seat_id);
 			$seat['committee'] = $this->committee_model->get_committee($seat['committee']);
+			
+			//多代席位
+			if(!$this->seat_model->is_single_seat($seat_id))
+			{
+				//确认席位类型
+				if(!empty($seat['primary']))
+					$primary_id = $seat['primary'];
+				else
+					$primary_id = $seat_id;
+
+				$vars['attached_primary_id'] = $primary_id;
+
+				//席位信息
+				$attached_ids = $this->seat_model->get_attached_seat_ids($primary_id, true);
+				foreach($attached_ids as $attached_id)
+				{
+					$attached_seat = $this->seat_model->get_seat($attached_id);
+					$attached_seat['committee'] = $this->committee_model->get_committee($attached_seat['committee']);
+
+					if(!empty($attached_seat['delegate']))
+						$attached_seat['delegate'] = $this->delegate_model->get_delegate($attached_seat['delegate']);
+
+					if($attached_id == $primary_id)
+						$attached_primary = $attached_seat;
+					else
+						$attached_seats[] = $attached_seat;
+				}
+			}
 		}
+		
 		$vars['seat'] = $seat;
+		$vars['attached_seats'] = $attached_seats;
+		$vars['attached_primary'] = $attached_primary;
 		
 		//席位是否可调整
 		$change_open = false;
