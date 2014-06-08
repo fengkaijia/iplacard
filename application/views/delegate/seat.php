@@ -72,10 +72,10 @@ $this->load->view('header');?>
 						</tr>
 					</tbody>
 				</table>
-
-				<hr />
-
+				
 				<?php if(!empty($backorders)) { ?>
+				<hr />
+				
 				<h3>席位候选</h3>
 				<p>您已候选了以下席位，在锁定席位前，您有可能被调整为以下席位。</p>
 				<table id="backorder_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
