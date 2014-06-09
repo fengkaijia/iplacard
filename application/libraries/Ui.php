@@ -424,7 +424,7 @@ class UI
 			$this->add_sub_menu('delegate', 'delegate', '代表', 'delegate/manage?type=delegate');
 			$this->add_sub_menu('observer', 'delegate', '观察员', 'delegate/manage?type=observer');
 			$this->add_sub_menu('volunteer', 'delegate', '志愿者', 'delegate/manage?type=volunteer');
-			$this->add_sub_menu('teacher', 'delegate', '领队老师', 'delegate/manage?type=teacher', true);
+			$this->add_sub_menu('teacher', 'delegate', '指导老师', 'delegate/manage?type=teacher', true);
 		}
 		
 		if($this->CI->admin_model->capable('dais'))
