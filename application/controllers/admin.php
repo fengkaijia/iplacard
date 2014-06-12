@@ -55,6 +55,7 @@ class Admin extends CI_Controller
 			'dashboard' => array(icon('dashboard').'控制板', '#ui-dashboard', '', true, true),
 			'task' => array(icon('tasks').'待办事项', '#ui-task', '', true),
 			'spdy' => array(icon('bolt').'快速访问', '#ui-spdy', '', true),
+			'stat' => array(icon('bar-chart-o').'统计', '#ui-stat', 'administrator', true),
 			'news' => array(icon('globe').'新闻', '#ui-news', '', true, false, true),
 			
 			'delegate' => array(icon('user').'代表管理', 'delegate/manage', 'administrator'),
@@ -239,6 +240,22 @@ class Admin extends CI_Controller
 		}
 		
 		$vars['feed_enable'] = $feed_enable;
+		
+		//统计
+		$stat_enable = false;
+		
+		if($this->admin_model->capable('administrator'))
+		{
+			foreach(array('application_increment') as $type)
+			{
+				$option = $this->_get_chart_option($type);
+				$this->ui->js('footer', "var chart_option_{$type} = {$option};");
+			}
+			
+			$stat_enable = true;
+		}
+		
+		$vars['stat_enable'] = $stat_enable;
 		
 		$this->ui->sidebar($sidebar);
 		$this->ui->title('控制板');
@@ -498,6 +515,99 @@ class Admin extends CI_Controller
 			
 			$json['html'] = $html;
 		}
+		elseif($action == 'stat')
+		{
+			//访问检查
+			$chart = $this->input->get('chart');
+			if(empty($chart))
+				return;
+			
+			if(!$this->admin_model->capable('administrator'))
+				return;
+			
+			$chart_category = array();
+			$chart_legend = array();
+			$chart_data = array();
+			
+			switch($chart)
+			{
+				case 'application_increment':
+					$this->load->model('delegate_model');
+					
+					$imported_ids = $this->delegate_model->get_event_ids('event', 'application_imported');
+					if($imported_ids)
+					{
+						$stat = array();
+						$first_week = strtotime('Monday this week');
+						
+						//导入记录
+						foreach($imported_ids as $imported_id)
+						{
+							$event = $this->delegate_model->get_event($imported_id);
+
+							$week = strtotime('Monday this week', $event['time']);
+							if(!$week)
+								continue;
+
+							if($week < $first_week)
+								$first_week = $week;
+							
+							$application_type = $this->delegate_model->get_delegate($event['delegate'], 'application_type');
+							if(isset($stat[$week][$application_type]))
+								$stat[$week][$application_type]++;
+							else
+								$stat[$week][$application_type] = 1;
+						}
+						
+						//退会记录
+						$quitted_ids = $this->delegate_model->get_event_ids('event', 'quitted');
+
+						if($quitted_ids)
+						{
+							foreach($quitted_ids as $quitted_id)
+							{
+								$event = $this->delegate_model->get_event($quitted_id);
+
+								$week = strtotime('Monday this week', $event['time']);
+								if(!$week)
+									continue;
+
+								$application_type = $this->delegate_model->get_delegate($event['delegate'], 'application_type');
+								if(isset($stat[$week][$application_type]))
+									$stat[$week][$application_type]--;
+								else
+									$stat[$week][$application_type] = -1;
+							}
+						}
+						
+						//确定第一周
+						if($first_week < strtotime('Monday this week') - 10 * 7 * 24 * 60 * 60)
+							$first_week = strtotime('Monday this week') - 10 * 7 * 24 * 60 * 60;
+						
+						//处理记录
+						for($i = $first_week; $i <= strtotime('Monday this week'); $i += 7 * 24 * 60 * 60)
+						{
+							$chart_category[] = date('m/d', $i);
+
+							foreach(array('delegate', 'observer', 'volunteer', 'teacher') as $application_type)
+							{
+								if(isset($stat[$i][$application_type]))
+									$chart_data[$application_type][] = $stat[$i][$application_type];
+								else
+									$chart_data[$application_type][] = 0;
+							}
+						}
+					}
+					else
+						return;
+					
+					break;
+			}
+			
+			$json['category'] = $chart_category;
+			$json['legend'] = $chart_legend;
+			$json['series'] = $chart_data;
+		}
 		
 		echo json_encode($json);
 	}
@@ -509,6 +619,79 @@ class Admin extends CI_Controller
 	{
 		$this->task[$item] = $count;
 		$this->has_task = true;
+	}
+	
+	/**
+	 * 获取统计图属性
+	 */
+	private function _get_chart_option($type)
+	{
+		switch($type)
+		{
+			case 'application_increment':
+				$data_string = array();
+				
+				foreach(array('代表', '观察员', '志愿者', '指导老师') as $application_name)
+				{
+					$one_string = "{
+						name: '{$application_name}',
+						type: 'line',
+						data: [],
+						markPoint: {
+							data: [
+								{
+									type: 'max',
+									name: '周最大{$application_name}增值'
+								},
+								{
+									type: 'min',
+									name: '周最小{$application_name}增值'
+								}
+							]
+						}";
+					
+					if($application_name == '代表')
+					{
+						$one_string .= ",
+							markLine: {
+								data: [
+									{
+										type: 'average',
+										name: '周平均{$application_name}增值'
+									}
+								]
+							}";
+					}
+					
+					$one_string .= '}';
+									
+					$data_string[] = $one_string;
+				}
+
+				return "{
+					legend: {
+						y: 'bottom',
+						data: ['代表', '观察员', '志愿者', '指导老师']
+					},
+					xAxis: [
+						{
+							type: 'category',
+							boundaryGap: false,
+							data: []
+						}
+					],
+					yAxis: [
+						{
+							axisLabel: { show: false },
+						}
+					],
+					series: [
+						".join(',', $data_string)."
+					]
+				}";
+		}
+		
+		return '';
 	}
 	
 	/**
