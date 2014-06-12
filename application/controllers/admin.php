@@ -581,8 +581,8 @@ class Admin extends CI_Controller
 						}
 						
 						//确定第一周
-						if($first_week < strtotime('Monday this week') - 10 * 7 * 24 * 60 * 60)
-							$first_week = strtotime('Monday this week') - 10 * 7 * 24 * 60 * 60;
+						if($first_week < strtotime('Monday this week') - 8 * 7 * 24 * 60 * 60)
+							$first_week = strtotime('Monday this week') - 8 * 7 * 24 * 60 * 60;
 						
 						//处理记录
 						for($i = $first_week; $i <= strtotime('Monday this week'); $i += 7 * 24 * 60 * 60)
