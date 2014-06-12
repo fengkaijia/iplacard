@@ -246,7 +246,11 @@ class Admin extends CI_Controller
 		
 		if($this->admin_model->capable('administrator'))
 		{
-			foreach(array('application_increment', 'application_status') as $type)
+			//面试分布图
+			$interview_type = count(option('interview_score_standard', array())) == 2 ? '2d' : '3d';
+			$vars['stat_interview'] = $interview_type;
+			
+			foreach(array('application_increment', 'application_status', "interview_{$interview_type}") as $type)
 			{
 				$option = $this->_get_chart_option($type);
 				$this->ui->js('footer', "var chart_option_{$type} = {$option};");
@@ -655,6 +659,61 @@ class Admin extends CI_Controller
 					}
 					else
 						return;
+					
+					break;
+					
+				case 'interview_2d':
+					$this->load->model('interview_model');
+					
+					$score_standard = option('interview_score_standard', array());
+					if(count($score_standard) != 2)
+						break;
+					
+					$types = array();
+					foreach($score_standard as $type => $item)
+					{
+						$types[] = $type;
+					}
+					
+					$interview_ids = $this->interview_model->get_interview_ids('score IS NOT NULL', NULL);
+					if($interview_ids)
+					{
+						$stat = array();
+						
+						//统计数据
+						foreach($interview_ids as $interview_id)
+						{
+							$interview = $this->interview_model->get_interview($interview_id);
+							
+							if(!isset($interview['feedback']['score']))
+								continue;
+							
+							$score = $interview['feedback']['score'];
+							
+							$result = $interview['status'] == 'failed' ? 'failed' : 'passed';
+							
+							if(isset($stat[$result][$score[$types[0]]][$score[$types[1]]]))
+								$stat[$result][$score[$types[0]]][$score[$types[1]]]++;
+							else
+								$stat[$result][$score[$types[0]]][$score[$types[1]]] = 1;
+						}
+						
+						//处理记录
+						foreach(array('failed', 'passed') as $result)
+						{
+							foreach($stat[$result] as $type_0 => $item_0)
+							{
+								foreach($item_0 as $type_1 => $count)
+								{
+									$chart_data[$result][] = array($type_0, $type_1, $count);
+								}
+							}
+						}
+					}
+					else
+						return;
+					
+					break;
 			}
 			
 			$json['category'] = $chart_category;
@@ -779,7 +838,78 @@ class Admin extends CI_Controller
 							data: []
 						}
 					]
-				};";
+				}";
+			
+			case 'interview_2d':
+				$score_standard = option('interview_score_standard', array());
+				if(count($score_standard) != 2)
+					break;
+				
+				$names = array();
+				foreach($score_standard as $type => $item)
+				{
+					$names[] = $item['name'];
+				}
+				
+				$this->load->model('interview_model');
+				$interview_ids = $this->interview_model->get_interview_ids('score IS NOT NULL', NULL);
+				if(!$interview_ids)
+					break;
+				
+				$pow = pow((1000 / count($interview_ids)), 1.6);
+				
+				return "{
+					tooltip: {
+						trigger: 'item',
+						formatter : function(value) {
+							return value[0] + '<br />'
+								+ '{$names[0]} ' + value[2][0] + ' / '
+								+ '{$names[1]} ' + value[2][1] + '<br />'
+								+ value[2][2] + ' 人';
+						}
+					},
+					legend: {
+						padding: [20, 5, 5, 5],
+						data: ['未过面试', '通过面试']
+					},
+					xAxis: [
+						{
+							type: 'value',
+							power: 1,
+							scale: true,
+							name: '{$names[0]}'
+						}
+					],
+					yAxis : [
+						{
+							type : 'value',
+							power: 1,
+							scale: true,
+							name: '{$names[1]}',
+							splitArea: { show: true }
+						}
+					],
+					series : [
+						{
+							name: '未过面试',
+							type: 'scatter',
+							symbol: 'circle',
+							symbolSize: function(value) {
+								return Math.pow(value[2], 1/1.6) * {$pow} + 1
+							},
+							data: []
+						},
+						{
+							name: '通过面试',
+							type: 'scatter',
+							symbol: 'circle',
+							symbolSize: function(value) {
+								return Math.pow(value[2], 1/1.6) * {$pow} + 1
+							},
+							data: []
+						}
+					]
+				}";
 		}
 		
 		return '';

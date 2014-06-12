@@ -174,6 +174,7 @@ $this->load->view('header');?>
 						<ul class="dropdown-menu">
 							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('周代表增量统计'); draw_chart('application_increment');">周代表增量统计</a></li>
 							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('申请状态分布统计'); draw_chart('application_status');">申请状态分布统计</a></li>
+							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('面试评分分布统计'); draw_chart('interview_<?php echo $stat_interview;?>');">面试评分分布统计</a></li>
 						</ul>
 					</span>
 				</h3>
@@ -224,6 +225,17 @@ $this->load->view('header');?>
 									
 									chart_option.legend.data = result.legend;
 									chart_option.series[0].data = result.series;
+									break;
+									
+								case 'interview_2d':
+									chart_option = chart_option_interview_2d;
+
+									chart_option.series[0].data = result.series['failed'];
+									chart_option.series[1].data = result.series['passed'];
+									
+									$('#stat_chart').css({'height': '400px'});
+									$('#stat_body').css({'padding': '0'});
+									stat = echarts.init(document.getElementById('stat_chart'));
 									break;
 							}
 							
