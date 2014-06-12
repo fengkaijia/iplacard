@@ -669,6 +669,9 @@ class Admin extends CI_Controller
 				}
 
 				return "{
+					tooltip: {
+						trigger: 'axis'
+					},
 					legend: {
 						y: 'bottom',
 						data: ['代表', '观察员', '志愿者', '指导老师']
