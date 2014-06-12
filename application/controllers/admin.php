@@ -246,7 +246,7 @@ class Admin extends CI_Controller
 		
 		if($this->admin_model->capable('administrator'))
 		{
-			foreach(array('application_increment') as $type)
+			foreach(array('application_increment', 'application_status') as $type)
 			{
 				$option = $this->_get_chart_option($type);
 				$this->ui->js('footer', "var chart_option_{$type} = {$option};");
@@ -602,6 +602,59 @@ class Admin extends CI_Controller
 						return;
 					
 					break;
+					
+				case 'application_status':
+					$this->load->model('delegate_model');
+					
+					$ids = $this->delegate_model->get_delegate_ids('status !=', 'quitted');
+					if($ids)
+					{
+						$stat = array();
+						
+						//统计数据
+						foreach($ids as $id)
+						{
+							$status = $this->delegate_model->get_delegate($id, 'status');
+
+							if(isset($stat[$status]))
+								$stat[$status]++;
+							else
+								$stat[$status] = 1;
+						}
+						
+						//从高到底排序
+						arsort($stat);
+						
+						//处理记录
+						$left = count($ids);
+						$min = 0.05 * count($ids);
+						
+						foreach($stat as $status => $count)
+						{
+							if($left <= $min)
+							{
+								$chart_legend[] = '其他';
+								$chart_data[] = array(
+									'value' => $left,
+									'name' => '其他'
+								);
+								
+								break;
+							}
+							
+							$status_name = $this->delegate_model->status_text($status);
+							
+							$chart_legend[] = $status_name;
+							$chart_data[] = array(
+								'value' => $count,
+								'name' => $status_name
+							);
+							
+							$left -= $count;
+						}
+					}
+					else
+						return;
 			}
 			
 			$json['category'] = $chart_category;
@@ -692,6 +745,41 @@ class Admin extends CI_Controller
 						".join(',', $data_string)."
 					]
 				}";
+				
+			case 'application_status':
+				return "{
+					tooltip: {
+						trigger: 'item',
+						formatter: \"{b}：{c} ({d}%)\"
+					},
+					legend: {
+						orient: 'vertical',
+						x: 'right',
+						y: 'center',
+						data: []
+					},
+					calculable: true,
+					series: [
+						{
+							name: '申请状态',
+							type: 'pie',
+							radius: ['50%', '70%'],
+							itemStyle: {
+								emphasis: {
+									label: {
+										show: true,
+										position: 'center',
+										textStyle: {
+											fontSize: '20',
+											fontWeight: 'bold'
+										}
+									}
+								}
+							},
+							data: []
+						}
+					]
+				};";
 		}
 		
 		return '';

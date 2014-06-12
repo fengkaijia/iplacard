@@ -173,18 +173,20 @@ $this->load->view('header');?>
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" style="color: inherit;"><span id="stat_name">统计</span> <b class="caret"></b></a>
 						<ul class="dropdown-menu">
 							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('周代表增量统计'); draw_chart('application_increment');">周代表增量统计</a></li>
+							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('申请状态分布统计'); draw_chart('application_status');">申请状态分布统计</a></li>
 						</ul>
 					</span>
 				</h3>
 			</div>
-			<div class="panel-body" style="padding: 15px 0 15px 0;">
+			<div id="stat_body" class="panel-body">
 				<div id="stat_chart"></div>
 			</div>
 		</div><?php
 			$chart_url = base_url('admin/ajax/stat');
 			$chart_js = "function draw_chart(type) {
-				$('#stat_chart').css({'height': '350px'});
-				$('#stat_chart').css({'margin': '-40px -40px 0'});
+				$('#stat_body').css({'padding': '15px'});
+				$('#stat_chart').css({'height': '300px'});
+				$('#stat_chart').css({'margin': '0'});
 				
 				var stat = echarts.init(document.getElementById('stat_chart'));
 				var chart_option;
@@ -200,6 +202,8 @@ $this->load->view('header');?>
 					dataType: 'json',
 					success: function( result ) {
 						if(result) {
+							$('#stat_body').css({'padding': '15px 0 15px 0'});
+							
 							switch(type) {
 								case 'application_increment':
 									chart_option = chart_option_application_increment;
@@ -209,6 +213,17 @@ $this->load->view('header');?>
 									chart_option.series[1].data = result.series['observer'];
 									chart_option.series[2].data = result.series['volunteer'];
 									chart_option.series[3].data = result.series['teacher'];
+									
+									$('#stat_chart').css({'height': '350px'});
+									$('#stat_chart').css({'margin': '-40px -40px 0'});
+									stat = echarts.init(document.getElementById('stat_chart'));
+									break;
+									
+								case 'application_status':
+									chart_option = chart_option_application_status;
+									
+									chart_option.legend.data = result.legend;
+									chart_option.series[0].data = result.series;
 									break;
 							}
 							
@@ -216,13 +231,11 @@ $this->load->view('header');?>
 							stat.setOption(chart_option);
 						} else {
 							$('#stat_chart').css({'height': 'auto'});
-							$('#stat_chart').css({'margin': '0'});
 							$('#stat_chart').html('无可用数据');
 						}
 					},
 					error: function ( error ) {
 						$('#stat_chart').css({'height': 'auto'});
-						$('#stat_chart').css({'margin': '0'});
 						$('#stat_chart').html('载入数据失败');
 					}
 				});
