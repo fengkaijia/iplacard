@@ -78,7 +78,7 @@ class Admin extends CI_Controller
 		else
 			$vars['welcome'] = false;
 		
-		//统计
+		//控制板统计
 		
 		//代表数量
 		$this->load->model('delegate_model');
