@@ -5,7 +5,17 @@
 	
 	<footer id="footer" class="<?php echo $this->ui->show_sidebar ? 'container col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2' : 'container';?>">
 		<hr />
-		<?php if($this->ui->is_backend()) { ?><p class="pull-right"><a href="#">返回顶部</a></p><?php } ?>
+		<p class="pull-right">
+			<?php
+			if($this->ui->is_backend() || $this->ui->is_frontend())
+			{
+				foreach(array('rss', 'renren', 'weibo', 'wechat', 'qq', 'github', 'twitter', 'facebook', 'google-plus') as $social)
+				{
+					$link = option("link_{$social}", false);
+					if($link)
+						echo anchor($link, icon($social, false), 'style="color: inherit;"').' ';
+				}
+			} ?></p>
 		&copy; 2008-<?php echo date('Y');?> <a href="http://imunc.com/">IMUNC</a>. All rights reserved.
 	</footer>
 	
