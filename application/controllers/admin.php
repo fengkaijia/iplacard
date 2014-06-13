@@ -60,7 +60,6 @@ class Admin extends CI_Controller
 			'delegate' => array(icon('user').'代表管理', 'delegate/manage', 'administrator'),
 			'interview' => array(icon('comments').'面试管理', 'interview/manage?interviewer=u', 'interviewer'),
 			'document' => array(icon('file').'文件管理', 'document/manage'),
-			'group' => array(icon('users').'代表团管理', 'group/manage', 'administrator'),
 			'billing' => array(icon('file-text').'账单管理', 'billing/manage', 'cashier'),
 			'seat' => array(icon('th-list').'席位管理', 'seat/manage', '', false, false, true),
 			
