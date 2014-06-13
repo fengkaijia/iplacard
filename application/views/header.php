@@ -29,7 +29,6 @@
 	if($background && ($this->ui->show_background || option('ui_background_global_enabled', false))) { ?><style type="text/css">
 		#wrap {
 			display: block;
-			position: relative;
 		}
 
 		#wrap::after {
