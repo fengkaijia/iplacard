@@ -250,7 +250,7 @@ class Admin extends CI_Controller
 			$interview_type = count(option('interview_score_standard', array())) == 2 ? '2d' : '3d';
 			$vars['stat_interview'] = $interview_type;
 			
-			foreach(array('application_increment', 'application_status', "interview_{$interview_type}") as $type)
+			foreach(array('application_increment', 'application_status', "interview_{$interview_type}", 'seat_status') as $type)
 			{
 				$option = $this->_get_chart_option($type);
 				$this->ui->js('footer', "var chart_option_{$type} = {$option};");
@@ -714,6 +714,74 @@ class Admin extends CI_Controller
 						return;
 					
 					break;
+					
+				case 'seat_status':
+					$this->load->model('seat_model');
+					$this->load->model('interview_model');
+					
+					$stat = array();
+					
+					//统计席位数据
+					$seat_ids = $this->seat_model->get_seat_ids();
+					if($seat_ids)
+					{
+						foreach($seat_ids as $seat_id)
+						{
+							$seat = $this->seat_model->get_seat($seat_id);
+							
+							$status = in_array($seat['status'], array('available', 'unavailable', 'preserved')) ? 'available' : 'assigned';
+							
+							if(isset($stat['seat'][$seat['level']][$status]))
+								$stat['seat'][$seat['level']][$status]++;
+							else
+								$stat['seat'][$seat['level']][$status] = 1;
+						}
+					}
+					else
+						return;
+					
+					//统计面试评分数据
+					$interview_ids = $this->interview_model->get_interview_ids('status', 'completed', 'score IS NOT NULL', NULL);
+					if($interview_ids)
+					{
+						foreach($interview_ids as $interview_id)
+						{
+							$score = $this->interview_model->get_interview($interview_id, 'score');
+							
+							if($score == 0 || empty($score))
+								$score = 1;
+							else
+								$score = round($score, 0, PHP_ROUND_HALF_DOWN);
+							
+							if(isset($stat['interview'][$score]))
+								$stat['interview'][$score]++;
+							else
+								$stat['interview'][$score] = 1;
+						}
+					}
+					
+					//处理记录
+					for($i = 1; $i <= option('score_total', 5); $i++)
+					{
+						$chart_category[] = "{$i} 级";
+
+						if(isset($stat['seat'][$i]['available']))
+							$chart_data['available'][$i - 1] = $stat['seat'][$i]['available'];
+						else
+							$chart_data['available'][$i - 1] = 0;
+
+						if(isset($stat['seat'][$i]['assigned']))
+							$chart_data['assigned'][$i - 1] = $stat['seat'][$i]['assigned'];
+						else
+							$chart_data['assigned'][$i - 1] = 0;
+
+						if(isset($stat['interview'][$i]))
+							$chart_data['interview'][$i - 1] = $stat['interview'][$i];
+						else
+							$chart_data['interview'][$i - 1] = 0;
+					}
+					
+					break;
 			}
 			
 			$json['category'] = $chart_category;
@@ -906,6 +974,54 @@ class Admin extends CI_Controller
 							symbolSize: function(value) {
 								return Math.pow(value[2], 1/1.6) * {$pow} + 1
 							},
+							data: []
+						}
+					]
+				}";
+				
+			case 'seat_status':
+				return "{
+					tooltip: {
+						trigger: 'axis'
+					},
+					calculable: true,
+					legend: {
+						y: 'bottom',
+						data: ['未分配席位', '已分配席位', '面试分数段人数']
+					},
+					xAxis: [
+						{
+							type: 'category',
+							data: []
+						}
+					],
+					yAxis : [
+						{
+							type: 'value',
+							name: '席位数',
+							splitArea: { show: true }
+						},
+						{
+							type: 'value',
+							name: '区间人数',
+							splitLine: { show: false }
+						}
+					],
+					series: [
+						{
+							name: '未分配席位',
+							type: 'bar',
+							data: []
+						},
+						{
+							name: '已分配席位',
+							type: 'bar',
+							data: []
+						},
+						{
+							name: '面试分数段人数',
+							type: 'line',
+							yAxisIndex: 1,
 							data: []
 						}
 					]

@@ -175,6 +175,7 @@ $this->load->view('header');?>
 							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('周代表增量统计'); draw_chart('application_increment');">周代表增量统计</a></li>
 							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('申请状态分布统计'); draw_chart('application_status');">申请状态分布统计</a></li>
 							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('面试评分分布统计'); draw_chart('interview_<?php echo $stat_interview;?>');">面试评分分布统计</a></li>
+							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('席位状态统计'); draw_chart('seat_status');">席位状态统计</a></li>
 						</ul>
 					</span>
 				</h3>
@@ -235,6 +236,19 @@ $this->load->view('header');?>
 									
 									$('#stat_chart').css({'height': '400px'});
 									$('#stat_body').css({'padding': '0'});
+									stat = echarts.init(document.getElementById('stat_chart'));
+									break;
+									
+								case 'seat_status':
+									chart_option = chart_option_seat_status;
+									
+									chart_option.xAxis[0].data = result.category;
+									chart_option.series[0].data = result.series['available'];
+									chart_option.series[1].data = result.series['assigned'];
+									chart_option.series[2].data = result.series['interview'];
+									
+									$('#stat_chart').css({'height': '350px'});
+									$('#stat_chart').css({'margin': '-40px -40px 0'});
 									stat = echarts.init(document.getElementById('stat_chart'));
 									break;
 							}
