@@ -26,7 +26,7 @@ $platforms = array(
 	'windows 95'		=> 'Windows 95',
 	'win95'				=> 'Windows 95',
 	'windows phone'			=> 'Windows Phone',
-	'windows'			=> 'Unknown Windows OS',
+	'windows'			=> 'Windows OS',
 	'android'			=> 'Android',
 	'blackberry'		=> 'BlackBerry',
 	'iphone'			=> 'iOS',
@@ -49,7 +49,7 @@ $platforms = array(
 	'bsdi'				=> 'BSDi',
 	'openbsd'			=> 'OpenBSD',
 	'gnu'				=> 'GNU/Linux',
-	'unix'				=> 'Unknown Unix OS',
+	'unix'				=> 'Unix OS',
 	'symbian' 			=> 'Symbian OS'
 );
 
