@@ -24,7 +24,7 @@ body {
 
 /* 边栏 */
 .sidebar {
-  display: none;
+	display: none;
 }
 @media (min-width: 768px) {
 	.sidebar {
