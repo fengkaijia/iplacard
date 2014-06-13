@@ -23,22 +23,41 @@
 					</thead>
 					<tbody><?php foreach($active as $one) { ?>
 						<tr>
-							<td><?php if(isset($one['current']) && $one['current'] == true) { ?><span class="label label-primary">本机</span><?php } ?>
-							<?php if($one['value']['type'] == 'desktop')
+							<td><?php
+							$device_name = $one['value']['type'] == 'desktop' ? '桌面设备' : '移动设备';
+							
+							if(!empty($one['value']['browser']) && !empty($one['value']['platform']))
 							{
-								if(!empty($one['value']['browser']))
-									echo "桌面版（使用{$one['value']['browser']}浏览器）";
+								$platform = false;
+								if(substr($one['value']['platform'], 0, 7) == 'Windows')
+									$platform = 'windows';
+								elseif(in_array($one['value']['platform'], array('Linux', 'Debian', 'GNU/Linux'))) //Go, go, go!
+									$platform = 'linux';
+								elseif(in_array($one['value']['platform'], array('iOS', 'Mac OS X', 'Power PC Mac', 'Macintosh')))
+									$platform = 'apple';
+								elseif($one['value']['platform'] == 'Android')
+									$platform = 'android';
+
+								if(!$platform)
+									$platform_icon = '';
 								else
-									echo "桌面版";
+									$platform_icon = icon($platform, false);
+								
+								echo icon($one['value']['type'])."{$device_name}（使用 {$platform_icon}{$one['value']['platform']} 操作系统的 {$one['value']['browser']} 浏览器）";
 							}
+							elseif(!empty($one['value']['browser']))
+								echo icon($one['value']['type'])."{$device_name}（使用 {$one['value']['browser']} 浏览器）";
 							else
-								echo "移动设备";
+								echo icon($one['value']['type'])."{$device_name}";
+							
+							if(isset($one['current']) && $one['current'] == true)
+								echo ' <span class="label label-primary">本机</span>';
 							?></td>
-							<td><?php $ip = hide_ip($one['value']['ip']);
-							if($one['value']['place'])
-								echo "{$one['value']['place']}（{$ip}）";
+							<td><?php
+							if($one['place'])
+								echo "{$one['place']}（{$one['ip']}）";
 							else
-								echo $ip;
+								echo $one['ip'];
 							?></td>
 							<td><?php echo date('n月j日 H:i', $one['time'])?>（<?php echo nicetime($one['time']);?>）</td>
 						</tr>

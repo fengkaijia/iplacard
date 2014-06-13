@@ -863,7 +863,8 @@ class Account extends CI_Controller
 					{
 						//仅显示数据
 						$data['last_activity'] = $session['last_activity'];
-						$data['value']['place'] = ip_lookup($data['value']['ip']);
+						$data['ip'] = hide_ip($data['value']['ip']);
+						$data['place'] = ip_lookup($data['value']['ip']);
 						
 						//是否是当前位置
 						if($session['session_id'] == $this->session->userdata('session_id'))
@@ -1676,7 +1677,8 @@ class Account extends CI_Controller
 				'ip' => $this->input->ip_address(),
 				'session' => $system_sess_id,
 				'type' => ($is_mobile) ? 'mobile' : 'desktop',
-				'browser' => ($is_mobile) ? $this->agent->mobile() : $this->agent->browser(),
+				'platform' => $this->agent->platform(),
+				'browser' => $this->agent->browser(),
 				'ua' => $this->agent->agent_string()
 			), $id);
 		}
