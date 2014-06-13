@@ -453,6 +453,32 @@ class Admin extends CI_Controller
 	}
 	
 	/**
+	 * 统计数据
+	 */
+	function stat()
+	{
+		//检查权限
+		if(!$this->admin_model->capable('administrator'))
+		{
+			redirect('');
+			return;
+		}
+		
+		//面试分布图
+		$interview_type = count(option('interview_score_standard', array())) == 2 ? '2d' : '3d';
+		$vars['stat_interview'] = $interview_type;
+
+		foreach(array('application_increment', 'application_status', "interview_{$interview_type}", 'seat_status') as $type)
+		{
+			$option = $this->_get_chart_option($type);
+			$this->ui->js('footer', "var chart_option_{$type} = {$option};");
+		}
+		
+		$this->ui->title('统计分析');
+		$this->load->view('admin/stat', $vars);
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = '')
