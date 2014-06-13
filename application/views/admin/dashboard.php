@@ -186,6 +186,7 @@ $this->load->view('header');?>
 		</div><?php
 			$chart_url = base_url('admin/ajax/stat');
 			$chart_js = "function draw_chart(type) {
+				$('#ui-stat').removeClass('panel-warning').addClass('panel-default');
 				$('#stat_body').css({'padding': '15px'});
 				$('#stat_chart').css({'height': '300px'});
 				$('#stat_chart').css({'margin': '0'});
@@ -256,13 +257,15 @@ $this->load->view('header');?>
 							stat.hideLoading();
 							stat.setOption(chart_option);
 						} else {
+							$('#ui-stat').removeClass('panel-default').addClass('panel-warning');
 							$('#stat_chart').css({'height': 'auto'});
-							$('#stat_chart').html('无可用数据');
+							$('#stat_chart').html('无可用数据。');
 						}
 					},
 					error: function ( error ) {
+						$('#ui-stat').removeClass('panel-default').addClass('panel-warning');
 						$('#stat_chart').css({'height': 'auto'});
-						$('#stat_chart').html('载入数据失败');
+						$('#stat_chart').html('载入数据失败。');
 					}
 				});
 			}
