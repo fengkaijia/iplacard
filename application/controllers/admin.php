@@ -529,264 +529,271 @@ class Admin extends CI_Controller
 			if(!$this->admin_model->capable('administrator'))
 				return;
 			
-			$chart_category = array();
-			$chart_legend = array();
-			$chart_data = array();
+			$this->load->driver('cache', array('adapter' => 'memcached', 'backup' => 'file'));
 			
-			switch($chart)
+			if(!$json = $this->cache->get(IP_INSTANCE_ID.'_stat_'.$chart))
 			{
-				case 'application_increment':
-					$this->load->model('delegate_model');
-					
-					$imported_ids = $this->delegate_model->get_event_ids('event', 'application_imported');
-					if($imported_ids)
-					{
-						$stat = array();
-						$first_week = strtotime('Monday this week');
-						
-						//导入记录
-						foreach($imported_ids as $imported_id)
+				$chart_category = array();
+				$chart_legend = array();
+				$chart_data = array();
+
+				switch($chart)
+				{
+					case 'application_increment':
+						$this->load->model('delegate_model');
+
+						$imported_ids = $this->delegate_model->get_event_ids('event', 'application_imported');
+						if($imported_ids)
 						{
-							$event = $this->delegate_model->get_event($imported_id);
+							$stat = array();
+							$first_week = strtotime('Monday this week');
 
-							$week = strtotime('Monday this week', $event['time']);
-							if(!$week)
-								continue;
-
-							if($week < $first_week)
-								$first_week = $week;
-							
-							$application_type = $this->delegate_model->get_delegate($event['delegate'], 'application_type');
-							if(isset($stat[$week][$application_type]))
-								$stat[$week][$application_type]++;
-							else
-								$stat[$week][$application_type] = 1;
-						}
-						
-						//退会记录
-						$quitted_ids = $this->delegate_model->get_event_ids('event', 'quitted');
-
-						if($quitted_ids)
-						{
-							foreach($quitted_ids as $quitted_id)
+							//导入记录
+							foreach($imported_ids as $imported_id)
 							{
-								$event = $this->delegate_model->get_event($quitted_id);
+								$event = $this->delegate_model->get_event($imported_id);
 
 								$week = strtotime('Monday this week', $event['time']);
 								if(!$week)
 									continue;
 
+								if($week < $first_week)
+									$first_week = $week;
+
 								$application_type = $this->delegate_model->get_delegate($event['delegate'], 'application_type');
 								if(isset($stat[$week][$application_type]))
-									$stat[$week][$application_type]--;
+									$stat[$week][$application_type]++;
 								else
-									$stat[$week][$application_type] = -1;
+									$stat[$week][$application_type] = 1;
 							}
-						}
-						
-						//确定第一周
-						if($first_week < strtotime('Monday this week') - 8 * 7 * 24 * 60 * 60)
-							$first_week = strtotime('Monday this week') - 8 * 7 * 24 * 60 * 60;
-						
-						//处理记录
-						for($i = $first_week; $i <= strtotime('Monday this week'); $i += 7 * 24 * 60 * 60)
-						{
-							$chart_category[] = date('m/d', $i);
 
-							foreach(array('delegate', 'observer', 'volunteer', 'teacher') as $application_type)
-							{
-								if(isset($stat[$i][$application_type]))
-									$chart_data[$application_type][] = $stat[$i][$application_type];
-								else
-									$chart_data[$application_type][] = 0;
-							}
-						}
-					}
-					else
-						return;
-					
-					break;
-					
-				case 'application_status':
-					$this->load->model('delegate_model');
-					
-					$ids = $this->delegate_model->get_delegate_ids('status !=', 'quitted');
-					if($ids)
-					{
-						$stat = array();
-						
-						//统计数据
-						foreach($ids as $id)
-						{
-							$status = $this->delegate_model->get_delegate($id, 'status');
+							//退会记录
+							$quitted_ids = $this->delegate_model->get_event_ids('event', 'quitted');
 
-							if(isset($stat[$status]))
-								$stat[$status]++;
-							else
-								$stat[$status] = 1;
-						}
-						
-						//从高到底排序
-						arsort($stat);
-						
-						//处理记录
-						$left = count($ids);
-						$min = 0.05 * count($ids);
-						
-						foreach($stat as $status => $count)
-						{
-							if($left <= $min)
+							if($quitted_ids)
 							{
-								$chart_legend[] = '其他';
-								$chart_data[] = array(
-									'value' => $left,
-									'name' => '其他'
-								);
-								
-								break;
-							}
-							
-							$status_name = $this->delegate_model->status_text($status);
-							
-							$chart_legend[] = $status_name;
-							$chart_data[] = array(
-								'value' => $count,
-								'name' => $status_name
-							);
-							
-							$left -= $count;
-						}
-					}
-					else
-						return;
-					
-					break;
-					
-				case 'interview_2d':
-					$this->load->model('interview_model');
-					
-					$score_standard = option('interview_score_standard', array());
-					if(count($score_standard) != 2)
-						break;
-					
-					$types = array();
-					foreach($score_standard as $type => $item)
-					{
-						$types[] = $type;
-					}
-					
-					$interview_ids = $this->interview_model->get_interview_ids('score IS NOT NULL', NULL);
-					if($interview_ids)
-					{
-						$stat = array();
-						
-						//统计数据
-						foreach($interview_ids as $interview_id)
-						{
-							$interview = $this->interview_model->get_interview($interview_id);
-							
-							if(!isset($interview['feedback']['score']))
-								continue;
-							
-							$score = $interview['feedback']['score'];
-							
-							$result = $interview['status'] == 'failed' ? 'failed' : 'passed';
-							
-							if(isset($stat[$result][$score[$types[0]]][$score[$types[1]]]))
-								$stat[$result][$score[$types[0]]][$score[$types[1]]]++;
-							else
-								$stat[$result][$score[$types[0]]][$score[$types[1]]] = 1;
-						}
-						
-						//处理记录
-						foreach(array('failed', 'passed') as $result)
-						{
-							foreach($stat[$result] as $type_0 => $item_0)
-							{
-								foreach($item_0 as $type_1 => $count)
+								foreach($quitted_ids as $quitted_id)
 								{
-									$chart_data[$result][] = array($type_0, $type_1, $count);
+									$event = $this->delegate_model->get_event($quitted_id);
+
+									$week = strtotime('Monday this week', $event['time']);
+									if(!$week)
+										continue;
+
+									$application_type = $this->delegate_model->get_delegate($event['delegate'], 'application_type');
+									if(isset($stat[$week][$application_type]))
+										$stat[$week][$application_type]--;
+									else
+										$stat[$week][$application_type] = -1;
+								}
+							}
+
+							//确定第一周
+							if($first_week < strtotime('Monday this week') - 8 * 7 * 24 * 60 * 60)
+								$first_week = strtotime('Monday this week') - 8 * 7 * 24 * 60 * 60;
+
+							//处理记录
+							for($i = $first_week; $i <= strtotime('Monday this week'); $i += 7 * 24 * 60 * 60)
+							{
+								$chart_category[] = date('m/d', $i);
+
+								foreach(array('delegate', 'observer', 'volunteer', 'teacher') as $application_type)
+								{
+									if(isset($stat[$i][$application_type]))
+										$chart_data[$application_type][] = $stat[$i][$application_type];
+									else
+										$chart_data[$application_type][] = 0;
 								}
 							}
 						}
-					}
-					else
-						return;
-					
-					break;
-					
-				case 'seat_status':
-					$this->load->model('seat_model');
-					$this->load->model('interview_model');
-					
-					$stat = array();
-					
-					//统计席位数据
-					$seat_ids = $this->seat_model->get_seat_ids();
-					if($seat_ids)
-					{
-						foreach($seat_ids as $seat_id)
+						else
+							return;
+
+						break;
+
+					case 'application_status':
+						$this->load->model('delegate_model');
+
+						$ids = $this->delegate_model->get_delegate_ids('status !=', 'quitted');
+						if($ids)
 						{
-							$seat = $this->seat_model->get_seat($seat_id);
-							
-							$status = in_array($seat['status'], array('available', 'unavailable', 'preserved')) ? 'available' : 'assigned';
-							
-							if(isset($stat['seat'][$seat['level']][$status]))
-								$stat['seat'][$seat['level']][$status]++;
-							else
-								$stat['seat'][$seat['level']][$status] = 1;
+							$stat = array();
+
+							//统计数据
+							foreach($ids as $id)
+							{
+								$status = $this->delegate_model->get_delegate($id, 'status');
+
+								if(isset($stat[$status]))
+									$stat[$status]++;
+								else
+									$stat[$status] = 1;
+							}
+
+							//从高到底排序
+							arsort($stat);
+
+							//处理记录
+							$left = count($ids);
+							$min = 0.05 * count($ids);
+
+							foreach($stat as $status => $count)
+							{
+								if($left <= $min)
+								{
+									$chart_legend[] = '其他';
+									$chart_data[] = array(
+										'value' => $left,
+										'name' => '其他'
+									);
+
+									break;
+								}
+
+								$status_name = $this->delegate_model->status_text($status);
+
+								$chart_legend[] = $status_name;
+								$chart_data[] = array(
+									'value' => $count,
+									'name' => $status_name
+								);
+
+								$left -= $count;
+							}
 						}
-					}
-					else
-						return;
-					
-					//统计面试评分数据
-					$interview_ids = $this->interview_model->get_interview_ids('status', 'completed', 'score IS NOT NULL', NULL);
-					if($interview_ids)
-					{
-						foreach($interview_ids as $interview_id)
+						else
+							return;
+
+						break;
+
+					case 'interview_2d':
+						$this->load->model('interview_model');
+
+						$score_standard = option('interview_score_standard', array());
+						if(count($score_standard) != 2)
+							break;
+
+						$types = array();
+						foreach($score_standard as $type => $item)
 						{
-							$score = $this->interview_model->get_interview($interview_id, 'score');
-							
-							if($score == 0 || empty($score))
-								$score = 1;
-							else
-								$score = round($score, 0, PHP_ROUND_HALF_DOWN);
-							
-							if(isset($stat['interview'][$score]))
-								$stat['interview'][$score]++;
-							else
-								$stat['interview'][$score] = 1;
+							$types[] = $type;
 						}
-					}
-					
-					//处理记录
-					for($i = 1; $i <= option('score_total', 5); $i++)
-					{
-						$chart_category[] = "{$i} 级";
 
-						if(isset($stat['seat'][$i]['available']))
-							$chart_data['available'][$i - 1] = $stat['seat'][$i]['available'];
-						else
-							$chart_data['available'][$i - 1] = 0;
+						$interview_ids = $this->interview_model->get_interview_ids('score IS NOT NULL', NULL);
+						if($interview_ids)
+						{
+							$stat = array();
 
-						if(isset($stat['seat'][$i]['assigned']))
-							$chart_data['assigned'][$i - 1] = $stat['seat'][$i]['assigned'];
-						else
-							$chart_data['assigned'][$i - 1] = 0;
+							//统计数据
+							foreach($interview_ids as $interview_id)
+							{
+								$interview = $this->interview_model->get_interview($interview_id);
 
-						if(isset($stat['interview'][$i]))
-							$chart_data['interview'][$i - 1] = $stat['interview'][$i];
+								if(!isset($interview['feedback']['score']))
+									continue;
+
+								$score = $interview['feedback']['score'];
+
+								$result = $interview['status'] == 'failed' ? 'failed' : 'passed';
+
+								if(isset($stat[$result][$score[$types[0]]][$score[$types[1]]]))
+									$stat[$result][$score[$types[0]]][$score[$types[1]]]++;
+								else
+									$stat[$result][$score[$types[0]]][$score[$types[1]]] = 1;
+							}
+
+							//处理记录
+							foreach(array('failed', 'passed') as $result)
+							{
+								foreach($stat[$result] as $type_0 => $item_0)
+								{
+									foreach($item_0 as $type_1 => $count)
+									{
+										$chart_data[$result][] = array($type_0, $type_1, $count);
+									}
+								}
+							}
+						}
 						else
-							$chart_data['interview'][$i - 1] = 0;
-					}
-					
-					break;
+							return;
+
+						break;
+
+					case 'seat_status':
+						$this->load->model('seat_model');
+						$this->load->model('interview_model');
+
+						$stat = array();
+
+						//统计席位数据
+						$seat_ids = $this->seat_model->get_seat_ids();
+						if($seat_ids)
+						{
+							foreach($seat_ids as $seat_id)
+							{
+								$seat = $this->seat_model->get_seat($seat_id);
+
+								$status = in_array($seat['status'], array('available', 'unavailable', 'preserved')) ? 'available' : 'assigned';
+
+								if(isset($stat['seat'][$seat['level']][$status]))
+									$stat['seat'][$seat['level']][$status]++;
+								else
+									$stat['seat'][$seat['level']][$status] = 1;
+							}
+						}
+						else
+							return;
+
+						//统计面试评分数据
+						$interview_ids = $this->interview_model->get_interview_ids('status', 'completed', 'score IS NOT NULL', NULL);
+						if($interview_ids)
+						{
+							foreach($interview_ids as $interview_id)
+							{
+								$score = $this->interview_model->get_interview($interview_id, 'score');
+
+								if($score == 0 || empty($score))
+									$score = 1;
+								else
+									$score = round($score, 0, PHP_ROUND_HALF_DOWN);
+
+								if(isset($stat['interview'][$score]))
+									$stat['interview'][$score]++;
+								else
+									$stat['interview'][$score] = 1;
+							}
+						}
+
+						//处理记录
+						for($i = 1; $i <= option('score_total', 5); $i++)
+						{
+							$chart_category[] = "{$i} 级";
+
+							if(isset($stat['seat'][$i]['available']))
+								$chart_data['available'][$i - 1] = $stat['seat'][$i]['available'];
+							else
+								$chart_data['available'][$i - 1] = 0;
+
+							if(isset($stat['seat'][$i]['assigned']))
+								$chart_data['assigned'][$i - 1] = $stat['seat'][$i]['assigned'];
+							else
+								$chart_data['assigned'][$i - 1] = 0;
+
+							if(isset($stat['interview'][$i]))
+								$chart_data['interview'][$i - 1] = $stat['interview'][$i];
+							else
+								$chart_data['interview'][$i - 1] = 0;
+						}
+
+						break;
+				}
+
+				$json['category'] = $chart_category;
+				$json['legend'] = $chart_legend;
+				$json['series'] = $chart_data;
+				
+				$this->cache->save(IP_INSTANCE_ID.'_stat_'.$chart, $json, 4 * 60 * 60);
 			}
-			
-			$json['category'] = $chart_category;
-			$json['legend'] = $chart_legend;
-			$json['series'] = $chart_data;
 		}
 		
 		echo json_encode($json);
