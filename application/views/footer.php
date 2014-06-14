@@ -13,7 +13,7 @@
 				{
 					$link = option("link_{$social}", false);
 					if($link)
-						echo anchor($link, icon($social, false), 'style="color: inherit;"').' ';
+						echo anchor($link, icon($social, false), array('style' => 'color: inherit;', 'target' => '_blank')).' ';
 				}
 			} ?></p>
 		&copy; 2008-<?php echo date('Y');?> <a href="http://imunc.com/">IMUNC</a>. All rights reserved.
