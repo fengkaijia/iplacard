@@ -1,4 +1,6 @@
-<?php $this->load->view('header');?>
+<?php
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/echarts.js' : 'static/js/echarts.min.js').'"></script>');
+$this->load->view('header');?>
 
 <?php if($welcome) { ?><div id="welcome" class="jumbotron">
 	<h1 style="font-size: 56px;">欢迎使用 iPlacard</h1>
@@ -163,6 +165,117 @@
 				</style>");
 				?>
 		</div>
+		
+		<?php if($stat_enable) { ?><div id="ui-stat" class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					<?php echo icon('bar-chart-o');?><span class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" style="color: inherit;"><span id="stat_name">统计</span> <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('周代表增量统计'); draw_chart('application_increment');">周代表增量统计</a></li>
+							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('申请状态分布统计'); draw_chart('application_status');">申请状态分布统计</a></li>
+							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('面试评分分布统计'); draw_chart('interview_<?php echo $stat_interview;?>');">面试评分分布统计</a></li>
+							<li><a style="cursor: pointer;" onclick="$('#stat_name').html('席位状态统计'); draw_chart('seat_status');">席位状态统计</a></li>
+						</ul>
+					</span>
+				</h3>
+			</div>
+			<div id="stat_body" class="panel-body">
+				<div id="stat_chart"></div>
+			</div>
+		</div><?php
+			$chart_url = base_url('admin/ajax/stat');
+			$chart_js = "function draw_chart(type) {
+				$('#ui-stat').removeClass('panel-warning').addClass('panel-default');
+				$('#stat_body').css({'padding': '15px'});
+				$('#stat_chart').css({'height': '300px'});
+				$('#stat_chart').css({'margin': '0'});
+				
+				var stat = echarts.init(document.getElementById('stat_chart'));
+				var chart_option;
+				
+				stat.showLoading({
+					text: '正在加载数据....',
+					effect: 'whirling',
+					backgroundColor: 'rgba(0, 0, 0, 0)'
+				});
+				
+				$.ajax({
+					url: '$chart_url?chart=' + type,
+					dataType: 'json',
+					success: function( result ) {
+						if(result) {
+							$('#stat_body').css({'padding': '15px 0 15px 0'});
+							
+							switch(type) {
+								case 'application_increment':
+									chart_option = chart_option_application_increment;
+									
+									chart_option.xAxis[0].data = result.category;
+									chart_option.series[0].data = result.series['delegate'];
+									chart_option.series[1].data = result.series['observer'];
+									chart_option.series[2].data = result.series['volunteer'];
+									chart_option.series[3].data = result.series['teacher'];
+									
+									$('#stat_chart').css({'height': '350px'});
+									$('#stat_chart').css({'margin': '-40px -40px 0'});
+									stat = echarts.init(document.getElementById('stat_chart'));
+									break;
+									
+								case 'application_status':
+									chart_option = chart_option_application_status;
+									
+									chart_option.legend.data = result.legend;
+									chart_option.series[0].data = result.series;
+									break;
+									
+								case 'interview_2d':
+									chart_option = chart_option_interview_2d;
+
+									chart_option.series[0].data = result.series['failed'];
+									chart_option.series[1].data = result.series['passed'];
+									
+									$('#stat_chart').css({'height': '400px'});
+									$('#stat_body').css({'padding': '0'});
+									stat = echarts.init(document.getElementById('stat_chart'));
+									break;
+									
+								case 'seat_status':
+									chart_option = chart_option_seat_status;
+									
+									chart_option.xAxis[0].data = result.category;
+									chart_option.series[0].data = result.series['available'];
+									chart_option.series[1].data = result.series['assigned'];
+									chart_option.series[2].data = result.series['interview'];
+									
+									$('#stat_chart').css({'height': '350px'});
+									$('#stat_chart').css({'margin': '-40px -40px 0'});
+									stat = echarts.init(document.getElementById('stat_chart'));
+									break;
+							}
+							
+							stat.hideLoading();
+							stat.setOption(chart_option);
+						} else {
+							$('#ui-stat').removeClass('panel-default').addClass('panel-warning');
+							$('#stat_chart').css({'height': 'auto'});
+							$('#stat_chart').html('无可用数据。');
+						}
+					},
+					error: function ( error ) {
+						$('#ui-stat').removeClass('panel-default').addClass('panel-warning');
+						$('#stat_chart').css({'height': 'auto'});
+						$('#stat_chart').html('载入数据失败。');
+					}
+				});
+			}
+			
+			$(document).ready(function() {
+				draw_chart('application_increment');
+				$('#stat_name').html('周代表增量统计');
+			});";
+			$this->ui->js('footer', $chart_js);
+		} ?>
 	</div>
 
 	<div class="col-md-6">

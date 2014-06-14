@@ -55,6 +55,7 @@ class Admin extends CI_Controller
 			'dashboard' => array(icon('dashboard').'控制板', '#ui-dashboard', '', true, true),
 			'task' => array(icon('tasks').'待办事项', '#ui-task', '', true),
 			'spdy' => array(icon('bolt').'快速访问', '#ui-spdy', '', true),
+			'stat' => array(icon('bar-chart-o').'统计', '#ui-stat', 'administrator', true),
 			'news' => array(icon('globe').'新闻', '#ui-news', '', true, false, true),
 			
 			'delegate' => array(icon('user').'代表管理', 'delegate/manage', 'administrator'),
@@ -76,7 +77,7 @@ class Admin extends CI_Controller
 		else
 			$vars['welcome'] = false;
 		
-		//统计
+		//控制板统计
 		
 		//代表数量
 		$this->load->model('delegate_model');
@@ -238,6 +239,26 @@ class Admin extends CI_Controller
 		}
 		
 		$vars['feed_enable'] = $feed_enable;
+		
+		//统计
+		$stat_enable = false;
+		
+		if($this->admin_model->capable('administrator'))
+		{
+			//面试分布图
+			$interview_type = count(option('interview_score_standard', array())) == 2 ? '2d' : '3d';
+			$vars['stat_interview'] = $interview_type;
+			
+			foreach(array('application_increment', 'application_status', "interview_{$interview_type}", 'seat_status') as $type)
+			{
+				$option = $this->_get_chart_option($type);
+				$this->ui->js('footer', "var chart_option_{$type} = {$option};");
+			}
+			
+			$stat_enable = true;
+		}
+		
+		$vars['stat_enable'] = $stat_enable;
 		
 		$this->ui->sidebar($sidebar);
 		$this->ui->title('控制板');
@@ -431,6 +452,32 @@ class Admin extends CI_Controller
 	}
 	
 	/**
+	 * 统计数据
+	 */
+	function stat()
+	{
+		//检查权限
+		if(!$this->admin_model->capable('administrator'))
+		{
+			redirect('');
+			return;
+		}
+		
+		//面试分布图
+		$interview_type = count(option('interview_score_standard', array())) == 2 ? '2d' : '3d';
+		$vars['stat_interview'] = $interview_type;
+
+		foreach(array('application_increment', 'application_status', "interview_{$interview_type}", 'seat_status') as $type)
+		{
+			$option = $this->_get_chart_option($type);
+			$this->ui->js('footer', "var chart_option_{$type} = {$option};");
+		}
+		
+		$this->ui->title('统计分析');
+		$this->load->view('admin/stat', $vars);
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = '')
@@ -497,6 +544,282 @@ class Admin extends CI_Controller
 			
 			$json['html'] = $html;
 		}
+		elseif($action == 'stat')
+		{
+			//访问检查
+			$chart = $this->input->get('chart');
+			if(empty($chart))
+				return;
+			
+			if(!$this->admin_model->capable('administrator'))
+				return;
+			
+			$this->load->driver('cache', array('adapter' => 'memcached', 'backup' => 'file'));
+			
+			if(!$json = $this->cache->get(IP_INSTANCE_ID.'_stat_'.$chart))
+			{
+				$chart_category = array();
+				$chart_legend = array();
+				$chart_data = array();
+
+				switch($chart)
+				{
+					case 'application_increment':
+						$this->load->model('delegate_model');
+
+						$imported_ids = $this->delegate_model->get_event_ids('event', 'application_imported');
+						if($imported_ids)
+						{
+							$stat = array();
+							$first_week = strtotime('Monday this week');
+
+							//导入记录
+							foreach($imported_ids as $imported_id)
+							{
+								$event = $this->delegate_model->get_event($imported_id);
+
+								$week = strtotime('Monday this week', $event['time']);
+								if(!$week)
+									continue;
+
+								if($week < $first_week)
+									$first_week = $week;
+
+								$application_type = $this->delegate_model->get_delegate($event['delegate'], 'application_type');
+								if(isset($stat[$week][$application_type]))
+									$stat[$week][$application_type]++;
+								else
+									$stat[$week][$application_type] = 1;
+							}
+
+							//退会记录
+							$quitted_ids = $this->delegate_model->get_event_ids('event', 'quitted');
+
+							if($quitted_ids)
+							{
+								foreach($quitted_ids as $quitted_id)
+								{
+									$event = $this->delegate_model->get_event($quitted_id);
+
+									$week = strtotime('Monday this week', $event['time']);
+									if(!$week)
+										continue;
+
+									$application_type = $this->delegate_model->get_delegate($event['delegate'], 'application_type');
+									if(isset($stat[$week][$application_type]))
+										$stat[$week][$application_type]--;
+									else
+										$stat[$week][$application_type] = -1;
+								}
+							}
+
+							//确定第一周
+							if($first_week < strtotime('Monday this week') - 8 * 7 * 24 * 60 * 60)
+								$first_week = strtotime('Monday this week') - 8 * 7 * 24 * 60 * 60;
+
+							//处理记录
+							for($i = $first_week; $i <= strtotime('Monday this week'); $i += 7 * 24 * 60 * 60)
+							{
+								$chart_category[] = date('m/d', $i);
+
+								foreach(array('delegate', 'observer', 'volunteer', 'teacher') as $application_type)
+								{
+									if(isset($stat[$i][$application_type]))
+										$chart_data[$application_type][] = $stat[$i][$application_type];
+									else
+										$chart_data[$application_type][] = 0;
+								}
+							}
+						}
+						else
+							return;
+
+						break;
+
+					case 'application_status':
+						$this->load->model('delegate_model');
+
+						$ids = $this->delegate_model->get_delegate_ids('status !=', 'quitted');
+						if($ids)
+						{
+							$stat = array();
+
+							//统计数据
+							foreach($ids as $id)
+							{
+								$status = $this->delegate_model->get_delegate($id, 'status');
+
+								if(isset($stat[$status]))
+									$stat[$status]++;
+								else
+									$stat[$status] = 1;
+							}
+
+							//从高到底排序
+							arsort($stat);
+
+							//处理记录
+							$left = count($ids);
+							$min = 0.05 * count($ids);
+
+							foreach($stat as $status => $count)
+							{
+								if($left <= $min)
+								{
+									$chart_legend[] = '其他';
+									$chart_data[] = array(
+										'value' => $left,
+										'name' => '其他'
+									);
+
+									break;
+								}
+
+								$status_name = $this->delegate_model->status_text($status);
+
+								$chart_legend[] = $status_name;
+								$chart_data[] = array(
+									'value' => $count,
+									'name' => $status_name
+								);
+
+								$left -= $count;
+							}
+						}
+						else
+							return;
+
+						break;
+
+					case 'interview_2d':
+						$this->load->model('interview_model');
+
+						$score_standard = option('interview_score_standard', array());
+						if(count($score_standard) != 2)
+							break;
+
+						$types = array();
+						foreach($score_standard as $type => $item)
+						{
+							$types[] = $type;
+						}
+
+						$interview_ids = $this->interview_model->get_interview_ids('score IS NOT NULL', NULL);
+						if($interview_ids)
+						{
+							$stat = array();
+
+							//统计数据
+							foreach($interview_ids as $interview_id)
+							{
+								$interview = $this->interview_model->get_interview($interview_id);
+
+								if(!isset($interview['feedback']['score']))
+									continue;
+
+								$score = $interview['feedback']['score'];
+
+								$result = $interview['status'] == 'failed' ? 'failed' : 'passed';
+
+								if(isset($stat[$result][$score[$types[0]]][$score[$types[1]]]))
+									$stat[$result][$score[$types[0]]][$score[$types[1]]]++;
+								else
+									$stat[$result][$score[$types[0]]][$score[$types[1]]] = 1;
+							}
+
+							//处理记录
+							foreach(array('failed', 'passed') as $result)
+							{
+								foreach($stat[$result] as $type_0 => $item_0)
+								{
+									foreach($item_0 as $type_1 => $count)
+									{
+										$chart_data[$result][] = array($type_0, $type_1, $count);
+									}
+								}
+							}
+						}
+						else
+							return;
+
+						break;
+
+					case 'seat_status':
+						$this->load->model('seat_model');
+						$this->load->model('interview_model');
+
+						$stat = array();
+
+						//统计席位数据
+						$seat_ids = $this->seat_model->get_seat_ids();
+						if($seat_ids)
+						{
+							foreach($seat_ids as $seat_id)
+							{
+								$seat = $this->seat_model->get_seat($seat_id);
+
+								$status = in_array($seat['status'], array('available', 'unavailable', 'preserved')) ? 'available' : 'assigned';
+
+								if(isset($stat['seat'][$seat['level']][$status]))
+									$stat['seat'][$seat['level']][$status]++;
+								else
+									$stat['seat'][$seat['level']][$status] = 1;
+							}
+						}
+						else
+							return;
+
+						//统计面试评分数据
+						$interview_ids = $this->interview_model->get_interview_ids('status', 'completed', 'score IS NOT NULL', NULL);
+						if($interview_ids)
+						{
+							foreach($interview_ids as $interview_id)
+							{
+								$score = $this->interview_model->get_interview($interview_id, 'score');
+
+								if($score == 0 || empty($score))
+									$score = 1;
+								else
+									$score = round($score, 0, PHP_ROUND_HALF_DOWN);
+
+								if(isset($stat['interview'][$score]))
+									$stat['interview'][$score]++;
+								else
+									$stat['interview'][$score] = 1;
+							}
+						}
+
+						//处理记录
+						for($i = 1; $i <= option('score_total', 5); $i++)
+						{
+							$chart_category[] = "{$i} 级";
+
+							if(isset($stat['seat'][$i]['available']))
+								$chart_data['available'][$i - 1] = $stat['seat'][$i]['available'];
+							else
+								$chart_data['available'][$i - 1] = 0;
+
+							if(isset($stat['seat'][$i]['assigned']))
+								$chart_data['assigned'][$i - 1] = $stat['seat'][$i]['assigned'];
+							else
+								$chart_data['assigned'][$i - 1] = 0;
+
+							if(isset($stat['interview'][$i]))
+								$chart_data['interview'][$i - 1] = $stat['interview'][$i];
+							else
+								$chart_data['interview'][$i - 1] = 0;
+						}
+
+						break;
+				}
+
+				$json['category'] = $chart_category;
+				$json['legend'] = $chart_legend;
+				$json['series'] = $chart_data;
+				
+				$this->cache->save(IP_INSTANCE_ID.'_stat_'.$chart, $json, 4 * 60 * 60);
+			}
+		}
 		
 		echo json_encode($json);
 	}
@@ -508,6 +831,236 @@ class Admin extends CI_Controller
 	{
 		$this->task[$item] = $count;
 		$this->has_task = true;
+	}
+	
+	/**
+	 * 获取统计图属性
+	 */
+	private function _get_chart_option($type)
+	{
+		switch($type)
+		{
+			case 'application_increment':
+				$data_string = array();
+				
+				foreach(array('代表', '观察员', '志愿者', '指导老师') as $application_name)
+				{
+					$one_string = "{
+						name: '{$application_name}',
+						type: 'line',
+						data: [],
+						markPoint: {
+							data: [
+								{
+									type: 'max',
+									name: '周最大{$application_name}增值'
+								},
+								{
+									type: 'min',
+									name: '周最小{$application_name}增值'
+								}
+							]
+						}";
+					
+					if($application_name == '代表')
+					{
+						$one_string .= ",
+							markLine: {
+								data: [
+									{
+										type: 'average',
+										name: '周平均{$application_name}增值'
+									}
+								]
+							}";
+					}
+					
+					$one_string .= '}';
+									
+					$data_string[] = $one_string;
+				}
+
+				return "{
+					tooltip: {
+						trigger: 'axis'
+					},
+					legend: {
+						y: 'bottom',
+						data: ['代表', '观察员', '志愿者', '指导老师']
+					},
+					xAxis: [
+						{
+							type: 'category',
+							boundaryGap: false,
+							data: []
+						}
+					],
+					yAxis: [
+						{
+							axisLabel: { show: false },
+						}
+					],
+					series: [
+						".join(',', $data_string)."
+					]
+				}";
+				
+			case 'application_status':
+				return "{
+					tooltip: {
+						trigger: 'item',
+						formatter: \"{b}：{c} ({d}%)\"
+					},
+					legend: {
+						orient: 'vertical',
+						x: 'right',
+						y: 'center',
+						data: []
+					},
+					calculable: true,
+					series: [
+						{
+							name: '申请状态',
+							type: 'pie',
+							radius: ['50%', '70%'],
+							itemStyle: {
+								emphasis: {
+									label: {
+										show: true,
+										position: 'center',
+										textStyle: {
+											fontSize: '20',
+											fontWeight: 'bold'
+										}
+									}
+								}
+							},
+							data: []
+						}
+					]
+				}";
+			
+			case 'interview_2d':
+				$score_standard = option('interview_score_standard', array());
+				if(count($score_standard) != 2)
+					break;
+				
+				$names = array();
+				foreach($score_standard as $type => $item)
+				{
+					$names[] = $item['name'];
+				}
+				
+				$this->load->model('interview_model');
+				$interview_ids = $this->interview_model->get_interview_ids('score IS NOT NULL', NULL);
+				if(!$interview_ids)
+					break;
+				
+				$pow = pow((1000 / count($interview_ids)), 1.6);
+				
+				return "{
+					tooltip: {
+						trigger: 'item',
+						formatter : function(value) {
+							return value[0] + '<br />'
+								+ '{$names[0]} ' + value[2][0] + ' / '
+								+ '{$names[1]} ' + value[2][1] + '<br />'
+								+ value[2][2] + ' 人';
+						}
+					},
+					legend: {
+						padding: [20, 5, 5, 5],
+						data: ['未过面试', '通过面试']
+					},
+					xAxis: [
+						{
+							type: 'value',
+							power: 1,
+							scale: true,
+							name: '{$names[0]}'
+						}
+					],
+					yAxis : [
+						{
+							type : 'value',
+							power: 1,
+							scale: true,
+							name: '{$names[1]}',
+							splitArea: { show: true }
+						}
+					],
+					series : [
+						{
+							name: '未过面试',
+							type: 'scatter',
+							symbol: 'circle',
+							symbolSize: function(value) {
+								return Math.pow(value[2], 1/1.6) * {$pow} + 1
+							},
+							data: []
+						},
+						{
+							name: '通过面试',
+							type: 'scatter',
+							symbol: 'circle',
+							symbolSize: function(value) {
+								return Math.pow(value[2], 1/1.6) * {$pow} + 1
+							},
+							data: []
+						}
+					]
+				}";
+				
+			case 'seat_status':
+				return "{
+					tooltip: {
+						trigger: 'axis'
+					},
+					calculable: true,
+					legend: {
+						y: 'bottom',
+						data: ['未分配席位', '已分配席位', '面试分数段人数']
+					},
+					xAxis: [
+						{
+							type: 'category',
+							data: []
+						}
+					],
+					yAxis : [
+						{
+							type: 'value',
+							name: '席位数',
+							splitArea: { show: true }
+						},
+						{
+							type: 'value',
+							name: '区间人数',
+							splitLine: { show: false }
+						}
+					],
+					series: [
+						{
+							name: '未分配席位',
+							type: 'bar',
+							data: []
+						},
+						{
+							name: '已分配席位',
+							type: 'bar',
+							data: []
+						},
+						{
+							name: '面试分数段人数',
+							type: 'line',
+							yAxisIndex: 1,
+							data: []
+						}
+					]
+				}";
+		}
+		
+		return '';
 	}
 	
 	/**
