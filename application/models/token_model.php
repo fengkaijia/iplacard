@@ -93,7 +93,7 @@ class Token_model extends CI_Model
 	function edit_token($data, $id = '')
 	{
 		//格式化权限
-		if(isset($data['permission']) && !empty($data['permission']))
+		if(isset($data['permission']))
 			$data['permission'] = json_encode($data['permission']);
 		
 		//新增令牌

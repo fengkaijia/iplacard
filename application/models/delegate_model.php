@@ -358,7 +358,7 @@ class Delegate_model extends CI_Model
 	function edit_profile($data, $id = '')
 	{
 		//格式化事件信息
-		if(isset($data['value']) && !empty($data['value']))
+		if(isset($data['value']))
 			$data['value'] = json_encode($data['value']);
 		
 		//更新时间
@@ -466,7 +466,7 @@ class Delegate_model extends CI_Model
 	function edit_event($data, $id = '')
 	{
 		//格式化事件信息
-		if(isset($data['info']) && !empty($data['info']))
+		if(isset($data['info']))
 			$data['info'] = json_encode($data['info']);
 		
 		//新增事件

@@ -10,7 +10,8 @@
 				<span style="margin-left: 58px;">个人信息</span>
 			</h1>
 		</div>
-		<?php $this->ui->js('footer', 'nav_menu_top();
+		<?php $this->ui->js('footer', 'nav_menu_switch();
+		nav_menu_top();
 		$(window).resize(function($){
 			nav_menu_top();
 		});');?>
@@ -18,10 +19,13 @@
 			<ul class="nav nav-tabs nav-menu">
 				<li class="active"><a href="#application" data-toggle="tab">基本信息</a></li>
 				<li><a href="#academic" data-toggle="tab">学术信息</a></li>
+				<?php if(!empty($addition)) { ?><li id="addition_tab"><a href="#addition" data-toggle="tab">附加信息</a></li><?php } ?>
 			</ul>
 		</div>
 	</div>
 </div>
+
+<div class="menu-pills"></div>
 
 <div class="row">
 	<div class="col-md-8">
@@ -84,17 +88,78 @@
 					</tbody>
 				</table><?php } ?>
 			</div>
+			
+			<div class="tab-pane" id="addition">
+				<h3>可编辑附加信息</h3>
+				<p>您可以修改以下信息，修改完成后请单击保存。</p>
+				<?php
+				echo form_open_multipart('apply/profile/edit', array('class' => 'form-horizontal'), array('edit' => true));
+					foreach($addition as $name => $item) { ?><div class="form-group <?php if(form_has_error("addition_$name")) echo 'has-error';?>">
+						<?php echo form_label($item['title'], "addition_$name", array('class' => 'col-lg-3 control-label'));?>
+						<div class="col-lg-9">
+							<?php switch($item['type'])
+							{
+								case 'checkbox':
+									echo '<div class="checkbox" style="margin-bottom: 10.5px;"><label>'.form_checkbox(array(
+										'name' => "addition_$name",
+										'id' => "addition_$name",
+										'value' => true,
+										'checked' => set_value("addition_$name", isset($delegate["addition_$name"]) ? $delegate["addition_$name"] : $item['default'])
+									)).' '.$item['text'].'</label></div>';
+									
+									if(form_has_error("addition_$name"))
+										echo form_error("addition_$name");
+									break;
+									
+								case 'choice':
+									echo form_dropdown("addition_$name", empty($item['item']) ? array('' => '选项为空') : $item['item'], set_value("addition_$name", isset($delegate["addition_$name"]) ? $delegate["addition_$name"] : $item['default']), 'class="form-control"');
+									
+									if(form_has_error("addition_$name"))
+										echo form_error("addition_$name");
+									elseif(!empty($item['text']))
+										echo "<div class=\"help-block\">{$item['text']}</div>";
+									break;
+								
+								case 'textarea':
+									echo form_textarea(array(
+										'name' => "addition_$name",
+										'id' => "addition_$name",
+										'class' => 'form-control',
+										'rows' => 4,
+										'value' => set_value("addition_$name", isset($delegate["addition_$name"]) ? $delegate["addition_$name"] : $item['default'])
+									));
+									
+									if(form_has_error("addition_$name"))
+										echo form_error("addition_$name");
+									elseif(!empty($item['text']))
+										echo "<div class=\"help-block\">{$item['text']}</div>";
+									break;
+							} ?>
+						</div>
+					</div><?php } ?>
+					
+					<div class="form-group">
+						<div class="col-lg-9 col-lg-offset-3">
+							<?php echo form_button(array(
+								'name' => 'submit',
+								'content' => '保存信息',
+								'type' => 'submit',
+								'class' => 'btn btn-primary',
+								'onclick' => 'loader(this);'
+							)); ?>
+						</div>
+					</div>
+				<?php echo form_close();?>
+			</div>
 		</div>
 	</div>
 	
 	<div class="col-md-4">
 		<h3>编辑信息</h3>
 		<p>由于会务变动需要，您提交的申请单中可能并没有包含全部的申请及会务信息。随着会议准备工作的进行，我们将会不断添加更多信息编辑请求。</p>
-		<?php
-		$editable = option('profile_edit_general', array()) + option("profile_edit_{$delegate['application_type']}", array());
-		if(!empty($editable)) { ?>
-		<p>当前有 <strong><?php echo count($editable);?></strong> 项信息可编辑。</p>
-		<p><a class="btn btn-primary" href="<?php echo base_url('apply/edit');?>"><?php echo icon('edit');?>编辑信息</a></p>
+		<?php if(!empty($addition)) { ?>
+		<p>当前有 <strong><?php echo count($addition);?></strong> 项信息可编辑。</p>
+		<p><a class="btn btn-primary" href="#addition" data-toggle="tab" onclick="$('.nav-menu li').removeClass('active'); $('#addition_tab').addClass('active');"><?php echo icon('edit');?>编辑信息</a></p>
 		<?php } else { ?><p>当前没有信息需要编辑。</p><?php } ?>
 		<p>当有新的附加信息请求时 iPlacard 将会以邮件方式通知您。</p>
 	</div>
