@@ -71,10 +71,10 @@ class User_model extends CI_Model
 	function edit_user($data, $id = '')
 	{
 		//加密密码
-		if(isset($data['password']) && !empty($data['password']))
+		if(isset($data['password']))
 		{
 			//获取盐
-			if(isset($data['pin_password']) && !empty($data['pin_password']))
+			if(isset($data['pin_password']))
 				$pin = $data['pin_password'];
 			elseif(empty($id))
 				$pin = option('default_pin_password', 'iPlacard');
