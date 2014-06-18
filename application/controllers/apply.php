@@ -126,8 +126,89 @@ class Apply extends CI_Controller
 	/**
 	 * 个人信息
 	 */
-	function profile()
+	function profile($action = 'view')
 	{
+		$this->load->library('form_validation');
+		$this->load->helper('form');
+		
+		//附加信息
+		$addition_items = option('profile_addition_general', array()) + option("profile_addition_{$this->delegate['application_type']}", array());
+		$vars['addition'] = $addition_items;
+		
+		if($action == 'edit' && !empty($addition_items))
+		{
+			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+			$this->form_validation->set_rules('提交验证', 'edit', 'isset');
+			
+			//输入检查
+			foreach($addition_items as $name => $item)
+			{
+				if($item['required'])
+				{
+					$this->form_validation->set_rules($item['title'], "addition_$name", 'isset');
+				}
+			}
+			
+			if($this->form_validation->run() == true)
+			{
+				$edited_ids = array();
+				foreach($addition_items as $name => $item)
+				{
+					$post = $this->input->post("addition_$name");
+					
+					switch($item['type'])
+					{
+						//选项
+						case 'checkbox':
+							if($post)
+								$new = true;
+							else
+								$new = false;
+							break;
+						
+						//单选框
+						case 'choice':
+							if(in_array($post, array_keys($item['item'])))
+								$new = $post;
+							else
+								$new = $item['default'];
+							break;
+							
+						//文本输入
+						case 'text':
+						case 'textarea':
+							$new = trim($post);
+							break;
+					}
+					
+					var_dump($new);
+					
+					$original_id = $this->delegate_model->get_profile_id('delegate', $this->uid, 'name', "addition_$name");
+					
+					if(!$original_id)
+					{
+						$edited_ids[] = $this->delegate_model->add_profile($this->uid, "addition_$name", $new);
+					}
+					elseif($new != $this->delegate_model->get_profile($original_id, 'value'))
+					{
+						$this->delegate_model->edit_profile(array('value' => $new), $original_id);
+						$edited_ids[] = $original_id;
+					}
+				}
+				
+				if(!empty($edited_ids))
+				{
+					$this->system_model->log('profile_addition_edited', array('profile' => $edited_ids));
+					
+					$this->ui->alert('您的附加信息变更已经保存。', 'success');
+				}
+				else
+				{
+					$this->ui->alert('没有附加信息需要更新。', 'info');
+				}
+			}
+		}
+		
 		$delegate = $this->delegate;
 		
 		$pids = $this->delegate_model->get_profile_ids('delegate', $this->uid);

@@ -84,3 +84,16 @@ function nav_menu_top()
 		$('.nav-menu').css({'top': $('.page-header').height() + parseInt($('.page-header').css('padding-bottom').replace('px','')) - $('.nav-menu').height()});
 	}
 }
+
+function nav_menu_switch()
+{
+	var url = document.location.toString();
+	if(url.match('#')) {
+		$('.nav-menu a[href=#'+url.split('#')[1]+']').tab('show');
+		$('.nav-menu a[href=#'+url.split('#')[1]+']').tab('show');
+	}
+
+	$('.nav-menu a').on('shown', function (e) {
+		window.location.hash = e.target.hash;
+	});
+}
