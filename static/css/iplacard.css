@@ -22,6 +22,19 @@ body {
 	height: 80px;
 }
 
+/* 顶部调整 */
+.container-menu {
+	padding-top: 36px;
+}
+@media (min-width: 992px) {
+	.container-menu {
+		padding-top: 60px;
+	}
+}
+.container-nomenu {
+	padding-top: 36px;
+}
+
 /* 边栏 */
 .sidebar {
 	display: none;

@@ -140,7 +140,8 @@
 	</div><?php } ?>
 
 	<div id="wrap">
-		<div id="content" class="<?php echo $this->ui->show_sidebar ? 'container col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main' : 'container';?>" style="padding-top: <?php echo $this->ui->show_menu ? 72 : 36;?>px;">
+		<div id="content" class="<?php echo $this->ui->show_sidebar ? 'container col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main' : 'container';
+		echo $this->ui->show_menu ? ' container-menu' : ' container-nomenu';?>">
 			<?php if($this->ui->show_alert && !empty($this->ui->alert)) { ?><section id="global-alert">
 				<?php foreach($this->ui->alert as $alert) { ?>
 				<div class="alert alert-dismissable alert-<?php echo $alert['type'];?>">
