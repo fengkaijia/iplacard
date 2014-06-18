@@ -20,6 +20,8 @@ $this->load->view('header');?>
 	</div>
 </div>
 
+<div class="menu-pills"></div>
+
 <div class="row">
 	<div class="tab-content">
 		<div class="tab-pane active" id="member">
