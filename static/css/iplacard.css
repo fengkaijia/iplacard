@@ -35,6 +35,15 @@ body {
 	padding-top: 36px !important;
 }
 
+#global-alert {
+	padding-top: 36px;
+}
+@media (mix-width: 992px) {
+	#global-alert {
+		padding-top: 0px;
+	}
+}
+
 /* 边栏 */
 .sidebar {
 	display: none;
