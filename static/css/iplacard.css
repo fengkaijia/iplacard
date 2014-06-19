@@ -24,15 +24,15 @@ body {
 
 /* 顶部调整 */
 .container-menu {
-	padding-top: 36px;
+	padding-top: 36px !important;
 }
 @media (min-width: 992px) {
 	.container-menu {
-		padding-top: 60px;
+		padding-top: 72px !important;
 	}
 }
 .container-nomenu {
-	padding-top: 36px;
+	padding-top: 36px !important;
 }
 
 /* 边栏 */
