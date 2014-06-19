@@ -1500,6 +1500,8 @@ class Delegate extends CI_Controller
 				$this->user_model->edit_user_option('quit_operator', uid(), $uid);
 				$this->user_model->edit_user_option('quit_reason', $reason, $uid);
 				
+				$this->delegate_model->add_event($uid, 'quitted', array('reason' => $reason));
+				
 				$this->user_model->add_message($uid, "您已退会，您的帐户数据即将被删除，如有任何疑问请立即与管理员联系。");
 				
 				//邮件通知

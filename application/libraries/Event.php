@@ -498,6 +498,21 @@ class Event
 		$this->level = 'success';
 		$this->icon = 'star';
 	}
+	
+	/**
+	 * 退会事件
+	 */
+	function _event_quitted()
+	{
+		$this->title = '退会';
+		$this->level = 'danger';
+		$this->icon = 'recycle';
+		
+		if(!empty($this->info['reason']))
+		{
+			$this->text = "<blockquote><p>{$this->info['reason']}</p></blockquote>代表由于以上原因退会。";
+		}
+	}
 }
 
 /* End of file Invoice.php */
