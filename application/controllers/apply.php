@@ -181,8 +181,6 @@ class Apply extends CI_Controller
 							break;
 					}
 					
-					var_dump($new);
-					
 					$original_id = $this->delegate_model->get_profile_id('delegate', $this->uid, 'name', "addition_$name");
 					
 					if(!$original_id)
