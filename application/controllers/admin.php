@@ -503,7 +503,7 @@ class Admin extends CI_Controller
 			
 			$keyword = $this->input->get('keyword', true);
 			
-			$ids = $this->delegate_model->search_delegate($keyword, 5);
+			$ids = $this->_search_delegate($keyword);
 			
 			if($ids && !empty($keyword))
 			{
@@ -831,6 +831,43 @@ class Admin extends CI_Controller
 	{
 		$this->task[$item] = $count;
 		$this->has_task = true;
+	}
+	
+	/**
+	 * 搜索代表
+	 */
+	private function _search_delegate($keyword)
+	{
+		$this->load->model('delegate_model');
+		
+		$ids = array();
+		$part = explode(' ', $keyword);
+		
+		//智能选择
+		if($part[0] == 'latest')
+		{
+			if(empty($part[1]))
+				$part[1] = 'application_imported';
+			
+			$event_ids = $this->delegate_model->get_event_ids('event', $part[1]);
+			if($event_ids)
+			{
+				$event_ids = array_slice($event_ids, -5, 5);
+				
+				foreach($event_ids as $event_id)
+				{
+					$delegate = $this->delegate_model->get_event($event_id, 'delegate');
+					
+					if(!in_array($delegate, $ids))
+						$ids[] = $delegate;
+				}
+			}
+		}
+		
+		if(!empty($ids))
+			return $ids;
+		
+		return $this->delegate_model->search_delegate($keyword, 5);
 	}
 	
 	/**
