@@ -30,19 +30,19 @@ $this->load->view('header');?>
 </table>
 
 <?php
-$hide_column = !$this->admin_model->capable('administrator') ? 'this.fnSetColumnVis(5, false);' : '';
+$hide_column = $show_detail ? '' : '5, 6';
 $ajax_url = base_url('document/ajax/list');
 $ajax_js = <<<EOT
 $(document).ready(function() {
 	$('#document_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bSortable": false, "aTargets": [ 0, 7 ] }
+			{ "bSortable": false, "aTargets": [ 0, 7 ] },
+			{ "bVisible": false, "aTargets": [ {$hide_column} ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,
 		"sAjaxSource": '{$ajax_url}',
 		"fnDrawCallback": function() {
-			{$hide_column}
 			$('.committee_list').popover();
 			$('.version_list').popover();
 			$('.document_info').tooltip();

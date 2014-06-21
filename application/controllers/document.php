@@ -42,7 +42,7 @@ class Document extends CI_Controller
 	function manage()
 	{
 		//检查权限
-		if(!$this->user_model->is_admin(uid()) || (!$this->admin_model->capable('administrator') && !$this->admin_model->capable('dais')))
+		if(!$this->user_model->is_admin(uid()))
 		{
 			redirect('');
 			return;
@@ -65,8 +65,14 @@ class Document extends CI_Controller
 			$title = sprintf("%s委员会文件列表", join('、', $text_committee));
 		}
 		
+		//显示详细信息
+		$show_detail = false;
+		if($this->admin_model->capable('administrator'))
+			$show_detail = true;
+		
 		$vars = array(
 			'title' => $title,
+			'show_detail' => $show_detail
 		);
 		
 		$this->ui->title($title, '文件管理');
