@@ -36,11 +36,11 @@ body {
 }
 
 #global-alert {
-	padding-top: 36px;
+	padding-top: 0px;
 }
-@media (mix-width: 992px) {
+@media (max-width: 991px) {
 	#global-alert {
-		padding-top: 0px;
+		padding-top: 36px;
 	}
 }
 
