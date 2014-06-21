@@ -187,18 +187,8 @@ body {
 .loader .circle:after {
 	content: '';
 	position: absolute;
-	width: 5px;
-	width: -webkit-calc(100% / 5);
-	width:    -moz-calc(100% / 5);
-	width:     -ms-calc(100% / 5);
-	width:      -o-calc(100% / 5);
-	width:         calc(100% / 5);
-	height: 5px;
-	height: -webkit-calc(100% / 5);
-	height:    -moz-calc(100% / 5);
-	height:     -ms-calc(100% / 5);
-	height:      -o-calc(100% / 5);
-	height:         calc(100% / 5);
+	width: 4px;
+	height: 4px;
 	border-radius: 100%;
 	background: #ffffff;
 }
