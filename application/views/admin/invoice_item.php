@@ -8,7 +8,7 @@ $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/boots
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.select.js' : 'static/js/bootstrap.select.min.js').'"></script>');
 $this->load->view('header');?>
 
-<div style="padding-top: 20px;"></div>
+<div style="padding-top: 10.5px;"></div>
 
 <div class="row">
 	<div class="<?php echo $unpaid ? 'col-md-8' : 'col-md-8 col-md-offset-2';?>">

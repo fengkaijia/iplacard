@@ -3,7 +3,7 @@ if($delegate['application_type'] == 'delegate')
 	$this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/flags.css' : 'static/css/flags.min.css').'" rel="stylesheet">');
 $this->load->view('header');?>
 
-<?php if($welcome) { ?><div id="welcome" class="jumbotron" style="margin-top: 42px;">
+<?php if($welcome) { ?><div id="welcome" class="jumbotron" style="margin-top: 20px; margin-bottom: 20px;">
 	<h1 style="font-size: 56px;">欢迎使用 iPlacard</h1>
 	<p>全新的下一代模拟联合国会议管理系统已经为您准备就绪，立即开始使用。</p>
 	<div class="form-inline">
@@ -37,7 +37,7 @@ $this->load->view('header');?>
 
 <div class="row">
 	<div class="col-md-12" align="center">
-		<div class="wizard" style="padding-top: 42px; padding-bottom: 20px;">
+		<div class="wizard" style="padding-top: 42px; padding-bottom: 62px;">
 			<?php foreach($wizard as $step => $one)
 			{
 				$attr = 'data-html="1" data-placement="bottom" data-trigger="click" data-original-title="'.$one['text'].'" data-toggle="popover" data-content="'.$one['intro'].'"';
@@ -57,7 +57,7 @@ $this->load->view('header');?>
 	</div>
 </div>
 
-<div class="row" style="padding-top: 42px;">
+<div class="row">
 	<div class="col-md-4">
 		<div id="ui-news" class="panel panel-default">
 			<div class="panel-heading">

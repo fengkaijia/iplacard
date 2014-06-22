@@ -24,23 +24,14 @@ body {
 
 /* 顶部调整 */
 .container-menu {
-	padding-top: 36px !important;
-}
-@media (min-width: 992px) {
-	.container-menu {
-		padding-top: 72px !important;
-	}
+	padding-top: 72px !important;
 }
 .container-nomenu {
 	padding-top: 36px !important;
 }
-
-#global-alert {
-	padding-top: 0px;
-}
 @media (max-width: 991px) {
-	#global-alert {
-		padding-top: 36px;
+	.page-header {
+		margin-top: 0px;
 	}
 }
 
