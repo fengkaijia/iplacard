@@ -136,6 +136,9 @@ class Sms extends Sms_model
 		if(!$sms)
 			return false;
 		
+		if($sms['status'] == 'sent')
+			return false;
+		
 		//生成数据
 		$data = array(
 			'access_key' => IP_INSTANCE_API_ACCESS_KEY,
