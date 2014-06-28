@@ -10,7 +10,7 @@ class Sms extends Sms_model
 	/**
 	 * @var string 短信接口
 	 */
-	private $api = 'https://sms.api.iplacard.com/';
+	private $api = 'http://sms.api.iplacard.com/';
 	
 	/**
 	 * @var string 短信发信人
