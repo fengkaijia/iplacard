@@ -272,6 +272,49 @@ class Api extends CI_Controller
 		
 		$this->_error(5, 'Unknown action.');
 	}
+	
+	/**
+	 * 用户信息操作
+	 */
+	function user($action = 'auth')
+	{
+		$this->load->model('user_model');
+		
+		if($action == 'auth')
+		{
+			//权限检查
+			if(!$this->token_model->capable('user:auth', $this->token['permission']))
+			{
+				$this->_error(6, 'Permission denied.');
+				return;
+			}
+			
+			//输入有效性检查
+			if(!isset($this->data['email']) || empty($this->data['email']))
+			{
+				$this->_error(21, 'Empty email.');
+				return;
+			}
+			
+			if(!isset($this->data['password']) || empty($this->data['password']))
+			{
+				$this->_error(22, 'Empty password.');
+				return;
+			}
+			
+			//密码验证
+			if($this->user_model->check_password($this->data['email'], $this->data['password']))
+			{
+				$this->return = true;
+				return;
+			}
+			
+			$this->return = false;
+			return;
+		}
+		
+		$this->_error(5, 'Unknown action.');
+	}
 }
 
 /* End of file api.php */
