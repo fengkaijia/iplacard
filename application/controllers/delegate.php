@@ -1676,10 +1676,14 @@ class Delegate extends CI_Controller
 					//附加属性
 					if(!empty($profile_option))
 					{
+						$this->db->cache_on();
+						
 						foreach($profile_option as $profile_item)
 						{
 							$data[] = $this->delegate_model->get_profile_by_name($delegate['id'], $profile_item, '');
 						}
+						
+						$this->db->cache_off();
 					}
 
 					$datum[] = $data;
