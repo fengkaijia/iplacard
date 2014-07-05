@@ -312,6 +312,41 @@ class Api extends CI_Controller
 			$this->return = false;
 			return;
 		}
+		elseif($action == 'info')
+		{
+			//权限检查
+			if(!$this->token_model->capable('user:info', $this->token['permission']))
+			{
+				$this->_error(6, 'Permission denied.');
+				return;
+			}
+			
+			//输入有效性检查
+			if(!isset($this->data['key']) || empty($this->data['key']))
+			{
+				$this->_error(21, 'Empty key.');
+				return;
+			}
+			
+			//获取用户信息
+			$user = $this->user_model->get_user($this->data['key']);
+			if(!$user)
+			{
+				$this->_error(31, 'User does not exists.');
+				return;
+			}
+			
+			//返回用户数据
+			$this->return = array(
+				'id' => $user['id'],
+				'name' => $user['name'],
+				'email' => $user['email'],
+				'phone' => $user['phone'],
+				'type' => $user['type'],
+				'pin_password' => $user['pin_password']
+			);
+			return;
+		}
 		
 		$this->_error(5, 'Unknown action.');
 	}
