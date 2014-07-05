@@ -382,7 +382,7 @@ class Seat extends CI_Controller
 				
 				$this->system_model->log('seat_opened', array('seat' => $id));
 				
-				$this->ui->alert('席位已设置保留。', 'success', true);
+				$this->ui->alert('席位已设置开放。', 'success', true);
 				break;
 				
 			//删除席位
