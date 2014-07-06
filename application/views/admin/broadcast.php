@@ -102,7 +102,7 @@ $this->load->view('header');?>
 						
 						if(form_has_error('client'))
 							echo form_error('client');
-						else { ?><div class="help-block">根据代表类型、申请状态和委员会筛选群发对象，将会向满足意思全部条件的代表群发信息。根据管理用户权限筛选群发对象，将会向满足意思条件的管理员群发信息。</div><?php } ?>
+						else { ?><div class="help-block">根据代表类型、申请状态和委员会筛选群发对象，将会向满足以上全部条件的代表群发信息。根据管理用户权限筛选群发对象，将会向满足以上条件的管理员群发信息。</div><?php } ?>
 					</div>
 				</div>
 		
