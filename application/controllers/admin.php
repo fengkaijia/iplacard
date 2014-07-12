@@ -809,7 +809,7 @@ class Admin extends CI_Controller
 			//设置活动工作表
 			$this->excel->setActiveSheetIndex(0);
 			
-			$this->db->cache_delete_all();
+			$this->db->cache_delete('/admin', 'export');
 			
 			switch($format)
 			{
