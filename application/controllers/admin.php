@@ -894,10 +894,10 @@ class Admin extends CI_Controller
 		);
 		
 		$vars['format'] = array(
-			'xlsx' => 'Microsoft Excel 2007 文件（.xlsx）',
-			'xls' => 'Microsoft Excel 97-2003 文件（.xls）',
-			'html' => 'OpenOffice.org Calc HTML 文件（.html）',
-			'pdf' => 'Portable Doucment Format（.pdf）',
+			'xlsx' => 'Microsoft Excel 2007 文档（.xlsx）',
+			'xls' => 'Microsoft Excel 97-2003 文档（.xls）',
+			'html' => 'HTML Calc 文档（.html）',
+			'pdf' => '便携式文件格式（.pdf）',
 			'csv' => 'CSV 文本（.csv）',
 		);
 		
