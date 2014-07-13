@@ -255,7 +255,7 @@ class Interview_model extends CI_Model
 			'score' => $score,
 			'feedback' => $feedback,
 			'finish_time' => time(),
-			'status' => $pass ? 'completed': 'failed'
+			'status' => $pass ? 'completed' : 'failed'
 		);
 		return $this->edit_interview($data, $id);
 	}

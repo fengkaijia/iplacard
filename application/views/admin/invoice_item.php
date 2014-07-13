@@ -3,7 +3,7 @@ $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/boots
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.datetimepicker.js' : 'static/js/bootstrap.datetimepicker.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.datetimepicker.locale.js' : 'static/js/bootstrap.datetimepicker.locale.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.numeric.js' : 'static/js/jquery.numeric.min.js').'"></script>');
-$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.countdown.js': 'static/js/jquery.countdown.min.js').'"></script>');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.countdown.js' : 'static/js/jquery.countdown.min.js').'"></script>');
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/bootstrap.select.css' : 'static/css/bootstrap.select.min.css').'" rel="stylesheet">');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.select.js' : 'static/js/bootstrap.select.min.js').'"></script>');
 $this->load->view('header');?>

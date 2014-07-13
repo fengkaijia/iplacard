@@ -32,9 +32,9 @@ $this->load->view('header');?>
 $js = "
 if($(window).height() > ($('.about').height() + $('.navbar').height() + $('#footer').height()))
 {
-	var head = ($(window).height() - $('.about').height() - $('#footer').height()) / 3.5
-	;
-	$('.about').css({'margin-top':head});
+	var head = ($(window).height() - $('.about').height() - $('#footer').height()) / 3.5;
+	
+	$('.about').css({'margin-top': head});
 }";
 $this->ui->js('footer', $js);
 $this->load->view('footer');?>

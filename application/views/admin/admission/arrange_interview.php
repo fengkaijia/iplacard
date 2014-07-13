@@ -1,6 +1,6 @@
 <link href="<?php echo static_url(is_dev() ? 'static/css/bootstrap.datetimepicker.css' : 'static/css/bootstrap.datetimepicker.min.css');?>" rel="stylesheet">
 <script src="<?php echo static_url(is_dev() ? 'static/js/bootstrap.datetimepicker.js' : 'static/js/bootstrap.datetimepicker.min.js');?>"></script>
-<script src="<?php echo static_url(is_dev() ? 'static/js/locales/bootstrap.datetimepicker.locale.js': 'static/js/locales/bootstrap.datetimepicker.locale.min.js');?>"></script>
+<script src="<?php echo static_url(is_dev() ? 'static/js/locales/bootstrap.datetimepicker.locale.js' : 'static/js/locales/bootstrap.datetimepicker.locale.min.js');?>"></script>
 <script>
 	$('.form_datetime').datetimepicker({
 		language:  'zh-CN',

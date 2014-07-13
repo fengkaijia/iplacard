@@ -20,7 +20,7 @@
 				?></p>
 		
 				<div class="form-group <?php if(form_has_error('old_password')) echo 'has-error';?>">
-					<?php echo form_label(is_sudo() ? '管理员密码': '旧密码', 'old_password', array('class' => 'col-lg-2 control-label'));?>
+					<?php echo form_label(is_sudo() ? '管理员密码' : '旧密码', 'old_password', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-4">
 						<?php echo form_password(array(
 							'name' => 'old_password',

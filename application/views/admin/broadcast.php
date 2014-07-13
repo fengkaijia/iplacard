@@ -1,6 +1,6 @@
 <?php
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/summernote.js' : 'static/js/summernote.min.js').'"></script>');
-$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/summernote.locale.js': 'static/js/locales/summernote.locale.min.js').'"></script>');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/summernote.locale.js' : 'static/js/locales/summernote.locale.min.js').'"></script>');
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/summernote.css' : 'static/css/summernote.min.css').'" rel="stylesheet">');
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/bootstrap.select.css' : 'static/css/bootstrap.select.min.css').'" rel="stylesheet">');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.select.js' : 'static/js/bootstrap.select.min.js').'"></script>');
