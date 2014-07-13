@@ -52,13 +52,121 @@ class Apply extends CI_Controller
 	/**
 	 * 申请首页
 	 */
-	function status()
+	function status($action = 'view')
 	{
+		$this->load->model('seat_model');
+		$this->load->library('form_validation');
+		$this->load->helper('form');
+		
 		//欢迎界面
 		if(!user_option('ui_dismiss_welcome', false))
 			$vars['welcome'] = true;
 		else
 			$vars['welcome'] = false;
+		
+		//席位
+		$seat = array();
+		
+		$sid = $this->seat_model->get_delegate_seat($this->uid);
+		if($sid)
+		{
+			$this->load->model('committee_model');
+			
+			$seat = $this->seat_model->get_seat($sid);
+			$seat['committee'] = $this->committee_model->get_committee($seat['committee']);
+		}
+		
+		$vars['seat'] = $seat;
+		
+		//锁定
+		$lock_open = false;
+		if($this->delegate['status'] == 'payment_received' && option('seat_lock_open', true) && $sid)
+		{
+			$lock_open = true;
+			
+			$backorders = array();
+			
+			$backorder_ids = $this->seat_model->get_delegate_backorder($this->uid);
+			if($backorder_ids)
+			{
+				$this->load->model('committee_model');
+				
+				foreach($backorder_ids as $backorder_id)
+				{
+					$backorder = $this->seat_model->get_backorder($backorder_id);
+					$backorder['seat'] = $this->seat_model->get_seat($backorder['seat']);
+					$backorder['seat']['committee'] = $this->committee_model->get_committee($backorder['seat']['committee']);
+					
+					$backorders[] = $backorder;
+				}
+			}
+			
+			$vars['backorders'] = $backorders;
+			
+			//确认锁定
+			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+			
+			$this->form_validation->set_rules('password', '密码', 'trim|required|callback__check_password[密码验证错误未能锁定席位，请重新尝试。]');
+			$this->form_validation->set_message('_check_password', '密码有误，请重新输入。');
+			
+			if($action == 'lock' && $this->form_validation->run() == true)
+			{
+				//记录锁定现有席位
+				$this->delegate_model->add_event($this->uid, 'seat_locked', array('seat' => $sid));
+				
+				//取消席位候选
+				if($backorder_ids)
+				{
+					foreach($backorder_ids as $backorder_id)
+					{
+						$this->seat_model->change_backorder_status($backorder_id, 'cancelled');
+						
+						$this->delegate_model->add_event($this->uid, 'backorder_cancelled', array('backorder' => $backorder_id));
+					}
+				}
+				
+				//更改申请状态
+				$this->delegate_model->change_status($this->uid, 'locked');
+				
+				$this->delegate_model->add_event($this->uid, 'locked');
+				
+				$this->user_model->add_message($this->uid, "您的申请已获确认锁定。");
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $this->uid,
+					'delegate' => $this->delegate['name'],
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($this->delegate['email']);
+				$this->email->subject('申请已经完成');
+						$this->email->html($this->parser->parse_string(option('email_application_locked', '感谢参与申请，您的申请流程已经于 {time} 锁定完成，请登录 iPlacard 查看申请状态。'), $data, true));
+				$this->email->send();
+				
+				//短信通知
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('感谢参与申请，您的申请流程已经完成，请登录 iPlacard 查看申请状态。');
+					$this->sms->queue();
+				}
+
+				$this->system_model->log('application_locked', array());
+
+				$this->ui->alert("您的申请已获确认锁定。", 'success', true);
+				redirect('apply/status');
+				return;
+			}
+		}
+		$vars['lock_open'] = $lock_open;
 		
 		//状态信息
 		$application_fee_amount = option("invoice_amount_{$this->delegate['application_type']}", 0);
@@ -74,22 +182,6 @@ class Apply extends CI_Controller
 		$application_type_function = "_status_{$application_seat}_{$application_fee}";
 		$status_info = $this->$application_type_function();
 		$vars += $status_info;
-		
-		//席位
-		$this->load->model('seat_model');
-		
-		$seat = array();
-		
-		$sid = $this->seat_model->get_seat_id('delegate', $this->uid);
-		if($sid)
-		{
-			$this->load->model('committee_model');
-			
-			$seat = $this->seat_model->get_seat($sid);
-			$seat['committee'] = $this->committee_model->get_committee($seat['committee']);
-		}
-		
-		$vars['seat'] = $seat;
 		
 		//团队
 		$group = array();
@@ -1231,6 +1323,21 @@ class Apply extends CI_Controller
 		}
 		
 		return $intro;
+	}
+	
+	/**
+	 * 密码检查回调函数
+	 */
+	function _check_password($str, $global_message = '')
+	{
+		if($this->user_model->check_password(uid(true), $str))
+			return true;
+		
+		//全局消息
+		if(!empty($global_message))
+			$this->ui->alert($global_message);
+		
+		return false;
 	}
 	
 	/**
