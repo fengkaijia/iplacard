@@ -373,6 +373,29 @@ class Event
 	}
 	
 	/**
+	 * 席位已选择事件
+	 */
+	function _event_seat_locked()
+	{
+		$this->title = '锁定席位';
+		$this->level = 'success';
+		$this->icon = 'lock';
+		
+		if(!empty($this->info['seat']))
+		{
+			$this->CI->load->model('seat_model');
+			
+			$seat = $this->CI->seat_model->get_seat($this->info['seat']);
+			if(!$seat)
+				return;
+			
+			$seat_text = '<span class="flags-16">'.flag($seat['iso'], true).$seat['name'].'</span>';
+			
+			$this->text = "代表锁定 {$seat_text} 为其席位。";
+		}
+	}
+	
+	/**
 	 * 席位候选已经添加事件
 	 */
 	function _event_backorder_added()
@@ -497,6 +520,8 @@ class Event
 		$this->title = '申请完成';
 		$this->level = 'success';
 		$this->icon = 'star';
+		
+		$this->text = "代表确认申请完成。";
 	}
 	
 	/**
