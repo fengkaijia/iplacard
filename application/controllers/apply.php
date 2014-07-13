@@ -1271,13 +1271,13 @@ class Apply extends CI_Controller
 		switch($status)
 		{
 			case 'signin':
-				$intro = '<p>您的申请已经成功导入到 iPlacard。</p>';
+				$intro = '<p style=\'margin-bottom: 0;\'>您的申请已经成功导入到 iPlacard。</p>';
 				break;
 			case 'application_imported':
 			case 'review_refused':
 			case 'admit':
 				$intro = '<p>您的申请已经成功导入到 iPlacard，我们将在近期内审核您提交的申请材料。在此期间，请核对您的申请材料，如果内容有误，您将可以修改部分数据。</p>'
-					. '<p>材料审核通过之后，您将进入下一申请流程。</p>';
+					. '<p style=\'margin-bottom: 0;\'>材料审核通过之后，您将进入下一申请流程。</p>';
 				break;
 			case 'review_passed':
 			case 'interview_assigned':
@@ -1286,32 +1286,32 @@ class Apply extends CI_Controller
 			case 'interview':
 				$intro = '<p>在面试阶段中，我们将会根据您的委员会意向指派一位面试官，他将与您取得联系并且确定面试时间和面试方式。</p>'
 					. '<p>请尽量为面试预留足够的时间，如果您无法在约定的时间进行面试，请联系您的面试官，他将会重新为您安排面试时间。</p>'
-					. '<p>如果面试没有通过，您将进入等待队列。</p>';
+					. '<p style=\'margin-bottom: 0;\'>如果面试没有通过，您将进入等待队列。</p>';
 				break;
 			case 'seat_assigned':
 			case 'seat':
 				$intro = '<p>面试通过之后，面试官将会根据您的面试表现为您分配适合的席位选择。通常情况下，面试官将在完成面试后立即为您分配合适的席位选择。</p>'
-					. '<p>席位分配后，您将可以在席位信息页面选择并确认席位；如果您认为分配的席位不适合您，请联系您的面试官，他将可以为您重新分配席位。</p>';
+					. '<p style=\'margin-bottom: 0;\'>席位分配后，您将可以在席位信息页面选择并确认席位；如果您认为分配的席位不适合您，请联系您的面试官，他将可以为您重新分配席位。</p>';
 				break;
 			case 'invoice_issued':
 			case 'payment_received':
 			case 'pay':
-				$intro = '<p>您将可以通过银行转账、网银支付或者邮政汇款完成会费支付，我们将在收到汇款之后确定完成支付。</p>';
+				$intro = '<p style=\'margin-bottom: 0;\'>您将可以通过银行转账、网银支付或者邮政汇款完成会费支付，我们将在收到汇款之后确定完成支付。</p>';
 				break;
 			case 'locked':
 			case 'moved_to_waiting_list':
 			case 'lock':
 				if($this->delegate['status'] == 'moved_to_waiting_list')
-					$intro = '<p>您已经移动到等待队列。我们将会通过邮件通知您后续事宜，请频繁检查您的电子邮箱并定期登录 iPlacard 了解更新。</p>';
+					$intro = '<p style=\'margin-bottom: 0;\'>您已经移动到等待队列。我们将会通过邮件通知您后续事宜，请频繁检查您的电子邮箱并定期登录 iPlacard 了解更新。</p>';
 				else
-					$intro = '<p>您已经完成申请流程。我们将会通过邮件通知您后续事宜，请频繁检查您的电子邮箱并定期登录 iPlacard 了解更新。</p>';
+					$intro = '<p style=\'margin-bottom: 0;\'>您已经完成申请流程。我们将会通过邮件通知您后续事宜，请频繁检查您的电子邮箱并定期登录 iPlacard 了解更新。</p>';
 				break;
 			case 'quitted':
 			case 'quit':
 				$this->load->helper('date');
 				
 				$lock_time = user_option('quit_time', time()) + option('delegate_quit_lock', 7) * 24 * 60 * 60;
-				$intro = '<p>您已退会，您的 iPlacard 帐户数据将在 <span id=\'clock_lock\'>'.nicetime($lock_time).'</span> 秒内删除，届时您将无法登录系统。如果这是管理员的误操作请立即联系管理员恢复帐户。</p>';
+				$intro = '<p style=\'margin-bottom: 0;\'>您已退会，您的 iPlacard 帐户数据将在 <span id=\'clock_lock\'>'.nicetime($lock_time).'</span> 秒内删除，届时您将无法登录系统。如果这是管理员的误操作请立即联系管理员恢复帐户。</p>';
 				
 				$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.countdown.js' : 'static/js/jquery.countdown.min.js').'"></script>');
 				$this->ui->js('footer', "$('#clock_lock').countdown({$lock_time} * 1000, function(event) {
