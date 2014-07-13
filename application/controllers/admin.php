@@ -17,6 +17,11 @@ class Admin extends CI_Controller
 	 */
 	private $has_task = false;
 	
+	/**
+	 * @var string PDF渲染引擎API
+	 */
+	private $pdf_api = 'http://pdf.api.iplacard.com/';
+	
 	function __construct()
 	{
 		parent::__construct();
@@ -310,11 +315,11 @@ class Admin extends CI_Controller
 			$target_delegate['status'] = $this->input->post('status');
 			$target_delegate['type'] = $this->input->post('type');
 			$target_delegate['committee'] = $this->input->post('committee');
-			$target_delegates = $this->_get_target_delegates($target_delegate, 'delegate');
+			$target_delegates = $this->_get_target_delegates($target_delegate);
 			
 			//管理用户
 			$target_admin['role'] = $this->input->post('role');
-			$target_admins = $this->_get_target_admins($target_admin, 'admin');
+			$target_admins = $this->_get_target_admins($target_admin);
 			
 			$ids = array_unique(array_merge($target_admins, $target_delegates));
 			$count = count($ids);
@@ -389,66 +394,522 @@ class Admin extends CI_Controller
 			}
 		}
 		
-		$select = array();
-		
-		//代表类型
-		$application_types = array(
-			'delegate',
-			'observer',
-			'volunteer',
-			'teacher'
+		$vars['select'] = array(
+			'type' => $this->_get_select_option('type'),
+			'status' => $this->_get_select_option('status'),
+			'committee' => $this->_get_select_option('committee'),
+			'role' => $this->_get_select_option('role')
 		);
-		foreach($application_types as $application_type)
-		{
-			$select['type'][$application_type] = $this->delegate_model->application_type_text($application_type);
-		}
-		
-		//申请状态
-		$status = array(
-			'application_imported',
-			'review_passed',
-			'review_refused',
-			'interview_assigned',
-			'interview_arranged',
-			'interview_completed',
-			'moved_to_waiting_list',
-			'seat_assigned',
-			'invoice_issued',
-			'payment_received',
-			'locked',
-			'quitted'
-		);
-		foreach($status as $status_one)
-		{
-			$select['status'][$status_one] = $this->delegate_model->status_text($status_one);
-		}
-		
-		//委员会
-		$committees = $this->committee_model->get_committee_ids();
-		
-		$select['committee'][0] = '无委员会代表';
-		foreach($committees as $committee)
-		{
-			$select['committee'][$committee] = $this->committee_model->get_committee($committee, 'name');
-		}
-		
-		//用户权限
-		$select['role'] = array(
-			'reviewer' => '资料审核',
-			'dais' => '主席',
-			'interviewer' => '面试官',
-			'cashier' => '财务管理',
-			'administrator' => '会务管理',
-			'bureaucrat' => '行政员',
-			'zero' => '无权限用户'
-		);
-		
-		$vars['select'] = $select;
 		
 		$vars['action'] = $action;
 		
 		$this->ui->title($title);
 		$this->load->view('admin/broadcast', $vars);
+	}
+	
+	/**
+	 * 导出数据
+	 */
+	function export($action = 'guide')
+	{
+		//检查权限
+		if(!$this->admin_model->capable('administrator'))
+		{
+			redirect('');
+			return;
+		}
+		
+		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+		
+		$this->form_validation->set_rules('format', '导出文件格式', 'required');
+		$this->form_validation->set_rules('reason', '导出原因', 'trim|required');
+		
+		if($action == 'download' && $this->form_validation->run() == true)
+		{
+			$this->load->library('excel');
+			$this->load->helper('download');
+			$this->load->helper('date');
+			
+			$this->load->model('delegate_model');
+			$this->load->model('committee_model');
+			$this->load->model('seat_model');
+			$this->load->model('interview_model');
+			$this->load->model('invoice_model');
+			$this->load->model('group_model');
+			$this->load->model('note_model');
+
+			sleep(1);
+			
+			$this->db->cache_on();
+			
+			//管理员信息
+			$admin = $this->user_model->get_user(uid());
+			
+			//导出类型
+			$format = $this->input->post('format');
+			
+			//导出内容
+			$source = $this->input->post('source');
+			if(!$source || empty($source))
+				$source = array();
+			
+			//表格描述
+			$description = sprintf('此表单数据由管理员%1$s于 %2$s 导出自由 iPlacard 驱动的 %3$s，此表单数据受 %4$s 保护。',
+				$admin['name'],
+				unix_to_human(time()),
+				option('site_name', 'iPlacard Instance'),
+				option('organization', 'iPlacard')
+			);
+			
+			$this->excel->getProperties()
+					->setCreator(option('organization', 'iPlacard'))
+					->setLastModifiedBy($admin['name'])
+					->setTitle(sprintf('%s数据导出', option('site_name', 'iPlacard Instance')))
+					->setSubject(sprintf('%1$s iPlacard 数据导出 %2$s', option('site_name', 'iPlacard Instance'), standard_date('DATE_W3C')))
+					->setDescription($description)
+					->setKeywords('iplacard '.strtolower(option('organization', '')));
+			
+			//当前页面记录
+			$current_sheet = -1;
+			
+			//筛选信息
+			$target_status = $this->input->post('status');
+			$target_type = $this->input->post('type');
+			$target_committee = $this->input->post('committee');
+			$target_role = $this->input->post('role');
+			
+			//筛选用户类型
+			$list_types = array();
+			if(!empty($target_type))
+			{
+				foreach($this->input->post('type') as $one_type)
+				{
+					if(in_array($one_type, array('delegate', 'observer', 'volunteer', 'teacher')))
+						$list_types[] = $one_type;
+				}
+			}
+			
+			if(!empty($target_role))
+				$list_types[] = 'admin';
+			
+			$list_types = array_unique($list_types);
+			foreach($list_types as $list_type)
+			{
+				//重置笔记统计
+				$note_count = 0;
+				
+				$columns = array();
+				
+				//获取ID
+				if($list_type == 'admin')
+				{
+					$ids = array_unique($this->_get_target_admins(array(
+						'role' => $target_role
+					)));
+				}
+				else
+				{
+					$ids = array_unique($this->_get_target_delegates(array(
+						'status' => $target_status,
+						'committee' => $target_committee,
+						'type' => array($list_type)
+					)));
+				}
+				
+				$count = count($ids);
+				if($count != 0)
+				{
+					//表列
+					$columns['id'] = array('order' => 0, 'name' => 'ID');
+					$columns['name'] = array('order' => count($columns), 'name' => '姓名');
+					$columns['email'] = array('order' => count($columns), 'name' => '电子邮箱');
+					$columns['phone'] = array('order' => count($columns), 'name' => '电话', 'type' => 'longtext');
+					$columns['reg_time'] = array('order' => count($columns), 'name' => ($list_type == 'admin' ? '注册时间' : '申请导入时间'));
+					
+					if($list_type == 'admin')
+					{
+						$columns['title'] = array('order' => count($columns), 'name' => '职务');
+						$columns['committee'] = array('order' => count($columns), 'name' => '委员会');
+					}
+					else
+					{
+						$columns['status'] = array('order' => count($columns), 'name' => '申请状态');
+						$columns['unique_identifier'] = array('order' => count($columns), 'name' => '唯一身份标识', 'type' => 'longtext');
+						
+						if(in_array('group', $source))
+							$columns['group'] = array('order' => count($columns), 'name' => '团队');
+						
+						if($list_type == 'delegate' && in_array('seat', $source))
+						{
+							$columns['seat_id'] = array('order' => count($columns), 'name' => '席位 ID');
+							$columns['seat_name'] = array('order' => count($columns), 'name' => '席位');
+							$columns['committee'] = array('order' => count($columns), 'name' => '委员会');
+						}
+						
+						if($list_type == 'delegate' && in_array('interview', $source))
+						{
+							$columns['interview_id'] = array('order' => count($columns), 'name' => '当前面试 ID');
+							$columns['interview_status'] = array('order' => count($columns), 'name' => '面试状态');
+							$columns['interview_score'] = array('order' => count($columns), 'name' => '面试分数');
+							$columns['interviewer'] = array('order' => count($columns), 'name' => '面试官');
+						}
+						
+						if(in_array('invoice', $source) && $this->admin_model->capable('cashier') && option("invoice_amount_{$list_type}", 0) > 0)
+						{
+							$columns['invoice_id'] = array('order' => count($columns), 'name' => '账单 ID');
+							$columns['invoice_title'] = array('order' => count($columns), 'name' => '账单标题');
+							$columns['invoice_amount'] = array('order' => count($columns), 'name' => '账单金额');
+							$columns['invoice_status'] = array('order' => count($columns), 'name' => '支付状态');
+							$columns['invoice_generate_time'] = array('order' => count($columns), 'name' => '账单生成时间');
+							$columns['invoice_receive_time'] = array('order' => count($columns), 'name' => '账单支付时间');
+							$columns['invoice_cashier'] = array('order' => count($columns), 'name' => '确认管理员');
+						}
+						
+						if(in_array('profile', $source))
+						{
+							$profile_items = option('profile_list_general', array()) + option("profile_list_{$list_type}", array());
+							if(!empty($profile_items))
+							{
+								foreach($profile_items as $name => $title)
+								{
+									$columns["profile_{$name}"] = array('order' => count($columns), 'name' => $title, 'type' => 'longtext');
+								}
+							}
+						}
+						
+						if(in_array('addition', $source))
+						{
+							$addition_items = option('profile_addition_general', array()) + option("profile_addition_{$list_type}", array());
+							if(!empty($addition_items))
+							{
+								foreach($addition_items as $name => $item)
+								{
+									$columns["addition_{$name}"] = array('order' => count($columns), 'name' => $item['title'], 'type' => 'longtext');
+								}
+							}
+						}
+					}
+					
+					//生成数据
+					$list_data = array();
+					foreach($ids as $id)
+					{
+						$single_data = array();
+						
+						//基本信息
+						if($list_type == 'admin')
+							$user = $this->admin_model->get_admin($id);
+						else
+							$user = $this->delegate_model->get_delegate($id);
+						
+						$single_data['id'] = $id;
+						$single_data['name'] = $user['name'];
+						$single_data['email'] = $user['email'];
+						$single_data['phone'] = $user['phone'];
+						$single_data['reg_time'] = unix_to_human($user['reg_time']);
+						
+						if($list_type == 'admin')
+						{
+							$single_data['title'] = $user['title'];
+							
+							//委员会
+							if(!empty($user['committee']))
+								$user['committee'] = $this->committee_model->get_committee($user['committee'], 'name');
+							$single_data['committee'] = $user['committee'];
+						}
+						else
+						{
+							$single_data['status'] = $this->delegate_model->status_text($user['status']);
+							$single_data['unique_identifier'] = $user['unique_identifier'];
+							
+							if(in_array('group', $source))
+							{
+								if(!empty($user['group']))
+									$single_data['group'] = $this->group_model->get_group($user['group'], 'name');
+								else
+									$single_data['group'] = NULL;
+							}
+							
+							if($list_type == 'delegate' && in_array('seat', $source))
+							{
+								$seat_id = $this->seat_model->get_delegate_seat($id);
+								if($seat_id)
+								{
+									$seat = $this->seat_model->get_seat($seat_id);
+									
+									$single_data['seat_id'] = $seat_id;
+									$single_data['seat_name'] = $seat['name'];
+									$single_data['committee'] = $this->committee_model->get_committee($seat['committee'], 'name');
+								}
+							}
+
+							if($list_type == 'delegate' && in_array('interview', $source))
+							{
+								$interview_id = $this->interview_model->get_current_interview_id($id);
+								if($interview_id)
+								{
+									$interview = $this->interview_model->get_interview($interview_id);
+									
+									$single_data['interview_id'] = $interview['id'];
+									$single_data['interview_status'] = $this->interview_model->status_text($interview['status']);
+									$single_data['interview_score'] = $interview['score'];
+									$single_data['interviewer'] = $this->user_model->get_user($interview['interviewer'], 'name');
+								}
+							}
+							
+							if(in_array('invoice', $source) && $this->admin_model->capable('cashier') && option("invoice_amount_{$list_type}", 0) > 0)
+							{
+								//TODO: 多账单
+								$invoice_ids = $this->invoice_model->get_delegate_invoices($id);
+								if($invoice_ids)
+								{
+									$invoice = $this->invoice_model->get_invoice(end($invoice_ids));
+									
+									$single_data['invoice_id'] = $invoice['id'];
+									$single_data['invoice_title'] = $invoice['title'];
+									$single_data['invoice_amount'] = $invoice['amount'];
+									$single_data['invoice_status'] = $this->invoice_model->status_text($invoice['status']);
+									$single_data['invoice_generate_time'] = unix_to_human($invoice['generate_time']);
+									$single_data['invoice_receive_time'] = unix_to_human($invoice['receive_time']);
+									
+									if(!empty($invoice['cashier']))
+										$single_data['invoice_cashier'] = $this->user_model->get_user($invoice['cashier'], 'name');
+								}
+							}
+							
+							if(in_array('profile', $source))
+							{
+								$profile_items = option('profile_list_general', array()) + option("profile_list_{$list_type}", array());
+								if(!empty($profile_items))
+								{
+									$profiles = $this->delegate_model->get_delegate_profiles($id);
+									
+									foreach($profile_items as $name => $title)
+									{
+										$single_data["profile_{$name}"] = isset($profiles[$name]) ? $profiles[$name] : NULL;
+									}
+								}
+							}
+							
+							if(in_array('addition', $source))
+							{
+								$addition_items = option('profile_addition_general', array()) + option("profile_addition_{$list_type}", array());
+								if(!empty($addition_items))
+								{
+									$additions = $this->delegate_model->get_delegate_profiles($id);
+									
+									foreach($addition_items as $name => $item)
+									{
+										$addition = isset($additions["addition_{$name}"]) ? $additions["addition_{$name}"] : $item['default'];
+										
+										$value = NULL;
+										switch($item['type'])
+										{
+											case 'choice':
+												$value = $item['item'][$addition];
+												break;
+											
+											default:
+												$value = $addition;
+										}
+										
+										$single_data["addition_{$name}"] = $value;
+									}
+								}
+							}
+							
+							if(in_array('note', $source))
+							{
+								$note_ids = $this->note_model->get_delegate_notes($id);
+								if($note_ids)
+								{
+									$counter = 0;
+									foreach($note_ids as $note_id)
+									{
+										$note = $this->note_model->get_note($note_id);
+										
+										if(empty($note['category']))
+										{
+											$single_data["note_{$counter}"] = sprintf('[%1$s %2$s]%3$s',
+												$this->user_model->get_user($note['admin'], 'name'),
+												unix_to_human($note['time']),
+												$note['text']
+											);
+										}
+										else
+										{
+											$single_data["note_{$counter}"] = sprintf('[%1$s %2$s %3$s]%4$s',
+												$this->user_model->get_user($note['admin'], 'name'),
+												unix_to_human($note['time']),
+												$this->note_model->get_category($note['category'], 'name'),
+												$note['text']
+											);
+										}
+										
+										$counter++;
+									}
+										
+									if(count($note_ids) > $note_count)
+										$note_count = count($note_count);
+								}
+							}
+						}
+						
+						$list_data[] = $single_data;
+					}
+					
+					//补充表列
+					if($note_count > 0)
+					{
+						for($i = 0; $i < $note_count; $i++)
+						{
+							$columns["note_{$i}"] = array('order' => count($columns), 'name' => '注释');
+						}
+					}
+					
+					//生成页面
+					$current_row = 1;
+					
+					//新建工作表
+					$current_sheet++;
+					if($current_sheet != 0)
+						$this->excel->createSheet();
+					
+					$this->excel->setActiveSheetIndex($current_sheet);
+					$this->excel->getActiveSheet()->setTitle(($list_type == 'admin') ? '管理员' : $this->delegate_model->application_type_text($list_type));
+					
+					//生成表头
+					foreach($columns as $column)
+					{
+						$this->excel->getActiveSheet()->setCellValueByColumnAndRow($column['order'], 1, $column['name']);
+						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'], 1)->getFont()->setBold(true);
+						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'], 1)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'], 1)->getFill()->getStartColor()->setRGB('D3D3D3');
+					}
+					
+					//写入数据
+					foreach($list_data as $list_single)
+					{
+						$current_row++;
+						
+						foreach($columns as $column_id => $column)
+						{
+							if(isset($column['type']))
+							{
+								if($column['type'] == 'longtext')
+									$this->excel->getActiveSheet()->getCellByColumnAndRow($column['order'], $current_row)->setValueExplicit(isset($list_single[$column_id]) ? $list_single[$column_id] : NULL, PHPExcel_Cell_DataType::TYPE_STRING);
+							}
+							else
+								$this->excel->getActiveSheet()->setCellValueByColumnAndRow($column['order'], $current_row, isset($list_single[$column_id]) ? $list_single[$column_id] : NULL);
+						}
+					}
+				}
+			}
+			
+			//设置活动工作表
+			$this->excel->setActiveSheetIndex(0);
+			
+			$this->db->cache_delete('/admin', 'export');
+			
+			switch($format)
+			{
+				case 'xls':
+					$io = 'Excel5';
+					break;
+				case 'xlsx':
+					$io = 'Excel2007';
+					break;
+				case 'pdf':
+				case 'html':
+					$io = 'HTML';
+					break;
+				case 'csv':
+					$io = 'CSV';
+					break;
+				default:
+					$this->ui->alert('导出格式不支持。', 'warning', true);
+					back_redirect();
+					return;
+			}
+			
+			$this->system_model->log('export', array(
+				'client' => array(
+					'status' => $target_status,
+					'type' => $target_type,
+					'committee' => $target_committee,
+					'role' => $target_role
+				),
+				'format' => $format,
+				'source' => $source,
+				'reason' => $this->input->post('reason')
+			));
+			
+			//生成内容
+			ob_start();
+			
+			$writer = PHPExcel_IOFactory::createWriter($this->excel, $io);
+			
+			if(in_array($format, array('html', 'pdf')))
+				$writer->writeAllSheets();
+			
+			$writer->save('php://output');
+			
+			$content = ob_get_contents();
+			ob_end_clean();
+			
+			//生成PDF
+			if($format == 'pdf')
+			{
+				$this->load->library('curl');
+		
+				//生成数据
+				$data = array(
+					'html' => $content
+				);
+
+				//获取结果
+				$content = $this->curl->simple_post($this->pdf_api, $data);
+
+				if(empty($content))
+				{
+					$this->ui->alert('渲染 PDF 时发生了一个错误。', 'warning', true);
+					back_redirect();
+					return;
+				}
+			}
+			
+			force_download('iPlacard-'.date('Y-m-d-H-i-s').'.'.$format, $content);
+			
+			return;
+		}
+		
+		$vars['source'] = array(
+			'seat' => '席位',
+			'group' => '团队',
+			'interview' => '面试',
+			'invoice' => '账单',
+			'note' => '笔记',
+			'profile' => '申请材料',
+			'addition' => '附加信息'
+		);
+		
+		$vars['format'] = array(
+			'xlsx' => 'Microsoft Excel 2007 文档（.xlsx）',
+			'xls' => 'Microsoft Excel 97-2003 文档（.xls）',
+			'html' => 'HTML Calc 文档（.html）',
+			'pdf' => '便携式文件格式（.pdf）',
+			'csv' => 'CSV 文本（.csv）',
+		);
+		
+		$vars['select'] = array(
+			'type' => $this->_get_select_option('type'),
+			'status' => $this->_get_select_option('status'),
+			'committee' => $this->_get_select_option('committee'),
+			'role' => $this->_get_select_option('role')
+		);
+		
+		$this->ui->title('导出');
+		$this->load->view('admin/export', $vars);
 	}
 	
 	/**
@@ -1098,6 +1559,94 @@ class Admin extends CI_Controller
 		}
 		
 		return '';
+	}
+	
+	/**
+	 * 返回选择可用选项
+	 */
+	private function _get_select_option($type)
+	{
+		$select = array();
+		
+		switch($type)
+		{
+			//代表类型
+			case 'type':
+				$this->load->model('delegate_model');
+				
+				$application_types = array(
+					'delegate',
+					'observer',
+					'volunteer',
+					'teacher'
+				);
+				
+				foreach($application_types as $application_type)
+				{
+					$select[$application_type] = $this->delegate_model->application_type_text($application_type);
+				}
+				
+				break;
+			
+			//申请状态
+			case 'status':
+				$this->load->model('delegate_model');
+				
+				$status = array(
+					'application_imported',
+					'review_passed',
+					'review_refused',
+					'interview_assigned',
+					'interview_arranged',
+					'interview_completed',
+					'moved_to_waiting_list',
+					'seat_assigned',
+					'invoice_issued',
+					'payment_received',
+					'locked',
+					'quitted'
+				);
+				
+				foreach($status as $status_one)
+				{
+					$select[$status_one] = $this->delegate_model->status_text($status_one);
+				}
+				
+				break;
+				
+			//委员会
+			case 'committee':
+				$this->load->model('committee_model');
+				
+				$committees = $this->committee_model->get_committee_ids();
+
+				$select[0] = '无委员会代表';
+				foreach($committees as $committee)
+				{
+					$select[$committee] = $this->committee_model->get_committee($committee, 'name');
+				}
+				
+				break;
+				
+			//用户权限
+			case 'role':
+				$select = array(
+					'reviewer' => '资料审核',
+					'dais' => '主席',
+					'interviewer' => '面试官',
+					'cashier' => '财务管理',
+					'administrator' => '会务管理',
+					'bureaucrat' => '行政员',
+					'zero' => '无权限用户'
+				);
+				
+				break;
+			
+			default:
+				return false;
+		}
+		
+		return $select;
 	}
 	
 	/**

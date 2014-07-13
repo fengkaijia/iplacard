@@ -530,6 +530,7 @@ class UI
 		if($this->CI->admin_model->capable('administrator'))
 		{
 			$this->add_sub_menu('broadcast', 'manage', '群发信息', 'admin/broadcast/email');
+			$this->add_sub_menu('export', 'manage', '导出', 'admin/export');
 			$this->add_sub_menu('stat', 'manage', '统计', 'admin/stat');
 		}
 	}
