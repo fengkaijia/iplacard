@@ -428,17 +428,24 @@ class Document extends CI_Controller
 		}
 		
 		//读取文件内容
-		$data = read_file("{$this->path}{$file['id']}.{$file['filetype']}");
-		
-		if(empty($data) || sha1($data) != $file['hash'])
+		if($file['drm'] || option('server_sendfile', 'php') == 'php')
 		{
-			$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
-			back_redirect();
-			return;
+			$data = read_file("{$this->path}{$file['id']}.{$file['filetype']}");
+		
+			if(empty($data) || sha1($data) != $file['hash'])
+			{
+				$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
+				back_redirect();
+				return;
+			}
 		}
 		
 		//版权标识
-		list($data, $drm) = $this->_drm($data, $file['filetype']);
+		$drm = NULL;
+		if($file['drm'])
+		{
+			list($data, $drm) = $this->_drm($data, $file['filetype']);
+		}
 		
 		$this->document_model->add_download($file['id'], uid(), $drm);
 		
@@ -452,11 +459,9 @@ class Document extends CI_Controller
 		//弹出下载
 		$this->output->set_content_type($file['filetype']);
 		
-		if($this->agent->is_mobile())
+		if(option('server_sendfile', 'php') != 'php')
 		{
-			//手机访问不强制弹出下载
-			$this->output->set_header('Content-Length: '.strlen($data), false);
-			$this->output->set_output($data);
+			xsendfile_download("{$this->path}{$file['id']}.{$file['filetype']}", $filename);
 		}
 		else
 		{
