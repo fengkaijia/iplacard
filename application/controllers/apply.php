@@ -246,6 +246,9 @@ class Apply extends CI_Controller
 				$edited_ids = array();
 				foreach($addition_items as $name => $item)
 				{
+					if(isset($item['enabled']) && !$item['enabled'])
+						break;
+					
 					$post = $this->input->post("addition_$name");
 					
 					switch($item['type'])
