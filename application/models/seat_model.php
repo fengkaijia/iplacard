@@ -496,12 +496,15 @@ class Seat_model extends CI_Model
 	
 	/**
 	 * 删除席位延期请求
-	 * @param int $id 延期请求ID
+	 * @param int|array $id 一个或一组延期请求ID
 	 * @return boolean 是否完成删除
 	 */
 	function delete_backorder($id)
 	{
-		$this->db->where('id', $id);
+		if(is_int($id) || is_string($id))
+			$id = array($id);
+		
+		$this->db->where_in('id', $id);
 		return $this->db->delete('seat_backorder');
 	}
 	
