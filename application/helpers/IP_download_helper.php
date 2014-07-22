@@ -1,6 +1,34 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
+ * 使用符号链接发送文件
+ */
+function symlink_download($path, $filename = '')
+{
+	if(!@is_file($path) || !($filesize = @filesize($path)))
+	{
+		return false;
+	}
+	
+	$uid = uid();
+	if(!$uid)
+		$uid = 0;
+	
+	$path = realpath($path);
+	$temp_path = sha1($uid.$path.date('Y-m-d'));
+	
+	if(!file_exists('./temp/'.IP_INSTANCE_ID.'/download/'.$temp_path))
+	{
+		mkdir('./temp/'.IP_INSTANCE_ID.'/download/'.$temp_path);
+		symlink($path, './temp/'.IP_INSTANCE_ID.'/download/'.$temp_path.'/'.$filename);
+	}
+	
+	redirect('./temp/'.IP_INSTANCE_ID.'/download/'.$temp_path.'/'.$filename);
+	
+	exit;
+}
+
+/**
  * 使用X-Sendfile和代替协议发送文件
  */
 function xsendfile_download($path, $filename = '')
@@ -37,7 +65,7 @@ function xsendfile_download($path, $filename = '')
 
 	header('Pragma: no-cache');
 	
-	switch(option('server_sendfile', 'apache'))
+	switch(option('server_download_method', 'apache'))
 	{
 		case 'apache':
 			$path = realpath($path);
