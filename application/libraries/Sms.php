@@ -161,7 +161,11 @@ class Sms extends Sms_model
 		else
 		{
 			$return = json_decode($api_return);
-			$result = $return->result ? true : false;
+			
+			if(is_null($result))
+				$result = false;
+			else
+				$result = $return->result ? true : false;
 		}
 		
 		//记录数据
