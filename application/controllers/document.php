@@ -459,7 +459,11 @@ class Document extends CI_Controller
 		//弹出下载
 		$this->output->set_content_type($file['filetype']);
 		
-		if(option('server_download_method', 'php') != 'php')
+		if(!$file['drm'] && option('server_download_method', 'php') == 'temp')
+		{
+			symlink_download("{$this->path}{$file['id']}.{$file['filetype']}", $filename);
+		}
+		elseif(!$file['drm'] && option('server_download_method', 'php') != 'php')
 		{
 			xsendfile_download("{$this->path}{$file['id']}.{$file['filetype']}", $filename);
 		}
