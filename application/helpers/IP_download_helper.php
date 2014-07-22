@@ -37,7 +37,7 @@ function xsendfile_download($path, $filename = '')
 
 	header('Pragma: no-cache');
 	
-	switch(option('server_sendfile', 'apache'))
+	switch(option('server_download_method', 'apache'))
 	{
 		case 'apache':
 			$path = realpath($path);

@@ -428,7 +428,7 @@ class Document extends CI_Controller
 		}
 		
 		//读取文件内容
-		if($file['drm'] || option('server_sendfile', 'php') == 'php')
+		if($file['drm'] || option('server_download_method', 'php') == 'php')
 		{
 			$data = read_file("{$this->path}{$file['id']}.{$file['filetype']}");
 		
@@ -459,7 +459,7 @@ class Document extends CI_Controller
 		//弹出下载
 		$this->output->set_content_type($file['filetype']);
 		
-		if(option('server_sendfile', 'php') != 'php')
+		if(option('server_download_method', 'php') != 'php')
 		{
 			xsendfile_download("{$this->path}{$file['id']}.{$file['filetype']}", $filename);
 		}
