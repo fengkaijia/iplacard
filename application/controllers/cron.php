@@ -34,6 +34,7 @@ class Cron extends CI_Controller
 	function minutely()
 	{
 		echo "\nProcessing Cron Minutely.\n\n";
+		$this->_cleanup_symlink_download();
 		$this->_send_sms();
 	}
 	
@@ -53,6 +54,43 @@ class Cron extends CI_Controller
 	{
 		echo "\nProcessing Cron Weekly.\n\n";
 		$this->_remind_invoice();
+	}
+	
+	/**
+	 * 清理过时文件下载符号链接
+	 */
+	private function _cleanup_symlink_download()
+	{
+		$this->load->helper('file');
+		
+		$list = scandir('./temp/'.IP_INSTANCE_ID.'/download');
+		if($list)
+		{
+			$count = count($list);
+			echo "{$count} symlink(s) to be checked.\n";
+			
+			foreach($list as $directory)
+			{
+				if(in_array($directory, array('.', '..')))
+					continue;
+				
+				if(filectime('./temp/'.IP_INSTANCE_ID.'/download/'.$directory) < time() - 15 * 60)
+				{
+					delete_files('./temp/'.IP_INSTANCE_ID.'/download/'.$directory);
+					@rmdir('./temp/'.IP_INSTANCE_ID.'/download/'.$directory);
+					
+					echo "Symlink {$directory} removed.\n";
+				}
+				else
+				{
+					echo "Symlink {$directory} is unchanged.\n";
+				}
+			}
+		}
+		else
+		{
+			echo "No Symlink to be deleted.\n";
+		}
 	}
 	
 	/**
