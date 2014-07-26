@@ -354,6 +354,12 @@ class User extends CI_Controller
 				if($user['role_interviewer'])
 					$operation .= anchor("interview/manage?interviewer=$id", icon('comments-o', false).'队列');
 				
+				//用户姓名信息
+				$contact_list = '<p>'.icon('phone').$user['phone'].'</p><p>'.icon('envelope-o').$user['email'].'</p>';
+				$name_line = $user['name'].'<a style="cursor: pointer;" class="contact_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\''
+						.$user['name']
+						.'\' data-toggle="popover" data-content=\''.$contact_list.'\'>'.icon('phone-square', false).'</a>';
+				
 				//委员会
 				if($user['committee'])
 				{
@@ -379,7 +385,7 @@ class User extends CI_Controller
 				
 				$data = array(
 					$user['id'], //ID
-					$user['name'], //姓名
+					$name_line, //姓名
 					$user['title'], //职位
 					$user['committee'] ? $committee_line : '', //委员会
 					$interview_line, //面试队列

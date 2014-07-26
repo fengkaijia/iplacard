@@ -52,7 +52,10 @@ $(document).ready(function() {
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,
-		"sAjaxSource": '{$ajax_url}'
+		"sAjaxSource": '{$ajax_url}',
+		"fnDrawCallback": function() {
+			$('.contact_list').popover();
+		}
 	} );
 } );
 EOT;
