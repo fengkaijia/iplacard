@@ -28,12 +28,14 @@ $this->load->view('header');?>
 </table>
 
 <?php
+$admin_list = $show_admin ? '' : '3, 6';
 $ajax_url = base_url('committee/ajax/list');
 $ajax_js = <<<EOT
 $(document).ready(function() {
 	$('#user_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bSortable": false, "aTargets": [ 0 ] }
+			{ "bSortable": false, "aTargets": [ 0 ] },
+			{ "bVisible": false, "aTargets": [ {$admin_list} ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,

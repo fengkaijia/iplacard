@@ -62,8 +62,12 @@ class Committee extends CI_Controller
 	 */
 	function manage()
 	{
+		$vars = array(
+			'show_admin' => $this->admin_model->capable('administrator')
+		);
+		
 		$this->ui->title('委员会列表');
-		$this->load->view('admin/committee_manage');
+		$this->load->view('admin/committee_manage', $vars);
 	}
 	
 	/**
