@@ -154,7 +154,7 @@ class Interview_model extends CI_Model
 	 */
 	function status_text($status)
 	{
-		//如果为代表ID
+		//如果为面试ID
 		if(is_int($status) || intval($status) != 0)
 			$status = $this->get_interview($status, 'status');
 		
