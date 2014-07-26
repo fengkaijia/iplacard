@@ -162,7 +162,7 @@ class Sms extends Sms_model
 		{
 			$return = json_decode($api_return);
 			
-			if(is_null($result))
+			if(is_null($return))
 				$result = false;
 			else
 				$result = $return->result ? true : false;
