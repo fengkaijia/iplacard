@@ -48,7 +48,7 @@ class Committee extends CI_Controller
 		}
 		
 		//检查权限
-		if(!$this->user_model->is_admin(uid()) || (!$this->admin_model->capable('administrator')))
+		if(!$this->user_model->is_admin(uid()))
 		{
 			redirect('');
 			return;
@@ -71,6 +71,13 @@ class Committee extends CI_Controller
 	 */
 	function edit($id = '')
 	{
+		//检查权限
+		if(!$this->admin_model->capable('administrator'))
+		{
+			redirect('');
+			return;
+		}
+		
 		//设定操作类型
 		$action = 'edit';
 		if(empty($id))
@@ -145,6 +152,13 @@ class Committee extends CI_Controller
 	 */
 	function delete($id)
 	{
+		//检查权限
+		if(!$this->admin_model->capable('administrator'))
+		{
+			redirect('');
+			return;
+		}
+		
 		//委员会检查
 		$committee = $this->committee_model->get_committee($id);
 		if(!$committee)
