@@ -62,6 +62,7 @@ class Admin_model extends CI_Model
 	
 	/**
 	 * 检查管理员是否拥有指定权限
+	 * @param string|array $role 一个或一组权限（满足单一条件）
 	 * @return boolean
 	 */
 	function capable($role, $id = '')
@@ -73,9 +74,20 @@ class Admin_model extends CI_Model
 		//权限
 		$roles = array('reviewer', 'dais', 'interviewer', 'cashier', 'administrator', 'bureaucrat');
 		
-		if(!in_array($role, $roles))
-			return false;
-		return $this->get_admin($id, "role_$role");
+		//多项权限
+		if(is_string($role))
+			$role = array($role);
+		
+		foreach($role as $one)
+		{
+			if(!in_array($one, $roles))
+				continue;
+			
+			if($this->get_admin($id, "role_$one"))
+				return true;
+		}
+		
+		return false;
 	}
 	
 	/**
