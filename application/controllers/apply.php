@@ -176,7 +176,7 @@ class Apply extends CI_Controller
 			$application_fee = 'fee';
 		
 		$application_seat = 'nonseat';
-		if($this->delegate['application_type'] == 'delegate')
+		if($this->delegate['application_type'] == 'delegate' && option('seat_enabled', true))
 			$application_seat = 'seat';
 		
 		$application_type_function = "_status_{$application_seat}_{$application_fee}";

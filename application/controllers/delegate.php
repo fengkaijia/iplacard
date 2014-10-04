@@ -647,7 +647,7 @@ class Delegate extends CI_Controller
 				$this->system_model->log('review_passed', array('delegate' => $uid));
 				
 				//非代表情况
-				if($delegate['application_type'] != 'delegate')
+				if($delegate['application_type'] != 'delegate' || !option('seat_enabled', true))
 				{
 					$fee = option("invoice_amount_{$delegate['application_type']}", 0);
 					
