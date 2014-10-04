@@ -37,7 +37,7 @@ define('IP_DB_DATABASE', '');
 /**
  * 数据库驱动
  */
-define('IP_DB_DRIVER', 'mysql');
+define('IP_DB_DRIVER', 'mysqli');
 
 /**
  * 默认数据表前缀（多站点模式启用情况下被IP_INSTANCE_NAMESPACE代替）
