@@ -1,4 +1,4 @@
-<p>如果代表申请退会，您可以操作退会并代表席位。</p>
+<p>如果代表申请退会，您可以操作退会并释放代表席位。</p>
 
 <p><a class="btn btn-danger" href="#" data-toggle="modal" data-target="#quit">代表退会</a></p>
 
