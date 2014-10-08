@@ -9,7 +9,7 @@
 		<div id="result"><?php foreach($result as $one) { ?>
 			<div>
 				<h4><strong><?php echo anchor("help/article/kb{$one['kb']}", icon('book').$one['title']);?></strong></h4>
-				<p><?php echo character_limiter($one['content'], 300);?></p>
+				<p><?php echo character_limiter(strip_tags($one['content']), 300);?></p>
 			</div>
 		<?php } ?></div>
 		
