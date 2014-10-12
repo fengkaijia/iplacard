@@ -145,7 +145,7 @@ class Apply extends CI_Controller
 				
 				$this->email->to($this->delegate['email']);
 				$this->email->subject('申请已经完成');
-						$this->email->html($this->parser->parse_string(option('email_application_locked', '感谢参与申请，您的申请流程已经于 {time} 锁定完成，请登录 iPlacard 查看申请状态。'), $data, true));
+				$this->email->html($this->parser->parse_string(option('email_application_locked', '感谢参与申请，您的申请流程已经于 {time} 锁定完成，请登录 iPlacard 查看申请状态。'), $data, true));
 				$this->email->send();
 				
 				//短信通知
