@@ -1,6 +1,6 @@
 <p>如果代表申请退会，您可以操作退会并释放代表席位。</p>
 
-<p><a class="btn btn-danger" href="#" data-toggle="modal" data-target="#quit">代表退会</a></p>
+<p><a class="btn btn-danger" href="#" data-toggle="modal" data-target="#quit"><?php echo icon('recycle');?>代表退会</a></p>
 
 <?php echo form_open("delegate/operation/quit/$uid", array(
 	'class' => 'modal fade form-horizontal',
