@@ -78,7 +78,7 @@ class Account extends CI_Controller
 					//代表退会
 					if($delegate_status == 'quitted' && user_option('quit_time', 0, $id) + option('delegate_quit_lock', 7) * 24 * 60 * 60 < time())
 					{
-						$this->ui->alert('您已退会，您的帐号已经停用，如有任何疑问请联系管理员。', 'danger', true);
+						$this->ui->alert('您已退会，您的帐户已经停用，如有任何疑问请联系管理员。', 'danger', true);
 						back_redirect();
 						return;
 					}
@@ -1671,7 +1671,7 @@ class Account extends CI_Controller
 
 		//检查是否设置安全码
 		if(option('check_pin', false) && $user['pin_password'] == option('default_pin_password', 'iPlacard'))
-			$this->ui->alert(sprintf('您尚未更改您的初始安全码，请在您的<a href="%s" class="alert-link">帐号管理</a>页面设置新的安全码。', base_url('account/pin')), 'info', true);
+			$this->ui->alert(sprintf('您尚未更改您的初始安全码，请在您的<a href="%s" class="alert-link">帐户管理</a>页面设置新的安全码。', base_url('account/pin')), 'info', true);
 
 		//设置Session数据
 		$this->session->set_userdata(array(

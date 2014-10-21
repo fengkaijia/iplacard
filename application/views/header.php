@@ -116,7 +116,7 @@
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">登录 <b class="caret"></b></a>
 						<ul class="dropdown-menu">
 							<li><a href="<?php echo base_url('account/login');?>">登录</a></li>
-							<li><a href="<?php echo base_url('account/recover');?>">帐号恢复</a></li>
+							<li><a href="<?php echo base_url('account/recover');?>">找回密码</a></li>
 							<li><a href="<?php echo base_url('help/knowledgebase');?>">知识库</a></li>
 							<li class="divider"></li>
 							<li><?php echo safe_mailto(option('site_contact_email', 'contact@iplacard.com'), '联系管理员');?></li>
