@@ -1773,6 +1773,9 @@ class Delegate extends CI_Controller
 						case 10:
 							$status_class = 'warning';
 							break;
+						case 100:
+							$status_class = 'danger';
+							break;
 						default:
 							$status_class = 'primary';
 					}
