@@ -1321,7 +1321,7 @@ class Apply extends CI_Controller
 				
 				$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.countdown.js' : 'static/js/jquery.countdown.min.js').'"></script>');
 				$this->ui->js('footer', "$('#clock_lock').countdown({$lock_time} * 1000, function(event) {
-					$(this).html(event.strftime('%d 天 %H:%M:%S'));
+					$(this).html(event.strftime('%-D 天 %H:%M:%S'));
 				});");
 				break;
 			default:

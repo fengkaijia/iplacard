@@ -1,7 +1,7 @@
 <script src="<?php echo static_url(is_dev() ? 'static/js/jquery.countdown.js' : 'static/js/jquery.countdown.min.js');?>"></script>
 <script>
 	$('#clock_delete').countdown(<?php echo $delete_time;?> * 1000, function(event) {
-		$(this).html(event.strftime('%d 天 %H:%M:%S'));
+		$(this).html(event.strftime('%-D 天 %H:%M:%S'));
 	});
 </script>
 

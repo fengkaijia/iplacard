@@ -165,7 +165,7 @@ $this->load->view('header');?>
 //倒计时
 $overdue_js = <<<EOT
 $('#clock_overdue').countdown({$due_time} * 1000, function(event) {
-	$(this).html(event.strftime('%H:%M:%S'));
+	$(this).html(event.strftime('%-D 天 %H:%M:%S'));
 });
 EOT;
 $this->ui->js('footer', $overdue_js);
