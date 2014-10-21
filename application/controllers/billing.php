@@ -157,6 +157,14 @@ class Billing extends CI_Controller
 
 			if($this->form_validation->run() == true)
 			{
+				//删除帐户情况
+				if($delegate['status'] == 'deleted')
+				{
+					$this->ui->alert('此代表帐户已停用删除，无法确认账单。', 'danger', true);
+					back_redirect();
+					return;
+				}
+				
 				$time = $this->input->post('time');
 				$gateway = $this->input->post('gateway');
 				$transaction = $this->input->post('transaction');

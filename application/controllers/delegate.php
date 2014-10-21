@@ -607,6 +607,15 @@ class Delegate extends CI_Controller
 		if(!$delegate)
 			return;
 		
+		//禁止操作已删除帐户
+		if($delegate['status'] == 'deleted' && $action != 'recover_account')
+		{
+			$this->ui->alert('此代表帐户已停用删除，无法完成操作。', 'danger', true);
+			back_redirect();
+			
+			return;
+		}
+		
 		switch($action)
 		{
 			//通过审核
@@ -1888,6 +1897,10 @@ class Delegate extends CI_Controller
 			'uid' => $delegate['id'],
 			'delegate' => $delegate
 		);
+		
+		//禁止操作已删除帐户
+		if($delegate['status'] == 'deleted')
+			return '';
 		
 		switch($delegate['status'])
 		{

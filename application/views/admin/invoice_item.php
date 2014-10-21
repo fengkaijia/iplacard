@@ -23,7 +23,13 @@ $this->load->view('header');?>
 		<div id="pre_receive">
 			<p>您将会在 <span id="clock_overdue">00:00:00</span> 秒（<?php echo date('Y年m月d日', $due_time);?>前）内来自<?php echo anchor("delegate/profile/{$delegate['id']}", icon('user', false).$delegate['name']);?>收到汇款。</p>
 			<p>收到汇款后请点击确认汇款信息。</p>
-			<p><a class="btn btn-primary" href="#" onclick="$('#do_receive').show(); $('#pre_receive').hide();"><?php echo icon('check-circle');?>确认收款</a></p>
+			<p><?php
+			if($delegate['status'] != 'deleted') { ?><a class="btn btn-primary" href="#" onclick="$('#do_receive').show(); $('#pre_receive').hide();"><?php echo icon('check-circle');?>确认收款</a><?php }
+			else
+			{
+				$this->ui->js('footer', "$('#receive_lock').popover();");
+				?><a id="receive_lock" data-original-title="无法确认收款" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="此代表帐户已停用删除，无法确认账单。" title=""><?php echo icon('check-circle');?>确认收款</a><?php
+			} ?></p>
 			<p>同时您可以手动<a href="#" data-toggle="modal" data-target="#remind_invoice"><?php echo icon('bullhorn', false);?>发送催款邮件</a>。</p>
 		</div>
 		
