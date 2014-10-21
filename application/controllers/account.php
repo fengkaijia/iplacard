@@ -616,6 +616,12 @@ class Account extends CI_Controller
 			back_redirect();
 			return;
 		}
+		elseif($this->delegate_model->get_delegate($id, 'status') == 'deleted')
+		{
+			$this->ui->alert('SUDO 对象帐户已计划删除停用。', 'danger', true);
+			back_redirect();
+			return;
+		}
 		
 		$sudoer = uid();
 		$this->session->set_userdata(array(

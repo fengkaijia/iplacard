@@ -2106,7 +2106,7 @@ class Delegate extends CI_Controller
 		);
 		
 		//SUDO
-		if($this->admin_model->capable('administrator') && ($delegate['status'] != 'quitted' || user_option('quit_time', 0, $delegate['id']) + option('delegate_quit_lock', 7) * 24 * 60 * 60 > time()))
+		if($this->admin_model->capable('administrator') && $delegate['status'] != 'deleted' && ($delegate['status'] != 'quitted' || user_option('quit_time', 0, $delegate['id']) + option('delegate_quit_lock', 7) * 24 * 60 * 60 > time()))
 		{
 			$html .= $this->load->view('admin/admission/sudo', $vars, true);
 		}
