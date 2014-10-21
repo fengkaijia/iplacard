@@ -154,7 +154,8 @@ class Delegate_model extends CI_Model
 			'invoice_issued', //等待支付账单
 			'payment_received', //付款已收到
 			'locked', //操作锁定
-			'quitted' //退会
+			'quitted', //退会
+			'deleted' //计划删除
 		);
 		
 		if(!in_array($status, $available))
@@ -182,7 +183,8 @@ class Delegate_model extends CI_Model
 			'invoice_issued' => 6, //等待支付账单
 			'payment_received' => 7, //付款已收到
 			'locked' => 9, //操作锁定
-			'quitted' => 10 //退会
+			'quitted' => 10, //退会
+			'deleted' => 100 //计划删除
 		);
 		
 		//如果为代表ID
@@ -231,6 +233,8 @@ class Delegate_model extends CI_Model
 				return '申请已完成';
 			case 'quitted':
 				return '已经退会';
+			case 'deleted':
+				return '计划删除';
 		}
 		return false;
 	}

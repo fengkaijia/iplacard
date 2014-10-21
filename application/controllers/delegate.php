@@ -1520,7 +1520,7 @@ class Delegate extends CI_Controller
 				$this->email->to($delegate['email']);
 				$this->email->subject('您已退会');
 				$this->email->html($this->parser->parse_string(option('email_delegate_quitted', "您已于 {time} 退会。\n\n"
-						. "您的 iPlacard 帐号将于 {lock_time}（退会操作执行后 {lock_period} 天内）删除，请立即登录 iPlacard 查看详情。如果这是管理员的误操作请立即联系管理员恢复帐户。"), $data, true));
+						. "您的 iPlacard 帐号将于 {lock_time}（退会操作执行后 {lock_period} 天内）关闭，请立即登录 iPlacard 查看详情。如果这是管理员的误操作请立即联系管理员恢复帐户。"), $data, true));
 				$this->email->send();
 				
 				//短信通知代表
@@ -1537,6 +1537,73 @@ class Delegate extends CI_Controller
 				$this->ui->alert("已经操作{$delegate['name']}代表退会。", 'success', true);
 				
 				$this->system_model->log('delegate_quitted', array('delegate' => $uid));
+				break;
+				
+			//永久删除用户帐户
+			case 'delete_account':
+				//密码验证
+				$admin_password = $this->input->post('password');
+				if(empty($admin_password) || !$this->user_model->check_password(uid(), $admin_password))
+				{
+					$this->ui->alert('密码验证错误，删除操作未执行。', 'warning', true);
+					break;
+				}
+				
+				//删除原因
+				$reason = $this->input->post('reason');
+				if(empty($reason))
+				{
+					$this->ui->alert('删除原因为空，删除操作未执行。', 'warning', true);
+					break;
+				}
+				
+				$lock_time = option('delegate_delete_lock', 7);
+				
+				//操作删除
+				$this->delegate_model->change_status($uid, 'deleted');
+				
+				$this->user_model->edit_user_option('delete_status', $delegate['status'], $uid);
+				$this->user_model->edit_user_option('delete_time', time(), $uid);
+				$this->user_model->edit_user_option('delete_operator', uid(), $uid);
+				$this->user_model->edit_user_option('delete_reason', $reason, $uid);
+				
+				$this->delegate_model->add_event($uid, 'deleted', array('reason' => $reason));
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'lock_period' => $lock_time,
+					'lock_time' => unix_to_human(time() + $lock_time * 24 * 60 * 60),
+					'reason' => $reason,
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('您的 iPlacard 帐户将被删除');
+				$this->email->html($this->parser->parse_string(option('email_delegate_deleted', "管理员已经于 {time} 停用了您的 iPlacard 帐户。以下原因造成了账户停用：\n\n"
+						. "\t{reason}\n\n"
+						. "您的 iPlacard 帐号将于 {lock_time}（退会操作执行后 {lock_period} 天内）删除。请立即联系管理员了解情况。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的帐户将被删除，请立即联系管理员了解情况。');
+					$this->sms->queue();
+				}
+				
+				$this->ui->alert("已经操作计划删除{$delegate['name']}代表帐户。", 'success', true);
+				
+				$this->system_model->log('delegate_deleted', array('delegate' => $uid));
 				break;
 		}
 		
@@ -2077,6 +2144,12 @@ class Delegate extends CI_Controller
 		if($this->admin_model->capable('administrator') && $delegate['status'] != 'quitted')
 		{
 			$html_danger .= $this->load->view('admin/admission/quit', $vars, true);
+		}
+		
+		//删除帐户
+		if($this->admin_model->capable('administrator') && $delegate['status'] != 'deleted')
+		{
+			$html_danger .= $this->load->view('admin/admission/delete_account', $vars, true);
 		}
 		
 		if(!empty($html_danger))
