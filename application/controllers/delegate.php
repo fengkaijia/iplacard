@@ -1666,6 +1666,73 @@ class Delegate extends CI_Controller
 				
 				$this->system_model->log('delegate_recovered', array('delegate' => $uid));
 				break;
+				
+			//停用用户帐户
+			case 'disable_account':
+				//停用检查
+				if(!$delegate['enabled'])
+				{
+					$this->ui->alert('用户帐户已经停用，无需再次停用。', 'warning', true);
+					break;
+				}
+				
+				//密码验证
+				$admin_password = $this->input->post('password');
+				if(empty($admin_password) || !$this->user_model->check_password(uid(), $admin_password))
+				{
+					$this->ui->alert('密码验证错误，停用操作未执行。', 'warning', true);
+					break;
+				}
+				
+				//删除原因
+				$reason = $this->input->post('reason');
+				if(empty($reason))
+				{
+					$this->ui->alert('停用原因为空，停用操作未执行。', 'warning', true);
+					break;
+				}
+				
+				//停用帐户
+				$this->user_model->edit_user_option('disable_time', time(), $uid);
+				$this->user_model->edit_user_option('disable_operator', uid(), $uid);
+				$this->user_model->edit_user_option('disable_reason', $reason, $uid);
+				
+				$this->user_model->edit_user(array('enabled' => false), $uid);
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'reason' => $reason,
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('您的 iPlacard 帐户已停用');
+				$this->email->html($this->parser->parse_string(option('email_account_disabled', "管理员已经于 {time} 停用了您的 iPlacard 帐户。以下原因造成了帐户停用：\n\n"
+						. "\t{reason}\n\n"
+						. "帐户停用期间您将无法登录 iPlacard 系统，请立即联系管理员了解情况。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的帐户已停用，请立即联系管理员了解情况。');
+					$this->sms->queue();
+				}
+				
+				$this->ui->alert("已经停用{$delegate['name']}代表帐户。", 'success', true);
+				
+				$this->system_model->log('account_disabled', array('user' => $uid, 'reason' => $reason));
+				break;
 		}
 		
 		back_redirect();
@@ -2222,6 +2289,12 @@ class Delegate extends CI_Controller
 		if($this->admin_model->capable('administrator') && $delegate['status'] != 'quitted' && $delegate['status'] != 'deleted')
 		{
 			$html_danger .= $this->load->view('admin/admission/quit', $vars, true);
+		}
+		
+		//停用帐户登录
+		if($this->admin_model->capable('administrator') && $delegate['enabled'] && $delegate['status'] != 'deleted')
+		{
+			$html_danger .= $this->load->view('admin/admission/disable_account', $vars, true);
 		}
 		
 		//删除帐户
