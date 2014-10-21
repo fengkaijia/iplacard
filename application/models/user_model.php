@@ -191,6 +191,30 @@ class User_model extends CI_Model
 	}
 	
 	/**
+	 * 根据ID获取用户设置
+	 * @param int $id ID
+	 * @param string $part 指定部分
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_option($id, $part = '')
+	{
+		$this->db->where('id', intval($id));
+		$query = $this->db->get('user_option');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$data = $query->row_array();
+		$data['value'] = json_decode($data['value'], true);
+		
+		//返回结果
+		if(empty($part))
+			return $data;
+		return $data[$part];
+	}
+	
+	/**
 	 * 获取用户设置
 	 * @param string $name 项目
 	 * @param mixed $default 默认值，如为空将首先尝试调用系统默认设置
@@ -238,6 +262,30 @@ class User_model extends CI_Model
 	function get_user_option($name, $default = NULL, $user = '')
 	{
 		return $this->user_option($name, $default, $user);
+	}
+	
+	/**
+	 * 查询符合条件的第一个用户设置ID
+	 * @return int|false 符合查询条件的第一个用户设置ID，如不存在返回FALSE
+	 */
+	function get_option_id()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'user_option');
+		//将参数传递给get_id方法
+		return call_user_func_array(array($this->sql_model, 'get_id'), $args);
+	}
+	
+	/**
+	 * 查询符合条件的所有用户设置ID
+	 * @return array|false 符合查询条件的所有用户设置ID，如不存在返回FALSE
+	 */
+	function get_option_ids()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'user_option');
+		//将参数传递给get_ids方法
+		return call_user_func_array(array($this->sql_model, 'get_ids'), $args);
 	}
 	
 	/**
