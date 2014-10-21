@@ -331,10 +331,21 @@ class Cron extends CI_Controller
 				$delete_schema = array();
 				$data = array();
 				
+				//删除文件
+				$base_path = './data/'.IP_INSTANCE_ID.'/';
+				
+				$delete_path = $base_path.'delete/'.$id.'/';
+				if(!file_exists($delete_path))
+					mkdir($delete_path, DIR_WRITE_MODE, true);
+				
 				//代表基本信息
 				$data['delegate'] = $this->delegate_model->get_delegate($id);
 				$delete_schema['id'][] = 'user';
 				$delete_schema['id'][] = 'delegate';
+				
+				//用户头像
+				if(file_exists($base_path.'avatar/'.$id.'/'))
+					rename($base_path.'avatar/'.$id.'/', $delete_path.'/avatar/');
 				
 				//代表资料
 				$data['delegate_profile'] = $this->delegate_model->get_delegate_profiles($id, 'value');
@@ -371,6 +382,8 @@ class Cron extends CI_Controller
 					foreach($item_ids as $item_id)
 					{
 						$data['document_file'][$item_id] = $this->document_model->get_file($item_id);
+						
+						unlink("{$base_path}document/{$item_id}.{$data['document_file'][$item_id]['filetype']}");
 					}
 					
 					$delete_schema['user'][] = 'document_file';
@@ -404,9 +417,13 @@ class Cron extends CI_Controller
 				$item_ids = $this->invoice_model->get_delegate_invoices($id);
 				if($item_ids)
 				{
+					mkdir($delete_path.'invoice/', DIR_WRITE_MODE, true);
+					
 					foreach($item_ids as $item_id)
 					{
 						$data['invoice'][$item_id] = $this->invoice_model->get_invoice($item_id);
+						
+						rename($base_path.'invoice/'.$item_id.'/', $delete_path.'invoice/'.$item_id.'/');
 					}
 					
 					$delete_schema['delegate'][] = 'invoice';
