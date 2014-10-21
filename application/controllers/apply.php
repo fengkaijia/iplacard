@@ -370,6 +370,9 @@ class Apply extends CI_Controller
 				case 10:
 					$group_delegate['status_class'] = 'warning';
 					break;
+				case 100:
+					$group_delegate['status_class'] = 'danger';
+					break;
 				default:
 					$group_delegate['status_class'] = 'primary';
 			}

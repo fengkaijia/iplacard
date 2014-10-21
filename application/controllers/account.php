@@ -68,14 +68,25 @@ class Account extends CI_Controller
 			$id = $this->user_model->login($this->input->post('email'), $this->input->post('password'));
 			if($id != false)
 			{
-				//退会检查
+				//帐户可用性检查
 				if($this->user_model->is_delegate($id))
 				{
 					$this->load->model('delegate_model');
 					
-					if($this->delegate_model->get_delegate($id, 'status') == 'quitted' && user_option('quit_time', 0, $id) + option('delegate_quit_lock', 7) * 24 * 60 * 60 < time())
+					$delegate_status = $this->delegate_model->get_delegate($id, 'status');
+					
+					//代表退会
+					if($delegate_status == 'quitted' && user_option('quit_time', 0, $id) + option('delegate_quit_lock', 7) * 24 * 60 * 60 < time())
 					{
-						$this->ui->alert('您已退会，您的帐号已经停用，如有任何疑问请联系管理员。', 'info', true);
+						$this->ui->alert('您已退会，您的帐号已经停用，如有任何疑问请联系管理员。', 'danger', true);
+						back_redirect();
+						return;
+					}
+					
+					//代表帐户计划删除
+					if($delegate_status == 'deleted')
+					{
+						$this->ui->alert('您的帐户已被停用并将被删除，如有任何疑问请联系管理员。', 'danger', true);
 						back_redirect();
 						return;
 					}
@@ -613,6 +624,12 @@ class Account extends CI_Controller
 		elseif($this->delegate_model->get_delegate($id, 'status') == 'quitted' && user_option('quit_time', 0, $id) + option('delegate_quit_lock', 7) * 24 * 60 * 60 < time())
 		{
 			$this->ui->alert('SUDO 对象帐户已退会停用。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		elseif($this->delegate_model->get_delegate($id, 'status') == 'deleted')
+		{
+			$this->ui->alert('SUDO 对象帐户已计划删除停用。', 'danger', true);
 			back_redirect();
 			return;
 		}

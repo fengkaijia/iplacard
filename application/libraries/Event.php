@@ -538,6 +538,33 @@ class Event
 			$this->text = "<blockquote><p>{$this->info['reason']}</p></blockquote>代表由于以上原因退会。";
 		}
 	}
+	
+	/**
+	 * 计划删除事件
+	 */
+	function _event_deleted()
+	{
+		$this->title = '计划删除帐户';
+		$this->level = 'danger';
+		$this->icon = 'trash';
+		
+		if(!empty($this->info['reason']))
+		{
+			$this->text = "<blockquote><p>{$this->info['reason']}</p></blockquote>由于以上原因，管理员停用并计划删除了代表帐户。";
+		}
+	}
+	
+	/**
+	 * 恢复帐户事件
+	 */
+	function _event_recovered()
+	{
+		$this->title = '恢复帐户';
+		$this->level = 'success';
+		$this->icon = 'undo';
+		
+		$this->text = "管理员恢复了即将被删除的代表帐户。";
+	}
 }
 
 /* End of file Invoice.php */

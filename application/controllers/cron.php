@@ -47,7 +47,8 @@ class Cron extends CI_Controller
 	function daily()
 	{
 		echo "\nProcessing Cron Daily.\n\n";
-		$this->_remind_invoice_overdue();
+		//$this->_remind_invoice_overdue();
+		$this->_remove_deleted_delegate_data();
 	}
 	
 	function weekly()
@@ -293,6 +294,262 @@ class Cron extends CI_Controller
 		else
 		{
 			echo "No Overdued Invoice to be reminded.\n";
+		}
+	}
+	
+	/**
+	 * 移除已经删除的用户帐户信息
+	 */
+	private function _remove_deleted_delegate_data()
+	{
+		$this->load->model('delegate_model');
+		
+		$ids = $this->delegate_model->get_delegate_ids('status', 'deleted');
+		if($ids)
+		{
+			$this->load->model('document_model');
+			$this->load->model('seat_model');
+			$this->load->model('interview_model');
+			$this->load->model('invoice_model');
+			$this->load->model('note_model');
+			$this->load->model('twostep_model');
+			
+			$count = count($ids);
+			echo "{$count} Delegate(s) to be deleted.\n";
+			
+			foreach($ids as $id)
+			{
+				echo "Deleting Delegate ID {$id}.\n";
+				
+				//未到删除时间
+				if((user_option('delete_time', time(), $id) + option('delegate_delete_lock', 7) * 24 * 60 * 60) > time())
+				{
+					echo "Delegate ID {$id} skipped.\n";
+					continue;
+				}
+				
+				$delete_schema = array();
+				$data = array();
+				
+				//删除文件
+				$base_path = './data/'.IP_INSTANCE_ID.'/';
+				
+				$delete_path = $base_path.'delete/'.$id.'/';
+				if(!file_exists($delete_path))
+					mkdir($delete_path, DIR_WRITE_MODE, true);
+				
+				//代表基本信息
+				$data['delegate'] = $this->delegate_model->get_delegate($id);
+				$delete_schema['id'][] = 'user';
+				$delete_schema['id'][] = 'delegate';
+				
+				//用户头像
+				if(file_exists($base_path.'avatar/'.$id.'/'))
+					rename($base_path.'avatar/'.$id.'/', $delete_path.'/avatar/');
+				
+				//代表资料
+				$data['delegate_profile'] = $this->delegate_model->get_delegate_profiles($id, 'value');
+				$delete_schema['delegate'][] = 'delegate_profile';
+				
+				//代表事件
+				$item_ids = $this->delegate_model->get_delegate_events($id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['delegate_event'][$item_id] = $this->delegate_model->get_event($item_id);
+					}
+					
+					$delete_schema['delegate'][] = 'delegate_event';
+				}
+				
+				//代表文件
+				$item_ids = $this->document_model->get_document_ids('user', $id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['document'][$item_id] = $this->document_model->get_document($item_id);
+					}
+					
+					$delete_schema['user'][] = 'document';
+				}
+				
+				//代表文件版本
+				$item_ids = $this->document_model->get_file_ids('user', $id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['document_file'][$item_id] = $this->document_model->get_file($item_id);
+						
+						unlink("{$base_path}document/{$item_id}.{$data['document_file'][$item_id]['filetype']}");
+					}
+					
+					$delete_schema['user'][] = 'document_file';
+				}
+				
+				//代表下载文件日志
+				$item_ids = $this->document_model->get_user_downloads($id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['document_download'][$item_id] = $this->document_model->get_download($item_id);
+					}
+					
+					$delete_schema['user'][] = 'document_download';
+				}
+				
+				//面试
+				$item_ids = $this->interview_model->get_interview_ids('delegate', $id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['interview'][$item_id] = $this->interview_model->get_interview($item_id);
+					}
+					
+					$delete_schema['delegate'][] = 'interview';
+				}
+				
+				//账单
+				$item_ids = $this->invoice_model->get_delegate_invoices($id);
+				if($item_ids)
+				{
+					mkdir($delete_path.'invoice/', DIR_WRITE_MODE, true);
+					
+					foreach($item_ids as $item_id)
+					{
+						$data['invoice'][$item_id] = $this->invoice_model->get_invoice($item_id);
+						
+						rename($base_path.'invoice/'.$item_id.'/', $delete_path.'invoice/'.$item_id.'/');
+					}
+					
+					$delete_schema['delegate'][] = 'invoice';
+				}
+				
+				//用户发送的信息
+				$item_ids = $this->user_model->get_message_ids('sender', $id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['message'][$item_id] = $this->user_model->get_message($item_id);
+					}
+					
+					$delete_schema['sender'][] = 'invoice';
+				}
+				
+				//用户收到的信息
+				$item_ids = $this->user_model->get_user_messages($id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['message'][$item_id] = $this->user_model->get_message($item_id);
+					}
+					
+					$delete_schema['receiver'][] = 'message';
+				}
+				
+				//笔记
+				$item_ids = $this->note_model->get_delegate_notes($id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['note'][$item_id] = $this->note_model->get_note($item_id);
+					}
+					
+					$delete_schema['delegate'][] = 'note';
+				}
+				
+				//席位
+				$seat_id = $this->seat_model->get_delegate_seat($id);
+				if($seat_id)
+				{
+					$data['seat'] = $this->seat_model->get_seat($seat_id);
+					$this->seat_model->change_seat_status($seat_id, 'available', NULL);
+					
+					//TODO: 候选席位调整
+				}
+				
+				//席位候选
+				$item_ids = $this->seat_model->get_delegate_backorder($id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['seat_backorder'][$item_id] = $this->seat_model->get_backorder($item_id);
+					}
+					
+					$delete_schema['delegate'][] = 'seat_backorder';
+				}
+				
+				//席位选择
+				$item_ids = $this->seat_model->get_delegate_selectability($id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['seat_selectability'][$item_id] = $this->seat_model->get_selectability($item_id);
+					}
+					
+					$delete_schema['delegate'][] = 'seat_selectability';
+				}
+				
+				//已经使用的两步验证码
+				$item_ids = $this->twostep_model->get_recode_ids('user', $id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['twostep_recode'][$item_id] = $this->twostep_model->get_recode($item_id);
+					}
+					
+					$delete_schema['user'][] = 'twostep_recode';
+				}
+				
+				//授权不再要求两步验证记录
+				$item_ids = $this->twostep_model->get_safe_ids('user', $id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['twostep_safe'][$item_id] = $this->twostep_model->get_safe($item_id);
+					}
+					
+					$delete_schema['user'][] = 'twostep_safe';
+				}
+				
+				//用户设置
+				$item_ids = $this->user_model->get_option_ids('user', $id);
+				if($item_ids)
+				{
+					foreach($item_ids as $item_id)
+					{
+						$data['twostep_safe'][$item_id] = $this->user_model->get_option($item_id);
+					}
+					
+					$delete_schema['user'][] = 'user_option';
+				}
+				
+				//删除数据
+				foreach($delete_schema as $schema => $tables)
+				{
+					$this->db->where($schema, $id);
+					$this->db->delete($tables);
+				}
+				
+				$this->system_model->log('delegate_data_removed', array('delegate' => $id, 'data' => $data));
+				
+				echo "Delegate ID {$id} deleted.\n";
+			}
+		}
+		else
+		{
+			echo "No Delegate to be deleted.\n";
 		}
 	}
 	
