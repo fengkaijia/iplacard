@@ -154,7 +154,7 @@ class Delegate extends CI_Controller
 		{
 			$delete_time = user_option('delete_time', time(), $uid);
 			
-			$this->ui->alert(sprintf('管理员已经于%1$s计划删除了此帐户，此帐户数据将在%2$s删除。', date('Y年m月d日', $delete_time), nicetime(user_option('delete_time', time(), $uid) + option('delegate_delete_lock', 7) * 24 * 60 * 60, true)), 'danger');
+			$this->ui->alert(sprintf('管理员已经于%1$s计划删除了此帐户，此帐户数据将在%2$s删除。', date('Y年m月d日', $delete_time), nicetime(user_option('delete_time', time(), $uid) + option('delegate_delete_lock', 7) * 24 * 60 * 60, true)));
 		}
 		
 		//面试数据
