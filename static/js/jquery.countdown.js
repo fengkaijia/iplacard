@@ -1,6 +1,6 @@
 /*!
- * The Final Countdown for jQuery v2.0.3 (http://hilios.github.io/jQuery.countdown/)
- * Copyright (c) 2013 Edson Hilios
+ * The Final Countdown for jQuery v2.0.4 (http://hilios.github.io/jQuery.countdown/)
+ * Copyright (c) 2014 Edson Hilios
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,6 +20,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 (function(factory) {
+    "use strict";
     if (typeof define === "function" && define.amd) {
         define([ "jquery" ], factory);
     } else {
@@ -31,7 +32,7 @@
     var instances = [], matchers = [];
     matchers.push(/^[0-9]*$/.source);
     matchers.push(/([0-9]{1,2}\/){2}[0-9]{4}( [0-9]{1,2}(:[0-9]{2}){2})?/.source);
-    matchers.push(/[0-9]{4}(\/[0-9]{1,2}){2}( [0-9]{1,2}(:[0-9]{2}){2})?/.source);
+    matchers.push(/[0-9]{4}([\/\-][0-9]{1,2}){2}( [0-9]{1,2}(:[0-9]{2}){2})?/.source);
     matchers = new RegExp(matchers.join("|"));
     function parseDateString(dateString) {
         if (dateString instanceof Date) {
@@ -40,6 +41,9 @@
         if (String(dateString).match(matchers)) {
             if (String(dateString).match(/^[0-9]*$/)) {
                 dateString = Number(dateString);
+            }
+            if (String(dateString).match(/\-/)) {
+                dateString = String(dateString).replace(/\-/g, "/");
             }
             return new Date(dateString);
         } else {
@@ -106,7 +110,6 @@
         this.$el = $(el);
         this.interval = null;
         this.offset = {};
-        this.setFinalDate(finalDate);
         this.instanceNumber = instances.length;
         instances.push(this);
         this.$el.data("countdown-instance", this.instanceNumber);
@@ -115,12 +118,13 @@
             this.$el.on("stoped.countdown", callback);
             this.$el.on("finish.countdown", callback);
         }
+        this.setFinalDate(finalDate);
         this.start();
     };
     $.extend(Countdown.prototype, {
         start: function() {
             if (this.interval !== null) {
-                throw new Error("Countdown is already running!");
+                clearInterval(this.interval);
             }
             var self = this;
             this.update();
@@ -141,7 +145,7 @@
         },
         remove: function() {
             this.stop();
-            delete instances[this.instanceNumber];
+            instances[this.instanceNumber] = null;
             delete this.$el.data().countdownInstance;
         },
         setFinalDate: function(value) {
@@ -152,7 +156,7 @@
                 this.remove();
                 return;
             }
-            this.totalSecsLeft = this.finalDate.valueOf() - new Date().valueOf();
+            this.totalSecsLeft = this.finalDate.getTime() - new Date().getTime();
             this.totalSecsLeft = Math.ceil(this.totalSecsLeft / 1e3);
             this.totalSecsLeft = this.totalSecsLeft < 0 ? 0 : this.totalSecsLeft;
             this.offset = {
@@ -190,6 +194,7 @@
                     instance[method].apply(instance, argumentsArray.slice(1));
                 } else if (String(method).match(/^[$A-Z_][0-9A-Z_$]*$/i) === null) {
                     instance.setFinalDate.call(instance, method);
+                    instance.start();
                 } else {
                     $.error("Method %s does not exist on jQuery.countdown".replace(/\%s/gi, method));
                 }
