@@ -1,6 +1,6 @@
 <p>如果代表申请退会，您可以操作退会并释放代表席位。</p>
 
-<p><a class="btn btn-danger" href="#" data-toggle="modal" data-target="#quit"><?php echo icon('recycle');?>代表退会</a></p>
+<p><a class="btn btn-warning" href="#" data-toggle="modal" data-target="#quit"><?php echo icon('recycle');?>代表退会</a></p>
 
 <?php echo form_open("delegate/operation/quit/$uid", array(
 	'class' => 'modal fade form-horizontal',
@@ -22,7 +22,7 @@
 				<h4 class="modal-title" id="quit_label">确认代表退会</h4>
 			</div>
 			<div class="modal-body">
-				<p><span class="label label-danger">注意</span> 这项操作不可逆，请确认无误再执行造作。</p>
+				<p><span class="label label-warning">注意</span> 这项操作不可逆，请确认无误再执行造作。</p>
 				<p>将会操作<?php echo icon('user', false).$delegate['name'];?>代表退会，他的席位将被立即释放，但同时他的面试记录等信息将会被保留。退会后 <?php echo option('delegate_quit_lock', 7);?> 天内代表将仍可登录 iPlacard 查看申请状态，之后他将会被限制登录。</p>
 				
 				<div class="form-group <?php if(form_has_error('reason')) echo 'has-error';?>">
@@ -53,7 +53,7 @@
 					'name' => 'submit',
 					'content' => '确认退会',
 					'type' => 'submit',
-					'class' => 'btn btn-danger',
+					'class' => 'btn btn-warning',
 					'onclick' => 'loader(this);'
 				)); ?>
 			</div>
