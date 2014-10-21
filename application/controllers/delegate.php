@@ -1613,6 +1613,50 @@ class Delegate extends CI_Controller
 				
 				$this->system_model->log('delegate_deleted', array('delegate' => $uid));
 				break;
+				
+			//恢复用户帐户
+			case 'recover_account':
+				//操作恢复
+				$this->delegate_model->change_status($uid, user_option('delete_status', 'application_imported', $uid));
+				
+				$this->user_model->delete_user_option('delete_status', $uid);
+				$this->user_model->delete_user_option('delete_time', $uid);
+				$this->user_model->delete_user_option('delete_operator', $uid);
+				$this->user_model->delete_user_option('delete_reason', $uid);
+				
+				$this->delegate_model->add_event($uid, 'recovered');
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('您的 iPlacard 帐户已恢复');
+				$this->email->html($this->parser->parse_string(option('email_delegate_recovered', "管理员已经于 {time} 恢复了您的 iPlacard 帐户，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的帐户已经恢复，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->queue();
+				}
+				
+				$this->ui->alert("已经恢复{$delegate['name']}代表帐户。", 'success', true);
+				
+				$this->system_model->log('delegate_recovered', array('delegate' => $uid));
+				break;
 		}
 		
 		back_redirect();
@@ -2112,6 +2156,16 @@ class Delegate extends CI_Controller
 			'uid' => $delegate['id'],
 			'delegate' => $delegate
 		);
+				
+		//恢复帐户
+		if($this->admin_model->capable('administrator') && $delegate['status'] == 'deleted')
+		{
+			$this->load->helper('date');
+			
+			$delete_time = user_option('delete_time', time(), $delegate['id']) + option('delegate_delete_lock', 7) * 24 * 60 * 60;
+			
+			$html .= $this->load->view('admin/admission/recover_account', $vars + array('delete_time' => $delete_time), true);
+		}
 		
 		//SUDO
 		if($this->admin_model->capable('administrator') && $delegate['status'] != 'deleted' && ($delegate['status'] != 'quitted' || user_option('quit_time', 0, $delegate['id']) + option('delegate_quit_lock', 7) * 24 * 60 * 60 > time()))
