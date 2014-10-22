@@ -92,6 +92,14 @@ class Account extends CI_Controller
 					}
 				}
 				
+				//停用帐户检查
+				if(!$this->user_model->is_enabled($id))
+				{
+					$this->ui->alert('您的帐户已被停用，如有任何疑问请联系管理员。', 'danger', true);
+					back_redirect();
+					return;
+				}
+				
 				//两步验证
 				if(user_option('twostep_enabled', false, $id))
 				{

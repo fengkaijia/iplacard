@@ -191,6 +191,15 @@ class User_model extends CI_Model
 	}
 	
 	/**
+	 * 检查用户帐户是否启用
+	 * @return boolean
+	 */
+	function is_enabled($id)
+	{
+		return $this->get_user($id, 'enabled') ? true : false;
+	}
+	
+	/**
 	 * 根据ID获取用户设置
 	 * @param int $id ID
 	 * @param string $part 指定部分
