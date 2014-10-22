@@ -5,7 +5,11 @@
 	});
 </script>
 
-<p>此代表帐户数据将在 <span id="clock_delete"><?php echo nicetime($delete_time);?></span> 秒内删除，在此之前可以恢复代表帐户。</p>
+<p>此帐户由于以下原因将在 <span id="clock_delete"><?php echo nicetime($delete_time);?></span> 秒内删除：</p>
+
+<blockquote><p><?php echo $delete_reason;?></p></blockquote>
+
+<p>在此之前可以恢复代表帐户。</p>
 
 <p><a class="btn btn-success" href="#" data-toggle="modal" data-target="#recover"><?php echo icon('undo');?>恢复代表帐户</a></p>
 

@@ -2327,7 +2327,10 @@ class Delegate extends CI_Controller
 			
 			$delete_time = user_option('delete_time', time(), $delegate['id']) + option('delegate_delete_lock', 7) * 24 * 60 * 60;
 			
-			$html .= $this->load->view('admin/admission/recover_account', $vars + array('delete_time' => $delete_time), true);
+			$html .= $this->load->view('admin/admission/recover_account', $vars + array(
+				'delete_time' => $delete_time,
+				'delete_reason' => user_option('delete_reason', '', $delegate['id'])
+			), true);
 		}
 		
 		//启用帐户
