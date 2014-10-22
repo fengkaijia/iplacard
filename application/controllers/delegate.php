@@ -1605,9 +1605,21 @@ class Delegate extends CI_Controller
 					'lock_period' => $lock_time,
 					'lock_time' => unix_to_human(time() + $lock_time * 24 * 60 * 60),
 					'reason' => $reason,
+					'ip' => $this->input->ip_address(),
 					'time' => unix_to_human(time())
 				);
 				
+				//通知管理员
+				$this->email->to($this->user_model->get_user(uid(), 'email'));
+				$this->email->subject('您删除了一个 iPlacard 帐户');
+				$this->email->html($this->parser->parse_string(option('email_admin_delegate_deleted', "您已经于 {time} 由 IP {ip} 删除了{delegate}代表的 iPlacard 帐户。删除帐户原因是：\n\n"
+						. "\t{reason}\n\n"
+						. "如为误操作请立即登录 iPlacard 恢复代表帐户。如非本人操作请立即修改密码。"), $data, true));
+				$this->email->send();
+				
+				$this->email->clear();
+				
+				//通知代表
 				$this->email->to($delegate['email']);
 				$this->email->subject('您的 iPlacard 帐户将被删除');
 				$this->email->html($this->parser->parse_string(option('email_delegate_deleted', "管理员已经于 {time} 停用了您的 iPlacard 帐户。以下原因造成了帐户停用：\n\n"
@@ -1716,9 +1728,21 @@ class Delegate extends CI_Controller
 					'uid' => $uid,
 					'delegate' => $delegate['name'],
 					'reason' => $reason,
+					'ip' => $this->input->ip_address(),
 					'time' => unix_to_human(time())
 				);
 				
+				//通知管理员
+				$this->email->to($this->user_model->get_user(uid(), 'email'));
+				$this->email->subject('您停用了一个 iPlacard 帐户');
+				$this->email->html($this->parser->parse_string(option('email_admin_delegate_deleted', "您已经于 {time} 由 IP {ip} 停用了{delegate}代表的 iPlacard 帐户。停用帐户原因是：\n\n"
+						. "\t{reason}\n\n"
+						. "如为误操作请立即登录 iPlacard 重新启用代表帐户。如非本人操作请立即修改密码。"), $data, true));
+				$this->email->send();
+				
+				$this->email->clear();
+				
+				//通知代表
 				$this->email->to($delegate['email']);
 				$this->email->subject('您的 iPlacard 帐户已停用');
 				$this->email->html($this->parser->parse_string(option('email_account_disabled', "管理员已经于 {time} 停用了您的 iPlacard 帐户。以下原因造成了帐户停用：\n\n"
