@@ -51,8 +51,31 @@ class Sql_model extends CI_Model
 				$this->db->where(func_get_arg($i), func_get_arg($i + 1));
 		}
 		
-		//查询第一个参数指定的表
-		$query = $this->db->get(func_get_arg(0));
+		//获取第一个参数指定的表
+		$table = func_get_arg(0);
+		
+		if(!is_array($table))
+		{
+			//单表查询
+			$query = $this->db->get($table);
+		}
+		else
+		{
+			//多表查询
+			$table_count = count($table);
+			
+			//检查是否缺少链接
+			if($table_count % 2 == 0)
+				return false;
+			
+			//输入连接
+			for($i = 1; $i < $table_count; $i = $i += 2)
+			{
+				$this->db->join($table[$i], $table[$i + 1]);
+			}
+			
+			$query = $this->db->get($table[0]);
+		}
 		
 		if($query->num_rows() == 0)
 			return false;
