@@ -84,6 +84,12 @@ class Delegate extends CI_Controller
 			$title = sprintf("%s代表团成员列表", join('、', $text_group));
 		}
 		
+		if(isset($param['enabled']))
+		{
+			if($param['enabled'][0] == false)
+				$title = "停用代表列表";
+		}
+		
 		$vars = array(
 			'param_uri' => $this->_filter_build($param),
 			'title' => $title,
@@ -1834,6 +1840,10 @@ class Delegate extends CI_Controller
 			$param = $this->_filter_check($this->input->get());
 			$input_param = array();
 			
+			//帐户可用性
+			if(isset($param['enabled']))
+				$input_param['enabled'] = $param['enabled'][0] ? true : false;
+			
 			//代表类型
 			if(isset($param['type']))
 				$input_param['application_type'] = $param['type'];
@@ -2466,6 +2476,12 @@ class Delegate extends CI_Controller
 			}
 			if(!empty($committee))
 				$return['committee'] = $committee;
+		}
+		
+		//帐户可用性
+		if(isset($post['enabled']))
+		{
+			$return['enabled'] = array($post['enabled'] ? true : false);
 		}
 		
 		//显示领队标志

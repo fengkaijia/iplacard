@@ -215,6 +215,11 @@ class Admin extends CI_Controller
 			$task_delete_ids = $this->delegate_model->get_delegate_ids('status', 'deleted');
 			if($task_delete_ids)
 				$this->_task('delete', count($task_delete_ids));
+			
+			//停用帐户
+			$task_disable_ids = $this->delegate_model->get_delegate_ids('enabled', false);
+			if($task_disable_ids)
+				$this->_task('disable', count($task_disable_ids));
 		}
 		
 		if($this->admin_model->capable('cashier'))
