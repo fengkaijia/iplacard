@@ -149,12 +149,20 @@ class Delegate extends CI_Controller
 			$this->ui->alert(sprintf('此代表已经于%s退会。', date('Y年m月d日', $quit_time)));
 		}
 		
-		//计划删除
+		//计划删除提示
 		if($profile['status'] == 'deleted')
 		{
 			$delete_time = user_option('delete_time', time(), $uid);
 			
 			$this->ui->alert(sprintf('管理员已经于%1$s计划删除了此帐户，此帐户数据将在%2$s删除。', date('Y年m月d日', $delete_time), nicetime(user_option('delete_time', time(), $uid) + option('delegate_delete_lock', 7) * 24 * 60 * 60, true)));
+		}
+		
+		//帐户停用提示
+		if(!$profile['enabled'])
+		{
+			$quit_time = user_option('disable_time', time(), $uid);
+			
+			$this->ui->alert(sprintf('此代表帐户已经于%s停用，帐户停用期间代表将无法登录 iPlacard。', date('Y年m月d日', $quit_time)));
 		}
 		
 		//面试数据
