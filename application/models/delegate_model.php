@@ -43,7 +43,13 @@ class Delegate_model extends CI_Model
 	function get_delegate_id()
 	{
 		$args = func_get_args();
-		array_unshift($args, 'delegate');
+		for($i = 0; $i < count($args); $i += 2)
+		{
+			if($args[$i] == 'id')
+				$args[$i] = 'user.id';
+		}
+		
+		array_unshift($args, array('user', 'delegate', 'user.id = delegate.id'));
 		//将参数传递给get_id方法
 		return call_user_func_array(array($this->sql_model, 'get_id'), $args);
 	}
@@ -55,7 +61,13 @@ class Delegate_model extends CI_Model
 	function get_delegate_ids()
 	{
 		$args = func_get_args();
-		array_unshift($args, 'delegate');
+		for($i = 0; $i < count($args); $i += 2)
+		{
+			if($args[$i] == 'id')
+				$args[$i] = 'user.id';
+		}
+		
+		array_unshift($args, array('user', 'delegate', 'user.id = delegate.id'));
 		//将参数传递给get_ids方法
 		return call_user_func_array(array($this->sql_model, 'get_ids'), $args);
 	}
