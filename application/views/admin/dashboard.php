@@ -285,6 +285,8 @@ $this->load->view('header');?>
 			</div>
 			<div class="list-group">
 				<?php
+				if(isset($task['delete']))
+					echo anchor('delegate/manage/?status=deleted', "{$task['delete']} 个代表帐户将被删除。", 'class="list-group-item"');
 				if(isset($task['review']))
 					echo anchor('delegate/manage/?status=application_imported', "{$task['review']} 份参会申请正在等待审核。", 'class="list-group-item"');
 				if(isset($task['interview_assign']))

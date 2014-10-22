@@ -210,6 +210,11 @@ class Admin extends CI_Controller
 			$task_global_seat_select_ids = $this->delegate_model->get_delegate_ids('status', 'seat_assigned');
 			if($task_global_seat_select_ids)
 				$this->_task('seat_global_select', count($task_global_seat_select_ids));
+			
+			//计划删除帐户
+			$task_delete_ids = $this->delegate_model->get_delegate_ids('status', 'deleted');
+			if($task_delete_ids)
+				$this->_task('delete', count($task_delete_ids));
 		}
 		
 		if($this->admin_model->capable('cashier'))
