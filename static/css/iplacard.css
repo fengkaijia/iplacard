@@ -372,6 +372,16 @@ body {
 	font-size: 14px;
 }
 
+/* 边栏 */
+#operation_bar blockquote {
+	margin-top: 10.5px;
+	margin-bottom: 10.5px;
+}
+
+#operation_bar blockquote p {
+	font-size: 15px;
+}
+
 /* 日志 */
 .timeline {
 	list-style: none;

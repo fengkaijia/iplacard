@@ -1733,6 +1733,54 @@ class Delegate extends CI_Controller
 				
 				$this->system_model->log('account_disabled', array('user' => $uid, 'reason' => $reason));
 				break;
+				
+			//启用用户帐户
+			case 'enable_account':
+				//启用检查
+				if($delegate['enabled'])
+				{
+					$this->ui->alert('用户帐户已经启用，无需再次启用。', 'warning', true);
+					break;
+				}
+				
+				//操作启用
+				$this->user_model->delete_user_option('disable_time', $uid);
+				$this->user_model->delete_user_option('disable_operator', $uid);
+				$this->user_model->delete_user_option('disable_reason', $uid);
+				
+				$this->user_model->edit_user(array('enabled' => true), $uid);
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('您的 iPlacard 帐户已重新启用');
+				$this->email->html($this->parser->parse_string(option('email_account_reenabled', "管理员已经于 {time} 重新启用了您的 iPlacard 帐户，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('您的帐户已经恢复启用，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->queue();
+				}
+				
+				$this->ui->alert("已经重新启用{$delegate['name']}代表帐户。", 'success', true);
+				
+				$this->system_model->log('account_reenabled', array('user' => $uid));
+				break;
 		}
 		
 		back_redirect();
@@ -2248,6 +2296,17 @@ class Delegate extends CI_Controller
 			$delete_time = user_option('delete_time', time(), $delegate['id']) + option('delegate_delete_lock', 7) * 24 * 60 * 60;
 			
 			$html .= $this->load->view('admin/admission/recover_account', $vars + array('delete_time' => $delete_time), true);
+		}
+		
+		//启用帐户
+		if($this->admin_model->capable('administrator') && !$delegate['enabled'])
+		{
+			$this->load->helper('date');
+			
+			$html .= $this->load->view('admin/admission/enable_account', $vars + array(
+				'disable_time' => user_option('disable_time', time(), $delegate['id']),
+				'disable_reason' => user_option('disable_reason', '', $delegate['id'])
+			), true);
 		}
 		
 		//SUDO
