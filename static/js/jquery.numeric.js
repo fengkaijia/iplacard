@@ -1,10 +1,10 @@
 /*
  *
- * Copyright (c) 2006-2011 Sam Collett (http://www.texotela.co.uk)
+ * Copyright (c) 2006-2014 Sam Collett (http://www.texotela.co.uk)
  * Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
  * and GPL (http://www.opensource.org/licenses/gpl-license.php) licenses.
- * 
- * Version 1.3.1
+ *
+ * Version 1.4.1
  * Demo: http://www.texotela.co.uk/code/jquery/numeric/
  *
  */
@@ -22,6 +22,7 @@
  * @example  $(".numeric").numeric(","); // use , as separator
  * @example  $(".numeric").numeric({ decimal : "," }); // use , as separator
  * @example  $(".numeric").numeric({ negative : false }); // do not allow negative values
+ * @example  $(".numeric").numeric({ decimalPlaces : 2 }); // only allow 2 decimal places
  * @example  $(".numeric").numeric(null, callback); // use default values, pass on the 'callback' function
  *
  */
@@ -29,7 +30,7 @@ $.fn.numeric = function(config, callback)
 {
 	if(typeof config === 'boolean')
 	{
-		config = { decimal: config };
+		config = { decimal: config, negative: true, decimalPlaces: -1 };
 	}
 	config = config || {};
 	// if config.negative undefined, set to true (default is to allow negative numbers)
@@ -38,10 +39,12 @@ $.fn.numeric = function(config, callback)
 	var decimal = (config.decimal === false) ? "" : config.decimal || ".";
 	// allow negatives
 	var negative = (config.negative === true) ? true : false;
+    // set decimal places
+	var decimalPlaces = (typeof config.decimalPlaces == "undefined") ? -1 : config.decimalPlaces;
 	// callback function
 	callback = (typeof(callback) == "function" ? callback : function() {});
 	// set data and methods
-	return this.data("numeric.decimal", decimal).data("numeric.negative", negative).data("numeric.callback", callback).keypress($.fn.numeric.keypress).keyup($.fn.numeric.keyup).blur($.fn.numeric.blur);
+	return this.data("numeric.decimal", decimal).data("numeric.negative", negative).data("numeric.callback", callback).data("numeric.decimalPlaces", decimalPlaces).keypress($.fn.numeric.keypress).keyup($.fn.numeric.keyup).blur($.fn.numeric.blur);
 };
 
 $.fn.numeric.keypress = function(e)
@@ -49,6 +52,7 @@ $.fn.numeric.keypress = function(e)
 	// get decimal character and determine if negatives are allowed
 	var decimal = $.data(this, "numeric.decimal");
 	var negative = $.data(this, "numeric.negative");
+    var decimalPlaces = $.data(this, "numeric.decimalPlaces");
 	// get the key that was pressed
 	var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
 	// allow enter/return key (only when in an input box)
@@ -77,9 +81,9 @@ $.fn.numeric.keypress = function(e)
 	{
 	  var value = $(this).val();
 		/* '-' only allowed at start and if negative numbers allowed */
-		if(value.indexOf("-") !== 0 && negative && key == 45 && (value.length === 0 || parseInt($.fn.getSelectionStart(this), 10) === 0)) { return true; }
+		if($.inArray('-', value.split('')) !== 0 && negative && key == 45 && (value.length === 0 || parseInt($.fn.getSelectionStart(this), 10) === 0)) { return true; }
 		/* only one decimal separator allowed */
-		if(decimal && key == decimal.charCodeAt(0) && value.indexOf(decimal) != -1)
+		if(decimal && key == decimal.charCodeAt(0) && $.inArray(decimal, value.split('')) != -1)
 		{
 			allow = false;
 		}
@@ -120,7 +124,7 @@ $.fn.numeric.keypress = function(e)
 		// if key pressed is the decimal and it is not already in the field
 		if(decimal && key == decimal.charCodeAt(0))
 		{
-			if(value.indexOf(decimal) == -1)
+			if($.inArray(decimal, value.split('')) == -1)
 			{
 				allow = true;
 			}
@@ -133,6 +137,15 @@ $.fn.numeric.keypress = function(e)
 	else
 	{
 		allow = true;
+        // remove extra decimal places
+ 		if(decimal && decimalPlaces > 0)
+ 		{
+            var dot = $.inArray(decimal, $(this).val().split(''));
+            if (dot >= 0 && $(this).val().length > dot + decimalPlaces) {
+                allow = false;
+            }
+        }
+
 	}
 	return allow;
 };
@@ -148,25 +161,30 @@ $.fn.numeric.keyup = function(e)
 		// get decimal character and determine if negatives are allowed
 		var decimal = $.data(this, "numeric.decimal");
 		var negative = $.data(this, "numeric.negative");
-		
+        var decimalPlaces = $.data(this, "numeric.decimalPlaces");
+
 		// prepend a 0 if necessary
 		if(decimal !== "" && decimal !== null)
 		{
 			// find decimal point
-			var dot = val.indexOf(decimal);
+			var dot = $.inArray(decimal, val.split(''));
 			// if dot at start, add 0 before
 			if(dot === 0)
 			{
 				this.value = "0" + val;
+				carat++;
+            			selectionEnd++;
 			}
 			// if dot at position 1, check if there is a - symbol before it
 			if(dot == 1 && val.charAt(0) == "-")
 			{
 				this.value = "-0" + val.substring(1);
+				carat++;
+            			selectionEnd++;
 			}
 			val = this.value;
 		}
-		
+
 		// if pasted in, only allow the following characters
 		var validChars = [0,1,2,3,4,5,6,7,8,9,'-',decimal];
 		// get length of the value (to loop through)
@@ -203,7 +221,7 @@ $.fn.numeric.keyup = function(e)
 			}
 		}
 		// remove extra decimal characters
-		var firstDecimal = val.indexOf(decimal);
+		var firstDecimal = $.inArray(decimal, val.split(''));
 		if(firstDecimal > 0)
 		{
 			for(var k = length - 1; k > firstDecimal; k--)
@@ -216,6 +234,17 @@ $.fn.numeric.keyup = function(e)
 				}
 			}
 		}
+
+        // remove extra decimal places
+        if(decimal && decimalPlaces > 0)
+        {
+            var dot = $.inArray(decimal, val.split(''));
+            if (dot >= 0)
+            {
+                val = val.substring(0, dot + decimalPlaces + 1);
+                selectionEnd = Math.min(val.length, selectionEnd);
+            }
+        }
 		// set the value and prevent the cursor moving to the end
 		this.value = val;
 		$.fn.setSelection(this, [carat, selectionEnd]);
@@ -226,10 +255,11 @@ $.fn.numeric.blur = function()
 {
 	var decimal = $.data(this, "numeric.decimal");
 	var callback = $.data(this, "numeric.callback");
+	var negative = $.data(this, "numeric.negative");
 	var val = this.value;
 	if(val !== "")
 	{
-		var re = new RegExp("^\\d+$|^\\d*" + decimal + "\\d+$");
+		var re = new RegExp(negative?"-?":"" + "^\\d+$|^\\d*" + decimal + "\\d+$");
 		if(!re.exec(val))
 		{
 			callback.apply(this);
@@ -239,25 +269,35 @@ $.fn.numeric.blur = function()
 
 $.fn.removeNumeric = function()
 {
-	return this.data("numeric.decimal", null).data("numeric.negative", null).data("numeric.callback", null).unbind("keypress", $.fn.numeric.keypress).unbind("blur", $.fn.numeric.blur);
+	return this.data("numeric.decimal", null).data("numeric.negative", null).data("numeric.callback", null).data("numeric.decimalPlaces", null).unbind("keypress", $.fn.numeric.keypress).unbind("keyup", $.fn.numeric.keyup).unbind("blur", $.fn.numeric.blur);
 };
 
 // Based on code from http://javascript.nwbox.com/cursor_position/ (Diego Perini <dperini@nwbox.com>)
 $.fn.getSelectionStart = function(o)
 {
-	if (o.createTextRange)
+	if(o.type === "number"){
+		return undefined;
+	}
+	else if (o.createTextRange && document.selection)
 	{
-		var r = document.selection.createRange().duplicate();
-		r.moveEnd('character', o.value.length);
-		if (r.text === '') { return o.value.length; }
-		return o.value.lastIndexOf(r.text);
-	} else { return o.selectionStart; }
+        var r = document.selection.createRange().duplicate();
+        r.moveEnd('character', o.value.length);
+		if (r.text == '') return o.value.length;
+
+		return Math.max(0, o.value.lastIndexOf(r.text));
+	} else {
+        try { return o.selectionStart; }
+        catch(e) { return 0; }
+    }
 };
 
 // Based on code from http://javascript.nwbox.com/cursor_position/ (Diego Perini <dperini@nwbox.com>)
 $.fn.getSelectionEnd = function(o)
 {
-	if (o.createTextRange) {
+	if(o.type === "number"){
+		return undefined;
+	}
+	else if (o.createTextRange && document.selection) {
 		var r = document.selection.createRange().duplicate()
 		r.moveStart('character', -o.value.length)
 		return r.text.length
@@ -272,19 +312,27 @@ $.fn.setSelection = function(o, p)
 	// only set if p is an array of length 2
 	if(p && p.constructor == Array && p.length == 2)
 	{
-		if (o.createTextRange)
+		if(o.type === "number") {
+			o.focus();
+		}
+		else if (o.createTextRange)
 		{
 			var r = o.createTextRange();
 			r.collapse(true);
 			r.moveStart('character', p[0]);
-			r.moveEnd('character', p[1]);
+			r.moveEnd('character', p[1] - p[0]);
 			r.select();
 		}
-		else if(o.setSelectionRange)
-		{
-			o.focus();
-			o.setSelectionRange(p[0], p[1]);
-		}
+		else {
+            o.focus();
+            try{
+                if(o.setSelectionRange)
+                {
+                    o.setSelectionRange(p[0], p[1]);
+                }
+            } catch(e) {
+            }
+        }
 	}
 };
 
