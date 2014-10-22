@@ -15,7 +15,7 @@ class User extends CI_Controller
 		'dais' => array('title' => '主席', 'short' => '主席', 'description' => '查看指定委员会代表信息|向委员会群发信息|向文件中心发布文件'),
 		'interviewer' => array('title' => '面试官', 'short' => '面试', 'description' => '面试代表|分配席位'),
 		'cashier' => array('title' => '财务管理', 'short' => '财务', 'description' => '核查和确认账单'),
-		'administrator' => array('title' => '会务管理', 'short' => '会务', 'description' => '站点信息管理|管理委员会、席位信息|SUDO|管理支持单'),
+		'administrator' => array('title' => '会务管理', 'short' => '会务', 'description' => '站点信息管理|代表管理|委员会席位管理|SUDO|支持单管理'),
 		'bureaucrat' => array('title' => '行政员', 'short' => '行政', 'description' => '用户管理')
 	);
 	
