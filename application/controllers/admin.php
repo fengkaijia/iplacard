@@ -261,7 +261,7 @@ class Admin extends CI_Controller
 		if($this->admin_model->capable('administrator'))
 		{
 			//面试分布图
-			$interview_type = count(option('interview_score_standard', array())) == 2 ? '2d' : '3d';
+			$interview_type = count(option('interview_score_standard', array())) <= 2 ? '2d' : '3d';
 			$vars['stat_interview'] = $interview_type;
 			
 			foreach(array('application_increment', 'application_status', "interview_{$interview_type}", 'seat_status') as $type)
@@ -935,7 +935,7 @@ class Admin extends CI_Controller
 		}
 		
 		//面试分布图
-		$interview_type = count(option('interview_score_standard', array())) == 2 ? '2d' : '3d';
+		$interview_type = count(option('interview_score_standard', array())) <= 2 ? '2d' : '3d';
 		$vars['stat_interview'] = $interview_type;
 
 		foreach(array('application_increment', 'application_status', "interview_{$interview_type}", 'seat_status') as $type)
@@ -1451,7 +1451,7 @@ class Admin extends CI_Controller
 			case 'interview_2d':
 				$score_standard = option('interview_score_standard', array());
 				if(count($score_standard) != 2)
-					break;
+					return "{}";
 				
 				$names = array();
 				foreach($score_standard as $type => $item)
@@ -1462,7 +1462,7 @@ class Admin extends CI_Controller
 				$this->load->model('interview_model');
 				$interview_ids = $this->interview_model->get_interview_ids('score IS NOT NULL', NULL);
 				if(!$interview_ids)
-					break;
+					return "{}";
 				
 				$pow = pow((1000 / count($interview_ids)), 1.6);
 				
