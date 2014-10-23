@@ -12,7 +12,7 @@
 /**
  * iPlacard版本
  */
-define('IP_VERSION', '2.0Alpha');
+define('IP_VERSION', '2.0Beta');
 
 //配置文件
 require_once 'config.php';
