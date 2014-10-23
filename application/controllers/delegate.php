@@ -610,7 +610,7 @@ class Delegate extends CI_Controller
 				
 				$this->delegate_model->add_event($uid, 'review_passed');
 				
-				if(option("interview_{$delegate['application_type']}_enabled", option('interview_enabled', true)))
+				if(option("interview_{$delegate['application_type']}_enabled", option('interview_enabled', $delegate['application_type'] == 'delegate')))
 					$this->user_model->add_message($uid, '您的参会申请已经通过审核，我们将在近期内为您分配面试官。');
 				else
 					$this->user_model->add_message($uid, '您的参会申请已经通过审核。');

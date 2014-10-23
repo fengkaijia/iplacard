@@ -180,7 +180,7 @@ class Apply extends CI_Controller
 			$application_seat = 'seat';
 		
 		$application_interview = 'noninterview';
-		if(option("interview_{$this->delegate['application_type']}_enabled", option('interview_enabled', true)))
+		if(option("interview_{$this->delegate['application_type']}_enabled", option('interview_enabled', $this->delegate['application_type'] == 'delegate')))
 			$application_interview = 'interview';
 		
 		$application_type_function = "_status_{$application_seat}_{$application_fee}_{$application_interview}";
