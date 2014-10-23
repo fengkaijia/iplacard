@@ -1245,8 +1245,9 @@ class Apply extends CI_Controller
 		{
 			case 'locked':
 				$w['lock'] = '申请已完成';
+			case 'seat_selected':
 			case 'seat_assigned':
-				$w['seat'] = '席位已分配';
+				$w['seat'] = $status == 'seat_assigned' ? '席位已分配' : '席位已选择';
 			case 'interview_assigned':
 			case 'interview_arranged':
 			case 'interview_completed':
@@ -1265,7 +1266,6 @@ class Apply extends CI_Controller
 				$w['admit'] = '材料初审未通过';
 				$w['interview'] = NULL;
 				$w['seat'] = NULL;
-				$w['pay'] = NULL;
 				$w['lock'] = NULL;
 				break;
 			case 'moved_to_waiting_list':
@@ -1273,7 +1273,6 @@ class Apply extends CI_Controller
 				$w['admit'] = '初审已通过';
 				$w['interview'] = '面试未通过';
 				$w['seat'] = NULL;
-				$w['pay'] = NULL;
 				$w['lock'] = '队列等待中';
 				break;
 		}
@@ -1346,8 +1345,9 @@ class Apply extends CI_Controller
 		{
 			case 'locked':
 				$w['lock'] = '申请已完成';
+			case 'seat_selected':
 			case 'seat_assigned':
-				$w['seat'] = '席位已分配';
+				$w['seat'] = $status == 'seat_assigned' ? '席位已分配' : '席位已选择';
 			case 'review_passed':
 				$w['admit'] = '初审已通过';
 			case 'application_imported':
