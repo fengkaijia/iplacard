@@ -80,7 +80,7 @@ class Apply extends CI_Controller
 		
 		//锁定
 		$lock_open = false;
-		if($this->delegate['status'] == 'payment_received' && option('seat_lock_open', true) && $sid)
+		if(($this->delegate['status'] == 'payment_received' || $this->delegate['status'] == 'seat_selected') && option('seat_lock_open', true) && $sid)
 		{
 			$lock_open = true;
 			
@@ -640,20 +640,27 @@ class Apply extends CI_Controller
 				//初次选择
 				if($this->delegate['status'] == 'seat_assigned')
 				{
-					$this->load->library('invoice');
+					if(option("invoice_amount_{$this->delegate['application_type']}", 0) > 0)
+					{
+						$this->load->library('invoice');
 					
-					$this->delegate_model->change_status($this->uid, 'invoice_issued');
-					
-					//生成账单
-					$this->invoice->title(option('invoice_title_fee_delegate', option('invoice_title_fee', '参会会费')));
-					$this->invoice->to($this->uid);
-					$this->invoice->item(option('invoice_title_fee_delegate', option('invoice_title_fee', '参会会费')), option('invoice_amount_delegate', 1000), option('invoice_item_fee_delegate', option('invoice_item_fee', array())));
-					$this->invoice->due_time(time() + option('invoice_due_fee', 15) * 24 * 60 * 60);
-					
-					$this->invoice->trigger('overdue', 'release_seat', array('delegate' => $this->uid));
-					$this->invoice->trigger('receive', 'change_status', array('delegate' => $this->uid, 'status' => 'payment_received'));
-					
-					$this->invoice->generate();
+						$this->delegate_model->change_status($this->uid, 'invoice_issued');
+
+						//生成账单
+						$this->invoice->title(option('invoice_title_fee_delegate', option('invoice_title_fee', '参会会费')));
+						$this->invoice->to($this->uid);
+						$this->invoice->item(option('invoice_title_fee_delegate', option('invoice_title_fee', '参会会费')), option('invoice_amount_delegate', 1000), option('invoice_item_fee_delegate', option('invoice_item_fee', array())));
+						$this->invoice->due_time(time() + option('invoice_due_fee', 15) * 24 * 60 * 60);
+
+						$this->invoice->trigger('overdue', 'release_seat', array('delegate' => $this->uid));
+						$this->invoice->trigger('receive', 'change_status', array('delegate' => $this->uid, 'status' => 'payment_received'));
+
+						$this->invoice->generate();
+					}
+					else
+					{
+						$this->delegate_model->change_status($this->uid, 'seat_selected');
+					}
 				}
 				
 				//邮件通知
