@@ -1285,19 +1285,31 @@ class Delegate extends CI_Controller
 			//分配席位
 			case 'assign_seat':
 				$this->load->model('seat_model');
-				$this->load->model('interview_model');
 				
-				if($delegate['application_type'] != 'delegate' || $this->delegate_model->status_code($delegate['status']) < $this->delegate_model->status_code('interview_completed') || $this->delegate_model->status_code($delegate['status']) == $this->delegate_model->status_code('review_refused'))
+				if($delegate['application_type'] != 'delegate' || !$this->_check_seat_select_open($delegate))
 				{
 					$this->ui->alert('代表不在席位分配阶段，无法分配席位。', 'danger', true);
 					break;
 				}
 				
-				$interview = $this->interview_model->get_interview($this->interview_model->get_current_interview_id($uid));
-				if($interview['interviewer'] != uid())
+				if($this->_check_interview_enabled($delegate['application_type']))
 				{
-					$this->ui->alert('您不是此代表的面试官，因此无法分配席位。', 'danger', true);
-					break;
+					$this->load->model('interview_model');
+					
+					$interview = $this->interview_model->get_interview($this->interview_model->get_current_interview_id($uid));
+					if($interview['interviewer'] != uid())
+					{
+						$this->ui->alert('您不是此代表的面试官，因此无法分配席位。', 'danger', true);
+						break;
+					}
+				}
+				else
+				{
+					if(!$this->admin_model->capable('reviewer'))
+					{
+						$this->ui->alert('您无权分配席位。', 'danger', true);
+						break;
+					}
 				}
 				
 				$new_seat['primary'] = $this->input->post('seat_primary');
