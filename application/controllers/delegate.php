@@ -266,13 +266,13 @@ class Delegate extends CI_Controller
 		
 		//席位选择阶段
 		$seat_open = false;
-		if($profile['application_type'] == 'delegate' && $profile['status_code'] >= $this->delegate_model->status_code('interview_completed') && $profile['status_code'] != $this->delegate_model->status_code('review_refused'))
+		if($profile['application_type'] == 'delegate' && $this->_check_seat_select_open($profile))
 			$seat_open = true;
 		$vars['seat_open'] = $seat_open;
 		
 		//显示席位选择
 		$seat_assignable = false;
-		if(!empty($current_interview) && $interviews[$current_interview]['interviewer']['id'] == uid() && $profile['status'] != 'locked' && $profile['status'] != 'quitted')
+		if((!$this->_check_interview_enabled($profile['application_type']) || (!empty($current_interview) && $interviews[$current_interview]['interviewer']['id'] == uid())) && $profile['status'] != 'locked' && $profile['status'] != 'quitted')
 		{
 			$seat_assignable = true;
 		}
@@ -288,6 +288,7 @@ class Delegate extends CI_Controller
 		}
 		$vars['seat'] = $seat;
 		
+		//席位候选数据
 		$backorders = array();
 		$backorder_ids = $this->seat_model->get_delegate_backorder($uid, true);
 		if($backorder_ids)
@@ -610,7 +611,7 @@ class Delegate extends CI_Controller
 				
 				$this->delegate_model->add_event($uid, 'review_passed');
 				
-				if(option("interview_{$delegate['application_type']}_enabled", option('interview_enabled', $delegate['application_type'] == 'delegate')))
+				if($this->_check_interview_enabled($delegate['application_type']))
 					$this->user_model->add_message($uid, '您的参会申请已经通过审核，我们将在近期内为您分配面试官。');
 				else
 					$this->user_model->add_message($uid, '您的参会申请已经通过审核。');
@@ -1782,110 +1783,7 @@ class Delegate extends CI_Controller
 				$vars['delegate'] = $delegate;
 
 				return $this->load->view('admin/admission/review', $vars, true);
-				
-			//分配面试界面
-			case 'review_passed':
-				if(!$this->admin_model->capable('reviewer'))
-					break;
-				
-				$this->load->model('interview_model');
-				$this->load->model('committee_model');
-
-				$list_ids = $this->admin_model->get_admin_ids('role_interviewer', true);
-
-				//获取可选择面试官列表
-				$select = array();
-				$committees = array();
-				$count = 0;
-
-				if($list_ids)
-				{
-					foreach($list_ids as $id)
-					{
-						$admin = $this->admin_model->get_admin($id);
-
-						//面试官队列数
-						$queues = $this->interview_model->get_interviewer_interviews($id, array('assigned', 'arranged'));
-						$queue = !$queues ? 0 : count($queues);
-
-						$committee = empty($admin['committee']) ? 0 : $admin['committee'];
-						if($committee > 0 && !isset($committees[$committee]))
-							$committees[$committee] = $this->committee_model->get_committee($committee);
-
-						$select[$committee][] = array(
-							'id' => $id,
-							'name' => $admin['name'],
-							'title' => $admin['title'],
-							'queue' => $queue
-						);
-					}
-
-					$count = count($list_ids);
-				}
-				$vars['select'] = $select;
-				$vars['interviewer_count'] = $count;
-				$vars['committees'] = $committees;
-
-				//高亮面试官
-				$primary = array();
-				$choice_committee = array();
-
-				$choice_option = option('profile_special_committee_choice');
-				if($choice_option)
-				{
-					$choice_committee = $this->delegate_model->get_profile_by_name($delegate['id'], $choice_option);
-
-					if(!empty($choice_committee))
-					{
-						foreach($choice_committee as $committee_id)
-						{
-							$primary['committee'][] = $committee_id;
-							foreach($select[$committee_id] as $one)
-							{
-								$primary['interviewer'][] = $one['id'];
-							}
-
-							$choice_committee[] = $this->committee_model->get_committee($committee_id, 'abbr');
-						}
-					}
-				}
-				$vars['primary'] = $primary;
-				$vars['choice_committee'] = $choice_committee;
-
-				//是否为二次面试
-				if(!$this->interview_model->is_secondary($delegate['id'], 'delegate'))
-					$vars['is_secondary'] = false;
-				else
-					$vars['is_secondary'] = true;
-
-				//是否为回退
-				$rollbackers = array();
-				$rollback = array();
-
-				$rollback_ids = $this->delegate_model->get_event_ids('delegate', $delegate['id'], 'event', 'interview_rollbacked');
-				if($rollback_ids)
-				{
-					foreach($rollback_ids as $id)
-					{
-						$event = $this->delegate_model->get_event($id, 'info');
-
-						$interviewer = $this->interview_model->get_interview($event['interview'], 'interviewer');
-						
-						if(!in_array($interviewer, $rollbackers))
-						{
-							$rollback[] = $this->admin_model->get_admin($interviewer);
-							$rollbackers[] = $interviewer;
-						}
-					}
-					$vars['is_rollbacked'] = true;
-				}
-				else
-					$vars['is_rollbacked'] = false;
-
-				$vars['rollback'] = $rollback;
-
-				return $this->load->view('admin/admission/assign_interview', $vars, true);
-				
+			
 			//安排面试界面
 			case 'interview_assigned':
 				if(!$this->admin_model->capable('interviewer'))
@@ -1953,6 +1851,113 @@ class Delegate extends CI_Controller
 				$vars['score_level'] = $this->interview_model->get_score_levels(20);
 				
 				return $this->load->view('admin/admission/do_interview', $vars, true);
+			
+			//审核通过界面
+			case 'review_passed':
+				if(!$this->admin_model->capable('reviewer'))
+					break;
+				
+				//分配面试界面
+				if($this->_check_interview_enabled($delegate['application_type']))
+				{
+					$this->load->model('interview_model');
+					$this->load->model('committee_model');
+
+					$list_ids = $this->admin_model->get_admin_ids('role_interviewer', true);
+
+					//获取可选择面试官列表
+					$select = array();
+					$committees = array();
+					$count = 0;
+
+					if($list_ids)
+					{
+						foreach($list_ids as $id)
+						{
+							$admin = $this->admin_model->get_admin($id);
+
+							//面试官队列数
+							$queues = $this->interview_model->get_interviewer_interviews($id, array('assigned', 'arranged'));
+							$queue = !$queues ? 0 : count($queues);
+
+							$committee = empty($admin['committee']) ? 0 : $admin['committee'];
+							if($committee > 0 && !isset($committees[$committee]))
+								$committees[$committee] = $this->committee_model->get_committee($committee);
+
+							$select[$committee][] = array(
+								'id' => $id,
+								'name' => $admin['name'],
+								'title' => $admin['title'],
+								'queue' => $queue
+							);
+						}
+
+						$count = count($list_ids);
+					}
+					$vars['select'] = $select;
+					$vars['interviewer_count'] = $count;
+					$vars['committees'] = $committees;
+
+					//高亮面试官
+					$primary = array();
+					$choice_committee = array();
+
+					$choice_option = option('profile_special_committee_choice');
+					if($choice_option)
+					{
+						$choice_committee = $this->delegate_model->get_profile_by_name($delegate['id'], $choice_option);
+
+						if(!empty($choice_committee))
+						{
+							foreach($choice_committee as $committee_id)
+							{
+								$primary['committee'][] = $committee_id;
+								foreach($select[$committee_id] as $one)
+								{
+									$primary['interviewer'][] = $one['id'];
+								}
+
+								$choice_committee[] = $this->committee_model->get_committee($committee_id, 'abbr');
+							}
+						}
+					}
+					$vars['primary'] = $primary;
+					$vars['choice_committee'] = $choice_committee;
+
+					//是否为二次面试
+					if(!$this->interview_model->is_secondary($delegate['id'], 'delegate'))
+						$vars['is_secondary'] = false;
+					else
+						$vars['is_secondary'] = true;
+
+					//是否为回退
+					$rollbackers = array();
+					$rollback = array();
+
+					$rollback_ids = $this->delegate_model->get_event_ids('delegate', $delegate['id'], 'event', 'interview_rollbacked');
+					if($rollback_ids)
+					{
+						foreach($rollback_ids as $id)
+						{
+							$event = $this->delegate_model->get_event($id, 'info');
+
+							$interviewer = $this->interview_model->get_interview($event['interview'], 'interviewer');
+
+							if(!in_array($interviewer, $rollbackers))
+							{
+								$rollback[] = $this->admin_model->get_admin($interviewer);
+								$rollbackers[] = $interviewer;
+							}
+						}
+						$vars['is_rollbacked'] = true;
+					}
+					else
+						$vars['is_rollbacked'] = false;
+
+					$vars['rollback'] = $rollback;
+
+					return $this->load->view('admin/admission/assign_interview', $vars, true);
+				}
 				
 			//分配席位选择
 			case 'interview_completed':
@@ -1961,46 +1966,54 @@ class Delegate extends CI_Controller
 			case 'payment_received':
 				$this->load->model('seat_model');
 				
-				if(!$this->admin_model->capable('interviewer'))
+				if(!$this->admin_model->capable($this->_check_interview_enabled($delegate['application_type']) ? 'interviewer' : 'reviewer'))
 					break;
 				
-				$this->load->model('interview_model');
-				
-				$current_id = $this->interview_model->get_current_interview_id($delegate['id']);
-				if(!$current_id)
-					break;
-				
-				$interview = $this->interview_model->get_interview($current_id);
-				if(!$interview)
-					break;
-				
-				if(!in_array($interview['status'], array('completed', 'exempted')))
-					break;
-				
-				if($interview['interviewer'] != uid())
-					break;
-				
-				$vars['interview'] = $interview;
-				
-				//面试成绩排位
-				$vars['score_level'] = false;
-				if($interview['status'] == 'completed' && !empty($interview['score']))
+				//经过面试
+				if($this->_check_interview_enabled($delegate['application_type']))
 				{
-					$score_level = $this->interview_model->get_score_levels(1);
-					if($score_level)
+					$this->load->model('interview_model');
+
+					$current_id = $this->interview_model->get_current_interview_id($delegate['id']);
+					if(!$current_id)
+						break;
+
+					$interview = $this->interview_model->get_interview($current_id);
+					if(!$interview)
+						break;
+
+					if(!in_array($interview['status'], array('completed', 'exempted')))
+						break;
+
+					if($interview['interviewer'] != uid())
+						break;
+
+					$vars['interview'] = $interview;
+
+					//面试成绩排位
+					$vars['score_level'] = false;
+					if($interview['status'] == 'completed' && !empty($interview['score']))
 					{
-						foreach($score_level as $level => $sample)
+						$score_level = $this->interview_model->get_score_levels(1);
+						if($score_level)
 						{
-							if($interview['score'] >= $sample)
+							foreach($score_level as $level => $sample)
 							{
-								$vars['score_level'] = $level;
-								break;
+								if($interview['score'] >= $sample)
+								{
+									$vars['score_level'] = $level;
+									break;
+								}
 							}
 						}
 					}
+
+					$vars['score_total'] = option('interview_score_total', 5);
 				}
-				
-				$vars['score_total'] = option('interview_score_total', 5);
+				else
+				{
+					$vars['interview'] = false;
+				}
 				
 				//已经分配过席位情况
 				$assigned = false;
@@ -2175,6 +2188,39 @@ class Delegate extends CI_Controller
 			$param[$name] = join(',', $value);
 		}
 		return http_build_query($param);
+	}
+	
+	/**
+	 * 检查代表是否符合选择席位条件
+	 */
+	private function _check_seat_select_open($delegate)
+	{
+		$status_code = $this->delegate_model->status_code($delegate['status']);
+		
+		if($status_code == $this->delegate_model->status_code('review_refused'))
+			return false;
+
+		if($status_code == $this->delegate_model->status_code('quitted'))
+			return false;
+
+		if($status_code == $this->delegate_model->status_code('deleted'))
+			return false;
+		
+		if($this->_check_interview_enabled($delegate['application_type']) && $status_code >= $this->delegate_model->status_code('interview_completed'))
+			return true;
+				
+		if(!$this->_check_interview_enabled($delegate['application_type']) && $status_code >= $this->delegate_model->status_code('review_passed'))
+			return true;
+		
+		return false;
+	}
+	
+	/**
+	 * 检查代表是否需要面试
+	 */
+	private function _check_interview_enabled($application_type)
+	{
+		return option("interview_{$application_type}_enabled", option('interview_enabled', $application_type == 'delegate'));
 	}
 }
 
