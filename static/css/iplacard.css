@@ -6,6 +6,26 @@
 		CSS File of iPlacard Project
 */
 
+/* 中文化 */
+body {
+	font-family: "Open Sans", Calibri, "Source Han Sans CN", "Noto Sans", "Microsoft YaHei", "Hiragino Sans GB", "WenQuanYi Micro Hei", Candara, Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+	font-family: "Open Sans", Calibri, "Source Han Sans CN", "Noto Sans", "Microsoft YaHei", "Hiragino Sans GB", "WenQuanYi Micro Hei", Candara, Arial, sans-serif;
+}
+
 /* 保持页面全屏 */
 html,
 body {
