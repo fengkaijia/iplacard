@@ -1792,6 +1792,7 @@ class Apply extends CI_Controller
 					. '<p style=\'margin-bottom: 0;\'>如果面试没有通过，您将进入等待队列。</p>';
 				break;
 			case 'seat_assigned':
+			case 'seat_selected':
 			case 'seat':
 				$intro = '<p>面试通过之后，面试官将会根据您的面试表现为您分配适合的席位选择。通常情况下，面试官将在完成面试后立即为您分配合适的席位选择。</p>'
 					. '<p style=\'margin-bottom: 0;\'>席位分配后，您将可以在席位信息页面选择并确认席位；如果您认为分配的席位不适合您，请联系您的面试官，他将可以为您重新分配席位。</p>';
