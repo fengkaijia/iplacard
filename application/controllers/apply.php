@@ -179,7 +179,11 @@ class Apply extends CI_Controller
 		if($this->delegate['application_type'] == 'delegate' && option('seat_enabled', true))
 			$application_seat = 'seat';
 		
-		$application_type_function = "_status_{$application_seat}_{$application_fee}";
+		$application_interview = 'noninterview';
+		if(option("interview_{$this->delegate['application_type']}_enabled", option('interview_enabled', $this->delegate['application_type'] == 'delegate')))
+			$application_interview = 'interview';
+		
+		$application_type_function = "_status_{$application_seat}_{$application_fee}_{$application_interview}";
 		$status_info = $this->$application_type_function();
 		$vars += $status_info;
 		
@@ -993,9 +997,9 @@ class Apply extends CI_Controller
 	}
 	
 	/**
-	 * 含席位含会费申请状态信息
+	 * 含席位含会费含面试申请状态信息
 	 */
-	function _status_seat_fee()
+	function _status_seat_fee_interview()
 	{
 		$status = $this->delegate['status'];
 		
@@ -1109,9 +1113,403 @@ class Apply extends CI_Controller
 	}
 	
 	/**
-	 * 非席位含会费申请状态信息
+	 * 含席位含会费无面试申请状态信息
 	 */
-	function _status_nonseat_fee()
+	function _status_seat_fee_noninterview()
+	{
+		$status = $this->delegate['status'];
+		
+		$w['signin'] = '提交申请';
+		$w['admit'] = '等待通过审核';
+		$w['seat'] = '等待分配席位';
+		$w['pay'] = '等待支付会费';
+		$w['lock'] = '等待确认完成';
+		
+		//退会显示原状态
+		$quitted = false;
+		if($status == 'quitted')
+		{
+			$quitted = true;
+			$status = user_option('quit_status', 'application_imported', $this->uid);
+		}
+		
+		//进度条状态文字
+		switch($status)
+		{
+			case 'locked':
+				$w['lock'] = '申请已完成';
+			case 'payment_received':
+				$w['pay'] = '已支付会费';
+			case 'invoice_issued':
+			case 'seat_assigned':
+				$w['seat'] = '席位已分配';
+			case 'review_passed':
+				$w['admit'] = '初审已通过';
+			case 'application_imported':
+				$w['signin'] = '申请已录入';
+				break;
+			case 'review_refused':
+				$w['signin'] = '申请已录入';
+				$w['admit'] = '材料初审未通过';
+				$w['seat'] = NULL;
+				$w['pay'] = NULL;
+				$w['lock'] = NULL;
+				break;
+			case 'moved_to_waiting_list':
+				$w['signin'] = '申请已录入';
+				$w['admit'] = '初审已通过';
+				$w['seat'] = NULL;
+				$w['pay'] = NULL;
+				$w['lock'] = '队列等待中';
+				break;
+		}
+		if($quitted)
+			$w['lock'] = '已经退会';
+		
+		//进度条状态显示
+		switch($status)
+		{
+			case 'application_imported':
+			case 'review_refused':
+				$current = 'admit';
+				break;
+			case 'review_passed':
+			case 'seat_assigned':
+				$current = 'seat';
+				break;
+			case 'invoice_issued':
+			case 'payment_received':
+				$current = 'pay';
+				break;
+			case 'locked':
+			case 'moved_to_waiting_list':
+				$current = 'lock';
+				break;
+		}
+		if($quitted)
+			$current = 'lock';
+		
+		//生成状态组信息
+		foreach(array('signin', 'admit', 'seat', 'pay', 'lock') as $one)
+		{
+			if(!empty($w[$one]))
+			{
+				if($current == $one)
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro(($one == 'lock' && $quitted) ? 'quit' : $one), 'current' => true);
+				else
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
+			}
+		}
+		
+		$return['wizard'] = $wizard;
+		$return['current'] = $current;
+		return $return;
+	}
+	
+	/**
+	 * 含席位无会费含面试申请状态信息
+	 */
+	function _status_seat_nonfee_interview()
+	{
+		$status = $this->delegate['status'];
+		
+		$w['signin'] = '提交申请';
+		$w['admit'] = '等待通过审核';
+		$w['interview'] = '等待安排面试';
+		$w['seat'] = '等待分配席位';
+		$w['lock'] = '等待确认完成';
+		
+		//是否存在二次面试
+		$this->load->model('interview_model');
+		$interviews = $this->interview_model->get_interview_ids('delegate', $this->uid, 'status', 'failed');
+		if($interviews && count($interviews) == 1)
+			$w['interview'] = '等待二次面试';
+		
+		//退会显示原状态
+		$quitted = false;
+		if($status == 'quitted')
+		{
+			$quitted = true;
+			$status = user_option('quit_status', 'application_imported', $this->uid);
+		}
+		
+		//进度条状态文字
+		switch($status)
+		{
+			case 'locked':
+				$w['lock'] = '申请已完成';
+			case 'seat_assigned':
+				$w['seat'] = '席位已分配';
+			case 'interview_assigned':
+			case 'interview_arranged':
+			case 'interview_completed':
+				$w['interview'] = '面试已通过';
+				if($status == 'interview_assigned')
+					$w['interview'] = '已分配面试';
+				elseif($status == 'interview_arranged')
+					$w['interview'] = '已安排面试';
+			case 'review_passed':
+				$w['admit'] = '初审已通过';
+			case 'application_imported':
+				$w['signin'] = '申请已录入';
+				break;
+			case 'review_refused':
+				$w['signin'] = '申请已录入';
+				$w['admit'] = '材料初审未通过';
+				$w['interview'] = NULL;
+				$w['seat'] = NULL;
+				$w['pay'] = NULL;
+				$w['lock'] = NULL;
+				break;
+			case 'moved_to_waiting_list':
+				$w['signin'] = '申请已录入';
+				$w['admit'] = '初审已通过';
+				$w['interview'] = '面试未通过';
+				$w['seat'] = NULL;
+				$w['pay'] = NULL;
+				$w['lock'] = '队列等待中';
+				break;
+		}
+		if($quitted)
+			$w['lock'] = '已经退会';
+		
+		//进度条状态显示
+		switch($status)
+		{
+			case 'application_imported':
+			case 'review_refused':
+				$current = 'admit';
+				break;
+			case 'review_passed':
+			case 'interview_assigned':
+			case 'interview_arranged':
+			case 'interview_completed':
+				$current = 'interview';
+				break;
+			case 'seat_assigned':
+				$current = 'seat';
+				break;
+			case 'locked':
+			case 'moved_to_waiting_list':
+				$current = 'lock';
+				break;
+		}
+		if($quitted)
+			$current = 'lock';
+		
+		//生成状态组信息
+		foreach(array('signin', 'admit', 'interview', 'seat', 'lock') as $one)
+		{
+			if(!empty($w[$one]))
+			{
+				if($current == $one)
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro(($one == 'lock' && $quitted) ? 'quit' : $one), 'current' => true);
+				else
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
+			}
+		}
+		
+		$return['wizard'] = $wizard;
+		$return['current'] = $current;
+		return $return;
+	}
+	
+	/**
+	 * 含席位无会费无面试申请状态信息
+	 */
+	function _status_seat_nonfee_noninterview()
+	{
+		$status = $this->delegate['status'];
+		
+		$w['signin'] = '提交申请';
+		$w['admit'] = '等待通过审核';
+		$w['seat'] = '等待分配席位';
+		$w['lock'] = '等待确认完成';
+		
+		//退会显示原状态
+		$quitted = false;
+		if($status == 'quitted')
+		{
+			$quitted = true;
+			$status = user_option('quit_status', 'application_imported', $this->uid);
+		}
+		
+		//进度条状态文字
+		switch($status)
+		{
+			case 'locked':
+				$w['lock'] = '申请已完成';
+			case 'seat_assigned':
+				$w['seat'] = '席位已分配';
+			case 'review_passed':
+				$w['admit'] = '初审已通过';
+			case 'application_imported':
+				$w['signin'] = '申请已录入';
+				break;
+			case 'review_refused':
+				$w['signin'] = '申请已录入';
+				$w['admit'] = '材料初审未通过';
+				$w['seat'] = NULL;
+				$w['lock'] = NULL;
+				break;
+			case 'moved_to_waiting_list':
+				$w['signin'] = '申请已录入';
+				$w['admit'] = '初审已通过';
+				$w['seat'] = NULL;
+				$w['lock'] = '队列等待中';
+				break;
+		}
+		if($quitted)
+			$w['lock'] = '已经退会';
+		
+		//进度条状态显示
+		switch($status)
+		{
+			case 'application_imported':
+			case 'review_refused':
+				$current = 'admit';
+				break;
+			case 'review_passed':
+			case 'seat_assigned':
+				$current = 'seat';
+				break;
+			case 'locked':
+			case 'moved_to_waiting_list':
+				$current = 'lock';
+				break;
+		}
+		if($quitted)
+			$current = 'lock';
+		
+		//生成状态组信息
+		foreach(array('signin', 'admit', 'seat', 'lock') as $one)
+		{
+			if(!empty($w[$one]))
+			{
+				if($current == $one)
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro(($one == 'lock' && $quitted) ? 'quit' : $one), 'current' => true);
+				else
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
+			}
+		}
+		
+		$return['wizard'] = $wizard;
+		$return['current'] = $current;
+		return $return;
+	}
+	
+	/**
+	 * 非席位含会费含面试申请状态信息
+	 */
+	function _status_nonseat_fee_interview()
+	{
+		$status = $this->delegate['status'];
+		
+		$w['signin'] = '提交申请';
+		$w['admit'] = '等待通过审核';
+		$w['interview'] = '等待安排面试';
+		$w['pay'] = '等待支付会费';
+		$w['lock'] = '等待确认完成';
+		
+		//是否存在二次面试
+		$this->load->model('interview_model');
+		$interviews = $this->interview_model->get_interview_ids('delegate', $this->uid, 'status', 'failed');
+		if($interviews && count($interviews) == 1)
+			$w['interview'] = '等待二次面试';
+		
+		//退会显示原状态
+		$quitted = false;
+		if($status == 'quitted')
+		{
+			$quitted = true;
+			$status = user_option('quit_status', 'application_imported', $this->uid);
+		}
+		
+		//进度条状态文字
+		switch($status)
+		{
+			case 'locked':
+				$w['lock'] = '申请已完成';
+			case 'payment_received':
+				$w['pay'] = '已支付会费';
+			case 'invoice_issued':
+			case 'interview_assigned':
+			case 'interview_arranged':
+			case 'interview_completed':
+				$w['interview'] = '面试已通过';
+				if($status == 'interview_assigned')
+					$w['interview'] = '已分配面试';
+				elseif($status == 'interview_arranged')
+					$w['interview'] = '已安排面试';
+			case 'review_passed':
+				$w['admit'] = '初审已通过';
+			case 'application_imported':
+				$w['signin'] = '申请已录入';
+				break;
+			case 'review_refused':
+				$w['signin'] = '申请已录入';
+				$w['admit'] = '材料初审未通过';
+				$w['interview'] = NULL;
+				$w['pay'] = NULL;
+				$w['lock'] = NULL;
+				break;
+			case 'moved_to_waiting_list':
+				$w['signin'] = '申请已录入';
+				$w['admit'] = '初审已通过';
+				$w['interview'] = '面试未通过';
+				$w['pay'] = NULL;
+				$w['lock'] = '队列等待中';
+				break;
+		}
+		if($quitted)
+			$w['lock'] = '已经退会';
+		
+		//进度条状态显示
+		switch($status)
+		{
+			case 'application_imported':
+			case 'review_refused':
+				$current = 'admit';
+				break;
+			case 'review_passed':
+			case 'interview_assigned':
+			case 'interview_arranged':
+			case 'interview_completed':
+				$current = 'interview';
+				break;
+			case 'invoice_issued':
+			case 'payment_received':
+				$current = 'pay';
+				break;
+			case 'locked':
+			case 'moved_to_waiting_list':
+				$current = 'lock';
+				break;
+		}
+		if($quitted)
+			$current = 'lock';
+		
+		//生成状态组信息
+		foreach(array('signin', 'admit', 'interview', 'pay', 'lock') as $one)
+		{
+			if(!empty($w[$one]))
+			{
+				if($current == $one)
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro(($one == 'lock' && $quitted) ? 'quit' : $one), 'current' => true);
+				else
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
+			}
+		}
+		
+		$return['wizard'] = $wizard;
+		$return['current'] = $current;
+		return $return;
+	}
+	
+	/**
+	 * 非席位含会费无面试申请状态信息
+	 */
+	function _status_nonseat_fee_noninterview()
 	{
 		$status = $this->delegate['status'];
 		
@@ -1197,9 +1595,108 @@ class Apply extends CI_Controller
 	}
 	
 	/**
-	 * 非席位无会费申请状态信息
+	 * 非席位无会费含面试申请状态信息
 	 */
-	function _status_nonseat_nonfee()
+	function _status_nonseat_nonfee_interview()
+	{
+		$status = $this->delegate['status'];
+		
+		$w['signin'] = '提交申请';
+		$w['admit'] = '等待通过审核';
+		$w['interview'] = '等待安排面试';
+		$w['lock'] = '等待确认完成';
+		
+		//是否存在二次面试
+		$this->load->model('interview_model');
+		$interviews = $this->interview_model->get_interview_ids('delegate', $this->uid, 'status', 'failed');
+		if($interviews && count($interviews) == 1)
+			$w['interview'] = '等待二次面试';
+		
+		//退会显示原状态
+		$quitted = false;
+		if($status == 'quitted')
+		{
+			$quitted = true;
+			$status = user_option('quit_status', 'application_imported', $this->uid);
+		}
+		
+		//进度条状态文字
+		switch($status)
+		{
+			case 'locked':
+				$w['lock'] = '申请已完成';
+			case 'invoice_issued':
+			case 'interview_assigned':
+			case 'interview_arranged':
+			case 'interview_completed':
+				$w['interview'] = '面试已通过';
+				if($status == 'interview_assigned')
+					$w['interview'] = '已分配面试';
+				elseif($status == 'interview_arranged')
+					$w['interview'] = '已安排面试';
+			case 'review_passed':
+				$w['admit'] = '初审已通过';
+			case 'application_imported':
+				$w['signin'] = '申请已录入';
+				break;
+			case 'review_refused':
+				$w['signin'] = '申请已录入';
+				$w['admit'] = '材料初审未通过';
+				$w['interview'] = NULL;
+				$w['lock'] = NULL;
+				break;
+			case 'moved_to_waiting_list':
+				$w['signin'] = '申请已录入';
+				$w['admit'] = '初审已通过';
+				$w['interview'] = '面试未通过';
+				$w['lock'] = '队列等待中';
+				break;
+		}
+		if($quitted)
+			$w['lock'] = '已经退会';
+		
+		//进度条状态显示
+		switch($status)
+		{
+			case 'application_imported':
+			case 'review_refused':
+				$current = 'admit';
+				break;
+			case 'review_passed':
+			case 'interview_assigned':
+			case 'interview_arranged':
+			case 'interview_completed':
+				$current = 'interview';
+				break;
+			case 'locked':
+			case 'moved_to_waiting_list':
+				$current = 'lock';
+				break;
+		}
+		if($quitted)
+			$current = 'lock';
+		
+		//生成状态组信息
+		foreach(array('signin', 'admit', 'interview', 'lock') as $one)
+		{
+			if(!empty($w[$one]))
+			{
+				if($current == $one)
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro(($one == 'lock' && $quitted) ? 'quit' : $one), 'current' => true);
+				else
+					$wizard[] = array('level' => $one, 'text' => $w[$one], 'intro' => $this->_status_intro($one), 'current' => false);
+			}
+		}
+		
+		$return['wizard'] = $wizard;
+		$return['current'] = $current;
+		return $return;
+	}
+	
+	/**
+	 * 非席位无会费无面试申请状态信息
+	 */
+	function _status_nonseat_nonfee_noninterview()
 	{
 		$status = $this->delegate['status'];
 		
