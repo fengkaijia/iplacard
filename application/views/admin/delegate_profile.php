@@ -325,8 +325,8 @@ $this->load->view('header');?>
 			<?php if($seat_open) { ?><div class="tab-pane" id="seat">
 				<?php if($selectabilities) { ?><div id="seat_now">
 					<?php if(!empty($seat)) { ?>
-					<h3>已选择席位</h3>
-					<p><?php echo icon('user', false).$profile['name'];?>代表当前已经选择如下席位。</p>
+					<h3><?php echo $seat_mode == 'select' ? '已选择席位' : '已分配席位';?></h3>
+					<p><?php echo icon('user', false).$profile['name'];?>代表当前席位如下。</p>
 					<table class="table table-bordered table-striped table-hover flags-16">
 						<tbody>
 							<tr>
@@ -338,7 +338,7 @@ $this->load->view('header');?>
 								<td><?php echo "{$seat['committee']['name']}（{$seat['committee']['abbr']}）";?></td>
 							</tr>
 							<tr>
-								<td>选择时间</td>
+								<td><?php echo $seat_mode == 'select' ? '选择时间' : '分配时间';?></td>
 								<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $seat['time']), nicetime($seat['time']));?></td>
 							</tr>
 							<tr>
@@ -379,7 +379,7 @@ $this->load->view('header');?>
 					
 					<hr /><?php } ?>
 					
-					<h3>开放席位分配</h3>
+					<?php if($seat_mode == 'select') { ?><h3>开放席位分配</h3>
 					<p>以下席位权限已经开放给<?php echo icon('user', false).$profile['name'];?>代表，代表可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候选席位。</p>
 					<table id="selectability_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
 						<thead>
@@ -398,21 +398,24 @@ $this->load->view('header');?>
 						</tbody>
 					</table>
 					
-					<?php
-					if($seat_assignable)
-					{
-						$this->ui->js('footer', "
+					<?php if($seat_assignable) { ?><p>如需向代表开放分配更多席位选择权限，请点击增加席位分配。</p>
+					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('plus');?>增加席位分配</a></p><?php } }
+					elseif($seat_assignable) { ?><h3>更改席位分配</h3>
+					<p>如需更换代表的席位，请点击更改席位分配。</p>
+					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('pencil');?>更改席位分配</a></p><?php }?>
+				</div><?php } ?>
+				
+				<?php
+				if($seat_assignable)
+				{
+					$this->ui->js('footer', "
 							jQuery(function($){
 								$('#seat_add').hide();
 							});
-						");
-					?><p>如需向代表开放分配更多席位选择权限，请点击增加席位分配。</p>
-					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('plus');?>增加席位分配</a></p><?php } ?>
-				</div><?php } ?>
-				
-				<?php if($seat_assignable) { ?><div id="seat_add">
+						"); ?><div id="seat_add">
 					<h3>分配席位</h3>
-					<p>将会向<?php echo icon('user', false).$profile['name'];?>代表分配席位选择权限。之后，代表将可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候选席位。</p>
+					<p><?php if($seat_mode == 'select') { ?>将会向<?php echo icon('user', false).$profile['name'];?>代表分配席位选择权限。之后，代表将可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候选席位。<?php }
+					else { ?>将会向<?php echo icon('user', false).$profile['name'];?>代表分配席位。<?php } ?></p>
 					<table id="seat_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
 						<thead>
 							<tr>
@@ -432,7 +435,7 @@ $this->load->view('header');?>
 						</tbody>
 					</table>
 					
-					<?php if($selectabilities) { ?><p><a class="btn btn-primary" onclick="$('#seat_now').show(); $('#seat_add').hide();"><?php echo icon('th-list');?>返回已分配席位列表</a></p><?php } ?>
+					<?php if($selectabilities || $seat_mode == 'assign') { ?><p><a class="btn btn-primary" onclick="$('#seat_now').show(); $('#seat_add').hide();"><?php echo icon('th-list');?>返回已分配席位</a></p><?php } ?>
 				</div><?php } ?>
 			</div><?php } ?>
 		</div>
@@ -482,19 +485,23 @@ $(document).ready(function() {
 	} );
 } );
 EOT;
-if($selectabilities)
+if($seat_mode == 'select' && $selectabilities)
 	$this->ui->js('footer', $selectability_js);
 
 $seat_opened_ids = json_encode(array());
-if($selectabilities)
+if($seat_mode == 'assign')
+	$seat_opened_ids = json_encode(array($seat['id']));
+elseif($selectabilities)
 	$seat_opened_ids = json_encode($selectabilities);
+$seat_opened_text = $seat_mode == 'select' ? '已经开放' : '已经分配';
+$seat_hide_column = $seat_mode == 'select' ? '5' : '5, 6';
 $seat_url = base_url('seat/ajax/list?operation=assign');
 $seat_js = <<<EOT
 $(document).ready(function() {
 	$('#seat_list').dataTable( {
 		"aoColumnDefs": [
 			{ "bSortable": false, "aTargets": [ 0, 7 ] },
-			{ "bVisible": false, "aTargets": [ 5 ] }
+			{ "bVisible": false, "aTargets": [ {$seat_hide_column} ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,
@@ -503,7 +510,7 @@ $(document).ready(function() {
 		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 			$(nRow).attr("id", 'seat-' + aData[0]);
 			if($.inArray(aData[0], {$seat_opened_ids}) !== -1) {
-				$(nRow).children().eq(5).html('<p class="text-success">已经开放</p>');
+				$(nRow).children().eq(5).html('<p class="text-success">{$seat_opened_text}</p>');
 			}
 		},
 		/* TODO

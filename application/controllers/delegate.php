@@ -310,6 +310,9 @@ class Delegate extends CI_Controller
 		}
 		$vars['seat'] = $seat;
 		
+		$seat_mode = option('seat_mode', 'select');
+		$vars['seat_mode'] = $seat_mode;
+		
 		//席位候选数据
 		$backorders = array();
 		$backorder_ids = $this->seat_model->get_delegate_backorder($uid, true);
@@ -318,16 +321,16 @@ class Delegate extends CI_Controller
 			foreach($backorder_ids as $backorder_id)
 			{
 				$backorder = $this->seat_model->get_backorder($backorder_id);
-				
+
 				$seat = $this->seat_model->get_seat($backorder['seat']);
 				$seat['committee'] = $this->committee_model->get_committee($seat['committee']);
 				$backorder['seat'] = $seat;
-				
+
 				$backorders[] = $backorder;
 			}
 		}
 		$vars['backorders'] = $backorders;
-		
+
 		//席位选择数据
 		$vars['selectabilities'] = $this->seat_model->get_delegate_selectability($uid, false, false, 'seat');
 		
@@ -1333,6 +1336,8 @@ class Delegate extends CI_Controller
 						$this->ui->alert('您不是此代表的面试官，因此无法分配席位。', 'danger', true);
 						break;
 					}
+					
+					$admin_committee = $this->admin_model->get_admin(uid(), 'committee');
 				}
 				else
 				{
@@ -1343,51 +1348,175 @@ class Delegate extends CI_Controller
 					}
 				}
 				
-				$new_seat['primary'] = $this->input->post('seat_primary');
-				$new_seat['backorder'] = $this->input->post('seat_backorder');
-				if(empty($new_seat['primary']) && empty($new_seat['backorder']))
+				$seat_mode = option('seat_mode', 'select');
+				if($seat_mode == 'select')
 				{
-					$this->ui->alert('没有任何席位被分配开放。', 'warning', true);
-					break;
-				}
-				
-				$new_recommended['primary'] = $this->input->post('recommended_primary');
-				if(empty($new_recommended['primary']))
-					$new_recommended['primary'] = array();
-				
-				$new_recommended['backorder'] = $this->input->post('recommended_backorder');
-				if(empty($new_recommended['backorder']))
-					$new_recommended['backorder'] = array();
-				
-				//已经开放许可
-				$existing = $this->seat_model->get_delegate_selectability($delegate['id'], false, false, 'seat');
-				if(!$existing)
-					$existing = array();
-				
-				$admin_committee = $this->admin_model->get_admin(uid(), 'committee');
-				
-				//添加席位选择许可
-				$new_selectability = array();
-				foreach(array('primary', 'backorder') as $new_type)
-				{
-					foreach($new_seat[$new_type] as $sid)
+					$new_seat['primary'] = $this->input->post('seat_primary');
+					$new_seat['backorder'] = $this->input->post('seat_backorder');
+					if(empty($new_seat['primary']) && empty($new_seat['backorder']))
 					{
-						$seat = $this->seat_model->get_seat($sid);
-						if(!in_array($sid, $existing) && ($seat['status'] != 'preserved' || $seat['committee'] == $admin_committee))
-						{
-							$recommended = false;
-							if(in_array($sid, $new_recommended[$new_type]))
-								$recommended = true;
+						$this->ui->alert('没有任何席位被分配开放。', 'warning', true);
+						break;
+					}
 
-							$new_selectability[] = $this->seat_model->grant_selectability($sid, $delegate['id'], uid(), $new_type == 'primary', $recommended);
+					$new_recommended['primary'] = $this->input->post('recommended_primary');
+					if(empty($new_recommended['primary']))
+						$new_recommended['primary'] = array();
+
+					$new_recommended['backorder'] = $this->input->post('recommended_backorder');
+					if(empty($new_recommended['backorder']))
+						$new_recommended['backorder'] = array();
+
+					//已经开放许可
+					$existing = $this->seat_model->get_delegate_selectability($delegate['id'], false, false, 'seat');
+					if(!$existing)
+						$existing = array();
+					
+					//添加席位选择许可
+					$new_selectability = array();
+					foreach(array('primary', 'backorder') as $new_type)
+					{
+						foreach($new_seat[$new_type] as $sid)
+						{
+							$seat = $this->seat_model->get_seat($sid);
+							if(!in_array($sid, $existing) && ($seat['status'] != 'preserved' || $seat['committee'] == $admin_committee))
+							{
+								$recommended = false;
+								if(in_array($sid, $new_recommended[$new_type]))
+									$recommended = true;
+
+								$new_selectability[] = $this->seat_model->grant_selectability($sid, $delegate['id'], uid(), $new_type == 'primary', $recommended);
+							}
+							else
+								$this->ui->alert("无法分配席位{$seat['name']}，该席位已经分配或无权分配。", 'warning', true);
+						}
+					}
+
+					if(!empty($new_selectability))
+					{
+						//邮件通知
+						$this->load->library('email');
+						$this->load->library('parser');
+						$this->load->helper('date');
+
+						$data = array(
+							'uid' => $uid,
+							'delegate' => $delegate['name'],
+							'count' => count($new_selectability),
+							'backorder' => option('seat_backorder_max', 2),
+							'time' => unix_to_human(time())
+						);
+
+						//全新添加
+						if(empty($existing))
+						{
+							$this->delegate_model->change_status($uid, 'seat_assigned');
+
+							$this->delegate_model->add_event($uid, 'seat_added', array('selectability' => $new_selectability, 'new' => true));
+
+							$this->user_model->add_message($uid, "我们已经为您分配了席位，请尽快选择您的席位。");
+
+							$this->email->to($delegate['email']);
+							$this->email->subject('席位已分配');
+							$this->email->html($this->parser->parse_string(option('email_delegate_seat_added', "我们已经向您分配了总计 {count} 个席位，您将可以在其中选择 1 个席位为您的主席位，同时您还可以选择最多 {backorder} 个席位为候选席位，请尽快登录 iPlacard 系统选择您的席位。"), $data, true));
+							$this->email->send();
+
+							//短信通知代表
+							if(option('sms_enabled', false))
+							{
+								$this->load->model('sms_model');
+								$this->load->library('sms');
+
+								$this->sms->to($uid);
+								$this->sms->message('我们已经为您分配了席位，请尽快登录 iPlacard 系统选择您的席位。');
+								$this->sms->queue();
+							}
 						}
 						else
-							$this->ui->alert("无法分配席位{$seat['name']}，该席位已经分配或无权分配。", 'warning', true);
+						{
+							$this->delegate_model->add_event($uid, 'seat_added', array('selectability' => $new_selectability, 'new' => false));
+
+							$this->user_model->add_message($uid, "我们已经为您新增了席位分配，您可调整您的席位选择。");
+
+							$this->email->to($delegate['email']);
+							$this->email->subject('席位分配已追加');
+							$this->email->html($this->parser->parse_string(option('email_delegate_seat_appended', "我们已经为您追加分配了 {count} 个席位，您可以登录 iPlacard 系统调整您的席位设置。"), $data, true));
+							$this->email->send();
+
+							//短信通知代表
+							if(option('sms_enabled', false))
+							{
+								$this->load->model('sms_model');
+								$this->load->library('sms');
+
+								$this->sms->to($uid);
+								$this->sms->message('我们已经为您追加分配了席位，您可以登录 iPlacard 系统调整您的席位设置。');
+								$this->sms->queue();
+							}
+						}
+
+						$this->ui->alert("已经开放选定的席位分配。", 'success', true);
+
+						$this->system_model->log('seat_added', array('selectability' => $new_selectability, 'delegate' => $delegate['id']));
 					}
+					else
+						$this->ui->alert('没有任何席位被分配开放。', 'warning', true);
 				}
-				
-				if(!empty($new_selectability))
+				else
 				{
+					$new_seat_id = $this->input->post('assign_id');
+					if(empty($new_seat_id))
+					{
+						$this->ui->alert('未选中席位。', 'warning', true);
+						break;
+					}
+					
+					if($seat['status'] == 'preserved' && $this->_check_interview_enabled($delegate['application_type']) && $seat['committee'] != $admin_committee)
+					{
+						$this->ui->alert('席位被保留，只有该委员会面试官可分配此席位。', 'warning', true);
+						break;
+					}
+					
+					if($seat['status'] == 'assigned' || $seat['status'] == 'approved')
+					{
+						$this->ui->alert('席位已经被分配，无法再次分配。', 'warning', true);
+						break;
+					}
+					
+					if($seat['status'] == 'unavailable' || $seat['status'] == 'locked')
+					{
+						$this->ui->alert('席位被锁定或无法分配。', 'warning', true);
+						break;
+					}
+					
+					$original_seat_id = $this->seat_model->get_delegate_seat($delegate['id']);
+					$re_assign = $original_seat_id ? true : false;
+					
+					if($re_assign && $original_seat_id == $new_seat_id)
+					{
+						$this->ui->alert('新分配席位和代表原席位相同，无需重复分配。', 'info', true);
+						break;
+					}
+					
+					$new_seat = $this->seat_model->get_seat($new_seat_id);
+					
+					//回退原席位
+					if($re_assign)
+					{
+						$this->seat_model->change_seat_status($original_seat_id, 'available', NULL);
+						$this->seat_model->assign_seat($original_seat_id, NULL);
+					}
+					
+					//分配席位
+					$this->seat_model->change_seat_status($new_seat_id, 'assigned', true);
+					$this->seat_model->assign_seat($new_seat_id, $delegate['id']);
+					
+					$this->delegate_model->change_status($uid, 'seat_assigned');
+
+					$this->delegate_model->add_event($uid, 'seat_assigned', array('seat' => $new_seat_id, 'new' => !$re_assign));
+
+					$this->user_model->add_message($uid, !$re_assign ? "我们已经为您分配了席位。" : "我们已经为您调整了席位。");
+					
 					//邮件通知
 					$this->load->library('email');
 					$this->load->library('parser');
@@ -1396,65 +1525,35 @@ class Delegate extends CI_Controller
 					$data = array(
 						'uid' => $uid,
 						'delegate' => $delegate['name'],
-						'count' => count($new_selectability),
-						'backorder' => option('seat_backorder_max', 2),
+						'seat' => $new_seat['name'],
 						'time' => unix_to_human(time())
 					);
 
-					//全新添加
-					if(empty($existing))
-					{
-						$this->delegate_model->change_status($uid, 'seat_assigned');
-
-						$this->delegate_model->add_event($uid, 'seat_assigned', array('selectability' => $new_selectability, 'new' => true));
-
-						$this->user_model->add_message($uid, "我们已经为您分配了席位，请尽快选择您的席位。");
-						
-						$this->email->to($delegate['email']);
-						$this->email->subject('席位已分配');
-						$this->email->html($this->parser->parse_string(option('email_delegate_seat_assigned', "我们已经向您分配了总计 {count} 个席位，您将可以在其中选择 1 个席位为您的主席位，同时您还可以选择最多 {backorder} 个席位为候选席位，请尽快登录 iPlacard 系统选择您的席位。"), $data, true));
-						$this->email->send();
-
-						//短信通知代表
-						if(option('sms_enabled', false))
-						{
-							$this->load->model('sms_model');
-							$this->load->library('sms');
-
-							$this->sms->to($uid);
-							$this->sms->message('我们已经为您分配了席位，请尽快登录 iPlacard 系统选择您的席位。');
-							$this->sms->queue();
-						}
-					}
+					$this->email->to($delegate['email']);
+					$this->email->subject(!$re_assign ? '席位已分配' : '席位已调整');
+					
+					if(!$re_assign)
+						$this->email->html($this->parser->parse_string(option('email_delegate_seat_assigned', "我们已经于 {time} 为您分配了席位，请登录 iPlacard 系统查看席位信息。"), $data, true));
 					else
+						$this->email->html($this->parser->parse_string(option('email_delegate_seat_reassigned', "我们已经于 {time} 为您调整了席位，请登录 iPlacard 系统查看席位信息。"), $data, true));
+					
+					$this->email->send();
+
+					//短信通知代表
+					if(option('sms_enabled', false))
 					{
-						$this->delegate_model->add_event($uid, 'seat_assigned', array('selectability' => $new_selectability, 'new' => false));
+						$this->load->model('sms_model');
+						$this->load->library('sms');
 
-						$this->user_model->add_message($uid, "我们已经为您新增了席位分配，您可调整您的席位选择。");
-						
-						$this->email->to($delegate['email']);
-						$this->email->subject('席位分配已追加');
-						$this->email->html($this->parser->parse_string(option('email_delegate_seat_appended', "我们已经为您追加分配了 {count} 个席位，您可以登录 iPlacard 系统调整您的席位设置。"), $data, true));
-						$this->email->send();
-
-						//短信通知代表
-						if(option('sms_enabled', false))
-						{
-							$this->load->model('sms_model');
-							$this->load->library('sms');
-
-							$this->sms->to($uid);
-							$this->sms->message('我们已经为您追加分配了席位，您可以登录 iPlacard 系统调整您的席位设置。');
-							$this->sms->queue();
-						}
+						$this->sms->to($uid);
+						$this->sms->message(!$re_assign ? '我们已经为您分配了席位，请登录 iPlacard 系统查看席位信息。' : '我们已经为您调整了席位，请登录 iPlacard 系统查看席位信息。');
+						$this->sms->queue();
 					}
 
-					$this->ui->alert("已经开放选定的席位分配。", 'success', true);
+					$this->ui->alert("已经向代表分配了席位。", 'success', true);
 
-					$this->system_model->log('seat_assigned', array('selectability' => $new_selectability, 'delegate' => $delegate['id']));
+					$this->system_model->log('seat_assigned', array('seat' => $new_seat_id, 'new' => !$re_assign, 'delegate' => $delegate['id']));
 				}
-				else
-					$this->ui->alert('没有任何席位被分配开放。', 'warning', true);
 				
 				break;
 			
@@ -2319,19 +2418,35 @@ class Delegate extends CI_Controller
 					$vars['interview'] = false;
 				}
 				
+				$mode = option('seat_mode', 'select');
+				$vars['mode'] = $mode;
+				
 				//已经分配过席位情况
 				$assigned = false;
 				
-				$selectabilities = $this->seat_model->get_delegate_selectability($delegate['id']);
-				if($selectabilities)
+				if($mode == 'select')
 				{
-					$vars['selectability_count'] = count($selectabilities);
-					
-					$selectabilities_primary = $this->seat_model->get_delegate_selectability($delegate['id'], true);
-					if($selectabilities_primary)
-						$vars['selectability_primary_count'] = count($selectabilities_primary);
-					
-					$assigned = true;
+					$selectabilities = $this->seat_model->get_delegate_selectability($delegate['id']);
+					if($selectabilities)
+					{
+						$vars['selectability_count'] = count($selectabilities);
+
+						$selectabilities_primary = $this->seat_model->get_delegate_selectability($delegate['id'], true);
+						if($selectabilities_primary)
+							$vars['selectability_primary_count'] = count($selectabilities_primary);
+
+						$assigned = true;
+					}
+				}
+				else
+				{
+					$seat_assigned = $this->seat_model->get_delegate_seat($delegate['id']);
+					if($seat_assigned)
+					{
+						$vars['old_id'] = $seat_assigned;
+						
+						$assigned = true;
+					}
 				}
 				
 				$vars['assigned'] = $assigned;

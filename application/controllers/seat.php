@@ -485,6 +485,8 @@ class Seat extends CI_Controller
 			
 			if($ids)
 			{
+				$seat_mode = option('seat_mode', 'select');
+				
 				foreach($ids as $id)
 				{
 					$seat = $this->seat_model->get_seat($id);
@@ -500,8 +502,15 @@ class Seat extends CI_Controller
 					{
 						if($seat['status'] != 'preserved' || $seat['committee'] == $admin_committee)
 						{
-							$operation .= '<a style="cursor: pointer;" onclick="add_seat('.$seat['id'].', true);">'.icon('plus-square', false).'主项</a> ';
-							$operation .= '<a style="cursor: pointer;" onclick="add_seat('.$seat['id'].', false);">'.icon('plus-square-o', false).'备选</a>';
+							if($seat_mode == 'select')
+							{
+								$operation .= '<a style="cursor: pointer;" onclick="add_seat('.$seat['id'].', true);">'.icon('plus-square', false).'主项</a> ';
+								$operation .= '<a style="cursor: pointer;" onclick="add_seat('.$seat['id'].', false);">'.icon('plus-square-o', false).'备选</a>';
+							}
+							else
+							{
+								$operation .= '<a style="cursor: pointer;" onclick="assign_seat('.$seat['id'].');">'.icon('check-square-o', false).'分配</a>';
+							}
 						}
 						else
 						{
