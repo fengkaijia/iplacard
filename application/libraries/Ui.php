@@ -418,7 +418,7 @@ class UI
 		$this->CI->load->model('admin_model');
 		
 		//代表
-		if($this->CI->admin_model->capable('administrator'))
+		if($this->CI->admin_model->capable('administrator') || (!option('interview_enabled', true) && $this->CI->admin_model->capable('reviewer')))
 		{
 			$this->add_menu('delegate', '代表');
 			$this->add_sub_menu('delegate', 'delegate', '代表', 'delegate/manage?type=delegate');
