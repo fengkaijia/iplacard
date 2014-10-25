@@ -399,19 +399,20 @@ $this->load->view('header');?>
 					</table>
 					
 					<?php if($seat_assignable) { ?><p>如需向代表开放分配更多席位选择权限，请点击增加席位分配。</p>
-					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('plus');?>增加席位分配</a></p><?php }
-					} else { ?><h3>更改席位分配</h3>
+					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('plus');?>增加席位分配</a></p><?php } }
+					elseif($seat_assignable) { ?><h3>更改席位分配</h3>
 					<p>如需更换代表的席位，请点击更改席位分配。</p>
-					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('pencil');?>更改席位分配</a></p><?php } ?>
-				</div><?php }
+					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('pencil');?>更改席位分配</a></p><?php }?>
+				</div><?php } ?>
 				
+				<?php
 				if($seat_assignable)
 				{
 					$this->ui->js('footer', "
-						jQuery(function($){
-							$('#seat_add').hide();
-						});
-					"); ?><div id="seat_add">
+							jQuery(function($){
+								$('#seat_add').hide();
+							});
+						"); ?><div id="seat_add">
 					<h3>分配席位</h3>
 					<p><?php if($seat_mode == 'select') { ?>将会向<?php echo icon('user', false).$profile['name'];?>代表分配席位选择权限。之后，代表将可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候选席位。<?php }
 					else { ?>将会向<?php echo icon('user', false).$profile['name'];?>代表分配席位。<?php } ?></p>
