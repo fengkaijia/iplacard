@@ -2443,6 +2443,8 @@ class Delegate extends CI_Controller
 					$seat_assigned = $this->seat_model->get_delegate_seat($delegate['id']);
 					if($seat_assigned)
 					{
+						$vars['old_id'] = $seat_assigned;
+						
 						$assigned = true;
 					}
 				}

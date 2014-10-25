@@ -21,14 +21,14 @@
 	}
 	
 	function assign_seat(id) {
-		$('input[name=last_id]').val($('input[name=assign_id]').val());
+		var last_id = $('input[name=assign_id]').val();
 		$('input[name=assign_id]').val(id);
 		$('#seat_name').html($('#seat-' + id).children().eq(1).html());
 		$('#seat_committee').html($('#seat-' + id).children().eq(2).html());
 		$('#seat_level').html($('#seat-' + id).children().eq(4).html());
 		
 		$('#seat-' + id).children().eq(5).html('');
-		$('#seat-' + $('input[name=last_id]').val()).children().eq(5).html('<a style="cursor: pointer;"  onclick="assign_seat(' + $('input[name=last_id]').val() + ');"><?php echo icon('check-square-o', false);?>分配</a>');
+		$('#seat-' + last_id).children().eq(5).html('<a style="cursor: pointer;"  onclick="assign_seat(' + last_id + ');"><?php echo icon('check-square-o', false);?>分配</a>');
 		
 		$('.selectpicker').selectpicker('refresh');
 	}
@@ -115,8 +115,7 @@ if($interview)
 		</div><?php }
 		else
 		{
-			echo form_hidden('last_id');
-			echo form_hidden('assign_id'); ?><p>请在表格中选择席位，点击席位右侧分配后将会显示席位信息。</p>
+			echo form_hidden('assign_id', $old_id); ?><p>请在表格中选择席位，点击席位右侧分配后将会显示席位信息。</p>
 		<div class="form-group">
 			<?php echo form_label('席位名称', 'seat_name', array('class' => 'control-label'));?>
 			<div id="seat_name" class="well well-sm flags-16">
