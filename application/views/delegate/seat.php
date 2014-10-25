@@ -40,7 +40,7 @@ $this->load->view('header');?>
 			<ul class="nav nav-tabs nav-menu">
 				<li class="active"><a href="#seat" data-toggle="tab">我的席位</a></li>
 				<?php if(!empty($attached_seats)) { ?><li id="attach_tab"><a href="#attach" data-toggle="tab">多代信息</a></li><?php } ?>
-				<li id="select_tab"><a href="#select" data-toggle="tab">席位选择</a></li>
+				<?php if($seat_mode == 'select') { ?><li id="select_tab"><a href="#select" data-toggle="tab">席位选择</a></li><?php } ?>
 			</ul>
 		</div><?php } ?>
 	</div>
@@ -53,7 +53,7 @@ $this->load->view('header');?>
 		<?php if(!empty($seat)) { ?>
 		<div class="tab-pane active" id="seat">
 			<div class="col-md-8">
-				<h3>已选择席位</h3>
+				<h3><?php echo $seat_mode == 'select' ? '已选择席位' : '已分配席位';?></h3>
 				<table class="table table-bordered table-striped table-hover flags-16">
 					<tbody>
 						<tr>
@@ -104,7 +104,7 @@ $this->load->view('header');?>
 			</div>
 			
 			<div class="col-md-4">
-				<h3>调整席位选择</h3>
+				<?php if($seat_mode == 'select') { ?><h3>调整席位选择</h3>
 				<p>您当前已经选择席位，但您的面试官仍可能会继续向您开放席位选择。在您锁定席位前，您可以随时调整您的席位选择。锁定席位后，您将无法调整席位。</p>
 				<?php
 				if(!$change_open)
@@ -112,6 +112,12 @@ $this->load->view('header');?>
 					$this->ui->js('footer', "$('#seat_change_lock').popover();");
 					if($delegate['status'] == 'locked') { ?><a id="seat_change_lock" data-original-title="无法选择席位" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="您锁定席位，无法调整席位。" title="">调整席位</a><?php }
 				} else { ?><a id="seat_change_start" href="#select" data-toggle="tab" class="btn btn-primary" onclick="$('.nav-menu li').removeClass('active'); $('#select_tab').addClass('active');">调整席位</a><?php } ?>
+				
+				<hr /><?php } ?>
+				
+				<?php if($lock_open) { ?><h3>确认锁定席位</h3>
+				<p>现可以确认申请完成并锁定您的席位，锁定后将不会发生变动。</p>
+				<a class="btn btn-primary" href="#" data-toggle="modal" data-target="#lock">立即锁定席位</a><?php $this->load->view('delegate/panel/lock'); } ?>
 			</div>
 		</div><?php } ?>
 		
@@ -191,7 +197,7 @@ $this->load->view('header');?>
 			</div>
 		</div><?php } ?>
 		
-		<div class="tab-pane<?php echo empty($seat) ? ' active' : '';?>" id="select">
+		<?php if($seat_mode == 'select') { ?><div class="tab-pane<?php echo empty($seat) ? ' active' : '';?>" id="select">
 			<div class="col-md-8">
 				<h3>席位分配</h3>
 				<p>我们已经向您分配了 <?php echo $selectability_count;?> 个席位，其中包括了 <?php echo $selectability_primary_count;?> 个主分配席位和 <?php echo $selectability_count - $selectability_primary_count;?> 个候选分配席位。</p>
@@ -298,7 +304,7 @@ $this->load->view('header');?>
 				</div>
 				<?php $this->ui->js('footer', "$('#do_select').hide();");?>
 			</div>
-		</div>
+		</div><?php } ?>
 	</div>
 </div>
 
@@ -332,7 +338,8 @@ $(document).ready(function() {
 	} );
 } );
 EOT;
-$this->ui->js('footer', $selectability_js);
+if($seat_mode == 'select')
+	$this->ui->js('footer', $selectability_js);
 
 //TODO
 $seat_primary_ids = json_encode(array());
@@ -425,7 +432,8 @@ function unlock_backorder() {
 	$('.selectpicker').selectpicker('refresh');
 }	
 EOT;
-$this->ui->js('footer', $select_js);
+if($seat_mode == 'select')
+	$this->ui->js('footer', $select_js);
 
 $selectpicker_js = <<<EOT
 $('.selectpicker').selectpicker({

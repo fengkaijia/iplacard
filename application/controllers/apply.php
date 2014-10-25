@@ -80,7 +80,7 @@ class Apply extends CI_Controller
 		
 		//锁定
 		$lock_open = false;
-		if(($this->delegate['status'] == 'payment_received' || $this->delegate['status'] == 'seat_selected') && option('seat_lock_open', true) && $sid)
+		if((($this->delegate['status'] == 'payment_received' || $this->delegate['status'] == 'seat_selected') || ($this->delegate['status'] == 'seat_assigned' && option('seat_mode', 'assign'))) && option('seat_lock_open', true) && $sid)
 		{
 			$lock_open = true;
 			
@@ -211,6 +211,9 @@ class Apply extends CI_Controller
 		}
 		
 		$vars['feed_enable'] = $feed_enable;
+		
+		$seat_mode = option('seat_mode', 'select');
+		$vars['seat_mode'] = $seat_mode;
 		
 		$vars['delegate'] = $this->delegate;
 		
@@ -764,6 +767,13 @@ class Apply extends CI_Controller
 			}
 		}
 		
+		//是否可以锁定席位
+		$lock_open = false;
+		if((($this->delegate['status'] == 'payment_received' || $this->delegate['status'] == 'seat_selected') || ($this->delegate['status'] == 'seat_assigned' && option('seat_mode', 'assign'))) && option('seat_lock_open', true) && $seat_id)
+			$lock_open = true;
+		
+		$vars['lock_open'] = $lock_open;
+		
 		$vars['seat'] = $seat;
 		$vars['attached_seats'] = $attached_seats;
 		$vars['attached_primary'] = $attached_primary;
@@ -831,6 +841,9 @@ class Apply extends CI_Controller
 		$vars['selectabilities'] = $selectabilities;
 		$vars['selectability_primary'] = $selectability_primary;
 		$vars['selectability_primary_count'] = $selectability_primary_count;
+		
+		$seat_mode = option('seat_mode', 'select');
+		$vars['seat_mode'] = $seat_mode;
 		
 		$this->ui->now('seat');
 		$this->ui->title('席位');
