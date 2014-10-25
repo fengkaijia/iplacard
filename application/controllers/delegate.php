@@ -2581,7 +2581,7 @@ class Delegate extends CI_Controller
 			$status = array();
 			foreach(explode(',', $post['status']) as $param_status)
 			{
-				if(in_array($param_status, array('application_imported', 'review_passed', 'review_refused', 'interview_assigned', 'interview_arranged', 'interview_completed', 'moved_to_waiting_list', 'seat_assigned', 'invoice_issued', 'payment_received', 'locked', 'quitted', 'deleted')))
+				if(in_array($param_status, array('application_imported', 'review_passed', 'review_refused', 'interview_assigned', 'interview_arranged', 'interview_completed', 'moved_to_waiting_list', 'seat_assigned', 'seat_selected', 'invoice_issued', 'payment_received', 'locked', 'quitted', 'deleted')))
 					$status[] = $param_status;
 			}
 			if(!empty($status))
