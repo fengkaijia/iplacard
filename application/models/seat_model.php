@@ -154,7 +154,7 @@ class Seat_model extends CI_Model
 			case 'assigned':
 				return '已经分配';
 			case 'approved':
-				return '以获批准';
+				return '已获批准';
 			case 'locked':
 				return '已经锁定';
 		}
