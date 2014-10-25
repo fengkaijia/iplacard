@@ -269,6 +269,29 @@ class Event
 		$this->level = 'primary';
 		$this->icon = 'list-alt';
 		
+		if(!empty($this->info['seat']))
+		{
+			$this->CI->load->model('seat_model');
+			
+			$seat = $this->CI->seat_model->get_seat($this->info['seat']);
+			if(!$seat)
+				return;
+			
+			$seat_text = '<span class="flags-16">'.flag($seat['iso'], true).$seat['name'].'</span>';
+			
+			$this->text = "面试官向代表分配了 {$seat_text} 为其席位。";
+		}
+	}
+	
+	/**
+	 * 席位选择已分配事件
+	 */
+	function _event_seat_added()
+	{
+		$this->title = '分配席位选择';
+		$this->level = 'primary';
+		$this->icon = 'list-alt';
+		
 		$this->CI->load->model('seat_model');
 		if(!empty($this->info['selectability']))
 		{
