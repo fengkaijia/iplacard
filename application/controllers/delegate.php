@@ -310,6 +310,9 @@ class Delegate extends CI_Controller
 		}
 		$vars['seat'] = $seat;
 		
+		$seat_mode = option('seat_mode', 'select');
+		$vars['seat_mode'] = $seat_mode;
+		
 		//席位候选数据
 		$backorders = array();
 		$backorder_ids = $this->seat_model->get_delegate_backorder($uid, true);
@@ -318,16 +321,16 @@ class Delegate extends CI_Controller
 			foreach($backorder_ids as $backorder_id)
 			{
 				$backorder = $this->seat_model->get_backorder($backorder_id);
-				
+
 				$seat = $this->seat_model->get_seat($backorder['seat']);
 				$seat['committee'] = $this->committee_model->get_committee($seat['committee']);
 				$backorder['seat'] = $seat;
-				
+
 				$backorders[] = $backorder;
 			}
 		}
 		$vars['backorders'] = $backorders;
-		
+
 		//席位选择数据
 		$vars['selectabilities'] = $this->seat_model->get_delegate_selectability($uid, false, false, 'seat');
 		
@@ -2319,19 +2322,33 @@ class Delegate extends CI_Controller
 					$vars['interview'] = false;
 				}
 				
+				$mode = option('seat_mode', 'select');
+				$vars['mode'] = $mode;
+				
 				//已经分配过席位情况
 				$assigned = false;
 				
-				$selectabilities = $this->seat_model->get_delegate_selectability($delegate['id']);
-				if($selectabilities)
+				if($mode == 'select')
 				{
-					$vars['selectability_count'] = count($selectabilities);
-					
-					$selectabilities_primary = $this->seat_model->get_delegate_selectability($delegate['id'], true);
-					if($selectabilities_primary)
-						$vars['selectability_primary_count'] = count($selectabilities_primary);
-					
-					$assigned = true;
+					$selectabilities = $this->seat_model->get_delegate_selectability($delegate['id']);
+					if($selectabilities)
+					{
+						$vars['selectability_count'] = count($selectabilities);
+
+						$selectabilities_primary = $this->seat_model->get_delegate_selectability($delegate['id'], true);
+						if($selectabilities_primary)
+							$vars['selectability_primary_count'] = count($selectabilities_primary);
+
+						$assigned = true;
+					}
+				}
+				else
+				{
+					$seat_assigned = $this->seat_model->get_delegate_seat($delegate['id']);
+					if($seat_assigned)
+					{
+						$assigned = true;
+					}
 				}
 				
 				$vars['assigned'] = $assigned;

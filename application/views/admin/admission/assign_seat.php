@@ -20,6 +20,19 @@
 		$('#do_assign').show();
 	}
 	
+	function assign_seat(id) {
+		$('input[name=last_id]').val($('input[name=assign_id]').val());
+		$('input[name=assign_id]').val(id);
+		$('#seat_name').html($('#seat-' + id).children().eq(1).html());
+		$('#seat_committee').html($('#seat-' + id).children().eq(2).html());
+		$('#seat_level').html($('#seat-' + id).children().eq(4).html());
+		
+		$('#seat-' + id).children().eq(5).html('');
+		$('#seat-' + $('input[name=last_id]').val()).children().eq(5).html('<a style="cursor: pointer;"  onclick="assign_seat(' + $('input[name=last_id]').val() + ');"><?php echo icon('check-square-o', false);?>分配</a>');
+		
+		$('.selectpicker').selectpicker('refresh');
+	}
+	
 	function add_seat(id, primary) {
 		if(primary === true) {
 			$('select[name="recommended_primary[]"]').append($('<option data-subtext="' + $('#seat-' + id).children().eq(2).html() + '"></option>').val($('#seat-' + id).children().eq(0).html()).html($('#seat-' + id).children().eq(1).html()));
@@ -56,18 +69,30 @@ if($interview)
 ?>
 
 <div id="pre_assign">
-	<?php if(!$assigned)
-		echo '<p>现在您可以为代表分配席位选择。</p>';
+	<?php
+	if(!$mode == 'select')
+	{
+		if(!$assigned)
+			echo '<p>现在您可以为代表分配席位选择。</p>';
+		else
+			echo "<p>您已经为代表开放了 {$selectability_count} 个席位，其中包括 {$selectability_primary_count} 个主项席位。在申请锁定之前，您仍可以追加分配更多席位。</p>";
+	}
 	else
-		echo "<p>您已经为代表开放了 {$selectability_count} 个席位，其中包括 {$selectability_primary_count} 个主项席位。在申请锁定之前，您仍可以追加分配更多席位。</p>";
+	{
+		if(!$assigned)
+			echo '<p>现在您可以为代表分配席位。</p>';
+		else
+			echo "<p>您已经为代表分配了席位。在申请锁定之前，您仍可以应代表要求调整分配的席位。</p>";
+	}
 	?>
 	<p><a class="btn btn-primary" href="#seat" data-toggle="tab" onclick="open_seat();"><?php echo icon('th-list');?>分配席位</a></p>
 </div>
 
 <div id="do_assign">
 	<?php
-	echo form_open_multipart("delegate/operation/assign_seat/{$delegate['id']}", array('id' => 'seat_form'));?>
-		<p>下方选择框包含所有将要添加的席位列表，选定某一席位将会设置此席位为推荐席位。设置完成后点击提交分配将向代表开放选择框中所有席位。</p>
+	echo form_open_multipart("delegate/operation/assign_seat/{$delegate['id']}", array('id' => 'seat_form'));
+		if($mode == 'select')
+		{ ?><p>下方选择框包含所有将要添加的席位列表，选定某一席位将会设置此席位为推荐席位。设置完成后点击提交分配将向代表开放选择框中所有席位。</p>
 		
 		<div class="form-group <?php if(form_has_error('recommended_primary')) echo 'has-error';?>">
 			<?php echo form_label('主分配席位', 'recommended_primary', array('class' => 'control-label'));?>
@@ -87,7 +112,31 @@ if($interview)
 					echo form_error('recommended_backorder');
 				?>
 			</div>
+		</div><?php }
+		else
+		{
+			echo form_hidden('last_id');
+			echo form_hidden('assign_id'); ?><p>请在表格中选择席位，点击席位右侧分配后将会显示席位信息。</p>
+		<div class="form-group">
+			<?php echo form_label('席位名称', 'seat_name', array('class' => 'control-label'));?>
+			<div id="seat_name" class="well well-sm flags-16">
+				&nbsp;
+			</div>
 		</div>
+		
+		<div class="form-group">
+			<?php echo form_label('委员会', 'seat_committee', array('class' => 'control-label'));?>
+			<div id="seat_committee" class="well well-sm">
+				&nbsp;
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<?php echo form_label('等级', 'seat_level', array('class' => 'control-label'));?>
+			<div id="seat_level" class="well well-sm">
+				&nbsp;
+			</div>
+		</div><?php } ?>
 	
 		<?php echo form_button(array(
 			'name' => 'submit',
