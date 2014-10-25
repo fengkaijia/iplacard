@@ -136,10 +136,20 @@ class Admin extends CI_Controller
 			if($task_review_ids)
 				$this->_task('review', count($task_review_ids));
 			
-			//待分配面试
-			$task_interview_assign_ids = $this->delegate_model->get_delegate_ids('status', 'review_passed');
-			if($task_interview_assign_ids)
-				$this->_task('interview_assign', count($task_interview_assign_ids));
+			if(option('interview_enabled', true))
+			{
+				//待分配面试
+				$task_interview_assign_ids = $this->delegate_model->get_delegate_ids('status', 'review_passed');
+				if($task_interview_assign_ids)
+					$this->_task('interview_assign', count($task_interview_assign_ids));
+			}
+			else
+			{
+				//待分配席位
+				$task_reviewer_seat_assign_ids = $this->delegate_model->get_delegate_ids('status', 'review_passed');
+				if($task_reviewer_seat_assign_ids)
+					$this->_task('seat_assign', count($task_reviewer_seat_assign_ids));
+			}
 		}
 		
 		if($this->admin_model->capable('interviewer'))

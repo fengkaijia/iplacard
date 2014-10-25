@@ -295,6 +295,8 @@ $this->load->view('header');?>
 					echo anchor('delegate/manage/?status=review_passed', "{$task['interview_assign']} 位代表正在等待分配面试官。", 'class="list-group-item"');
 				if(isset($task['interview_arrange']))
 					echo anchor('interview/manage?interviewer=u&status=assigned', "{$task['interview_arrange']} 位代表正在等待安排面试时间。", 'class="list-group-item"');
+				if(isset($task['reviewer_seat_assign']))
+					echo anchor('delegate/manage/?status=review_passed', "{$task['reviewer_seat_assign']} 位代表正在等待分配席位。", 'class="list-group-item"');
 				if(isset($task['seat_assign']))
 					echo anchor('delegate/manage?type=delegate&status=interview_completed&interviewer=u', "{$task['seat_assign']} 位代表正在等待分配席位。", 'class="list-group-item"');
 				if(isset($task['seat_select']))
