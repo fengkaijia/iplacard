@@ -45,6 +45,9 @@ function flag($iso, $check = false, $space = true, $null_output = false, $double
 		}
 	}
 	
+	if(empty($iso))
+		return "";
+	
 	$space = $space ? ' ' : '';
 	
 	if($double_quota)
