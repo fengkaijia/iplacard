@@ -81,10 +81,15 @@
 				<?php if(!empty($delegate['test'])) { ?><h3 id="test">学术测试</h3>
 				<table class="table table-bordered table-striped table-hover">
 					<tbody>
-						<?php $questions = option('profile_list_test');
-						foreach($questions as $qid => $question) { ?>
-						<tr><td><?php echo $question;?></td></tr>
-						<tr><td><?php echo nl2br($delegate['test'][$qid]);?></td></tr><?php } ?>
+						<?php
+						$show_empty = option('profile_show_test_all', false);
+						$questions = option('profile_list_test');
+						foreach($questions as $qid => $question)
+						{
+							if($show_empty || !empty($delegate['test'][$qid])) { ?>
+							<tr><td><?php echo $question;?></td></tr>
+							<tr><td><?php echo nl2br($delegate['test'][$qid]);?></td></tr><?php }
+						} ?>
 					</tbody>
 				</table><?php } ?>
 			</div>
