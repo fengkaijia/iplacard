@@ -12,6 +12,7 @@ class Knowledgebase extends CI_Controller
 		parent::__construct();
 		$this->load->library('session');
 		$this->load->library('ui', array('side' => 'account'));
+		$this->load->model('admin_model');
 		$this->load->model('knowledgebase_model');
 		$this->load->helper('form');
 	}
@@ -112,6 +113,75 @@ class Knowledgebase extends CI_Controller
 		
 		$this->ui->title($article['title'], '知识库帮助');
 		$this->load->view('help/knowledgebase/article', $vars);
+	}
+	
+	/**
+	 * 管理知识库文章
+	 */
+	function manage()
+	{
+		//检查权限
+		if(!$this->admin_model->capable('administrator'))
+		{
+			redirect('');
+			return;
+		}
+		
+		$this->ui->title('知识库列表');
+		$this->load->view('admin/knowledge_manage');
+	}
+	
+	/**
+	 * AJAX
+	 */
+	function ajax($action = 'list')
+	{
+		$json = array();
+		
+		if($action == 'list')
+		{
+			$this->load->helper('date');
+			
+			$ids = $this->knowledgebase_model->get_article_ids();
+			
+			if($ids)
+			{
+				foreach($ids as $id)
+				{
+					$article = $this->knowledgebase_model->get_article($id);
+
+					//操作
+					$operation = anchor("knowledgebase/article/kb{$article['kb']}", icon('eye', false).'查看');
+					if(!$article['system'])
+						$operation .= ' '.anchor("knowledgebase/edit/$id", icon('edit', false).'编辑');
+										
+					//标题
+					if($article['system'])
+						$title_line = $article['title'].'<span class="text-primary system_article" data-original-title="iPlacard 系统文章" data-toggle="tooltip">'.icon('cog', false).'</span>';
+					else
+						$title_line = $article['title'];
+
+					$data = array(
+						$article['id'], //ID
+						"KB{$article['kb']}", //知识库编号
+						$title_line, //标题
+						sprintf('%1$s（%2$s）', date('n月j日', empty($article['update_time']) ? $article['create_time'] : $article['update_time']), nicetime(empty($article['update_time']) ? $article['create_time'] : $article['update_time'])), //最后更新时间
+						$article['count'] == 0 ? '<span class="text-danger">N/A</span>' : $article['count'], //阅读量
+						$operation, //操作
+					);
+
+					$datum[] = $data;
+				}
+				
+				$json = array('aaData' => $datum);
+			}
+			else
+			{
+				$json = array('aaData' => array());
+			}
+		}
+		
+		echo json_encode($json);
 	}
 	
 	/**
