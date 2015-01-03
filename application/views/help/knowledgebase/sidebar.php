@@ -1,4 +1,4 @@
-<?php echo form_open('help/search', array('method' => 'get'));?>
+<?php echo form_open('knowledgebase/search', array('method' => 'get'));?>
 	<div class="input-group">
 		<?php echo form_input(array(
 			'name' => 'keyword',

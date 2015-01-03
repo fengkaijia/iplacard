@@ -4,7 +4,7 @@
 	<div id="jumbotron-kb" class="jumbotron">
 		<h1 style="font-size: 56px;">知识库</h1>
 		<p>通过 iPlacard 知识库自主获取帮助与支持。iPlacard 知识库提供完整的操作指南和会议信息。</p>
-		<?php echo form_open('help/search', array('method' => 'get'));?>
+		<?php echo form_open('knowledgebase/search', array('method' => 'get'));?>
 			<div class="input-group">
 				<?php echo form_input(array(
 					'name' => 'keyword',

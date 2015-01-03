@@ -70,7 +70,7 @@ class Admin extends CI_Controller
 			'seat' => array(icon('th-list').'席位管理', 'seat/manage', '', false, false, true),
 			
 			'account' => array(icon('user').'帐户', 'account/settings/home'),
-			'knowledgebase' => array(icon('book').'知识库', 'help/knowledgebase'),
+			'knowledgebase' => array(icon('book').'知识库', 'knowledgebase'),
 		);
 		
 		$admin = $this->admin_model->get_admin(uid());

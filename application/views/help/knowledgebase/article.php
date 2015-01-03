@@ -31,7 +31,7 @@
 	<div class="col-lg-4">
 		<div>
 			<ul class="breadcrumb">
-				<li><?php echo anchor('help/knowledgebase', '知识库');?></li>
+				<li><?php echo anchor('knowledgebase', '知识库');?></li>
 				<li class="active"><?php echo $article['title'];?></li>
 			</ul>
 		</div>

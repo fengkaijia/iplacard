@@ -109,7 +109,7 @@
 							<li><a href="<?php echo base_url('account/settings/home');?>">个人信息</a></li>
 							<li><a href="<?php echo base_url('account/settings/security');?>">帐户设置</a></li>
 							<?php if($this->session->userdata('logged_in') && $this->session->userdata('type') == 'delegate' && option('tos')) { ?><li><a href="<?php echo base_url('apply/tos');?>">服务条款</a></li><?php } ?>
-							<li><a href="<?php echo base_url('help/knowledgebase');?>">知识库</a></li>
+							<li><a href="<?php echo base_url('knowledgebase');?>">知识库</a></li>
 							<li class="divider"></li>
 							<li><?php if(is_sudo()) { ?><a href="<?php echo base_url('account/sudo');?>">退出 SUDO</a><?php } else { ?><a href="<?php echo base_url('account/logout');?>">登出</a><?php } ?></li>
 						</ul><?php } else { ?>
@@ -117,7 +117,7 @@
 						<ul class="dropdown-menu">
 							<li><a href="<?php echo base_url('account/login');?>">登录</a></li>
 							<li><a href="<?php echo base_url('account/recover');?>">找回密码</a></li>
-							<li><a href="<?php echo base_url('help/knowledgebase');?>">知识库</a></li>
+							<li><a href="<?php echo base_url('knowledgebase');?>">知识库</a></li>
 							<li class="divider"></li>
 							<li><?php echo safe_mailto(option('site_contact_email', 'contact@iplacard.com'), '联系管理员');?></li>
 							<li><a href="<?php echo base_url('about/iplacard');?>">关于</a></li>
