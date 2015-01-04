@@ -88,6 +88,8 @@ class Knowledgebase extends CI_Controller
 	 */
 	function article($kb)
 	{
+		$this->load->helper('date');
+		
 		$id = $this->knowledgebase_model->get_article_id('kb', substr($kb, 2));
 		if(!$id)
 		{
