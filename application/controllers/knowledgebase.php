@@ -11,6 +11,7 @@ class Knowledgebase extends CI_Controller
 	{
 		parent::__construct();
 		$this->load->library('session');
+		$this->load->library('form_validation');
 		$this->load->library('ui', array('side' => 'account'));
 		$this->load->model('admin_model');
 		$this->load->model('knowledgebase_model');
@@ -132,6 +133,150 @@ class Knowledgebase extends CI_Controller
 	}
 	
 	/**
+	 * 编辑或添加知识库文章
+	 */
+	function edit($id = '')
+	{
+		//检查权限
+		if(!$this->admin_model->capable('administrator'))
+		{
+			redirect('');
+			return;
+		}
+		
+		//设定操作类型
+		$action = 'edit';
+		if(empty($id))
+			$action = 'add';
+		
+		if($action == 'edit')
+		{
+			$article = $this->knowledgebase_model->get_article($id);
+			if(!$article)
+				$action = 'add';
+			elseif($article['system'])
+			{
+				$this->ui->alert('无法编辑 iPlacard 系统帮助文章。', 'warning', true);
+				back_redirect();
+				return;
+			}
+		}
+		
+		if($action == 'edit')
+		{
+			$vars['article'] = $article;
+			
+			$this->ui->title($article['title'], '编辑知识库文章');
+		}
+		else
+		{
+			$this->ui->title('添加知识库文章');
+		}
+		
+		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+		
+		$this->form_validation->set_rules('title', '文章标题', 'trim|required');
+		$this->form_validation->set_rules('content', '文章内容', 'trim|required');
+		$this->form_validation->set_rules('order', '文章排序', 'trim|required|is_natural');
+		if($action == 'add')
+			$this->form_validation->set_rules('kb', '知识库编号', 'trim|required|min_length[5]|max_length[7]|is_natural_no_zero|is_unique[knowledgebase.kb]');
+		
+		if($this->form_validation->run() == true)
+		{
+			$post = $this->input->post();
+			
+			$data = array(
+				'title' => $post['title'],
+				'content' => $post['content'],
+				'order' => $post['order'],
+				'create_time' => time()
+			);
+			
+			if($action == 'add')
+				$data['kb'] = $post['kb'];
+			
+			$new_id = $this->knowledgebase_model->edit_article($data, $action == 'add' ? '' : $id);
+			
+			if($action == 'add')
+			{
+				$this->ui->alert("已经成功添加新知识库文章 KB{$data['kb']}。", 'success', true);
+				
+				$this->system_model->log('knowledge_added', array('id' => $new_id, 'data' => $data));
+			}
+			else
+			{
+				$this->ui->alert('知识库文章已编辑。', 'success', true);
+
+				$this->system_model->log('knowledge_edited', array('id' => $id, 'data' => $data));
+			}
+			
+			redirect('knowledgebase/manage');
+			return;
+		}
+		
+		if($action == 'add')
+		{
+			//随机知识库编号
+			$this->load->helper('string');
+			
+			do {
+				$random_kb = random_string('nozero', 5);
+			} while ($this->knowledgebase_model->kb_exists($random_kb));
+			
+			$vars['random_kb'] = $random_kb;
+		}
+		
+		$vars['action'] = $action;
+		$this->load->view('admin/knowledge_edit', $vars);
+	}
+	
+	/**
+	 * 删除知识库文章
+	 */
+	function delete($id)
+	{
+		//检查权限
+		if(!$this->admin_model->capable('administrator'))
+		{
+			redirect('');
+			return;
+		}
+		
+		//知识库删除检查
+		$article = $this->knowledgebase_model->get_article($id);
+		if(!$article)
+		{
+			$this->ui->alert('指定删除的知识库文章不存在。', 'warning', true);
+			redirect('knowledgement/manage');
+			return;
+		}
+		elseif($article['system'])
+		{
+			$this->ui->alert('无法删除 iPlacard 系统帮助文章。', 'warning', true);
+			back_redirect();
+			return;
+		}
+		
+		$this->form_validation->set_rules('admin_password', '密码', 'trim|required|callback__check_admin_password[密码验证错误导致删除操作未执行，请重新尝试。]');
+		
+		if($this->form_validation->run() == true)
+		{
+			//删除数据
+			$this->knowledgebase_model->delete_article($id);
+			
+			//日志
+			$this->system_model->log('knowledge_deleted', array('id' => $id));
+			
+			$this->ui->alert("知识库文章 KB{$article['kb']} 已经成功删除。", 'success', true);
+			redirect('knowledgebase/manage');
+		}
+		else
+		{
+			redirect("knowledgebase/edit/{$id}");
+		}
+	}
+	
+	/**
 	 * AJAX
 	 */
 	function ajax($action = 'list')
@@ -210,6 +355,21 @@ class Knowledgebase extends CI_Controller
 		}
 		
 		return array($highlight, $popular);
+	}
+	
+	/**
+	 * 密码检查回调函数
+	 */
+	function _check_admin_password($str, $global_message = '')
+	{
+		if($this->user_model->check_password(uid(), $str))
+			return true;
+		
+		//全局消息
+		if(!empty($global_message))
+			$this->ui->alert($global_message, 'warning', true);
+		
+		return false;
 	}
 }
 
