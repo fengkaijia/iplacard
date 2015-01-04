@@ -8,7 +8,7 @@
 	<div class="col-lg-8">
 		<div id="result"><?php foreach($result as $one) { ?>
 			<div>
-				<h4><strong><?php echo anchor("help/article/kb{$one['kb']}", icon('book').$one['title']);?></strong></h4>
+				<h4><strong><?php echo anchor("knowledgebase/article/kb{$one['kb']}", icon('book').$one['title']);?></strong></h4>
 				<p><?php echo character_limiter(strip_tags($one['content']), 300);?></p>
 			</div>
 		<?php } ?></div>
@@ -21,7 +21,7 @@
 	<div class="col-lg-4">
 		<div>
 			<ul class="breadcrumb">
-				<li><?php echo anchor('help/knowledgebase', '知识库');?></li>
+				<li><?php echo anchor('knowledgebase', '知识库');?></li>
 				<li class="active">搜索结果</li>
 			</ul>
 		</div>

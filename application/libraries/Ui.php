@@ -535,7 +535,10 @@ class UI
 		{
 			$this->add_sub_menu('broadcast', 'manage', '群发信息', 'admin/broadcast/email');
 			$this->add_sub_menu('export', 'manage', '导出', 'admin/export');
-			$this->add_sub_menu('stat', 'manage', '统计', 'admin/stat');
+			$this->add_sub_menu('stat', 'manage', '统计', 'admin/stat', true);
+			
+			$this->add_sub_menu('knowledge_manage', 'manage', '知识库管理', 'knowledgebase/manage');
+			$this->add_sub_menu('knowledge_add', 'manage', '添加知识库文章', 'knowledgebase/edit');
 		}
 	}
 	

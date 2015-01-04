@@ -6,6 +6,6 @@
 	echo anchor('account/settings/pin', '设置安全码', array('class' => $now == 'pin' ? 'list-group-item active' : 'list-group-item'));
 	echo anchor('account/settings/twostep', '两步验证', array('class' => $now == 'twostep' ? 'list-group-item active' : 'list-group-item'));
 	echo anchor('account/activity', '当前帐户活动', array('class' => $now == 'activity' ? 'list-group-item active' : 'list-group-item'));
-	echo anchor('help/knowledgebase', '知识库', array('class' => 'list-group-item'));
+	echo anchor('knowledgebase', '知识库', array('class' => 'list-group-item'));
 	?>
 </div>

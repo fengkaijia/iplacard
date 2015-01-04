@@ -195,6 +195,16 @@ class Knowledgebase_model extends CI_Model
 	}
 	
 	/**
+	 * 检查编号文章是否存在
+	 */
+	function kb_exists($kb)
+	{
+		if(!$this->get_article_id('kb', $kb))
+			return false;
+		return true;
+	}
+	
+	/**
 	 * 是否为系统知识库文章
 	 */
 	function is_system_article($id)

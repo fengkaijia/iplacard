@@ -15,7 +15,7 @@
 		}
 		else
 		{
-			printf('%1$s（最后更新%2$s）', date('Y年m月d日', $article['create_time']), date('Y年m月d日', $article['update_time']));
+			printf('%1$s（%2$s最后更新）', date('Y年m月d日', $article['create_time']), nicetime($article['update_time']));
 		}
 		?></p>
 		
@@ -31,8 +31,8 @@
 	<div class="col-lg-4">
 		<div>
 			<ul class="breadcrumb">
-				<li><?php echo anchor('help/knowledgebase', '知识库');?></li>
-				<li class="active"><?php echo $article['title'];?></li>
+				<li><?php echo anchor('knowledgebase', '知识库');?></li>
+				<li class="active"><?php echo character_limiter($article['title'], 25);?></li>
 			</ul>
 		</div>
 		
