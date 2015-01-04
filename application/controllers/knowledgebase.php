@@ -188,12 +188,14 @@ class Knowledgebase extends CI_Controller
 			$data = array(
 				'title' => $post['title'],
 				'content' => $post['content'],
-				'order' => $post['order'],
-				'create_time' => time()
+				'order' => $post['order']
 			);
 			
 			if($action == 'add')
+			{
+				$data['create_time'] = time();
 				$data['kb'] = $post['kb'];
+			}
 			
 			$new_id = $this->knowledgebase_model->edit_article($data, $action == 'add' ? '' : $id);
 			
