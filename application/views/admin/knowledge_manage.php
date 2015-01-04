@@ -16,6 +16,7 @@ $this->load->view('header');?>
 			<th>知识库编号</th>
 			<th>标题</th>
 			<th>最后更新时间</th>
+			<th>排序</th>
 			<th>阅读量</th>
 			<th>操作</th>
 		</tr>
@@ -32,7 +33,7 @@ $ajax_js = <<<EOT
 $(document).ready(function() {
 	$('#knowledge_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bSortable": false, "aTargets": [ 0, 5 ] }
+			{ "bSortable": false, "aTargets": [ 0, 6 ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,

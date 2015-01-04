@@ -312,6 +312,7 @@ class Knowledgebase extends CI_Controller
 						"KB{$article['kb']}", //知识库编号
 						$title_line, //标题
 						sprintf('%1$s（%2$s）', date('n月j日', empty($article['update_time']) ? $article['create_time'] : $article['update_time']), nicetime(empty($article['update_time']) ? $article['create_time'] : $article['update_time'])), //最后更新时间
+						$article['order'], //排序
 						$article['count'] == 0 ? '<span class="text-danger">N/A</span>' : $article['count'], //阅读量
 						$operation, //操作
 					);
