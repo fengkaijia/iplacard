@@ -145,7 +145,7 @@
 						<h4 class="modal-title" id="delete_label">删除委员会</h4>
 					</div>
 					<div class="modal-body">
-						<p>您将删除<?php echo icon('sitemap', false).$committee['name'];?>，同时将会重置所有该委员会的主席的指派信息。请输入您的登录密码并点击确认更改按钮继续操作。</p>
+						<p>您将删除<?php echo icon('sitemap', false).$committee['name'];?>，同时将会重置所有该委员会的主席的指派信息。请输入您的登录密码并点击确认删除按钮继续操作。</p>
 
 						<div class="form-group <?php if(form_has_error('admin_password')) echo 'has-error';?>">
 							<?php echo form_label('登录密码', 'admin_password', array('class' => 'col-lg-3 control-label'));?>
