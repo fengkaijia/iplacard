@@ -303,9 +303,9 @@ class Knowledgebase extends CI_Controller
 										
 					//标题
 					if($article['system'])
-						$title_line = $article['title'].'<span class="text-primary system_article" data-original-title="iPlacard 系统帮助文章" data-toggle="tooltip">'.icon('cog', false).'</span>';
+						$title_line = '<span class="shorten">'.$article['title'].'</span><span class="text-primary system_article" data-original-title="iPlacard 系统帮助文章" data-toggle="tooltip">'.icon('cog', false).'</span>';
 					else
-						$title_line = $article['title'];
+						$title_line = '<span class="shorten">'.$article['title'].'</span>';
 
 					$data = array(
 						$article['id'], //ID

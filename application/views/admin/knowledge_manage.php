@@ -1,4 +1,5 @@
 <?php
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.shorten.js' : 'static/js/jquery.shorten.min.js').'"></script>');
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/bootstrap.datatables.css' : 'static/css/bootstrap.datatables.min.css').'" rel="stylesheet">');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.datatables.js' : 'static/js/jquery.datatables.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/jquery.datatables.locale.js' : 'static/js/locales/jquery.datatables.locale.min.js').'"></script>');
@@ -28,6 +29,8 @@ $this->load->view('header');?>
 </table>
 
 <?php
+$read_more = icon('caret-right', false);
+$read_less = icon('caret-left', false);
 $ajax_url = base_url('knowledgebase/ajax/list');
 $ajax_js = <<<EOT
 $(document).ready(function() {
@@ -40,6 +43,12 @@ $(document).ready(function() {
 		"sAjaxSource": '{$ajax_url}',
 		"fnDrawCallback": function() {
 			$('.system_article').tooltip();
+		
+			$('.shorten').shorten({
+				showChars: '35',
+				moreText: '{$read_more}',
+				lessText: '{$read_less}'
+			});
 		}
 	} );
 } );
