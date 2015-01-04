@@ -20,8 +20,8 @@
 <?php if(isset($keyword)) { ?><div class="panel panel-default" style="margin-top: 20px;">
 	<div class="panel-heading">使用知识库帮助</div>
 	<div class="panel-body">
-		<p>通过 iPlacard 知识库自主获取帮助与支持。</p>
-		<p style="margin-bottom: 0;">iPlacard 知识库提供完整的操作指南和会议信息。</p>
+		<p>通过 iPlacard 知识库获取帮助与支持。</p>
+		<p style="margin-bottom: 0;">知识库文章提供会议相关帮助信息。</p>
 	</div>
 </div><?php }
 else
