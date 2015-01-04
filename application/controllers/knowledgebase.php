@@ -16,6 +16,7 @@ class Knowledgebase extends CI_Controller
 		$this->load->model('admin_model');
 		$this->load->model('knowledgebase_model');
 		$this->load->helper('form');
+		$this->load->helper('text');
 	}
 	
 	/**
@@ -43,8 +44,6 @@ class Knowledgebase extends CI_Controller
 	 */
 	function search()
 	{
-		$this->load->helper('text');
-		
 		$keyword = $this->input->get('keyword', true);
 		if(empty($keyword))
 		{
