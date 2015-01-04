@@ -2545,6 +2545,12 @@ class Delegate extends CI_Controller
 			$html .= $this->load->view('admin/admission/sudo', $vars, true);
 		}
 		
+		//编辑代表资料
+		if($this->admin_model->capable('administrator') && $delegate['status'] != 'deleted')
+		{
+			$html .= $this->load->view('admin/admission/edit_profile', $vars, true);
+		}
+		
 		//账单
 		if($this->admin_model->capable('cashier'))
 		{
@@ -2573,12 +2579,6 @@ class Delegate extends CI_Controller
 		//危险操作
 		$html_danger = '';
 		$title_danger = '<p><a style="cursor: pointer;" onclick="$( \'#danger_action\' ).toggle();" class="text-muted" id="danger_button">'.icon('exclamation-triangle').'危险操作</a></p>';
-		
-		//编辑代表资料
-		if($this->admin_model->capable('administrator') && $delegate['status'] != 'deleted')
-		{
-			$html_danger .= $this->load->view('admin/admission/edit_profile', $vars, true);
-		}
 		
 		//退会
 		if($this->admin_model->capable('administrator') && $delegate['status'] != 'quitted' && $delegate['status'] != 'deleted')
