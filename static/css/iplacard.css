@@ -381,6 +381,13 @@ body {
 	}
 }
 
+/* 可编辑代表资料 */
+.editable-click.editable-disabled, 
+a.editable-click.editable-disabled, 
+a.editable-click.editable-disabled:hover {
+	color: #333333 !important;
+}
+
 /* 笔记 */
 #note_area blockquote p {
 	font-size: 17px;

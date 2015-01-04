@@ -334,6 +334,14 @@ class Delegate extends CI_Controller
 		//席位选择数据
 		$vars['selectabilities'] = $this->seat_model->get_delegate_selectability($uid, false, false, 'seat');
 		
+		//检查权限
+		$profile_editable = false;
+		if($this->admin_model->capable('administrator') && $profile['status'] != 'deleted')
+		{
+			$profile_editable = true;
+		}
+		$vars['profile_editable'] = $profile_editable;
+		
 		$vars['uid'] = $uid;
 		
 		$this->ui->title($profile['name'], '代表资料');
@@ -2096,6 +2104,43 @@ class Delegate extends CI_Controller
 				$json = array('aaData' => array());
 			}
 		}
+		elseif($action == 'profile_edit')
+		{
+			//检查权限
+			if(!$this->admin_model->capable('administrator'))
+				return;
+			
+			$uid = $this->input->get('id');
+			if(empty($uid) || $this->input->post('pk') != $uid)
+				return;
+			
+			$delegate = $this->delegate_model->get_delegate($uid);
+			if(!$delegate)
+				return;
+			
+			$profile_new = (string) $this->input->post('value');
+			$profile_name = $this->input->post('name');
+			if(empty($profile_name))
+				return;
+			
+			$profile_id = $this->delegate_model->get_profile_id('delegate', $uid, 'name', $profile_name);
+			if(!$profile_id)
+			{
+				$profile_id = $this->delegate_model->add_profile($uid, $profile_name, $profile_new);
+			}
+			else
+			{
+				$profile_old = $this->delegate_model->get_profile($profile_id, 'value');
+				if($profile_old == $profile_new)
+					return;
+				
+				$this->delegate_model->edit_profile(array('value' => $profile_new), $profile_id);
+			}
+			
+			$this->system_model->log('delegate_profile_edited', array('id' => $profile_id, 'value' => $profile_new));
+			
+			$json = array('success' => true);
+		}
 		elseif($action == 'sidebar')
 		{
 			$uid = $this->input->get('id');
@@ -2528,6 +2573,12 @@ class Delegate extends CI_Controller
 		//危险操作
 		$html_danger = '';
 		$title_danger = '<p><a style="cursor: pointer;" onclick="$( \'#danger_action\' ).toggle();" class="text-muted" id="danger_button">'.icon('exclamation-triangle').'危险操作</a></p>';
+		
+		//编辑代表资料
+		if($this->admin_model->capable('administrator') && $delegate['status'] != 'deleted')
+		{
+			$html_danger .= $this->load->view('admin/admission/edit_profile', $vars, true);
+		}
 		
 		//退会
 		if($this->admin_model->capable('administrator') && $delegate['status'] != 'quitted' && $delegate['status'] != 'deleted')

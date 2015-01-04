@@ -5,6 +5,13 @@ $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/local
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.datatables.js' : 'static/js/bootstrap.datatables.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.shorten.js' : 'static/js/jquery.shorten.min.js').'"></script>');
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/flags.css' : 'static/css/flags.min.css').'" rel="stylesheet">');
+
+if($profile_editable)
+{
+	$this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/bootstrap.editable.css' : 'static/css/bootstrap.editable.min.css').'" rel="stylesheet">');
+	$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.editable.js' : 'static/js/bootstrap.editable.min.js').'"></script>');
+}
+
 $this->load->view('header');?>
 
 <div class="page-header">
@@ -40,21 +47,31 @@ $this->load->view('header');?>
 				<h3>个人信息</h3>
 				<table class="table table-bordered table-striped table-hover">
 					<tbody>
-						<?php $rules = array(
+						<?php
+						$rules_text = option('profile_list_general', array()) + option("profile_list_{$profile['application_type']}", array());
+						$rules = array(
 							'name' => '姓名',
 							'id' => '用户 ID',
 							'email' => '电子邮箱地址',
 							'phone' => '电话号码',
 							'application_type_text' => '申请类型',
 							'status_text' => '申请状态',
-						) + option('profile_list_general', array()) + option("profile_list_{$profile['application_type']}", array());
+						) + $rules_text;
 						foreach($rules as $rule => $text) { ?><tr>
 							<td><?php echo $text;?></td>
 							<td><?php if($rule == 'name' && $profile['pinyin'])
+							{
 								echo "<span class='delegate_name' data-original-title='{$profile['pinyin']}' data-toggle='tooltip'>{$profile['name']}</span>";
-							elseif(!empty($profile[$rule]))
-								echo $profile[$rule];
-							?></td>
+							}
+							else
+							{
+								$profile_text = empty($profile[$rule]) ? '' : $profile[$rule];
+								
+								if(in_array($rule, array_keys($rules_text)))
+									echo "<span class='profile_editable' data-name='{$rule}' data-title='编辑{$text}'>$profile_text</span>";
+								else
+									echo $profile_text;
+							} ?></td>
 						</tr><?php }
 						$this->ui->js('footer', "$('.delegate_name').tooltip();");
 						?>
@@ -531,6 +548,28 @@ $(document).ready(function() {
 EOT;
 if($seat_assignable)
 	$this->ui->js('footer', $seat_js);
+
+$edit_csrf_hash = $this->security->get_csrf_hash();
+$edit_csrf_token = $this->security->get_csrf_token_name();
+$edit_icon_ok = icon('check', false);
+$edit_icon_remove = icon('times', false);
+$edit_url = base_url("delegate/ajax/profile_edit?id=$uid");
+$edit_js = <<<EOT
+$.fn.editableform.buttons = '<button type="submit" class="btn btn-primary btn-sm editable-submit">{$edit_icon_ok}</button><button type="button" class="btn btn-default btn-sm editable-cancel">{$edit_icon_remove}</button>';
+
+$('.profile_editable').editable({
+	pk: $uid,
+	disabled: true,
+	type: 'text',
+	url: "$edit_url",
+	mode: 'popup',
+	params: {
+		$edit_csrf_token: '$edit_csrf_hash'
+	}
+});
+EOT;
+if($profile_editable)
+	$this->ui->js('footer', $edit_js);
 
 $ajax_url = base_url("delegate/ajax/sidebar?id=$uid");
 $operation_js = <<<EOT
