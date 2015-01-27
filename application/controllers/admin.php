@@ -186,12 +186,12 @@ class Admin extends CI_Controller
 				$interviewer_delegate_ids = $this->interview_model->get_delegates_by_interviews($task_interview_finish_ids);
 				
 				//待分配席位
-				$task_seat_assign_ids = $this->delegate_model->get_delegate_ids('id', $interviewer_delegate_ids, 'status', 'interview_completed');
+				$task_seat_assign_ids = $this->delegate_model->get_delegate_ids('user.id', $interviewer_delegate_ids, 'status', 'interview_completed');
 				if($task_seat_assign_ids)
 					$this->_task('seat_assign', count($task_seat_assign_ids));
 				
 				//待选择席位
-				$task_seat_select_ids = $this->delegate_model->get_delegate_ids('id', $interviewer_delegate_ids, 'status', 'seat_assigned');
+				$task_seat_select_ids = $this->delegate_model->get_delegate_ids('user.id', $interviewer_delegate_ids, 'status', 'seat_assigned');
 				if($task_seat_select_ids)
 					$this->_task('seat_select', count($task_seat_select_ids));
 			}
@@ -1716,7 +1716,7 @@ class Admin extends CI_Controller
 					$ndids = array(0);
 				}
 				
-				$adids = $this->delegate_model->get_delegate_ids('id NOT', $ndids);
+				$adids = $this->delegate_model->get_delegate_ids('user.id NOT', $ndids);
 				if($adids)
 					$param['id'] = array_merge($param['id'], $adids);
 			}
