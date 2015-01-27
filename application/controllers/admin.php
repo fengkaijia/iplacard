@@ -1705,14 +1705,20 @@ class Admin extends CI_Controller
 				$asids = $this->seat_model->get_seat_ids('status', array('assigned', 'approved', 'locked'));
 				if($asids)
 				{
+					//全局已有席位情况
 					$ndids = $this->seat_model->get_delegates_by_seats($asids);
-					if($ndids)
-					{
-						$adids = $this->delegate_model->get_delegate_ids('id NOT', $ndids);
-						if($adids)
-							$param['id'] = array_merge($param['id'], $adids);
-					}
+					if(!$ndids)
+						$ndids = array(0);
 				}
+				else
+				{
+					//全局尚无席位情况
+					$ndids = array(0);
+				}
+				
+				$adids = $this->delegate_model->get_delegate_ids('id NOT', $ndids);
+				if($adids)
+					$param['id'] = array_merge($param['id'], $adids);
 			}
 
 			if(empty($param['id']))
