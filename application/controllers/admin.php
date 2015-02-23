@@ -1037,7 +1037,7 @@ class Admin extends CI_Controller
 			
 			$this->load->driver('cache', array('adapter' => 'memcached', 'backup' => 'file'));
 			
-			if(!$json = $this->cache->get(IP_INSTANCE_ID.'_stat_'.$chart))
+			if(!$json = $this->cache->get(IP_CACHE_PREFIX.'_'.IP_INSTANCE_ID.'_stat_'.$chart))
 			{
 				$chart_category = array();
 				$chart_legend = array();
@@ -1298,7 +1298,7 @@ class Admin extends CI_Controller
 				$json['legend'] = $chart_legend;
 				$json['series'] = $chart_data;
 				
-				$this->cache->save(IP_INSTANCE_ID.'_stat_'.$chart, $json, 4 * 60 * 60);
+				$this->cache->save(IP_CACHE_PREFIX.'_'.IP_INSTANCE_ID.'_stat_'.$chart, $json, 4 * 60 * 60);
 			}
 		}
 		

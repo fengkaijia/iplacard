@@ -45,6 +45,11 @@ define('IP_DB_DRIVER', 'mysqli');
 define('IP_DB_PREFIX', 'ip');
 
 /**
+ * 缓存前缀（单缓存服务器运行多个单站点实例时必须不同）
+ */
+define('IP_CACHE_PREFIX', 'ip');
+
+/**
  * 加密密钥（多站点模式启用情况下被IP_INSTANCE_KEY代替）
  */
 define('IP_ENCRYPTION_KEY', 'iplacard');
