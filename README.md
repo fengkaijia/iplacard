@@ -6,7 +6,7 @@ iPlacard 是一个由 IMUNC 支持，使用友好、界面简洁、功能强大�
 
 iPlacard 2.0 使用 CodeIgniter 2 框架，需要运行在 Linux 系统下。最低运行环境为：
 
-* PHP 5.3
+* PHP 5.4
 * MySQL 5.5
 * Nginx 1.0 / Apache 2.2
 * Memcached

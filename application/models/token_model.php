@@ -94,7 +94,7 @@ class Token_model extends CI_Model
 	{
 		//格式化权限
 		if(isset($data['permission']))
-			$data['permission'] = json_encode($data['permission']);
+			$data['permission'] = json_encode($data['permission'], JSON_UNESCAPED_UNICODE);
 		
 		//新增令牌
 		if(empty($id))

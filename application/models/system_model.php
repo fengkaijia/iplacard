@@ -56,7 +56,7 @@ class System_model extends CI_Model
 	 */
 	function edit_option($name, $value)
 	{
-		$value = json_encode($value);
+		$value = json_encode($value, JSON_UNESCAPED_UNICODE);
 		
 		//如不存在项目将添加
 		if(!$this->option($name))
@@ -102,7 +102,7 @@ class System_model extends CI_Model
 			'time' => time(),
 			'operator' => $uid,
 			'operation' => $operation,
-			'value' => json_encode($value)
+			'value' => json_encode($value, JSON_UNESCAPED_UNICODE)
 		);
 		
 		$this->db->insert('log', $data);

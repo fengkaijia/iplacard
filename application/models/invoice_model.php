@@ -107,25 +107,25 @@ class Invoice_model extends CI_Model
 		//账单明细
 		if(isset($data['items']))
 		{
-			$data['items'] = json_encode($data['items']);
+			$data['items'] = json_encode($data['items'], JSON_UNESCAPED_UNICODE);
 		}
 		
 		//折扣明细
 		if(isset($data['discounts']))
 		{
-			$data['discounts'] = json_encode($data['discounts']);
+			$data['discounts'] = json_encode($data['discounts'], JSON_UNESCAPED_UNICODE);
 		}
 		
 		//转账记录
 		if(isset($data['transaction']))
 		{
-			$data['transaction'] = json_encode($data['transaction']);
+			$data['transaction'] = json_encode($data['transaction'], JSON_UNESCAPED_UNICODE);
 		}
 		
 		//触发器
 		if(isset($data['trigger']))
 		{
-			$data['trigger'] = json_encode($data['trigger']);
+			$data['trigger'] = json_encode($data['trigger'], JSON_UNESCAPED_UNICODE);
 		}
 		
 		//新增账单

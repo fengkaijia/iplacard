@@ -192,7 +192,7 @@ class Interview_model extends CI_Model
 		//更新面试
 		if(isset($data['feedback']))
 		{
-			$data['feedback'] = json_encode($data['feedback']);
+			$data['feedback'] = json_encode($data['feedback'], JSON_UNESCAPED_UNICODE);
 		}
 		$this->db->where('id', $id);
 		return $this->db->update('interview', $data);

@@ -379,7 +379,7 @@ class Delegate_model extends CI_Model
 	{
 		//格式化事件信息
 		if(isset($data['value']))
-			$data['value'] = json_encode($data['value']);
+			$data['value'] = json_encode($data['value'], JSON_UNESCAPED_UNICODE);
 		
 		//更新时间
 		$data['last_modified'] = time();
@@ -487,7 +487,7 @@ class Delegate_model extends CI_Model
 	{
 		//格式化事件信息
 		if(isset($data['info']))
-			$data['info'] = json_encode($data['info']);
+			$data['info'] = json_encode($data['info'], JSON_UNESCAPED_UNICODE);
 		
 		//新增事件
 		if(empty($id))

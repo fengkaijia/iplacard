@@ -319,7 +319,7 @@ class User_model extends CI_Model
 		if(!$this->user_exists($user))
 			return false;
 		
-		$value = json_encode($value);
+		$value = json_encode($value, JSON_UNESCAPED_UNICODE);
 		
 		//如不存在项目将添加
 		if(!$this->user_option_exists($name, $user))
