@@ -1,35 +1,54 @@
 div.dataTables_length label {
 	font-weight: normal;
-	float: left;
 	text-align: left;
+	white-space: nowrap;
 }
 
 div.dataTables_length select {
 	width: 75px;
+	display: inline-block;
+}
+
+div.dataTables_filter {
+	text-align: right;
 }
 
 div.dataTables_filter label {
 	font-weight: normal;
-	float: right;
+	white-space: nowrap;
+	text-align: left;
 }
 
 div.dataTables_filter input {
 	margin-left: 0.5em;
+	display: inline-block;
 }
 
 div.dataTables_info {
 	padding-top: 8px;
+	white-space: nowrap;
 }
 
 div.dataTables_paginate {
-	float: right;
 	margin: 0;
+	white-space: nowrap;
+	text-align: right;
 }
 
 div.dataTables_paginate ul.pagination {
 	margin: 2px 0;
 	white-space: nowrap;
 }
+
+@media screen and (max-width: 767px) {
+	div.dataTables_length,
+	div.dataTables_filter,
+	div.dataTables_info,
+	div.dataTables_paginate {
+		text-align: center;
+	}
+}
+
 
 table.dataTable td,
 table.dataTable th {
@@ -52,6 +71,7 @@ table.dataTable thead .sorting_desc,
 table.dataTable thead .sorting_asc_disabled,
 table.dataTable thead .sorting_desc_disabled {
 	cursor: pointer;
+	position: relative;
 }
 
 
@@ -145,11 +165,6 @@ table.DTTT_selectable tbody tr {
 	cursor: pointer;
 }
 
-div.DTTT .btn {
-	color: #333 !important;
-	font-size: 12px;
-}
-
 div.DTTT .btn:hover {
 	text-decoration: none !important;
 }
@@ -213,7 +228,7 @@ div.dataTables_processing {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 100%;
+    width: 0%;
     height: 40px;
     margin-left: -50%;
     margin-top: -25px;
@@ -245,6 +260,7 @@ table.DTFC_Cloned tr.even {
  
 div.DTFC_RightHeadWrapper table ,
 div.DTFC_LeftHeadWrapper table {
+	border-bottom: none !important;
     margin-bottom: 0 !important;
     border-top-right-radius: 0 !important;
     border-bottom-left-radius: 0 !important;
@@ -275,6 +291,7 @@ div.DTFC_LeftBodyWrapper tbody tr:first-child td {
 div.DTFC_RightFootWrapper table,
 div.DTFC_LeftFootWrapper table {
     border-top: none;
+    margin-top: 0 !important;
 }
 
 
