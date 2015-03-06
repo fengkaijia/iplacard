@@ -387,13 +387,10 @@ $this->load->view('header');?>
 						</thead>
 
 						<tbody>
-							<?php foreach($backorders as $backorder)
-							{
-								$seat = $backorder['seat'];
-								?><tr id="backorder-<?php echo $backorder['id'];?>">
-								<td><?php echo $seat['id'];?></td>
-								<td><?php echo flag($seat['iso'], true).$seat['name'];?></td>
-								<td><?php echo $seat['committee']['abbr'];?></td>
+							<?php foreach($backorders as $backorder) { ?><tr id="backorder-<?php echo $backorder['id'];?>">
+								<td><?php echo $backorder['seat']['id'];?></td>
+								<td><?php echo flag($backorder['seat']['iso'], true).$backorder['seat']['name'];?></td>
+								<td><?php echo $backorder['seat']['committee']['abbr'];?></td>
 								<td><?php echo sprintf('%1$s（%2$s）', date('n月j日', $backorder['order_time']), nicetime($backorder['order_time']));?></td>
 							</tr><?php } ?>
 						</tbody>
@@ -511,7 +508,7 @@ if($seat_mode == 'select' && $selectabilities)
 	$this->ui->js('footer', $selectability_js);
 
 $seat_opened_ids = json_encode(array());
-if($seat_mode == 'assign')
+if($seat_mode == 'assign' && $seat)
 	$seat_opened_ids = json_encode(array($seat['id']));
 elseif($selectabilities)
 	$seat_opened_ids = json_encode($selectabilities);
