@@ -8,7 +8,7 @@
 
 /* 中文化 */
 body {
-	font-family: "Open Sans", Calibri, "Source Han Sans CN", "Noto Sans", "Microsoft YaHei", "Hiragino Sans GB", "WenQuanYi Micro Hei", Candara, Arial, sans-serif;
+	font-family: "Open Sans", Calibri, "Source Han Sans CN", "Noto Sans CJK SC", "Microsoft YaHei", "Hiragino Sans GB", "WenQuanYi Micro Hei", Candara, Arial, sans-serif;
 }
 
 h1,
@@ -23,7 +23,7 @@ h6,
 .h4,
 .h5,
 .h6 {
-	font-family: "Open Sans", Calibri, "Source Han Sans CN", "Noto Sans", "Microsoft YaHei", "Hiragino Sans GB", "WenQuanYi Micro Hei", Candara, Arial, sans-serif;
+	font-family: "Open Sans", Calibri, "Source Han Sans CN", "Noto Sans CJK SC", "Microsoft YaHei", "Hiragino Sans GB", "WenQuanYi Micro Hei", Candara, Arial, sans-serif;
 }
 
 /* 保持页面全屏 */
