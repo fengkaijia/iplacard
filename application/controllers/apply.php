@@ -234,6 +234,14 @@ class Apply extends CI_Controller
 		$addition_items = option('profile_addition_general', array()) + option("profile_addition_{$this->delegate['application_type']}", array());
 		$vars['addition'] = $addition_items;
 		
+		$invoice_notice = false;
+		foreach($addition_items as $item)
+		{
+			if(isset($item['invoice']) && !empty($item['invoice']))
+				$invoice_notice = true;
+		}
+		$vars['invoice_notice'] = $invoice_notice;
+		
 		if($action == 'edit' && !empty($addition_items))
 		{
 			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
@@ -253,8 +261,13 @@ class Apply extends CI_Controller
 				$edited_ids = array();
 				foreach($addition_items as $name => $item)
 				{
+					//项目未启用
 					if(isset($item['enabled']) && !$item['enabled'])
-						break;
+						continue;
+					
+					//账单项目且已经填写
+					if(isset($item['invoice']) && $this->delegate_model->get_profile_id('delegate', $this->uid, 'name', "addition_$name"))
+						continue;
 					
 					$post = $this->input->post("addition_$name");
 					
@@ -293,6 +306,40 @@ class Apply extends CI_Controller
 					{
 						$this->delegate_model->edit_profile(array('value' => $new), $original_id);
 						$edited_ids[] = $original_id;
+					}
+					
+					//账单项目
+					if(isset($item['invoice']))
+					{
+						foreach($item['invoice'] as $invoice)
+						{
+							//生成账单
+							if($invoice['on'] == $new)
+							{
+								$this->load->library('invoice');
+								
+								//调整状态
+								if(isset($invoice['status']) && !empty($invoice['status']))
+									$this->delegate_model->change_status($this->uid, $invoice['status']);
+								
+								$this->invoice->title(!empty($invoice['title']) ? $invoice['title'] : '附加账单');
+								$this->invoice->to($this->uid);
+								$this->invoice->item(!empty($invoice['title']) ? $invoice['title'] : '附加账单', $invoice['amount'], isset($invoice['detail']) ? $invoice['detail'] : array());
+								$this->invoice->due_time(time() + (isset($invoice['due']) ? intval($invoice['due']) : option('invoice_due_fee', 15)) * 24 * 60 * 60);
+								
+								if(isset($invoice['trigger']) && !empty($invoice['trigger']))
+								{
+									foreach($invoice['trigger'] as $trigger)
+									{
+										$this->invoice->trigger($trigger['on'], $trigger['action'], array_merge(array('delegate' => $this->uid), $trigger['data']));
+									}
+								}
+								
+								$this->invoice->generate();
+								
+								$this->ui->alert('新的账单已经生成，请访问账单页面查看。', 'info');
+							}
+						}
 					}
 				}
 				
