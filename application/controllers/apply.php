@@ -254,7 +254,7 @@ class Apply extends CI_Controller
 				foreach($addition_items as $name => $item)
 				{
 					if(isset($item['enabled']) && !$item['enabled'])
-						break;
+						continue;
 					
 					$post = $this->input->post("addition_$name");
 					
