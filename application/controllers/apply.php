@@ -253,7 +253,12 @@ class Apply extends CI_Controller
 				$edited_ids = array();
 				foreach($addition_items as $name => $item)
 				{
+					//项目未启用
 					if(isset($item['enabled']) && !$item['enabled'])
+						continue;
+					
+					//账单项目且已经填写
+					if(isset($item['invoice']) && $this->delegate_model->get_profile_id('delegate', $this->uid, 'name', "addition_$name"))
 						continue;
 					
 					$post = $this->input->post("addition_$name");

@@ -109,7 +109,7 @@
 										'name' => "addition_$name",
 										'id' => "addition_$name",
 										'value' => true,
-										(isset($item['enabled']) && !$item['enabled']) ? 'disabled' : 'enabled' => NULL,
+										((isset($item['enabled']) && !$item['enabled']) || (isset($item['invoice']) && isset($delegate["addition_$name"]))) ? 'disabled' : 'enabled' => NULL,
 										'checked' => set_value("addition_$name", isset($delegate["addition_$name"]) ? $delegate["addition_$name"] : $item['default'])
 									)).' '.$item['text'].'</label></div>';
 									
@@ -118,7 +118,7 @@
 									break;
 									
 								case 'choice':
-									echo form_dropdown("addition_$name", empty($item['item']) ? array('' => '选项为空') : $item['item'], set_value("addition_$name", isset($delegate["addition_$name"]) ? $delegate["addition_$name"] : $item['default']), (isset($item['enabled']) && !$item['enabled']) ? 'class="form-control" disabled' : 'class="form-control" enabled');
+									echo form_dropdown("addition_$name", empty($item['item']) ? array('' => '选项为空') : $item['item'], set_value("addition_$name", isset($delegate["addition_$name"]) ? $delegate["addition_$name"] : $item['default']), ((isset($item['enabled']) && !$item['enabled']) || (isset($item['invoice']) && isset($delegate["addition_$name"]))) ? 'class="form-control" disabled' : 'class="form-control" enabled');
 									
 									if(form_has_error("addition_$name"))
 										echo form_error("addition_$name");
