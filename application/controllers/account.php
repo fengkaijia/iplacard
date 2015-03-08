@@ -1447,7 +1447,7 @@ class Account extends CI_Controller
 				
 				$vars = array(
 					'secret' => $secret,
-					'qr' => $this->twostep->get_qr_url(option('site_name', 'iPlacard'), $secret, 118, 0)
+					'qr' => $this->twostep->get_qr_url(option('site_name', 'iPlacard'), $secret)
 				);
 				
 				$this->load->view('account/manage/twostep_enable', $vars);
