@@ -48,7 +48,7 @@ class Twostep extends Twostep_model
 	function get_qr_url($name, $secret)
 	{
 		$name = rawurlencode($name);
-		return "otpauth://totp/{$name}?secret={$secret}";
+		return "otpauth://totp/{$name}?secret={$secret}&issuer=iPlacard";
 	}
 	
 	/**
