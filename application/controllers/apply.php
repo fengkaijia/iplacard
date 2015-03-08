@@ -234,6 +234,14 @@ class Apply extends CI_Controller
 		$addition_items = option('profile_addition_general', array()) + option("profile_addition_{$this->delegate['application_type']}", array());
 		$vars['addition'] = $addition_items;
 		
+		$invoice_notice = false;
+		foreach($addition_items as $item)
+		{
+			if(isset($item['invoice']) && !empty($item['invoice']))
+				$invoice_notice = true;
+		}
+		$vars['invoice_notice'] = $invoice_notice;
+		
 		if($action == 'edit' && !empty($addition_items))
 		{
 			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');

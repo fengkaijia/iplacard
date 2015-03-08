@@ -153,7 +153,8 @@
 								'type' => 'submit',
 								'class' => 'btn btn-primary',
 								'onclick' => 'loader(this);'
-							)); ?>
+							));
+							if($invoice_notice) { ?><div class="help-block">部分附加信息将可生成账单，此类信息将无法在首次保存后修改。</div><?php } ?>
 						</div>
 					</div>
 				<?php echo form_close();?>
