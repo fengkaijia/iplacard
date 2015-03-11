@@ -74,9 +74,9 @@ class Account extends CI_Controller
 		}
 		else
 		{
-			$this->form_validation->set_rules('email', '电子邮箱地址', 'trim|required|valid_email|callback__auth_internal');
+			$this->form_validation->set_rules('email', '电子邮箱地址', 'trim|required|callback__convert_email|valid_email|callback__auth_internal');
 			$this->form_validation->set_rules('password', '密码', 'trim|required');
-			$this->form_validation->set_message('valid_email', '电子邮箱地址无效。');
+			$this->form_validation->set_message('valid_email', '电子邮箱地址或手机号码无效。');
 		}
 		
 		$this->form_validation->set_error_delimiters('<div class="alert alert-dismissable alert-warning alert-block">'
@@ -1875,14 +1875,14 @@ class Account extends CI_Controller
 	/**
 	 * IMAP登录验证回调函数
 	 */
-	function _auth_imap()
+	function _auth_imap($email = '')
 	{
 		//记录登录尝试
 		$login_try = $this->session->userdata('login_try') + 1;
 		if(empty($login_try))
 			$login_try = 1;
 		
-		$email = $this->_append_imap($this->input->post('email'));
+		$email = $this->_append_imap($email);
 		$password = $this->input->post('password');
 		
 		//超过10次登录错误屏蔽十分钟
@@ -1932,14 +1932,13 @@ class Account extends CI_Controller
 	/**
 	 * 登录验证回调函数
 	 */
-	function _auth_internal()
+	function _auth_internal($email = '')
 	{
 		//记录登录尝试
 		$login_try = $this->session->userdata('login_try') + 1;
 		if(empty($login_try))
 			$login_try = 1;
 		
-		$email = $this->input->post('email');
 		$password = $this->input->post('password');
 		
 		//超过10次登录错误屏蔽十分钟
@@ -2117,6 +2116,21 @@ class Account extends CI_Controller
 		if($checkbox == true)
 			return true;
 		return false;
+	}
+	
+	/**
+	 * 转换手机为邮箱回调函数
+	 */
+	function _convert_email($email)
+	{
+		if(strlen($email) == 11 && (bool) preg_match('/^[\-+]?[0-9]+$/', $email))
+		{
+			$id = $this->user_model->get_user_id('phone', $email);
+			if($id)
+				return $this->user_model->get_user($id, 'email');
+		}
+		
+		return $email;
 	}
 	
 	/**

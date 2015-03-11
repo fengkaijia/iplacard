@@ -16,7 +16,7 @@ $this->load->view('header');?>
 		'name' => 'email',
 		'value' => set_value('email'),
 		'class' => 'form-control',
-		'placeholder' => '电子邮箱地址',
+		'placeholder' => '电子邮箱地址 / 手机',
 		'required' => NULL,
 		'autofocus' => NULL
 	));
