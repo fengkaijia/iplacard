@@ -129,7 +129,7 @@ class Account extends CI_Controller
 		if($this->session->userdata('dismiss_internet_explorer_postback_notice') != true && option('check_internet_explorer_postback', false))
 		{
 			if($this->agent->is_browser('Internet Explorer') && $this->agent->version() == '10.0')
-				$this->ui->alert(sprintf('您的浏览器被报告存在一个缺陷可能导致无法登录iPlacard，如果您长时间无法正常登录请尝试使用其他浏览器，例如 %1$s 和 %2$s。', anchor('https://www.google.com/chrome/', 'Google Chrome'), anchor('http://www.firefox.com/', 'Mozilla Firefox')), 'info');	
+				$this->ui->alert(sprintf('您的浏览器被报告存在一个缺陷可能导致无法登录 iPlacard，如果您长时间无法正常登录请尝试使用其他浏览器，例如 %1$s 和 %2$s。', anchor('https://www.google.com/chrome/', 'Google Chrome'), anchor('http://www.firefox.com/', 'Mozilla Firefox')), 'info');	
 		}
 		$this->session->set_userdata('dismiss_internet_explorer_postback_notice', true);
 		
