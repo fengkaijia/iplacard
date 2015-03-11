@@ -1975,6 +1975,18 @@ class Account extends CI_Controller
 			return false;
 		}
 		
+		//管理员强制IMAP登录检查
+		if(option('auth_imap_enabled', false) && option('auth_imap_force', false))
+		{
+			$domain = option('auth_imap_domain', 'iPlacard.com');
+			if(substr(strrchr($email, '@'), 1) == strtolower($domain) && $this->user_model->is_admin($this->user_model->get_user($email, 'id')))
+			{
+				$this->form_validation->set_message('_auth_internal', '无法登录！');
+				$this->ui->alert("系统设置要求管理员必须使用邮箱帐号登录，请点击使用登录栏下方“使用 {$domain} 邮箱帐号登录”功能。");
+				return false;
+			}
+		}
+		
 		//如果登录验证通过
 		$this->session->unset_userdata('login_try');
 		$this->session->unset_userdata('login_try_last');
