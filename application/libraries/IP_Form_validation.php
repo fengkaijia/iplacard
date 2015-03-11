@@ -48,6 +48,14 @@ class IP_Form_validation extends CI_Form_validation {
 
 		return (count($array) < $val) ? false : true;
 	}
+	
+	/**
+	 * 邮箱区域有效性检查
+	 */
+	public function valid_email_local($str)
+	{
+		return (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", "{$str}@iplacard.com")) ? false : true;
+	}
 }
 
 /* End of file IP_Form_validation.php */
