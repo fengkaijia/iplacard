@@ -44,7 +44,7 @@ class Account extends CI_Controller
 	/**
 	 * 登录
 	 */
-	function login()
+	function login($auth = 'internal')
 	{
 		if(is_logged_in())
 		{
@@ -52,20 +52,47 @@ class Account extends CI_Controller
 			return;
 		}
 		
+		$vars = array('auth' => $auth);
+		
+		//IMAP
+		$imap = false;
+		if(option('auth_imap_enabled', false))
+		{
+			$imap = true;
+			$vars['imap_domain'] = option('auth_imap_domain', 'iPlacard.com');
+		}
+		$vars['imap'] = $imap;
+		
 		//不在此页面重定向
 		$this->session->keep_flashdata('redirect');
 		
-		$this->form_validation->set_rules('email', '电子邮箱地址', 'trim|required|valid_email|callback__check_login');
-		$this->form_validation->set_rules('password', '密码', 'trim|required');
-		$this->form_validation->set_message('valid_email', '电子邮箱地址无效。');
+		if($imap && $auth == 'imap')
+		{
+			$this->form_validation->set_rules('email', '邮箱帐号', 'trim|required|valid_email_local|callback__auth_imap');
+			$this->form_validation->set_rules('password', '密码', 'trim|required');
+			$this->form_validation->set_message('valid_email_local', '邮箱帐号格式无效。');
+		}
+		else
+		{
+			$this->form_validation->set_rules('email', '电子邮箱地址', 'trim|required|valid_email|callback__auth_internal');
+			$this->form_validation->set_rules('password', '密码', 'trim|required');
+			$this->form_validation->set_message('valid_email', '电子邮箱地址无效。');
+		}
+		
 		$this->form_validation->set_error_delimiters('<div class="alert alert-dismissable alert-warning alert-block">'
 				. '<button type="button" class="close" data-dismiss="alert">×</button>'
 				. '<strong>错误</strong> ', '</div>');
 		
 		if($this->form_validation->run() == true)
 		{
+			$email = $this->input->post('email');
+			if($imap && $auth == 'imap')
+			{
+				$email = $this->_append_imap($email);
+			}
+			
 			//获取用户ID
-			$id = $this->user_model->login($this->input->post('email'), $this->input->post('password'));
+			$id = $this->user_model->login($email, $this->input->post('password'));
 			if($id != false)
 			{
 				//帐户可用性检查
@@ -153,7 +180,7 @@ class Account extends CI_Controller
 		
 		$this->ui->title('登录');
 		$this->ui->background();
-		$this->load->view('account/auth/login');
+		$this->load->view('account/auth/login', $vars);
 	}
 	
 	/**
@@ -1846,9 +1873,66 @@ class Account extends CI_Controller
 	}
 	
 	/**
+	 * IMAP登录验证回调函数
+	 */
+	function _auth_imap()
+	{
+		//记录登录尝试
+		$login_try = $this->session->userdata('login_try') + 1;
+		if(empty($login_try))
+			$login_try = 1;
+		
+		$email = $this->_append_imap($this->input->post('email'));
+		$password = $this->input->post('password');
+		
+		//超过10次登录错误屏蔽十分钟
+		if($login_try > 11)
+		{
+			$last_time = $this->session->userdata('login_try_last');
+			
+			if(time() < $last_time + 600)
+			{
+				$this->form_validation->set_message('_auth_imap', '您因登录尝试过多已被暂时禁止登录，请等待 10 分钟重试。');
+				return false;
+			}
+			else
+			{
+				$login_try = 5; //限制解除后仅允许再尝试5次
+			}
+		}
+		
+		//记录最新尝试
+		$this->session->set_userdata('login_try', $login_try);
+		$this->session->set_userdata('login_try_last', time());
+		
+		//检查登录
+		if(!$this->user_model->user_exists($email))
+		{
+			$this->form_validation->set_message('_auth_imap', '此邮箱帐户不存在于 iPlacard 中！');
+			$this->ui->alert('稍早前提交的报名将会需要至多 1 小时以导入系统，请稍等并查收您的邮件。通常情况下将您将在 1 小时内收到一封包含登录信息的确认邮件。', 'info');
+			return false;
+		}
+		else
+		{
+			$mbox = @imap_open('{'.option('auth_imap_server', 'iplacard.com').':'.option('auth_imap_port', 143).'/'.option('auth_imap_flags', '').'}INBOX', $email, $password, OP_HALFOPEN);
+			if(!$mbox)
+			{
+				$this->form_validation->set_message('_auth_imap', '向邮件服务器验证登录时出错！');
+				return false;
+			}
+			imap_close($mbox);
+		}
+		
+		//如果登录验证通过
+		$this->session->unset_userdata('login_try');
+		$this->session->unset_userdata('login_try_last');
+		return true;
+	}
+	
+	/**
 	 * 登录验证回调函数
 	 */
-	function _check_login()
+	function _auth_internal()
 	{
 		//记录登录尝试
 		$login_try = $this->session->userdata('login_try') + 1;
@@ -1865,7 +1949,7 @@ class Account extends CI_Controller
 			
 			if(time() < $last_time + 600)
 			{
-				$this->form_validation->set_message('_check_login', '您因登录尝试过多已被暂时禁止登录，请等待 10 分钟重试。');
+				$this->form_validation->set_message('_auth_internal', '您因登录尝试过多已被暂时禁止登录，请等待 10 分钟重试。');
 				return false;
 			}
 			else
@@ -1881,14 +1965,26 @@ class Account extends CI_Controller
 		//检查登录
 		if(!$this->user_model->user_exists($email))
 		{
-			$this->form_validation->set_message('_check_login', '电子邮箱地址不存在！');
+			$this->form_validation->set_message('_auth_internal', '电子邮箱地址不存在！');
 			$this->ui->alert('稍早前提交的报名将会需要至多 1 小时以导入系统，请稍等并查收您的邮件。通常情况下将您将在 1 小时内收到一封包含登录信息的确认邮件。', 'info');
 			return false;
 		}
 		elseif(!$this->user_model->check_password($email, $password))
 		{
-			$this->form_validation->set_message('_check_login', '电子邮箱地址或密码错误！');
+			$this->form_validation->set_message('_auth_internal', '电子邮箱地址或密码错误！');
 			return false;
+		}
+		
+		//管理员强制IMAP登录检查
+		if(option('auth_imap_enabled', false) && option('auth_imap_force', false))
+		{
+			$domain = option('auth_imap_domain', 'iPlacard.com');
+			if(substr(strrchr($email, '@'), 1) == strtolower($domain) && $this->user_model->is_admin($this->user_model->get_user($email, 'id')))
+			{
+				$this->form_validation->set_message('_auth_internal', '无法登录！');
+				$this->ui->alert("系统设置要求管理员必须使用邮箱帐号登录，请点击使用登录栏下方“使用 {$domain} 邮箱帐号登录”功能。");
+				return false;
+			}
 		}
 		
 		//如果登录验证通过
@@ -2021,6 +2117,15 @@ class Account extends CI_Controller
 		if($checkbox == true)
 			return true;
 		return false;
+	}
+	
+	/**
+	 * 补全IMAP地址
+	 */
+	function _append_imap($email)
+	{
+		$suffix = strtolower(option('auth_imap_domain', 'iPlacard.com'));
+		return "{$email}@{$suffix}";
 	}
 }
 
