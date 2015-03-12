@@ -74,9 +74,18 @@ class Account extends CI_Controller
 		}
 		else
 		{
-			$this->form_validation->set_rules('email', '电子邮箱地址', 'trim|required|callback__convert_email|valid_email|callback__auth_internal');
+			$key = $this->input->post('email');
+			if($key && $this->_is_phone($key))
+			{
+				$this->form_validation->set_rules('email', '电子邮箱地址', 'trim|required|callback__auth_internal');
+			}
+			else
+			{
+				$this->form_validation->set_rules('email', '电子邮箱地址', 'trim|required|valid_email|callback__auth_internal');
+				$this->form_validation->set_message('valid_email', '电子邮箱地址无效。');
+			}
+			
 			$this->form_validation->set_rules('password', '密码', 'trim|required');
-			$this->form_validation->set_message('valid_email', '电子邮箱地址或手机号码无效。');
 		}
 		
 		$this->form_validation->set_error_delimiters('<div class="alert alert-dismissable alert-warning alert-block">'
@@ -85,7 +94,7 @@ class Account extends CI_Controller
 		
 		if($this->form_validation->run() == true)
 		{
-			$email = $this->input->post('email');
+			$email = $this->_convert_email($this->input->post('email'));
 			if($imap && $auth == 'imap')
 			{
 				$email = $this->_append_imap($email);
@@ -1939,6 +1948,7 @@ class Account extends CI_Controller
 		if(empty($login_try))
 			$login_try = 1;
 		
+		$email = $this->_convert_email($email);
 		$password = $this->input->post('password');
 		
 		//超过10次登录错误屏蔽十分钟
@@ -1964,13 +1974,13 @@ class Account extends CI_Controller
 		//检查登录
 		if(!$this->user_model->user_exists($email))
 		{
-			$this->form_validation->set_message('_auth_internal', '电子邮箱地址不存在！');
+			$this->form_validation->set_message('_auth_internal', '电子邮箱 / 手机不存在！');
 			$this->ui->alert('稍早前提交的报名将会需要至多 1 小时以导入系统，请稍等并查收您的邮件。通常情况下将您将在 1 小时内收到一封包含登录信息的确认邮件。', 'info');
 			return false;
 		}
 		elseif(!$this->user_model->check_password($email, $password))
 		{
-			$this->form_validation->set_message('_auth_internal', '电子邮箱地址或密码错误！');
+			$this->form_validation->set_message('_auth_internal', '电子邮箱 / 手机或密码错误！');
 			return false;
 		}
 		
@@ -2119,11 +2129,11 @@ class Account extends CI_Controller
 	}
 	
 	/**
-	 * 转换手机为邮箱回调函数
+	 * 转换手机为对应的邮箱
 	 */
 	function _convert_email($email)
 	{
-		if(strlen($email) == 11 && (bool) preg_match('/^[\-+]?[0-9]+$/', $email))
+		if($this->_is_phone($email))
 		{
 			$id = $this->user_model->get_user_id('phone', $email);
 			if($id)
@@ -2131,6 +2141,17 @@ class Account extends CI_Controller
 		}
 		
 		return $email;
+	}
+	
+	/**
+	 * 判断是否为手机
+	 */
+	function _is_phone($str)
+	{
+		if(strlen($str) == 11 && (bool) preg_match('/^[\-+]?[0-9]+$/', $str))
+			return true;
+		
+		return false;
 	}
 	
 	/**
