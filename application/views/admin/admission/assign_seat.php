@@ -115,7 +115,7 @@ if($interview)
 		</div><?php }
 		else
 		{
-			echo form_hidden('assign_id', $old_id); ?><p>请在表格中选择席位，点击席位右侧分配后将会显示席位信息。</p>
+			echo form_hidden('assign_id', $assigned ? $old_id : NULL); ?><p>请在表格中选择席位，点击席位右侧分配后将会显示席位信息。</p>
 		<div class="form-group">
 			<?php echo form_label('席位名称', 'seat_name', array('class' => 'control-label'));?>
 			<div id="seat_name" class="well well-sm flags-16">
