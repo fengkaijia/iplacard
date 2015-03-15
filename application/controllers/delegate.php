@@ -189,8 +189,6 @@ class Delegate extends CI_Controller
 				$interview['interviewer'] = $this->admin_model->get_admin($interview['interviewer']);
 				if(!empty($interview['interviewer']['committee']))
 				{
-					$this->load->model('committee_model');
-					
 					$interview['interviewer']['committee'] = $this->committee_model->get_committee($interview['interviewer']['committee']);
 				}
 				
