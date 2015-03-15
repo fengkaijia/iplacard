@@ -1638,12 +1638,15 @@ class Admin extends CI_Controller
 			case 'committee':
 				$this->load->model('committee_model');
 				
-				$committees = $this->committee_model->get_committee_ids();
-
 				$select[0] = '无委员会代表';
-				foreach($committees as $committee)
+				
+				$committees = $this->committee_model->get_committee_ids();
+				if($committees)
 				{
-					$select[$committee] = $this->committee_model->get_committee($committee, 'name');
+					foreach($committees as $committee)
+					{
+						$select[$committee] = $this->committee_model->get_committee($committee, 'name');
+					}
 				}
 				
 				break;

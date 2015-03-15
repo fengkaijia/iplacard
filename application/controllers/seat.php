@@ -191,10 +191,13 @@ class Seat extends CI_Controller
 		$committees = array();
 		
 		$committee_ids = $this->committee_model->get_committee_ids();
-		foreach($committee_ids as $committee_id)
+		if($committee_ids)
 		{
-			$committee = $this->committee_model->get_committee($committee_id);
-			$committees[$committee_id] = "{$committee['name']}（{$committee['abbr']}）";
+			foreach($committee_ids as $committee_id)
+			{
+				$committee = $this->committee_model->get_committee($committee_id);
+				$committees[$committee_id] = "{$committee['name']}（{$committee['abbr']}）";
+			}
 		}
 		
 		$vars['committees'] = $committees;
