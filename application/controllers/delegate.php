@@ -166,9 +166,9 @@ class Delegate extends CI_Controller
 		//帐户停用提示
 		if(!$profile['enabled'])
 		{
-			$quit_time = user_option('disable_time', time(), $uid);
+			$disable_time = user_option('disable_time', time(), $uid);
 			
-			$this->ui->alert(sprintf('此代表帐户已经于%s停用，帐户停用期间代表将无法登录 iPlacard。', date('Y年m月d日', $quit_time)));
+			$this->ui->alert(sprintf('此代表帐户已经于%s停用，帐户停用期间代表将无法登录 iPlacard。', date('Y年m月d日', $disable_time)));
 		}
 		
 		//面试数据
