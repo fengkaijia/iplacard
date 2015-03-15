@@ -37,8 +37,14 @@ class Feed
 				return false;
 			}
 			
-			$xml = new SimpleXmlElement($raw);
-
+			$xml = simplexml_load_string($raw);
+			
+			if(empty($xml))
+			{
+				$this->data = array();
+				return false;
+			}
+			
 			if($xml->channel)
 			{
 				$this->channel_data['title'] = $xml->channel->title;
