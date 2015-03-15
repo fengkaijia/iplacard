@@ -111,13 +111,16 @@ class User extends CI_Controller
 		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 		
 		//修改姓名
+		$changed_name = false;
 		if($action == 'add' || ($this->input->post('change_name') && $this->input->post('name') != $user['name']))
 		{
 			$changed_name = true;
+			
 			$this->form_validation->set_rules('name', '姓名', 'trim|required');
 		}
 		
 		//修改邮箱
+		$changed_email = false;
 		if($action == 'add' || ($this->input->post('change_email') && $this->input->post('email') != $user['email']))
 		{
 			$changed_email = true;
@@ -127,6 +130,7 @@ class User extends CI_Controller
 		}
 		
 		//修改手机
+		$changed_phone = false;
 		if($action == 'add' || ($this->input->post('change_phone') && $this->input->post('phone') != $user['phone']))
 		{
 			$changed_phone = true;
@@ -136,6 +140,7 @@ class User extends CI_Controller
 		}
 		
 		//修改密码
+		$changed_password = false;
 		if($action == 'add' || $this->input->post('password'))
 		{
 			$changed_password = true;
