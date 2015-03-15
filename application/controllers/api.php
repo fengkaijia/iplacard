@@ -269,6 +269,141 @@ class Api extends CI_Controller
 			$this->return['id'] = $uid;
 			return;
 		}
+		elseif($action == 'info')
+		{
+			//权限检查
+			if(!$this->token_model->capable('delegate:info', $this->token['permission']))
+			{
+				$this->_error(6, 'Permission denied.');
+				return;
+			}
+			
+			//输入有效性检查
+			if(!isset($this->data['key']) || empty($this->data['key']))
+			{
+				$this->_error(21, 'Empty key.');
+				return;
+			}
+			
+			//查找代表
+			$id = $this->delegate_model->search_delegate($this->data['key'], 1);
+			if(!$id)
+			{
+				$this->_error(32, 'Unable to find delegate with provided key.');
+				return;
+			}
+			
+			//获取代表信息
+			$delegate = $this->delegate_model->get_delegate($this->data['key']);
+			if(!$delegate)
+			{
+				$this->_error(31, 'Delegate does not exists.');
+				return;
+			}
+			
+			$this->load->model('admin_model');
+			$this->load->model('committee_model');
+			$this->load->model('interview_model');
+			$this->load->model('note_model');
+			$this->load->model('seat_model');
+			
+			//生成代表数据
+			$this->return = array(
+				'id' => $delegate['id'],
+				'name' => $delegate['name'],
+				'email' => $delegate['email'],
+				'phone' => $delegate['phone'],
+				'unique_identifier' => $delegate['unique_identifier'],
+				'geolocation' => $delegate['geolocation'],
+				'application_type' => $delegate['application_type'],
+				'status' => $delegate['status'],
+			);
+			
+			//获取资料
+			$profile = $this->delegate_model->get_delegate_profiles($delegate['id']);
+			if($profile)
+			{
+				$this->return['profile'] = $profile;
+			}
+			
+			//获取笔记
+			$notes = $this->note_model->get_delegate_notes($delegate['id']);
+			if($notes)
+			{
+				foreach($notes as $note_id)
+				{
+					$note = $this->note_model->get_note($note_id);
+					$note['category'] = $this->note_model->get_category($note['category'], 'name');
+					
+					$admin = $this->admin_model->get_admin($note['admin']);
+					$note['admin'] = array(
+						'id' => $admin['id'],
+						'name' => $admin['name'],
+						'email' => $admin['email'],
+						'title' => $admin['title'],
+						'committee' => !empty($admin['committee']) ? $this->committee_model->get_committee($admin['committee'], 'name') : NULL
+					);
+					
+					$this->return['note'][] = $note;
+				}
+			}
+			
+			//获取团队
+			if(!empty($delegate['group']))
+			{
+				$this->load->model('group_model');
+				
+				$this->return['group'] = $this->group_model->get_group($delegate['group']);
+			}
+			
+			//获取面试
+			$interviews = $this->interview_model->get_interview_ids('delegate', $delegate['id']);
+			if($interviews)
+			{
+				$current = $this->interview_model->get_current_interview_id($delegate['id']);
+
+				foreach($interviews as $interview_id)
+				{
+					$interview = $this->interview_model->get_interview($interview_id);
+					$interview['current'] = ($current == $interview['id']);
+					
+					//面试官信息
+					$interviewer = $this->admin_model->get_admin($interview['interviewer']);
+					
+					$interview['interviewer'] = array(
+						'id' => $interviewer['id'],
+						'name' => $interviewer['name'],
+						'email' => $interviewer['email'],
+						'title' => $interviewer['title'],
+						'committee' => !empty($interviewer['committee']) ? $this->committee_model->get_committee($interviewer['committee'], 'name') : NULL
+					);
+					
+					$this->return['interview'][] = $interview;
+				}
+			}
+			
+			//获取席位
+			$seat = $this->seat_model->get_delegate_seat($delegate['id']);
+			if($seat)
+			{
+				$this->return['seat'] = $this->seat_model->get_seat($seat);
+				$this->return['seat']['committee'] = $this->committee_model->get_committee($seat['committee'], 'name');
+			}
+			
+			//获取退会信息
+			if($delegate['status'] == 'quitted')
+			{
+				$this->return['quit'] = array(
+					'status' => user_option('quit_status', NULL, $delegate['id']),
+					'time' => user_option('quit_time', NULL, $delegate['id']),
+					'operator' => user_option('quit_operator', NULL, $delegate['id']),
+					'reason' => user_option('quit_reason', NULL, $delegate['id']),
+				);
+			}
+			
+			//返回代表数据
+			return;
+		}
 		
 		$this->_error(5, 'Unknown action.');
 	}
