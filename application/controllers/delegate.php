@@ -1477,19 +1477,20 @@ class Delegate extends CI_Controller
 						break;
 					}
 					
-					if($seat['status'] == 'preserved' && $this->_check_interview_enabled($delegate['application_type']) && $seat['committee'] != $admin_committee)
+					$new_seat = $this->seat_model->get_seat($new_seat_id);
+					if($new_seat['status'] == 'preserved' && $this->_check_interview_enabled($delegate['application_type']) && $new_seat['committee'] != $admin_committee)
 					{
 						$this->ui->alert('席位被保留，只有该委员会面试官可分配此席位。', 'warning', true);
 						break;
 					}
 					
-					if($seat['status'] == 'assigned' || $seat['status'] == 'approved')
+					if($new_seat['status'] == 'assigned' || $new_seat['status'] == 'approved')
 					{
 						$this->ui->alert('席位已经被分配，无法再次分配。', 'warning', true);
 						break;
 					}
 					
-					if($seat['status'] == 'unavailable' || $seat['status'] == 'locked')
+					if($new_seat['status'] == 'unavailable' || $new_seat['status'] == 'locked')
 					{
 						$this->ui->alert('席位被锁定或无法分配。', 'warning', true);
 						break;
@@ -1503,8 +1504,6 @@ class Delegate extends CI_Controller
 						$this->ui->alert('新分配席位和代表原席位相同，无需重复分配。', 'info', true);
 						break;
 					}
-					
-					$new_seat = $this->seat_model->get_seat($new_seat_id);
 					
 					//回退原席位
 					if($re_assign)
