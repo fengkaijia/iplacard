@@ -317,6 +317,7 @@ class Api extends CI_Controller
 				'geolocation' => $delegate['geolocation'],
 				'application_type' => $delegate['application_type'],
 				'status' => $delegate['status'],
+				'url' => base_url("delegate/profile/{$delegate['id']}")
 			);
 			
 			//获取资料
