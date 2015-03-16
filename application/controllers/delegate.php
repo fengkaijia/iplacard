@@ -342,6 +342,33 @@ class Delegate extends CI_Controller
 		
 		$vars['uid'] = $uid;
 		
+		//跨实例查询
+		$ciq = array();
+		$instances = option('ciq_instance', array());
+		if(!empty($instances))
+		{
+			$this->load->library('ciq');
+			
+			foreach($instances as $instance_id => $instance)
+			{
+				$this->ciq->set_api($instance['api'], $instance['access_token']);
+				$this->ciq->set_request('delegate', 'info');
+				$this->ciq->set_post(array('key' => $profile['unique_identifier']));
+				$this->ciq->parse();
+				
+				$instance_data = $this->ciq->get();
+				if($instance_data)
+				{
+					$ciq[$instance_id] = array(
+						'name' => $instance['name'],
+						'url' => $instance['api'],
+						'data' => $instance_data
+					);
+				}
+			}
+		}
+		$vars['ciq'] = $ciq;
+		
 		$this->ui->title($profile['name'], '代表资料');
 		$this->load->view('admin/delegate_profile', $vars);
 	}
