@@ -345,7 +345,7 @@ $this->load->view('header');?>
 			</div><?php } ?>
 			
 			<?php if($seat_open) { ?><div class="tab-pane" id="seat">
-				<?php if($selectabilities) { ?><div id="seat_now">
+				<?php if($seat_mode == 'select' ? $selectabilities : $seat) { ?><div id="seat_now">
 					<?php if(!empty($seat)) { ?>
 					<h3><?php echo $seat_mode == 'select' ? '已选择席位' : '已分配席位';?></h3>
 					<p><?php echo icon('user', false).$profile['name'];?>代表当前席位如下。</p>

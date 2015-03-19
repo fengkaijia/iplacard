@@ -544,17 +544,25 @@ class Apply extends CI_Controller
 		if($this->delegate['status'] == 'quitted' || $this->delegate['status'] == 'locked')
 			$select_open = false;
 		
-		$slids = $this->seat_model->get_delegate_selectability($this->uid);
-		if(!$slids)
+		$seat_mode = option('seat_mode', 'select');
+		
+		if($seat_mode == 'select')
+			$slids = $this->seat_model->get_delegate_selectability($this->uid);
+		else
+			$slids = array();
+		
+		$selectability_count = count($slids);
+		
+		if($seat_mode == 'select' ? !$slids : !$this->seat_model->get_delegate_seat($this->uid))
 		{
-			$this->ui->alert('面试官尚未为您分配席位。', 'warning', true);
+			$this->ui->alert('面试官或管理员尚未为您分配席位。', 'warning', true);
 			back_redirect();
 			return;
 		}
-		$selectability_count = count($slids);
 		
 		$vars = array(
 			'delegate' => $this->delegate,
+			'seat_mode' => $seat_mode,
 			'selectability_count' => $selectability_count,
 			'select_open' => $select_open,
 			'select_backorder_max' => $select_backorder_max
@@ -857,40 +865,42 @@ class Apply extends CI_Controller
 		
 		$selectabilities = array();
 		$committees = array();
-		foreach($slids as $slid)
+		
+		if(!empty($slids))
 		{
-			$selectability = $this->seat_model->get_selectability($slid);
-			
-			//席位详细信息
-			$selectability['seat'] = $this->seat_model->get_seat($selectability['seat']);
-			
-			//主要席位统计
-			if($selectability['primary'])
+			foreach($slids as $slid)
 			{
-				if(empty($selectability['seat']['delegate']) || ($selectability['seat']['status'] == 'assigned' && $selectability['seat']['delegate'] == $this->uid))
+				$selectability = $this->seat_model->get_selectability($slid);
+
+				//席位详细信息
+				$selectability['seat'] = $this->seat_model->get_seat($selectability['seat']);
+
+				//主要席位统计
+				if($selectability['primary'])
 				{
-					$selectability_primary[] = intval($selectability['seat']['id']);
-					$selectability_primary_count++;
+					if(empty($selectability['seat']['delegate']) || ($selectability['seat']['status'] == 'assigned' && $selectability['seat']['delegate'] == $this->uid))
+					{
+						$selectability_primary[] = intval($selectability['seat']['id']);
+						$selectability_primary_count++;
+					}
+					elseif($selectability['seat']['delegate'] != $this->uid)
+					{
+						$selectability['primary'] = false;
+					}
 				}
-				elseif($selectability['seat']['delegate'] != $this->uid)
-				{
-					$selectability['primary'] = false;
-				}
+
+				$committee = $selectability['seat']['committee'];
+				if(!isset($committees[$committee]))
+					$committees[$committee] = $this->committee_model->get_committee($committee);
+
+				$selectabilities[] = $selectability;
 			}
-			
-			$committee = $selectability['seat']['committee'];
-			if(!isset($committees[$committee]))
-				$committees[$committee] = $this->committee_model->get_committee($committee);
-			
-			$selectabilities[] = $selectability;
 		}
+		
 		$vars['committees'] = $committees;
 		$vars['selectabilities'] = $selectabilities;
 		$vars['selectability_primary'] = $selectability_primary;
 		$vars['selectability_primary_count'] = $selectability_primary_count;
-		
-		$seat_mode = option('seat_mode', 'select');
-		$vars['seat_mode'] = $seat_mode;
 		
 		$this->ui->now('seat');
 		$this->ui->title('席位');
