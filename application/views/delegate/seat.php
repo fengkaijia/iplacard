@@ -113,6 +113,9 @@ $this->load->view('header');?>
 					if($delegate['status'] == 'locked') { ?><a id="seat_change_lock" data-original-title="无法选择席位" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="您锁定席位，无法调整席位。" title="">调整席位</a><?php }
 				} else { ?><a id="seat_change_start" href="#select" data-toggle="tab" class="btn btn-primary" onclick="$('.nav-menu li').removeClass('active'); $('#select_tab').addClass('active');">调整席位</a><?php } ?>
 				
+				<hr /><?php } else { ?><h3>调整席位分配</h3>
+				<p>当前您已经分配有席位。在您锁定席位前，如果对席位分配结果不满意，您可以随时联系您的面试官调整席位。锁定席位后，您将无法调整席位。</p>
+				
 				<hr /><?php } ?>
 				
 				<?php if($lock_open) { ?><h3>确认锁定席位</h3>
