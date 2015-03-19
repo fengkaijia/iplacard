@@ -148,7 +148,7 @@ class Admin extends CI_Controller
 				//待分配席位
 				$task_reviewer_seat_assign_ids = $this->delegate_model->get_delegate_ids('status', 'review_passed');
 				if($task_reviewer_seat_assign_ids)
-					$this->_task('seat_assign', count($task_reviewer_seat_assign_ids));
+					$this->_task('reviewer_seat_assign', count($task_reviewer_seat_assign_ids));
 			}
 		}
 		
