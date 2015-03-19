@@ -214,10 +214,10 @@ class Admin extends CI_Controller
 			//全局待分配席位
 			$task_global_seat_assign_ids = $this->delegate_model->get_delegate_ids('status', option('interview_enabled', true) ? 'interview_completed' : 'review_passed');
 			if($task_global_seat_assign_ids)
-				$this->_task('seat_global_assign', count($task_global_seat_assign_ids));
+				$this->_task(option('interview_enabled', true) ? 'seat_global_assign' : 'reviewer_seat_global_assign', count($task_global_seat_assign_ids));
 
 			//全局待选择席位
-			if(option('seat_mode', 'select'))
+			if(option('seat_mode', 'select') == 'select')
 			{
 				$task_global_seat_select_ids = $this->delegate_model->get_delegate_ids('status', 'seat_assigned');
 				if($task_global_seat_select_ids)

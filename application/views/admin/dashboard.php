@@ -309,6 +309,8 @@ $this->load->view('header');?>
 					echo anchor('interview/manage?status=arranged&display_interviewer=1', "全局共 {$task['interview_global_do']} 位代表等待面试。", 'class="list-group-item"');
 				if(isset($task['seat_global_assign']))
 					echo anchor('delegate/manage?type=delegate&status=interview_completed', "全局共 {$task['seat_global_assign']} 位代表等待分配席位。", 'class="list-group-item"');
+				if(isset($task['reviewer_seat_global_assign']))
+					echo anchor('delegate/manage?type=delegate&status=review_passed', "全局共 {$task['reviewer_seat_global_assign']} 位代表等待分配席位。", 'class="list-group-item"');
 				if(isset($task['seat_global_select']))
 					echo anchor('delegate/manage?type=delegate&status=seat_assigned', "全局共 {$task['seat_global_select']} 位代表尚未选择席位。", 'class="list-group-item"');	
 				if(isset($task['invoice_receive']))
