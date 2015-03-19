@@ -65,7 +65,7 @@ $this->load->view('header');?>
 							<td><?php echo "{$seat['committee']['name']}（{$seat['committee']['abbr']}）";?></td>
 						</tr>
 						<tr>
-							<td>选择时间</td>
+							<td><?php echo $seat_mode == 'select' ? '选择时间' : '分配时间';?></td>
 							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $seat['time']), nicetime($seat['time']));?></td>
 						</tr>
 						<tr>
