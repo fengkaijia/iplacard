@@ -212,14 +212,17 @@ class Admin extends CI_Controller
 				$this->_task('interview_global_do', count($task_global_interview_do_ids));
 			
 			//全局待分配席位
-			$task_global_seat_assign_ids = $this->delegate_model->get_delegate_ids('status', 'interview_completed');
+			$task_global_seat_assign_ids = $this->delegate_model->get_delegate_ids('status', option('interview_enabled', true) ? 'interview_completed' : 'review_passed');
 			if($task_global_seat_assign_ids)
 				$this->_task('seat_global_assign', count($task_global_seat_assign_ids));
 
 			//全局待选择席位
-			$task_global_seat_select_ids = $this->delegate_model->get_delegate_ids('status', 'seat_assigned');
-			if($task_global_seat_select_ids)
-				$this->_task('seat_global_select', count($task_global_seat_select_ids));
+			if(option('seat_mode', 'select'))
+			{
+				$task_global_seat_select_ids = $this->delegate_model->get_delegate_ids('status', 'seat_assigned');
+				if($task_global_seat_select_ids)
+					$this->_task('seat_global_select', count($task_global_seat_select_ids));
+			}
 			
 			//计划删除帐户
 			$task_delete_ids = $this->delegate_model->get_delegate_ids('status', 'deleted');
