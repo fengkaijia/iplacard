@@ -560,6 +560,7 @@ $('.profile_editable').editable({
 	type: 'text',
 	url: "$edit_url",
 	mode: 'popup',
+	emptytext: '空',
 	params: {
 		$edit_csrf_token: '$edit_csrf_hash'
 	}
