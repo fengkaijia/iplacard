@@ -579,7 +579,7 @@ class UI
 		}
 		
 		//席位
-		if($this->CI->seat_model->get_delegate_selectability(uid()))
+		if(option('seat_mode', 'select') == 'select' ? $this->CI->seat_model->get_delegate_selectability(uid()) : $this->CI->seat_model->get_delegate_seat(uid()))
 		{
 			$this->add_menu('seat', '席位', 'apply/seat');
 		}
