@@ -352,6 +352,8 @@ class User extends CI_Controller
 		{
 			$this->load->helper('date');
 			
+			$interview_enabled = option('interview_enabled', true);
+			
 			$ids = $this->user_model->get_user_ids('type', 'admin');
 			
 			foreach($ids as $id)
@@ -362,7 +364,7 @@ class User extends CI_Controller
 				$operation = '';
 				if($this->admin_model->capable('bureaucrat'))
 					$operation .= anchor("user/edit/$id", icon('edit', false).'编辑').' ';
-				if($user['role_interviewer'])
+				if($interview_enabled && $user['role_interviewer'])
 					$operation .= anchor("interview/manage?interviewer=$id", icon('comments-o', false).'队列');
 				
 				//用户姓名信息
