@@ -134,7 +134,106 @@ class Api extends CI_Controller
 	}
 	
 	/**
-	 * 代表导入操作
+	 * 管理员信息操作
+	 */
+	function admin($action = 'add')
+	{
+		$this->load->model('admin_model');
+		$this->load->helper('date');
+		
+		if($action == 'add')
+		{
+			//权限检查
+			if(!$this->token_model->capable('admin:add', $this->token['permission']))
+			{
+				$this->_error(6, 'Permission denied.');
+				return;
+			}
+			
+			//检查重复邮箱
+			if($this->user_model->get_user_id('email', $this->data['email']))
+			{
+				$this->_error(22, 'Admin email already exists.');
+				return;
+			}
+			
+			//验证邮箱
+			if(!filter_var($this->data['email'], FILTER_VALIDATE_EMAIL))
+			{
+				$this->_error(24, 'Invalid email address.');
+				return;
+			}
+			
+			//生成随机密码
+			$this->load->helper('string');
+			$password = random_string('alnum', 8);
+			
+			//新建用户
+			$user_data = array(
+				'name' => trim($this->data['name']),
+				'email' => trim($this->data['email']),
+				'type' => 'admin',
+				'password' => $password,
+				'pin_password' => option('default_pin_password', 'iPlacard'),
+				'phone' => trim($this->data['phone']),
+				'reg_time' => time()
+			);
+			$uid = $this->user_model->edit_user($user_data);
+			
+			//增加管理员数据
+			$this->admin_model->add_profile($uid);
+			
+			$admin_data = array(
+				'title' => !empty($this->data['title']) ? $this->data['title'] : NULL,
+				'committee' => !empty($this->data['committee']) ? $this->data['committee'] : NULL
+			);
+			
+			//权限信息
+			foreach(array('reviewer', 'dais', 'interviewer', 'cashier', 'administrator', 'bureaucrat') as $role)
+			{
+				$admin_data["role_{$role}"] = (isset($this->data['role'][$role]) && $this->data['role'][$role]);
+			}
+			
+			$this->admin_model->edit_profile($admin_data, $uid);
+			
+			//发送邮件
+			$this->load->library('email');
+			$this->load->library('parser');
+			$this->load->helper('date');
+
+			$data = array(
+				'uid' => $uid,
+				'name' => trim($this->data['name']),
+				'email' => trim($this->data['email']),
+				'password' => $password,
+				'time' => unix_to_human(time()),
+				'url' => base_url(),
+			);
+
+			$this->email->to($this->data['email']);
+			$this->email->subject('iPlacard 帐户登录信息');
+			$this->email->html($this->parser->parse_string(option('email_admin_account_created', "您的 iPlacard 管理帐户已经于 {time} 创建。帐户信息如下：\n\n"
+					. "\t登录邮箱：{email}\n"
+					. "\t密码：{password}\n\n"
+					. "请使用以上信息访问：\n\n"
+					. "\t{url}\n\n"
+					. "登录并开始使用 iPlacard。"), $data, true));
+			
+			if(!$this->email->send())
+			{
+				$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'admin_account_created'));
+			}
+			
+			$this->system_model->log('user_added', array('id' => $uid, 'type' => 'admin', 'api' => true), 0);
+			
+			//返回数据
+			$this->return['id'] = $uid;
+			return;
+		}
+	}
+	
+	/**
+	 * 代表信息操作
 	 */
 	function delegate($action = 'import')
 	{
