@@ -567,8 +567,9 @@ class UI
 		//个人资料
 		$this->add_menu('profile', '个人资料', 'apply/profile');
 		
-		$application = $this->CI->delegate_model->get_delegate(uid(), 'application_type');
-		$editable = option('profile_edit_general', array()) + option("profile_edit_{$application}", array());
+		$delegate = $this->CI->delegate_model->get_delegate(uid());
+		
+		$editable = option('profile_edit_general', array()) + option("profile_edit_{$delegate['application_type']}", array());
 		if(!empty($editable))
 			$this->add_sub_menu('edit', 'profile', '编辑资料', 'apply/edit');
 		
@@ -591,17 +592,20 @@ class UI
 		}
 		
 		//文件
-		$committee = 0;
-		if($application == 'delegate')
+		if($delegate['status'] != 'review_refused' || option('document_enable_refused', false))
 		{
-			$seat = $this->CI->seat_model->get_delegate_seat(uid());
-			if($seat)
-				$committee = $this->CI->seat_model->get_seat($seat, 'committee');
-		}
-		
-		if($this->CI->document_model->get_committee_documents($committee))
-		{
-			$this->add_menu('document', '文件', 'apply/document');
+			$committee = 0;
+			if($delegate['application_type'] == 'delegate')
+			{
+				$seat = $this->CI->seat_model->get_delegate_seat(uid());
+				if($seat)
+					$committee = $this->CI->seat_model->get_seat($seat, 'committee');
+			}
+
+			if($this->CI->document_model->get_committee_documents($committee))
+			{
+				$this->add_menu('document', '文件', 'apply/document');
+			}
 		}
 		
 		//账单
