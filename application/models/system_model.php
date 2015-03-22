@@ -7,9 +7,13 @@
  */
 class System_model extends CI_Model
 {
+	private $options = array();
+	
 	function __construct()
 	{
 		parent::__construct();
+		
+		$this->options = $this->get_options();
 	}
 	
 	/**
@@ -20,22 +24,39 @@ class System_model extends CI_Model
 	 */
 	function option($name, $default = NULL)
 	{
-		//获取设置
-		$this->db->where('name', $name);
-		$query = $this->db->get('option');
-		
-		//如果设置不存在
-		if($query->num_rows() == 0)
+		if(empty($this->options))
 		{
-			//如果存在默认值
-			if(!is_null($default))
-				return $default;
-			return false;
+			//获取设置
+			$this->db->where('name', $name);
+			$query = $this->db->get('option');
+
+			//如果设置不存在
+			if($query->num_rows() == 0)
+			{
+				//如果存在默认值
+				if(!is_null($default))
+					return $default;
+				return false;
+			}
+
+			//返回结果
+			$data = $query->row_array();
+			return json_decode($data['value'], true);
 		}
-		
-		//返回结果
-		$data = $query->row_array();
-		return json_decode($data['value'], true);
+		else
+		{
+			//如果设置不存在
+			if(!isset($this->options[$name]))
+			{
+				//如果存在默认值
+				if(!is_null($default))
+					return $default;
+				return false;
+			}
+			
+			//返回结果
+			return json_decode($this->options[$name], true);
+		}
 	}
 	
 	/**
@@ -47,6 +68,28 @@ class System_model extends CI_Model
 	function get_option($name, $default = NULL)
 	{
 		return $this->option($name, $default);
+	}
+	
+	/**
+	 * 载入所有站点设置
+	 */
+	function get_options()
+	{
+		//获取设置
+		$query = $this->db->get('option');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回设置信息
+		foreach($query->result_array() as $data)
+		{
+			$array[$data['name']] = $data['value'];
+		}
+		$query->free_result();
+		
+		return $array;
 	}
 	
 	/**
