@@ -274,7 +274,18 @@ class Document extends CI_Controller
 				
 				if($access_committees == 0)
 				{
-					$users = $this->user_model->get_user_ids('id !=', uid());
+					//排除审核未通过代表下载
+					$excludes = array(0);
+					if(!option('document_enable_refused', false))
+					{
+						$this->load->model('delegate_model');
+					
+						$rids = $this->delegate_model->get_delegate_ids('status', 'review_refused');
+
+						if(!$rids)
+							$excludes = $rids;
+					}
+					$users = $this->user_model->get_user_ids('id !=', uid(), 'id NOT', $excludes);
 				}
 				else
 				{
@@ -765,6 +776,10 @@ class Document extends CI_Controller
 	{
 		if(empty($user))
 			$user = uid();
+		
+		//审核未通过代表无权访问
+		if($this->delegate_model->get_delegate($user, 'status') == 'review_refused' && !option('document_enable_refused', false))
+			return false;
 		
 		//所有管理员有权访问
 		if($this->user_model->is_admin($user))

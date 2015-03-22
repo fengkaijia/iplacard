@@ -1000,6 +1000,14 @@ class Apply extends CI_Controller
 		$this->load->helper('file');
 		$this->load->helper('number');
 		
+		//禁止审核未通过代表访问文件
+		if($this->delegate['status'] == 'review_refused' && !option('document_enable_refused', false))
+		{
+			$this->ui->alert('您无法访问文件下载。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
 		//仅允许访问全局分发文件
 		$committee_id = 0;
 
