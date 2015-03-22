@@ -43,12 +43,14 @@ $this->load->view('header');?>
 </table>
 
 <?php
+$hide_column = $interview_mode ? '' : '4, 9';
 $ajax_url = base_url('user/ajax/list');
 $ajax_js = <<<EOT
 $(document).ready(function() {
 	$('#user_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bSortable": false, "aTargets": [ 0, 6, 7, 8, 9, 10, 11, 13 ] }
+			{ "bSortable": false, "aTargets": [ 0, 6, 7, 8, 9, 10, 11, 13 ] },
+			{ "bVisible": false, "aTargets": [ {$hide_column} ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,

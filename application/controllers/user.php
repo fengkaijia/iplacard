@@ -55,6 +55,8 @@ class User extends CI_Controller
 		$vars['role_order'] = array('bureaucrat', 'administrator', 'dais', 'interviewer', 'reviewer', 'cashier');
 		$vars['roles'] = $this->roles;
 		
+		$vars['interview_mode'] = option('interview_enabled', true);
+		
 		$this->ui->title('管理用户列表');
 		$this->load->view('admin/user_manage', $vars);
 	}
@@ -382,10 +384,13 @@ class User extends CI_Controller
 				}
 				
 				//面试队列统计
-				$interview_queue_count = $this->interview_model->get_interview_ids('interviewer', $id, 'status', array('assigned', 'arranged'));
-				$interview_done_count = $this->interview_model->get_interview_ids('interviewer', $id, 'status', array('completed', 'failed'));
-				$interview_line = $interview_queue_count ? anchor("interview/manage?status=assigned,arranged&interviewer={$id}", '<span class="label label-primary">队列</span>').' '.count($interview_queue_count).' ' : '';
-				$interview_line .= $interview_done_count ? anchor("interview/manage?status=completed,failed,exempted&interviewer={$id}", '<span class="label label-success">结束</span>').' '.count($interview_done_count).' ' : '';
+				if($interview_enabled)
+				{
+					$interview_queue_count = $this->interview_model->get_interview_ids('interviewer', $id, 'status', array('assigned', 'arranged'));
+					$interview_done_count = $this->interview_model->get_interview_ids('interviewer', $id, 'status', array('completed', 'failed'));
+					$interview_line = $interview_queue_count ? anchor("interview/manage?status=assigned,arranged&interviewer={$id}", '<span class="label label-primary">队列</span>').' '.count($interview_queue_count).' ' : '';
+					$interview_line .= $interview_done_count ? anchor("interview/manage?status=completed,failed,exempted&interviewer={$id}", '<span class="label label-success">结束</span>').' '.count($interview_done_count).' ' : '';
+				}
 				
 				//权限统计
 				$role_count = 0;
@@ -401,7 +406,7 @@ class User extends CI_Controller
 					$name_line, //姓名
 					$user['title'], //职位
 					$user['committee'] ? $committee_line : '', //委员会
-					$interview_line, //面试队列
+					$interview_enabled ? $interview_line : '', //面试队列
 					$role_count ? "{$role_count} 项权限" : "无权限", //权限统计
 					$user['role_bureaucrat'] ? $role_line : '', //行政员
 					$user['role_administrator'] ? $role_line : '', //会务管理

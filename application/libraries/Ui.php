@@ -435,7 +435,7 @@ class UI
 				$this->add_sub_menu('dais_delegate', 'delegate', '委员会代表', 'delegate/manage?committee='.$committee, true);
 		}
 		
-		if($this->CI->admin_model->capable('interviewer'))
+		if(option('interview_enabled', true) && $this->CI->admin_model->capable('interviewer'))
 		{
 			$this->add_menu('delegate', '代表');
 			$this->add_sub_menu('interviewer_delegate', 'delegate', '面试代表', 'delegate/manage?interviewer='.uid(), true);
@@ -447,14 +447,14 @@ class UI
 		}
 		
 		//面试
-		if($this->CI->admin_model->capable('administrator'))
+		if(option('interview_enabled', true) && $this->CI->admin_model->capable('administrator'))
 		{
 			$this->add_menu('interview', '面试');
 			$this->add_sub_menu('all', 'interview', '全部面试', 'interview/manage?display_interviewer=1');
 			$this->add_sub_menu('pending', 'interview', '全部未完成面试', 'interview/manage?status=assigned,arranged?display_interviewer=1', true);
 		}
 		
-		if($this->CI->admin_model->capable('interviewer'))
+		if(option('interview_enabled', true) && $this->CI->admin_model->capable('interviewer'))
 		{
 			$this->add_menu('interview', '面试');
 			$this->add_sub_menu('my_all', 'interview', '面试队列', 'interview/manage?interviewer='.uid());

@@ -268,6 +268,12 @@ class Admin extends CI_Controller
 		
 		$vars['feed_enable'] = $feed_enable;
 		
+		//面试模式
+		if(!option('interview_enabled', true))
+		{
+			unset($sidebar['interview']);
+		}
+		
 		//统计
 		$stat_enable = false;
 		
