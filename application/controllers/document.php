@@ -777,13 +777,15 @@ class Document extends CI_Controller
 		if(empty($user))
 			$user = uid();
 		
-		//审核未通过代表无权访问
-		if($this->delegate_model->get_delegate($user, 'status') == 'review_refused' && !option('document_enable_refused', false))
-			return false;
-		
 		//所有管理员有权访问
 		if($this->user_model->is_admin($user))
 			return true;
+		
+		//审核未通过代表无权访问
+		$this->load->model('delegate_model');
+		
+		if($this->delegate_model->get_delegate($user, 'status') == 'review_refused' && !option('document_enable_refused', false))
+			return false;
 		
 		$access = $this->document_model->get_documents_accessibility($document);
 		
