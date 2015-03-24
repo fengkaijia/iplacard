@@ -294,7 +294,7 @@ class Api extends CI_Controller
 			}
 			
 			//获取代表信息
-			$delegate = $this->delegate_model->get_delegate($this->data['key']);
+			$delegate = $this->delegate_model->get_delegate($id[0]);
 			if(!$delegate)
 			{
 				$this->_error(31, 'Delegate does not exists.');
