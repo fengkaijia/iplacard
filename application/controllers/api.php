@@ -183,9 +183,20 @@ class Api extends CI_Controller
 			//增加管理员数据
 			$this->admin_model->add_profile($uid);
 			
+			//转换委员会信息
+			$committee = NULL;
+			if(!empty($this->data['committee']))
+			{
+				$this->load->model('committee_model');
+				
+				$committee = $this->committee_model->get_committee_id('abbr', $this->data['committee']);
+				if(!$committee)
+					$committee = NULL;
+			}
+			
 			$admin_data = array(
 				'title' => !empty($this->data['title']) ? $this->data['title'] : NULL,
-				'committee' => !empty($this->data['committee']) ? $this->data['committee'] : NULL
+				'committee' => $committee
 			);
 			
 			//权限信息
