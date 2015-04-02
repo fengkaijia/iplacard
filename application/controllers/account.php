@@ -1012,7 +1012,7 @@ class Account extends CI_Controller
 					//操作上传图像
 					$random = random_string('alnum', 32);
 					$config['file_name'] = "{$uid}_{$random}";
-					$config['allowed_types'] = 'gif|jpg|png|bmp';
+					$config['allowed_types'] = 'gif|jpg|jpeg|png|bmp';
 					$config['max_size'] = ini_max_upload_size(option('avatar_max_size', option('file_max_size', 10 * 1024 * 1024))) / 1024;
 					$config['upload_path'] = './temp/'.IP_INSTANCE_ID.'/upload/avatar/';
 
