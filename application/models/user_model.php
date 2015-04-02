@@ -107,11 +107,14 @@ class User_model extends CI_Model
 	 * 用户登录记录
 	 * @return int|false 用户ID，登录错误返回FALSE
 	 */
-	function login($email, $password)
+	function login($email, $password, $check = true)
 	{
-		//登录密码验证
-		if(!$this->check_password($email, $password))
-			return false;
+		if($check)
+		{
+			//登录密码验证
+			if(!$this->check_password($email, $password))
+				return false;
+		}
 		
 		//获取用户ID
 		$id = $this->get_user_id('email', $email);

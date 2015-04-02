@@ -101,7 +101,7 @@ class Account extends CI_Controller
 			}
 			
 			//获取用户ID
-			$id = $this->user_model->login($email, $this->input->post('password'));
+			$id = $this->user_model->login($email, $this->input->post('password'), $auth == 'internal');
 			if($id != false)
 			{
 				//帐户可用性检查
