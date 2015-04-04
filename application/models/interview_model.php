@@ -66,7 +66,7 @@ class Interview_model extends CI_Model
 	 */
 	function get_current_interview_id($delegate)
 	{
-		$id = $this->get_interview_ids('delegate', $delegate, 'status', array('assigned', 'arranged'));
+		$id = $this->get_interview_id('delegate', $delegate, 'status', array('assigned', 'arranged'));
 		
 		if(!$id)
 		{
