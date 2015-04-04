@@ -34,7 +34,7 @@
 							echo icon('user');
 							echo $data['type'] == 'admin' ? '管理用户' : '代表';
 						?></strong></span>
-						<div class="help-block"><?php echo $data['type'] == 'admin' ? '拥有管理权限的组委会成员帐户。' : '参会代表、观察员、志愿者帐户。';?></div>
+						<div class="help-block"><?php echo $data['type'] == 'admin' ? '拥有管理权限的组委会成员帐户。' : '参会代表、观察员、志愿者、指导老师帐户。';?></div>
 					</div>
 				</div>
 		
