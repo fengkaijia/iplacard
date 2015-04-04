@@ -42,7 +42,12 @@ if($is_retest_requested)
 			$user_text = empty($one['title']) ? '' : "（{$one['title']}）";
 
 		$link = $this->admin_model->capable('administrator') ? anchor("/user/edit/{$one['id']}", $one['name']) : $one['name'];
-		$retest_data[$one['id']] = icon('user', false).$link.$user_text;
+		
+		$link_text = icon('user', false).$link.$user_text;
+		$retest_data[] = $link_text;
+		
+		if($one['id'] == $current_interviewer)
+			$retest_current = $link_text;
 	}
 }
 ?><link href="<?php echo static_url(is_dev() ? 'static/css/bootstrap.select.css' : 'static/css/bootstrap.select.min.css');?>" rel="stylesheet">
@@ -93,7 +98,7 @@ if($is_retest_requested)
 						<h4 class="modal-title" id="fail_label">关闭复试请求</h4>
 					</div>
 					<div class="modal-body">
-						<p>您将关闭由<?php echo $retest_data[$current_interviewer]; ?>发起的复试请求。复试请求关闭后，他将需要为此代表分配席位。</p>
+						<p>您将关闭由<?php echo $retest_current; ?>发起的复试请求。复试请求关闭后，他将需要为此代表分配席位。</p>
 					</div>
 					<div class="modal-footer">
 						<?php echo form_button(array(
