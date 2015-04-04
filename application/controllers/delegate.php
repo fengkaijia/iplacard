@@ -819,16 +819,11 @@ class Delegate extends CI_Controller
 				}
 				$queue = $this->interview_model->get_interviewer_interviews($interviewer['id'], array('assigned', 'arranged'));
 				
-				//是否为二次面试
-				$old_id = $this->interview_model->get_interview_id('status', 'failed', 'delegate', $uid);
-				if($old_id)
+				//面试官是否已经面试过此代表
+				if($this->interview_model->get_interview_id('status', array('completed', 'failed'), 'delegate', $uid, 'interviewer', $interviewer['id']))
 				{
-					$old_interviewer = $this->interview_model->get_interview($old_id, 'interviewer');
-					if($old_interviewer == $interviewer['id'])
-					{
-						$this->ui->alert('指派的面试官是已经面试过此代表。', 'warning', true);
+					$this->ui->alert('指派的面试官是已经面试过此代表。', 'warning', true);
 						break;
-					}
 				}
 				
 				$this->interview_model->assign_interview($uid, $interviewer['id']);
@@ -2434,7 +2429,7 @@ class Delegate extends CI_Controller
 						$vars['is_rollbacked'] = false;
 
 					$vars['rollback'] = $rollback;
-
+					
 					return $this->load->view('admin/admission/assign_interview', $vars, true);
 				}
 				
