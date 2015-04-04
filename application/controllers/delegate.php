@@ -1179,6 +1179,9 @@ class Delegate extends CI_Controller
 					break;
 				}
 				
+				//代表面试阶段
+				$secondary = $this->interview_model->is_secondary($delegate['id'], 'delegate');
+				
 				//是否通过
 				if($this->input->post('pass'))
 					$pass = true;
@@ -1238,7 +1241,7 @@ class Delegate extends CI_Controller
 				{
 					$this->delegate_model->add_event($uid, 'interview_failed', array('interview' => $interview['id']));
 					
-					if(!$this->interview_model->is_secondary($delegate['id'], 'delegate'))
+					if(!$secondary)
 					{
 						$this->delegate_model->change_status($uid, 'review_passed');
 
