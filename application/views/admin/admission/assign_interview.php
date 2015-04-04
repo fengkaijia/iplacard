@@ -31,6 +31,20 @@ if($is_rollbacked)
 		$rollback_data[] = icon('user', false).$link.$user_text;
 	}
 }
+
+if($is_retest_requested)
+{
+	foreach($retest as $one)
+	{
+		if(!empty($one['committee']))
+			$user_text = "（{$committees[$one['committee']]['abbr']}）";
+		else
+			$user_text = empty($one['title']) ? '' : "（{$one['title']}）";
+
+		$link = $this->admin_model->capable('administrator') ? anchor("/user/edit/{$one['id']}", $one['name']) : $one['name'];
+		$retest_data[$one['id']] = icon('user', false).$link.$user_text;
+	}
+}
 ?><link href="<?php echo static_url(is_dev() ? 'static/css/bootstrap.select.css' : 'static/css/bootstrap.select.min.css');?>" rel="stylesheet">
 <script src="<?php echo static_url(is_dev() ? 'static/js/bootstrap.select.js' : 'static/js/bootstrap.select.min.js');?>"></script>
 <script src="<?php echo static_url(is_dev() ? 'static/js/locales/bootstrap.select.locale.js' : 'static/js/locales/bootstrap.select.locale.min.js');?>"></script>
@@ -44,6 +58,63 @@ if($is_rollbacked)
 </script>
 
 <div id="pre_select">
+	<?php if($is_retest_requested) { ?>
+		<h3 id="admission_operation">复试请求</h3>
+		
+		<p><?php echo join("、", $retest_data); ?>请求增加复试，请在笔记中了解请求复试原因。如果认为无需复试，您可以关闭复试请求。</p>
+		
+		<?php echo form_button(array(
+			'content' => '关闭复试请求',
+			'type' => 'button',
+			'class' => 'btn btn-warning',
+			'data-toggle' => 'modal',
+			'data-target' => '#deny_retest',
+		)); ?>
+		
+		<hr />
+		
+		<?php echo form_open("delegate/operation/deny_retest/{$delegate['id']}", array(
+			'class' => 'modal fade form-horizontal',
+			'id' => 'deny_retest',
+			'tabindex' => '-1',
+			'role' => 'dialog',
+			'aria-labelledby' => 'deny_label',
+			'aria-hidden' => 'true'
+		));?><div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<?php echo form_button(array(
+							'content' => '&times;',
+							'class' => 'close',
+							'type' => 'button',
+							'data-dismiss' => 'modal',
+							'aria-hidden' => 'true'
+						));?>
+						<h4 class="modal-title" id="fail_label">关闭复试请求</h4>
+					</div>
+					<div class="modal-body">
+						<p>您将关闭由<?php echo $retest_data[$current_interviewer]; ?>发起的复试请求。复试请求关闭后，他将需要为此代表分配席位。</p>
+					</div>
+					<div class="modal-footer">
+						<?php echo form_button(array(
+							'content' => '取消',
+							'type' => 'button',
+							'class' => 'btn btn-link',
+							'data-dismiss' => 'modal'
+						));
+						echo form_button(array(
+							'name' => 'submit',
+							'content' => '确认关闭',
+							'type' => 'submit',
+							'class' => 'btn btn-warning',
+							'onclick' => 'loader(this);'
+						)); ?>
+					</div>
+				</div>
+			</div>
+		<?php echo form_close();
+	} ?>
+	
 	<h3 id="admission_operation">安排面试</h3>
 	
 	<?php if($is_secondary) { ?><p><span class="label label-warning">注意</span> 这是二次面试分配。</p><?php } ?>
@@ -51,7 +122,7 @@ if($is_rollbacked)
 	<p>点击<strong>分配面试</strong>按钮后，将会出现可选择的面试官列表，您可以分配一位面试官面试此代表。</p>
 	<p>如果此代表具有规定的免试资格，可以以免试通过方式完成此代表的面试流程。点击<strong>免试通过</strong>按钮后，将会出现可选择的面试官列表，您需要分配一位面试官为此代表分配席位。</p>
 	
-	<?php if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php echo join("、", $rollback_data); ?>回退，请在记事中了解回退原因。</p><?php } ?>
+	<?php if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php echo join("、", $rollback_data); ?>回退，请在笔记中了解回退原因。</p><?php } ?>
 	
 	<?php echo form_button(array(
 		'content' => '分配面试',
@@ -79,7 +150,7 @@ if($is_rollbacked)
 	echo form_open("delegate/operation/assign_interview/{$delegate['id']}");
 		echo form_dropdown_select('interviewer', $option, array(), $interviewer_count > 10 ? true : false, isset($primary['interviewer']) ? $primary['interviewer'] : array(), $subtext_queue);
 
-		if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php echo join("、", $rollback_data); ?>回退，请在记事中了解回退原因。</p><?php } ?>
+		if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php echo join("、", $rollback_data); ?>回退，请在笔记中了解回退原因。</p><?php } ?>
 
 		<p>分配完成之后，分配信息将会以邮件形式自动通知代表和面试官。</p>
 
@@ -110,7 +181,7 @@ if($is_rollbacked)
 	echo form_open("delegate/operation/exempt_interview/{$delegate['id']}");
 		echo form_dropdown_select('interviewer', $option, array(uid()), $interviewer_count > 10 ? true : false, isset($primary['interviewer']) ? $primary['interviewer'] : array(), $subtext_title);
 
-		if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php echo join("、", $rollback_data); ?>回退，请在记事中了解回退原因。</p><?php } ?>
+		if($is_rollbacked) { ?><p><span class="label label-warning">注意</span> 这位代表的面试安排曾被<?php echo join("、", $rollback_data); ?>回退，请在笔记中了解回退原因。</p><?php } ?>
 
 		<p>指派之后，iPlacard 将会以邮件形式自动通知代表和面试官。</p>
 
