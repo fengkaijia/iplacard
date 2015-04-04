@@ -1185,6 +1185,12 @@ class Delegate extends CI_Controller
 				else
 					$pass = false;
 				
+				//是否需要复试
+				if($this->input->post('retest'))
+					$retest = true;
+				else
+					$retest = false;
+				
 				//计算总分
 				$score = (float) 0;
 				$score_all = array();
@@ -1291,30 +1297,58 @@ class Delegate extends CI_Controller
 				}
 				else
 				{
-					$this->delegate_model->change_status($uid, 'interview_completed');
-					
 					$this->delegate_model->add_event($uid, 'interview_passed', array('interview' => $interview['id']));
 					
-					$this->user_model->add_message($uid, "您已通过面试，我们将在近期内为您分配席位选择。");
-					
-					//邮件通知
-					$this->email->to($delegate['email']);
-					$this->email->subject('面试通过');
-					$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed', "您的面试官已经于 {time} 认定您成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。"), $data, true));
-					$this->email->send();
-
-					//短信通知代表
-					if(option('sms_enabled', false))
+					if(!$retest)
 					{
-						$this->load->model('sms_model');
-						$this->load->library('sms');
+						$this->delegate_model->change_status($uid, 'interview_completed');
+					
+						$this->user_model->add_message($uid, "您已通过面试，我们将在近期内为您分配席位选择。");
+						
+						//邮件通知
+						$this->email->to($delegate['email']);
+						$this->email->subject('面试通过');
+						$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed', "您的面试官已经于 {time} 认定您成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						$this->email->send();
 
-						$this->sms->to($uid);
-						$this->sms->message('您已成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。');
-						$this->sms->queue();
+						//短信通知代表
+						if(option('sms_enabled', false))
+						{
+							$this->load->model('sms_model');
+							$this->load->library('sms');
+
+							$this->sms->to($uid);
+							$this->sms->message('您已成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。');
+							$this->sms->queue();
+						}
+
+						$this->ui->alert("已经通过{$delegate['name']}代表的面试。", 'success', true);
 					}
+					else
+					{
+						$this->delegate_model->change_status($uid, 'review_passed');
+						
+						$this->user_model->add_message($uid, "您已通过面试，我们将在近期内为您分配复试面试官。");
+						
+						//邮件通知
+						$this->email->to($delegate['email']);
+						$this->email->subject('面试通过等待复试分配');
+						$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed', "您的面试官已经于 {time} 认定您成功通过面试，我们将在近期内为您分配复试面试官，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						$this->email->send();
 
-					$this->ui->alert("已经通过{$delegate['name']}代表的面试。", 'success', true);
+						//短信通知代表
+						if(option('sms_enabled', false))
+						{
+							$this->load->model('sms_model');
+							$this->load->library('sms');
+
+							$this->sms->to($uid);
+							$this->sms->message('您已成功通过面试，我们将在近期内为您分配复试面试官，请登录 iPlacard 系统查看申请状态。');
+							$this->sms->queue();
+						}
+
+						$this->ui->alert("已经通过{$delegate['name']}代表的面试并要求增加复试。", 'success', true);
+					}
 				}
 				
 				$this->ui->alert("已经录入面试成绩。", 'success', true);
