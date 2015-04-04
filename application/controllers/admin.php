@@ -1060,6 +1060,8 @@ class Admin extends CI_Controller
 						$imported_ids = $this->delegate_model->get_event_ids('event', 'application_imported');
 						if($imported_ids)
 						{
+							$increment_source = option('chart_application_increment_source', 'event');
+							
 							$stat = array();
 							$first_week = strtotime('Monday this week');
 
@@ -1067,19 +1069,19 @@ class Admin extends CI_Controller
 							foreach($imported_ids as $imported_id)
 							{
 								$event = $this->delegate_model->get_event($imported_id);
-
-								$week = strtotime('Monday this week', $event['time']);
+								$delegate = $this->delegate_model->get_delegate($event['delegate']);
+								
+								$week = strtotime('Monday this week', ($increment_source == 'reg') ? $delegate['reg_time'] : $event['time']);
 								if(!$week)
 									continue;
 
 								if($week < $first_week)
 									$first_week = $week;
-
-								$application_type = $this->delegate_model->get_delegate($event['delegate'], 'application_type');
-								if(isset($stat[$week][$application_type]))
-									$stat[$week][$application_type]++;
+								
+								if(isset($stat[$week][$delegate['application_type']]))
+									$stat[$week][$delegate['application_type']]++;
 								else
-									$stat[$week][$application_type] = 1;
+									$stat[$week][$delegate['application_type']] = 1;
 							}
 
 							//退会记录
