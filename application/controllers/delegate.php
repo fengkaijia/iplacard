@@ -2348,6 +2348,31 @@ class Delegate extends CI_Controller
 				else
 					$vars['is_secondary'] = false;
 				
+				//是否有复试请求
+				$retesters = array();
+				$retest = array();
+
+				$retest_ids = $this->interview_model->get_interview_ids('delegate', $delegate['id'], 'status', 'completed');
+				if($retest_ids)
+				{
+					foreach($retest_ids as $id)
+					{
+						$interviewer = $this->interview_model->get_interview($id, 'interviewer');
+
+						if(!in_array($interviewer, $retesters))
+						{
+							$retest[] = $this->admin_model->get_admin($interviewer);
+							$retesters[] = $interviewer;
+						}
+					}
+					$vars['is_retest_requested'] = true;
+					$vars['last_interviewer'] = $interviewer;
+				}
+				else
+					$vars['is_retest_requested'] = false;
+
+				$vars['retest'] = $retest;
+				
 				return $this->load->view('admin/admission/arrange_interview', $vars, true);
 				
 			//面试界面
