@@ -1,4 +1,23 @@
-<link href="<?php echo static_url(is_dev() ? 'static/css/bootstrap.datetimepicker.css' : 'static/css/bootstrap.datetimepicker.min.css');?>" rel="stylesheet">
+<?php
+if($is_retest_requested)
+{
+	foreach($retest as $one)
+	{
+		if(!empty($one['committee']))
+			$user_text = "（{$committees[$one['committee']]['abbr']}）";
+		else
+			$user_text = empty($one['title']) ? '' : "（{$one['title']}）";
+
+		$link = $this->admin_model->capable('administrator') ? anchor("/user/edit/{$one['id']}", $one['name']) : $one['name'];
+		
+		$link_text = icon('user', false).$link.$user_text;
+		$retest_data[] = $link_text;
+		
+		if($one['id'] == $last_interviewer)
+			$retest_last = $link_text;
+	}
+}
+?><link href="<?php echo static_url(is_dev() ? 'static/css/bootstrap.datetimepicker.css' : 'static/css/bootstrap.datetimepicker.min.css');?>" rel="stylesheet">
 <script src="<?php echo static_url(is_dev() ? 'static/js/bootstrap.datetimepicker.js' : 'static/js/bootstrap.datetimepicker.min.js');?>"></script>
 <script src="<?php echo static_url(is_dev() ? 'static/js/locales/bootstrap.datetimepicker.locale.js' : 'static/js/locales/bootstrap.datetimepicker.locale.min.js');?>"></script>
 <script>
@@ -18,7 +37,17 @@
 
 <h3 id="admission_operation">安排面试</h3>
 
-<?php if($is_secondary) { ?><p><span class="label label-warning">注意</span> 这是二次面试。</p><?php } ?>
+<?php if($is_secondary) { ?><p><span class="label label-warning">注意</span> 这是二次面试。</p><?php }
+
+if($is_retest_requested) { ?><p><span class="label label-warning">注意</span> <?php if(count($retest_data) == 1)
+	{
+		printf('面试官%s曾经请求增加复试，请查看面试评价和笔记了解复试需求。', join("、", $retest_data));
+	}
+	else
+	{
+		printf('面试官%1$s曾经请求增加复试，最近一次复试由%2$s发起，请查看面试评价和笔记了解复试需求。', join("、", $retest_data), $retest_last);
+	} ?>
+</p><?php } ?>
 <p>请联系代表并安排面试时间，安排确定后将可以执行面试操作，在预定的面试时间前将有邮件和短信通知。</p>
 
 <?php echo form_open("delegate/operation/arrange_interview/{$delegate['id']}"); ?>

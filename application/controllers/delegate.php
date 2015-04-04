@@ -819,16 +819,11 @@ class Delegate extends CI_Controller
 				}
 				$queue = $this->interview_model->get_interviewer_interviews($interviewer['id'], array('assigned', 'arranged'));
 				
-				//是否为二次面试
-				$old_id = $this->interview_model->get_interview_id('status', 'failed', 'delegate', $uid);
-				if($old_id)
+				//面试官是否已经面试过此代表
+				if($this->interview_model->get_interview_id('status', array('completed', 'failed'), 'delegate', $uid, 'interviewer', $interviewer['id']))
 				{
-					$old_interviewer = $this->interview_model->get_interview($old_id, 'interviewer');
-					if($old_interviewer == $interviewer['id'])
-					{
-						$this->ui->alert('指派的面试官是已经面试过此代表。', 'warning', true);
+					$this->ui->alert('指派的面试官是已经面试过此代表。', 'warning', true);
 						break;
-					}
 				}
 				
 				$this->interview_model->assign_interview($uid, $interviewer['id']);
@@ -1188,6 +1183,12 @@ class Delegate extends CI_Controller
 				else
 					$pass = false;
 				
+				//是否需要复试
+				if($this->input->post('retest'))
+					$retest = true;
+				else
+					$retest = false;
+				
 				//计算总分
 				$score = (float) 0;
 				$score_all = array();
@@ -1294,30 +1295,58 @@ class Delegate extends CI_Controller
 				}
 				else
 				{
-					$this->delegate_model->change_status($uid, 'interview_completed');
-					
 					$this->delegate_model->add_event($uid, 'interview_passed', array('interview' => $interview['id']));
 					
-					$this->user_model->add_message($uid, "您已通过面试，我们将在近期内为您分配席位选择。");
-					
-					//邮件通知
-					$this->email->to($delegate['email']);
-					$this->email->subject('面试通过');
-					$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed', "您的面试官已经于 {time} 认定您成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。"), $data, true));
-					$this->email->send();
-
-					//短信通知代表
-					if(option('sms_enabled', false))
+					if(!$retest)
 					{
-						$this->load->model('sms_model');
-						$this->load->library('sms');
+						$this->delegate_model->change_status($uid, 'interview_completed');
+					
+						$this->user_model->add_message($uid, "您已通过面试，我们将在近期内为您分配席位选择。");
+						
+						//邮件通知
+						$this->email->to($delegate['email']);
+						$this->email->subject('面试通过');
+						$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed', "您的面试官已经于 {time} 认定您成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						$this->email->send();
 
-						$this->sms->to($uid);
-						$this->sms->message('您已成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。');
-						$this->sms->queue();
+						//短信通知代表
+						if(option('sms_enabled', false))
+						{
+							$this->load->model('sms_model');
+							$this->load->library('sms');
+
+							$this->sms->to($uid);
+							$this->sms->message('您已成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。');
+							$this->sms->queue();
+						}
+
+						$this->ui->alert("已经通过{$delegate['name']}代表的面试。", 'success', true);
 					}
+					else
+					{
+						$this->delegate_model->change_status($uid, 'review_passed');
+						
+						$this->user_model->add_message($uid, "您已通过面试，我们将在近期内为您分配复试面试官。");
+						
+						//邮件通知
+						$this->email->to($delegate['email']);
+						$this->email->subject('面试通过等待复试分配');
+						$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed', "您的面试官已经于 {time} 认定您成功通过面试，我们将在近期内为您分配复试面试官，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						$this->email->send();
 
-					$this->ui->alert("已经通过{$delegate['name']}代表的面试。", 'success', true);
+						//短信通知代表
+						if(option('sms_enabled', false))
+						{
+							$this->load->model('sms_model');
+							$this->load->library('sms');
+
+							$this->sms->to($uid);
+							$this->sms->message('您已成功通过面试，我们将在近期内为您分配复试面试官，请登录 iPlacard 系统查看申请状态。');
+							$this->sms->queue();
+						}
+
+						$this->ui->alert("已经通过{$delegate['name']}代表的面试并要求增加复试。", 'success', true);
+					}
 				}
 				
 				$this->ui->alert("已经录入面试成绩。", 'success', true);
@@ -1325,6 +1354,72 @@ class Delegate extends CI_Controller
 				$this->system_model->log('interview_completed', array('interview' => $interview['id'], 'pass' => $pass));
 				break;
 			
+			//关闭复试请求
+			case 'deny_retest':
+				if($delegate['status'] != 'review_passed')
+					break;
+				
+				$this->load->model('interview_model');
+				
+				//是否可关闭
+				$current_id = $this->interview_model->get_current_interview_id($uid);
+				if(!$current_id)
+					break;
+				
+				$interview = $this->interview_model->get_interview($current_id);
+				if($interview['status'] != 'completed' && $interview['status'] != 'exempted')
+				{
+					$this->ui->alert('当前情况下无法变更面试状态。', 'danger', true);
+					break;
+				}
+				
+				$interviewer = $this->user_model->get_user($interview['interviewer']);
+				
+				$this->delegate_model->change_status($uid, 'interview_completed');
+				
+				$this->user_model->add_message($uid, "您将无需复试，面试官将会直接为您分配席位。");
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'interviewer' => $interviewer['name'],
+					'time' => unix_to_human(time())
+				);
+				
+				//邮件通知代表
+				$this->email->to($delegate['email']);
+				$this->email->subject('您将被直接分配席位');
+				$this->email->html($this->parser->parse_string(option('email_delegate_retest_denied', "我们已经于 {time} 确定您将无需复试，面试官将会直接为您分配席位，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				$this->email->clear();
+				
+				//邮件通知面试官
+				$this->email->to($interviewer['email']);
+				$this->email->subject('复试请求被拒绝');
+				$this->email->html($this->parser->parse_string(option('email_interviewer_retest_denied', "管理员已经于 {time} 拒绝了您对{delegate}代表的复试请求，请登录 iPlacard 系统直接为{delegate}代表分配席位。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message('我们已经确定您将无需复试，面试官将会直接为您分配席位，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->queue();
+				}
+				
+				$this->ui->alert("已经拒绝了{$interviewer['name']}面试官的复试请求。", 'success', true);
+				
+				$this->system_model->log('interview_retest_denied', array('delegate' => $uid, 'interviewer' => $interviewer['id']));				
+				break;
+				
 			//分配席位
 			case 'assign_seat':
 				$this->load->model('seat_model');
@@ -2256,6 +2351,31 @@ class Delegate extends CI_Controller
 				else
 					$vars['is_secondary'] = false;
 				
+				//是否有复试请求
+				$retesters = array();
+				$retest = array();
+
+				$retest_ids = $this->interview_model->get_interview_ids('delegate', $delegate['id'], 'status', 'completed');
+				if($retest_ids)
+				{
+					foreach($retest_ids as $id)
+					{
+						$interviewer = $this->interview_model->get_interview($id, 'interviewer');
+
+						if(!in_array($interviewer, $retesters))
+						{
+							$retest[] = $this->admin_model->get_admin($interviewer);
+							$retesters[] = $interviewer;
+						}
+					}
+					$vars['is_retest_requested'] = true;
+					$vars['last_interviewer'] = $interviewer;
+				}
+				else
+					$vars['is_retest_requested'] = false;
+
+				$vars['retest'] = $retest;
+				
 				return $this->load->view('admin/admission/arrange_interview', $vars, true);
 				
 			//面试界面
@@ -2403,6 +2523,33 @@ class Delegate extends CI_Controller
 						$vars['is_rollbacked'] = false;
 
 					$vars['rollback'] = $rollback;
+					
+					//是否有复试请求
+					$retesters = array();
+					$retest = array();
+
+					$retest_ids = $this->interview_model->get_interview_ids('delegate', $delegate['id'], 'status', 'completed');
+					if($retest_ids)
+					{
+						foreach($retest_ids as $id)
+						{
+							$interviewer = $this->interview_model->get_interview($id, 'interviewer');
+
+							if(!in_array($interviewer, $retesters))
+							{
+								$retest[] = $this->admin_model->get_admin($interviewer);
+								$retesters[] = $interviewer;
+							}
+						}
+						$vars['is_retest_requested'] = true;
+						
+						$current_id = $this->interview_model->get_current_interview_id($delegate['id']);
+						$vars['current_interviewer'] = $this->interview_model->get_interview($current_id, 'interviewer');
+					}
+					else
+						$vars['is_retest_requested'] = false;
+
+					$vars['retest'] = $retest;
 
 					return $this->load->view('admin/admission/assign_interview', $vars, true);
 				}

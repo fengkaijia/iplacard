@@ -17,6 +17,14 @@ foreach($score_standard as $sid => $one)
 			} ?>
 			$('#fail_interview input[name="feedback"]').val($('#feedback').val());
 		});
+		
+		$('#retest').click(function(){
+			<?php foreach($score_standard as $sid => $one)
+			{
+				echo "$('#retest_interview input[name=\"score_$sid\"]').val($('#pass_interview input[name=\"score_$sid\"]').val());";
+			} ?>
+			$('#retest_interview input[name="feedback"]').val($('#feedback').val());
+		});
 	});
 	
 	function click_score(part, score)
@@ -84,11 +92,11 @@ foreach($score_standard as $sid => $one)
 	<h3 id="admission_operation">面试</h3>
 	
 	<?php if($is_secondary) { ?><p><span class="label label-warning">注意</span> 这是二次面试。</p><?php } ?>
-	<p>在面试时，建议您保持此页面打开并可随时填写面试反馈。面试完成后，您需要为代表的表现评分。</p>
+	<p>在面试时，建议您保持此页面打开并可随时填写面试反馈。面试完成后，您需要为代表的表现评分。完成评价后，您可以认定面试是否通过。如果认为面试通过但需要更换面试官继续面试，您可以选择增加复试。</p>
 
 	<?php echo form_open("delegate/operation/interview/{$delegate['id']}", array(
 		'id' => 'pass_interview'
-	), array('pass' => true) + $hiddens); ?>
+	), array('pass' => true, 'retest' => false) + $hiddens); ?>
 		
 		<div class="form-group <?php if(form_has_error('feedback')) echo 'has-error';?>">
 			<?php echo form_label('面试反馈', 'feedback', array('class' => 'control-label'));
@@ -132,15 +140,24 @@ foreach($score_standard as $sid => $one)
 			<div>
 				<?php echo form_button(array(
 					'name' => 'submit',
-					'content' => icon('check').'面试通过',
+					'content' => '面试通过',
 					'type' => 'submit',
 					'class' => 'btn btn-primary',
 					'onclick' => 'loader(this);'
 				));
 				echo ' ';
 				echo form_button(array(
+					'id' => 'retest',
+					'content' => '增加复试',
+					'type' => 'button',
+					'class' => 'btn btn-warning',
+					'data-toggle' => 'modal',
+					'data-target' => '#retest_interview',
+				));
+				echo ' ';
+				echo form_button(array(
 					'id' => 'fail',
-					'content' => icon('times').'面试未过',
+					'content' => '面试未过',
 					'type' => 'button',
 					'class' => 'btn btn-danger',
 					'data-toggle' => 'modal',
@@ -159,7 +176,7 @@ foreach($score_standard as $sid => $one)
 		'role' => 'dialog',
 		'aria-labelledby' => 'fail_label',
 		'aria-hidden' => 'true'
-	), array('pass' => false, 'feedback' => '') + $hiddens);?><div class="modal-dialog">
+	), array('pass' => false, 'retest' => false, 'feedback' => '') + $hiddens);?><div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
 					<?php echo form_button(array(
@@ -190,6 +207,48 @@ foreach($score_standard as $sid => $one)
 						'content' => '确定提交',
 						'type' => 'submit',
 						'class' => 'btn btn-danger',
+						'onclick' => 'loader(this);'
+					)); ?>
+				</div>
+			</div>
+		</div>
+	<?php echo form_close();
+	
+	echo form_open("delegate/operation/interview/$uid", array(
+		'class' => 'modal fade form-horizontal',
+		'id' => 'retest_interview',
+		'tabindex' => '-1',
+		'role' => 'dialog',
+		'aria-labelledby' => 'retest_label',
+		'aria-hidden' => 'true'
+	), array('pass' => true, 'retest' => true, 'feedback' => '') + $hiddens);?><div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<?php echo form_button(array(
+						'content' => '&times;',
+						'class' => 'close',
+						'type' => 'button',
+						'data-dismiss' => 'modal',
+						'aria-hidden' => 'true'
+					));?>
+					<h4 class="modal-title" id="retest_label">认定面试通过并增加复试</h4>
+				</div>
+				<div class="modal-body">
+					<p>将会认定<?php echo icon('user', false).$delegate['name'];?>的面试通过但需要复试。您可以在笔记中注明推荐的复试面试官人选方便审核人员安排下一轮面试。</p>
+					<p><span class="label label-warning">注意</span> 选择提交后本次面试将被标记为通过，但直到代表的终试面试官认定面试通过并不需要复试后，您才可以向代表分配席位。</p>
+				</div>
+				<div class="modal-footer">
+					<?php echo form_button(array(
+						'content' => '取消',
+						'type' => 'button',
+						'class' => 'btn btn-link',
+						'data-dismiss' => 'modal'
+					));
+					echo form_button(array(
+						'name' => 'submit',
+						'content' => '确定提交',
+						'type' => 'submit',
+						'class' => 'btn btn-warning',
 						'onclick' => 'loader(this);'
 					)); ?>
 				</div>
