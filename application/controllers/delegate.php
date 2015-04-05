@@ -850,7 +850,7 @@ class Delegate extends CI_Controller
 				//邮件通知代表
 				$this->email->to($delegate['email']);
 				$this->email->subject('已经为您分配面试官');
-				$this->email->html($this->parser->parse_string(option('email_delegate_interview_assigned', "我们已经于 {time} 为您分配了面试官，面试官{interviewer}将会在近期内与您取得联系，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->html($this->parser->parse_string(option('email_delegate_interview_assigned', "我们已经于 {time} 为您分配了面试官，面试官{interviewer}将会在近期内与您取得联系，您可登录 iPlacard 系统查看面试官联系方式及申请状态。"), $data, true));
 				$this->email->send();
 				$this->email->clear();
 				
@@ -867,7 +867,7 @@ class Delegate extends CI_Controller
 					$this->load->library('sms');
 
 					$this->sms->to($uid);
-					$this->sms->message('我们已经为您分配了面试官，他将会在近期内与您取得联系，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->message('我们已经为您分配了面试官，他将会在近期内与您取得联系，您可登录 iPlacard 系统查看面试官联系方式。');
 					$this->sms->queue();
 				}
 				
