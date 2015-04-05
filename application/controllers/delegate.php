@@ -2042,7 +2042,7 @@ class Delegate extends CI_Controller
 			$next = $this->delegate_model->get_delegate_id('status', array('application_imported', 'review_passed'));
 			if($next)
 			{
-				$this->ui->alert("批量审核模式已经开始，自动跳转到下一位代表。", 'info', true);
+				$this->ui->alert("批量审核模式已经启用，自动跳转到下一位代表。", 'info', true);
 				
 				redirect("delegate/profile/{$next}");
 			}
