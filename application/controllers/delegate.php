@@ -2037,7 +2037,7 @@ class Delegate extends CI_Controller
 		}
 		
 		//批量审核模式
-		if(in_array($action, array('pass_application', 'refuse_application', 'assign_interview', 'exempt_interview', 'deny_retest')) && user_option('account_admin_batch_admission_enabled', false))
+		if((in_array($action, array('refuse_application', 'assign_interview', 'exempt_interview', 'deny_retest')) || ($action == 'pass_application' && !$this->_check_interview_enabled($delegate['application_type']))) && user_option('account_admin_batch_admission_enabled', false))
 		{
 			$next = $this->delegate_model->get_delegate_id('status', array('application_imported', 'review_passed'));
 			if($next)
