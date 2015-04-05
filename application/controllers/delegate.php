@@ -2036,6 +2036,18 @@ class Delegate extends CI_Controller
 				break;
 		}
 		
+		//批量审核模式
+		if(in_array($action, array('pass_application', 'refuse_application', 'assign_interview', 'exempt_interview', 'deny_retest')) && user_option('account_admin_batch_admission_enabled', false))
+		{
+			$next = $this->delegate_model->get_delegate_id('status', array('application_imported', 'review_passed'));
+			if($next)
+			{
+				$this->ui->alert("批量审核模式已经开始，自动跳转到下一位代表。", 'info', true);
+				
+				redirect("delegate/profile/{$next}");
+			}
+		}
+		
 		back_redirect();
 	}
 	
