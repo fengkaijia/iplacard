@@ -960,6 +960,8 @@ class Account extends CI_Controller
 			}
 		}
 		
+		$vars['is_admin'] = $this->user_model->is_admin(uid());
+		
 		$this->ui->title('当前会话活动');
 		$this->load->view('account/manage/activity', $vars);
 	}
@@ -979,12 +981,17 @@ class Account extends CI_Controller
 		$this->load->library('parser');
 		$this->load->helper('date');
 		
-		if(!in_array($setting, array('home', 'security', 'password', 'pin', 'twostep', 'avatar')))
+		if(!in_array($setting, array('home', 'security', 'admin', 'password', 'pin', 'twostep', 'avatar')))
+			$setting = 'home';
+		
+		if($setting == 'admin' && !$this->user_model->is_admin(uid()))
 			$setting = 'home';
 		
 		//当前用户信息
 		$uid = uid();
 		$user = $this->user_model->get_user($uid);
+		
+		$vars = array('is_admin' => $this->user_model->is_admin($uid));
 		
 		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 		
@@ -1000,9 +1007,8 @@ class Account extends CI_Controller
 				
 				//曾经上传的图像
 				$former_uploaded = user_option('account_avatar_uploaded', false);
-				$vars = array(
-					'path' => 'temp/'.IP_INSTANCE_ID.'/upload/avatar/'
-				);
+				
+				$vars['path'] = 'temp/'.IP_INSTANCE_ID.'/upload/avatar/';
 				
 				if($this->input->post('change_avatar'))
 				{
@@ -1119,8 +1125,6 @@ class Account extends CI_Controller
 					$crop_config['width'] = $this->input->post('w');
 					$crop_config['height'] = $this->input->post('h');
 					$crop_config['maintain_ratio'] = false;
-					
-					print_r($crop_config);
 					
 					$this->image_lib->initialize($crop_config);
 					
@@ -1264,16 +1268,97 @@ class Account extends CI_Controller
 				}
 			}
 			
+			$vars['notice_options'] = $notice_options;
 			
 			//显示信息部分
-			$info = array(
+			$vars['info'] = array(
 				'password' => user_option('account_change_password_time', false),
 				'pin' => user_option('account_change_pin_time', false),
 				'twostep' => user_option('twostep_enabled', false)
 			);
 			
 			$this->ui->title('帐户安全设置');
-			$this->load->view('account/manage/security', array('notice_options' => $notice_options, 'info' => $info));
+			$this->load->view('account/manage/security', $vars);
+			return;
+		}
+		
+		//管理设置
+		if($setting == 'admin')
+		{
+			//邮件通知数据
+			$admin_options = array(
+				'batch_admission' => '批量审核',
+			);
+			
+			//数据值
+			foreach($admin_options as $name => $text)
+			{
+				$admin_options[$name] = array(
+					'name' => $text,
+					'value' => user_option("account_admin_{$name}_enabled", false)
+				);
+			}
+			
+			//密码验证
+			$this->form_validation->set_rules('password', '密码', 'trim|required|callback__check_password[密码验证错误导致安全设置更改未完成，请重新尝试。]');
+			$this->form_validation->set_message('_check_password', '密码有误，请重新输入。');
+			
+			if($this->form_validation->run() == true)
+			{
+				$new_enabled = array();
+				$new_disabled = array();
+				
+				foreach($admin_options as $name => $option)
+				{
+					$set_option = $this->input->post("admin_$name");
+					
+					//执行修改
+					if($set_option != $option['value'])
+					{
+						if($set_option)
+						{
+							//启用设置
+							$this->user_model->edit_user_option("account_admin_{$name}_enabled", true);
+							$admin_options[$name]['value'] = true;
+							$new_enabled[] = $name;
+							
+							$this->ui->alert("{$option['name']}已经启用。", 'success');
+						}
+						else
+						{
+							//停用设置
+							$this->user_model->edit_user_option("account_admin_{$name}_enabled", false);
+							$admin_options[$name]['value'] = false;
+							$new_disabled[] = $name;
+							
+							$this->ui->alert("{$option['name']}已经停用。", 'success');
+						}
+					}
+				}
+				
+				//检查是否存在更改
+				if(!empty($new_enabled) || !empty($new_disabled))
+				{
+					if(!empty($new_enabled))
+					{
+						$this->system_model->log('admin_option_enabled', array('ip' => $this->input->ip_address(), 'enabled' => $new_enabled), $uid);
+					}
+					
+					if(!empty($new_disabled))
+					{
+						$this->system_model->log('admin_option_disabled', array('ip' => $this->input->ip_address(), 'disabled' => $new_disabled), $uid);
+					}
+				}
+				else
+				{
+					$this->ui->alert('没有设置变更。', 'info');
+				}
+			}
+			
+			$vars['admin_options'] = $admin_options;
+			
+			$this->ui->title('管理设置');
+			$this->load->view('account/manage/admin', $vars);
 			return;
 		}
 		
@@ -1319,7 +1404,7 @@ class Account extends CI_Controller
 			}
 
 			$this->ui->title('修改密码');
-			$this->load->view('account/manage/password');
+			$this->load->view('account/manage/password', $vars);
 			return;
 		}
 		
@@ -1370,7 +1455,7 @@ class Account extends CI_Controller
 			}
 
 			$this->ui->title('设置安全码');
-			$this->load->view('account/manage/pin_password');
+			$this->load->view('account/manage/pin_password', $vars);
 			return;
 		}
 		
@@ -1428,7 +1513,7 @@ class Account extends CI_Controller
 					return;
 				}
 				
-				$this->load->view('account/manage/twostep_disable');
+				$this->load->view('account/manage/twostep_disable', $vars);
 				return;
 			}
 			
@@ -1481,17 +1566,15 @@ class Account extends CI_Controller
 					return;
 				}
 				
-				$vars = array(
-					'secret' => $secret,
-					'qr' => $this->twostep->get_qr_url(option('site_name', 'iPlacard'), $secret)
-				);
+				$vars['secret'] = $secret;
+				$vars['qr'] = $this->twostep->get_qr_url(option('site_name', 'iPlacard'), $secret);
 				
 				$this->load->view('account/manage/twostep_enable', $vars);
 				return;
 			}
 			
 			//显示两步验证功能介绍
-			$this->load->view('account/manage/twostep_intro');
+			$this->load->view('account/manage/twostep_intro', $vars);
 			return;
 		}
 		
@@ -1643,6 +1726,8 @@ class Account extends CI_Controller
 				if($this->input->post('change_phone'))
 					$this->ui->js('footer', "edit_item('phone');");
 			}
+			
+			$vars['email_changed'] = $email_changed;
 		}
 		
 		//头像功能
@@ -1650,12 +1735,10 @@ class Account extends CI_Controller
 		$this->load->helper('number');
 		$this->load->helper('file');
 		
-		$vars = array(
-			'data' => $user,
-			'email_changed' => $email_changed,
-			'avatar' => user_option('account_avatar_enabled', false),
-			'avatar_max_size' => byte_format(ini_max_upload_size(option('avatar_max_size', option('file_max_size', 10 * 1024 * 1024))), 0)
-		);
+		$vars['data'] = $user;
+		
+		$vars['avatar'] = user_option('account_avatar_enabled', false);
+		$vars['avatar_max_size'] = byte_format(ini_max_upload_size(option('avatar_max_size', option('file_max_size', 10 * 1024 * 1024))), 0);
 		
 		$this->ui->title('个人信息');
 		$this->load->view('account/manage/detail', $vars);
