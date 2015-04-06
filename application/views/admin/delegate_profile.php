@@ -313,7 +313,8 @@ $this->load->view('header');?>
 							<td>详细评分</td>
 							<td><?php foreach(option('interview_score_standard', array('score' => array('name' => '总分'))) as $sid => $one)
 							{
-								echo "<span class=\"label label-primary\">{$one['name']}</span> {$interview['feedback']['score'][$sid]} ";
+								$score = isset($interview['feedback']['score'][$sid]) && !is_null($interview['feedback']['score'][$sid]) ? $interview['feedback']['score'][$sid] : 'N/A';
+								echo "<span class=\"label label-primary\">{$one['name']}</span> {$score} ";
 							} ?></td>
 						</tr><?php }
 						if(!empty($interview['feedback'])) { ?><tr>
