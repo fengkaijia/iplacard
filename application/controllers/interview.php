@@ -246,6 +246,9 @@ class Interview extends CI_Controller
 						{
 							foreach(option('interview_score_standard', array('score' => array('name' => '总分'))) as $sid => $one)
 							{
+								if(!isset($interview['feedback']['score'][$sid]) || is_null($interview['feedback']['score'][$sid]))
+									continue;
+								
 								$score_line .= " <span class='label label-default'>{$one['name']}</span> {$interview['feedback']['score'][$sid]}";
 							}
 						}
