@@ -2370,18 +2370,28 @@ class Delegate extends CI_Controller
 				$retest_ids = $this->interview_model->get_interview_ids('delegate', $delegate['id'], 'status', 'completed');
 				if($retest_ids)
 				{
+					$this->load->model('committee_model');
+					
+					$committees = array();
+					
 					foreach($retest_ids as $id)
 					{
-						$interviewer = $this->interview_model->get_interview($id, 'interviewer');
+						$interviewer_id = $this->interview_model->get_interview($id, 'interviewer');
 
-						if(!in_array($interviewer, $retesters))
+						if(!in_array($interviewer_id, $retesters))
 						{
-							$retest[] = $this->admin_model->get_admin($interviewer);
-							$retesters[] = $interviewer;
+							$interviewer = $this->admin_model->get_admin($interviewer_id);
+							$retest[] = $interviewer;
+							$retesters[] = $interviewer_id;
+							
+							if(!empty($interviewer['committee']) && !isset($committees[$interviewer['committee']]))
+								$committees[$interviewer['committee']] = $this->committee_model->get_committee($interviewer['committee']);
 						}
 					}
 					$vars['is_retest_requested'] = true;
-					$vars['last_interviewer'] = $interviewer;
+					$vars['last_interviewer'] = $interviewer_id;
+					
+					$vars['committees'] = $committees;
 				}
 				else
 					$vars['is_retest_requested'] = false;
