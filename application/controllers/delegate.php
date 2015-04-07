@@ -2039,7 +2039,10 @@ class Delegate extends CI_Controller
 		//批量审核申请模式
 		if(in_array($action, array('pass_application', 'refuse_application')) && user_option('account_admin_batch_approve_application_enabled', false))
 		{
-			$next = $this->delegate_model->get_delegate_id('status', 'application_imported', 'application_type', option('batch_application_type', array('delegate')));
+			$next = $this->delegate_model->get_delegate_id('user.id >', $uid, 'status', 'application_imported', 'application_type', option('batch_application_type', array('delegate')));
+			if(!$next)
+				$next = $this->delegate_model->get_delegate_id('status', 'application_imported', 'application_type', option('batch_application_type', array('delegate')));
+			
 			if($next)
 			{
 				$this->ui->alert("批量审核申请模式已经启用，自动跳转到下一位代表。", 'info', true);
@@ -2052,7 +2055,10 @@ class Delegate extends CI_Controller
 		//批量分配面试模式
 		if((in_array($action, array('refuse_application', 'assign_interview', 'exempt_interview', 'deny_retest')) || ($action == 'pass_application' && !$this->_check_interview_enabled($delegate['application_type']))) && user_option('account_admin_batch_assign_interview_enabled', false))
 		{
-			$next = $this->delegate_model->get_delegate_id('status', array('application_imported', 'review_passed'), 'application_type', option('batch_application_type', array('delegate')));
+			$next = $this->delegate_model->get_delegate_id('user.id >', $uid, 'status', array('application_imported', 'review_passed'), 'application_type', option('batch_application_type', array('delegate')));
+			if(!$next)
+				$next = $this->delegate_model->get_delegate_id('status', array('application_imported', 'review_passed'), 'application_type', option('batch_application_type', array('delegate')));
+			
 			if($next)
 			{
 				$this->ui->alert("批量分配面试模式已经启用，自动跳转到下一位代表。", 'info', true);
