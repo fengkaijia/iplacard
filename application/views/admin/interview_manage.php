@@ -53,7 +53,7 @@ $ajax_js = <<<EOT
 $(document).ready(function() {
 	$('#interview_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bSortable": false, "aTargets": [ 0, 7 ] },
+			{ "bSortable": false, "aTargets": [ 0, 8 ] },
 			{ "bVisible": false, "aTargets": [ {$interviewer_list} ] },
 			{ "bVisible": false, "aTargets": [ 9, 10, 11 ] },
 			{ "iDataSort": 9, "aTargets": [ 4 ] },
