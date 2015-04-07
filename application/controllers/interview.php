@@ -282,7 +282,7 @@ class Interview extends CI_Controller
 						$status_line, //面试状态
 						!empty($interview['assign_time']) ? sprintf('%1$s（%2$s）', date('n月j日', $interview['assign_time']), nicetime($interview['assign_time'])) : 'N/A', //分配时间
 						!empty($interview['schedule_time']) ? sprintf('%1$s（%2$s）', date('n月j日 H:i', $interview['schedule_time']), nicetime($interview['schedule_time'])) : 'N/A', //安排时间
-						!empty($interview['finish_time']) ? $special_line.sprintf('%1$s（%2$s）', date('n月j日', $interview['finish_time']), nicetime($interview['finish_time'])) : $special_line.'N/A', //安排时间
+						!empty($interview['finish_time']) ? $special_line.sprintf('%1$s（%2$s）', date('n月j日', $interview['finish_time']), nicetime($interview['finish_time'])) : $special_line.'N/A', //完成时间
 						$score_line, //面试评分
 						$operation, //操作
 					);
