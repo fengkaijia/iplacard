@@ -320,6 +320,8 @@ class Billing extends CI_Controller
 						!empty($invoice['transaction']) ? $invoice['transaction']['transaction'] : '', //流水号
 						!empty($invoice['transaction']) ? $this->currency_sign.number_format((double) $invoice['transaction']['amount'], 2).' '.$this->currency_text : '', //交易金额
 						$operation, //操作
+						$invoice['generate_time'], //生成时间（排序数据）
+						$invoice['due_time'] //到期时间（排序数据）
 					);
 					
 					$datum[] = $data;

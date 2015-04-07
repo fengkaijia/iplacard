@@ -50,7 +50,9 @@ $(document).ready(function() {
 	$('#user_list').dataTable( {
 		"aoColumnDefs": [
 			{ "bSortable": false, "aTargets": [ 0, 6, 7, 8, 9, 10, 11, 13 ] },
-			{ "bVisible": false, "aTargets": [ {$hide_column} ] }
+			{ "bVisible": false, "aTargets": [ {$hide_column} ] },
+			{ "bVisible": false, "aTargets": [ 14 ] },
+			{ "iDataSort": 14, "aTargets": [ 12 ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,

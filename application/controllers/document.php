@@ -719,6 +719,7 @@ class Document extends CI_Controller
 						$document['drm'] ? '<span class="text-success">'.icon('check-circle', false).'</span>' : '', //版权标识
 						$download_count, //下载量
 						$operation, //操作
+						$document['create_time'] //上传时间（排序数据）
 					);
 					
 					$datum[] = $data;

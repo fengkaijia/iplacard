@@ -6,7 +6,7 @@ if(!empty($profile_option))
 	for($i = 0; $i < count($profile_option); $i++)
 	{
 		$table_array[] = "<th>profile_{$profile_option[$i]}</th>";
-		$hidden_array[] = $i + 8;
+		$hidden_array[] = $i + 9;
 	}
 }
 
@@ -51,7 +51,9 @@ $(document).ready(function() {
 	$('#user_list').dataTable( {
 		"aoColumnDefs": [
 			{ "bSortable": false, "aTargets": [ 0, 7 ] },
-			{ "bVisible": false, "aTargets": [ {$hidden_list} ] }
+			{ "bVisible": false, "aTargets": [ {$hidden_list} ] },
+			{ "bVisible": false, "aTargets": [ 8 ] },
+			{ "iDataSort": 8, "aTargets": [ 5 ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,

@@ -285,6 +285,9 @@ class Interview extends CI_Controller
 						!empty($interview['finish_time']) ? $special_line.sprintf('%1$s（%2$s）', date('n月j日', $interview['finish_time']), nicetime($interview['finish_time'])) : $special_line.'N/A', //完成时间
 						$score_line, //面试评分
 						$operation, //操作
+						$interview['assign_time'], //分配时间（排序数据）
+						$interview['schedule_time'], //安排时间（排序数据）
+						$interview['finish_time'] //完成时间（排序数据）
 					);
 					
 					$datum[] = $data;

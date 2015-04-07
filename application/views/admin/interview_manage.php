@@ -54,7 +54,11 @@ $(document).ready(function() {
 	$('#interview_list').dataTable( {
 		"aoColumnDefs": [
 			{ "bSortable": false, "aTargets": [ 0, 7 ] },
-			{ "bVisible": false, "aTargets": [ {$interviewer_list} ] }
+			{ "bVisible": false, "aTargets": [ {$interviewer_list} ] },
+			{ "bVisible": false, "aTargets": [ 9, 10, 11 ] },
+			{ "iDataSort": 9, "aTargets": [ 4 ] },
+			{ "iDataSort": 10, "aTargets": [ 5 ] },
+			{ "iDataSort": 11, "aTargets": [ 6 ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,

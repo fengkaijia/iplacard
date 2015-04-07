@@ -36,7 +36,9 @@ $ajax_js = <<<EOT
 $(document).ready(function() {
 	$('#knowledge_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bSortable": false, "aTargets": [ 0, 6 ] }
+			{ "bSortable": false, "aTargets": [ 0, 6 ] },
+			{ "bVisible": false, "aTargets": [ 7 ] },
+			{ "iDataSort": 7, "aTargets": [ 3 ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,

@@ -317,6 +317,7 @@ class Knowledgebase extends CI_Controller
 						$article['order'], //排序
 						$article['count'] == 0 ? '<span class="text-danger">N/A</span>' : $article['count'], //阅读量
 						$operation, //操作
+						empty($article['update_time']) ? $article['create_time'] : $article['update_time'] //最后更新时间（排序数据）
 					);
 
 					$datum[] = $data;

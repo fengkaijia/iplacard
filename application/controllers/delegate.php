@@ -2186,6 +2186,7 @@ class Delegate extends CI_Controller
 						sprintf('%1$s（%2$s）', date('n月j日', $delegate['reg_time']), nicetime($delegate['reg_time'])), //申请提交时间
 						$committee_line, //委员会
 						$operation, //操作
+						$delegate['reg_time'] //申请提交时间（排序数据）
 					);
 					
 					//附加属性

@@ -57,7 +57,10 @@ $(document).ready(function() {
 	$('#invoice_list').dataTable( {
 		"aoColumnDefs": [
 			{ "bSortable": false, "aTargets": [ 0, 12 ] },
-			{ "bVisible": false, "aTargets": [ 7, 8, 9, 10, 11 ] }
+			{ "bVisible": false, "aTargets": [ 7, 8, 9, 10, 11 ] },
+			{ "bVisible": false, "aTargets": [ 13, 14 ] },
+			{ "iDataSort": 13, "aTargets": [ 4 ] },
+			{ "iDataSort": 14, "aTargets": [ 5 ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,

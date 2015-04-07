@@ -416,6 +416,7 @@ class User extends CI_Controller
 					$user['role_cashier'] ? $role_line : '', //财务管理
 					$user['last_login'] ? sprintf('%1$s（%2$s）', date('n月j日', $user['last_login']), nicetime($user['last_login'])) : '', //最后登录
 					$operation, //操作
+					$user['last_login'] ? $user['last_login'] : '' //最后登录（排序数据）
 				);
 				
 				$datum[] = $data;

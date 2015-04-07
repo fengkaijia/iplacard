@@ -37,7 +37,9 @@ $(document).ready(function() {
 	$('#document_list').dataTable( {
 		"aoColumnDefs": [
 			{ "bSortable": false, "aTargets": [ 0, 7 ] },
-			{ "bVisible": false, "aTargets": [ {$hide_column} ] }
+			{ "bVisible": false, "aTargets": [ {$hide_column} ] },
+			{ "bVisible": false, "aTargets": [ 8 ] },
+			{ "iDataSort": 8, "aTargets": [ 2 ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,
