@@ -34,7 +34,7 @@ $ajax_js = <<<EOT
 $(document).ready(function() {
 	$('#user_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bSortable": false, "aTargets": [ 0 ] },
+			{ "bSortable": false, "aTargets": [ 0, 6 ] },
 			{ "bVisible": false, "aTargets": [ {$admin_list} ] }
 		],
 		"bProcessing": true,
