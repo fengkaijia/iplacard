@@ -56,7 +56,7 @@ $ajax_js = <<<EOT
 $(document).ready(function() {
 	$('#invoice_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bSortable": false, "aTargets": [ 0, 11 ] },
+			{ "bSortable": false, "aTargets": [ 0, 12 ] },
 			{ "bVisible": false, "aTargets": [ 7, 8, 9, 10, 11 ] }
 		],
 		"bProcessing": true,
