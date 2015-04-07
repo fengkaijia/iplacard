@@ -12,24 +12,43 @@
 	<div class="col-md-9">
 		<?php echo form_open('account/settings/admin', array('class' => 'well form-horizontal'));?>
 			<?php echo form_fieldset('批处理'); ?>
-				<p>当有大量相同任务需要处理时，批处理工具将有效提高生产力。修改这些设置将不会影响其他管理员。</p>
+				<p>当有大量相同任务需要处理时，批处理工具将有效提高生产力。修改这些设置将不会影响其他管理员。多个批处理模式同时启用可能会造成冲突。</p>
 		
-				<div class="form-group <?php if(form_has_error('admin_batch_admission')) echo 'has-error';?>">
-					<?php echo form_label('批量审核', 'admin_batch_admission', array('class' => 'col-lg-2 control-label'));?>
+				<div class="form-group <?php if(form_has_error('admin_batch_approve_application')) echo 'has-error';?>">
+					<?php echo form_label('批量审核申请', 'admin_batch_approve_application', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-10">
 						<div class="checkbox">
 							<label>
 								<?php echo form_checkbox(array(
-									'name' => 'admin_batch_admission',
-									'id' => 'admin_batch_admission',
+									'name' => 'admin_batch_approve_application',
+									'id' => 'admin_batch_approve_application',
 									'value' => true,
-									'checked' => $admin_options['batch_admission']['value'],
-								)); ?> 开启批量审核模式
+									'checked' => $admin_options['batch_approve_application']['value'],
+								)); ?> 开启批量审核申请模式
 							</label>
 						</div>
-						<?php if(form_has_error('admin_batch_admission'))
-							echo form_error('admin_batch_admission');
-						else { ?><div class="help-block">在批量审核模式下，每当审核通过一位代表（或完成一项面试官分配，如果有必要）后，系统将会自动跳转到下一位需要审核（或分配面试官，如果有必要）的代表。</div><?php } ?>
+						<?php if(form_has_error('admin_batch_approve_application'))
+							echo form_error('admin_batch_approve_application');
+						else { ?><div class="help-block">在批量审核申请模式下，每当审核通过一位代表后，系统将会自动跳转到下一位需要审核的代表。</div><?php } ?>
+					</div>
+				</div>
+				
+				<div class="form-group <?php if(form_has_error('admin_batch_assign_interview')) echo 'has-error';?>">
+					<?php echo form_label('批量分配面试', 'admin_batch_assign_interview', array('class' => 'col-lg-2 control-label'));?>
+					<div class="col-lg-10">
+						<div class="checkbox">
+							<label>
+								<?php echo form_checkbox(array(
+									'name' => 'admin_batch_assign_interview',
+									'id' => 'admin_batch_assign_interview',
+									'value' => true,
+									'checked' => $admin_options['batch_assign_interview']['value'],
+								)); ?> 开启批量分配面试模式
+							</label>
+						</div>
+						<?php if(form_has_error('admin_batch_assign_interview'))
+							echo form_error('admin_batch_assign_interview');
+						else { ?><div class="help-block">在批量分配面试模式下，每当向代表分配一位面试官（并审核通过申请，如果需要）后，系统将会自动跳转到下一位等待分配面试官（或等待审核，如果需要）的代表。</div><?php } ?>
 					</div>
 				</div>
 			<?php echo form_fieldset_close();?>
