@@ -1287,7 +1287,8 @@ class Account extends CI_Controller
 		{
 			//邮件通知数据
 			$admin_options = array(
-				'batch_admission' => '批量审核',
+				'batch_approve_application' => '批量审核申请',
+				'batch_assign_interview' => '批量分配面试',
 			);
 			
 			//数据值
