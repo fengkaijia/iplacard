@@ -29,6 +29,9 @@ foreach($score_standard as $sid => $one)
 	
 	function click_score(part, score)
 	{
+		$('#submit').removeClass('disabled');
+		$('#retest').removeClass('disabled');
+		$('#fail').removeClass('disabled');
 		$('#score-'+part+' button').removeClass('btn-primary');
 		$('#score-'+part+' button').addClass('btn-default');
 		$('#score-'+part+' button:nth-child('+(score+2)+')').removeClass('btn-default');
@@ -139,10 +142,11 @@ foreach($score_standard as $sid => $one)
 			<?php echo form_label('面试结果', 'result', array('class' => 'control-label'));?>
 			<div>
 				<?php echo form_button(array(
+					'id' => 'submit',
 					'name' => 'submit',
 					'content' => '面试通过',
 					'type' => 'submit',
-					'class' => 'btn btn-primary',
+					'class' => 'btn btn-primary disabled',
 					'onclick' => 'loader(this);'
 				));
 				echo ' ';
@@ -150,7 +154,7 @@ foreach($score_standard as $sid => $one)
 					'id' => 'retest',
 					'content' => '增加复试',
 					'type' => 'button',
-					'class' => 'btn btn-warning',
+					'class' => 'btn btn-warning disabled',
 					'data-toggle' => 'modal',
 					'data-target' => '#retest_interview',
 				));
@@ -159,7 +163,7 @@ foreach($score_standard as $sid => $one)
 					'id' => 'fail',
 					'content' => '面试未过',
 					'type' => 'button',
-					'class' => 'btn btn-danger',
+					'class' => 'btn btn-danger disabled',
 					'data-toggle' => 'modal',
 					'data-target' => '#fail_interview',
 				)); ?>
