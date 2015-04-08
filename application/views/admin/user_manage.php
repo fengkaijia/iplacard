@@ -9,6 +9,7 @@ $this->ui->html('header', '<style>
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.datatables.js' : 'static/js/jquery.datatables.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/jquery.datatables.locale.js' : 'static/js/locales/jquery.datatables.locale.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.datatables.js' : 'static/js/bootstrap.datatables.min.js').'"></script>');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.shorten.js' : 'static/js/jquery.shorten.min.js').'"></script>');
 $this->load->view('header');?>
 
 <div class="page-header">
@@ -43,6 +44,8 @@ $this->load->view('header');?>
 </table>
 
 <?php
+$read_more = icon('caret-right', false);
+$read_less = icon('caret-left', false);
 $hide_column = $interview_mode ? '' : '4, 9';
 $ajax_url = base_url('user/ajax/list');
 $ajax_js = <<<EOT
@@ -59,6 +62,12 @@ $(document).ready(function() {
 		"sAjaxSource": '{$ajax_url}',
 		"fnDrawCallback": function() {
 			$('.contact_list').popover();
+			
+			$('.shorten').shorten({
+				showChars: '10',
+				moreText: '{$read_more}',
+				lessText: '{$read_less}'
+			});
 		}
 	} );
 } );

@@ -404,7 +404,7 @@ class User extends CI_Controller
 				$data = array(
 					$user['id'], //ID
 					$name_line, //姓名
-					$user['title'], //职位
+					'<span class="shorten">'.$user['title'].'</span>', //职位
 					$user['committee'] ? $committee_line : '', //委员会
 					$interview_enabled ? $interview_line : '', //面试队列
 					$role_count ? "{$role_count} 项权限" : "无权限", //权限统计
