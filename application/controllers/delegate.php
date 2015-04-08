@@ -1216,7 +1216,15 @@ class Delegate extends CI_Controller
 				//反馈
 				$feedback = $this->input->post('feedback');
 				if(empty($feedback))
+				{
+					if(option('interview_feedback_required', true))
+					{
+						$this->ui->alert('面试反馈为空，无法提交。', 'danger', true);
+						break;
+					}
+						
 					$feedback = NULL;
+				}
 				
 				$feedback_data = array(
 					'score' => $score_all,
@@ -2460,6 +2468,8 @@ class Delegate extends CI_Controller
 				)));
 				$vars['score_total'] = option('interview_score_total', 5);
 				$vars['score_level'] = $this->interview_model->get_score_levels(20);
+				
+				$vars['feedback_required'] = option('interview_feedback_required', true);
 				
 				return $this->load->view('admin/admission/do_interview', $vars, true);
 			

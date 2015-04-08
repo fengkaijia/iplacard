@@ -5,6 +5,8 @@ foreach($score_standard as $sid => $one)
 	$hiddens["score_$sid"] = 0;
 }
 ?><script>
+	var scored = false;
+	
 	jQuery(function($){
 		$('#total_score').hide();
 		
@@ -29,9 +31,9 @@ foreach($score_standard as $sid => $one)
 	
 	function click_score(part, score)
 	{
-		$('#submit').removeClass('disabled');
-		$('#retest').removeClass('disabled');
-		$('#fail').removeClass('disabled');
+		$scored = true;
+		open_submit();
+		
 		$('#score-'+part+' button').removeClass('btn-primary');
 		$('#score-'+part+' button').addClass('btn-default');
 		$('#score-'+part+' button:nth-child('+(score+2)+')').removeClass('btn-default');
@@ -65,6 +67,17 @@ foreach($score_standard as $sid => $one)
 			}
 		});
 		$('#tlevel').html(level);<?php } ?>
+	}
+	
+	function open_submit()
+	{
+		if($scored<?php if($feedback_required) { ?> && $('#feedback').val().length !== 0<?php } ?>)
+		{
+			$('#submit').removeClass('disabled');
+			$('#retest').removeClass('disabled');
+			$('#fail').removeClass('disabled');
+			$('#submit_note').hide();
+		}
 	}
 </script>
 
@@ -107,9 +120,12 @@ foreach($score_standard as $sid => $one)
 				'name' => 'feedback',
 				'id' => 'feedback',
 				'class' => 'form-control',
+				$feedback_required ? 'required' : 'enabled' => NULL,
 				'rows' => 3,
 				'value' => set_value('feedback'),
-				'placeholder' => '面试情况反馈'
+				'placeholder' => '面试情况反馈',
+				'onkeyup' => 'open_submit();',
+				'onblur' => 'open_submit();'
 			));
 			if(form_has_error('feedback'))
 				echo form_error('feedback');
@@ -167,6 +183,7 @@ foreach($score_standard as $sid => $one)
 					'data-toggle' => 'modal',
 					'data-target' => '#fail_interview',
 				)); ?>
+				<div id="submit_note" class="help-block"><?php echo $feedback_required ? "需要撰写面试反馈并评分后才可提交面试结果。" : "需要评分后才可提交面试结果。";?></div>
 			</div>
 		</div>
 		
