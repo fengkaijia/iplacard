@@ -319,7 +319,7 @@ $this->load->view('header');?>
 						</tr><?php }
 						if(!empty($interview['feedback'])) { ?><tr>
 							<td style="min-width: 100px;">面试反馈</td>
-							<td><?php echo $interview['feedback']['feedback'];?></td>
+							<td><?php echo nl2br($interview['feedback']['feedback']);?></td>
 						</tr><?php } ?>
 					</tbody>
 				</table>
