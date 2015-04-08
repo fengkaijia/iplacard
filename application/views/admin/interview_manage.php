@@ -37,7 +37,7 @@ $this->load->view('header');?>
 			<th>分配时间</th>
 			<th>安排时间</th>
 			<th>完成时间</th>
-			<th>面试结果</th>
+			<th>面试评分</th>
 			<th>操作</th>
 		</tr>
 	</thead>
