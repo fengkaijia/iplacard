@@ -56,7 +56,7 @@ foreach($score_standard as $sid => $one)
 		$('#total_score').show();
 		$('#tscore').html(total.toFixed(2));
 		<?php if($score_level) { ?>$.each(rank, function(clevel, score) {
-			if(mean >= score) {
+			if(total >= score) {
 				level = clevel;
 				return false;
 			}
