@@ -31,8 +31,8 @@ foreach($score_standard as $sid => $one)
 	{
 		$('#score-'+part+' button').removeClass('btn-primary');
 		$('#score-'+part+' button').addClass('btn-default');
-		$('#score-'+part+' button:nth-child('+(score+1)+')').removeClass('btn-default');
-		$('#score-'+part+' button:nth-child('+(score+1)+')').addClass('btn-primary');
+		$('#score-'+part+' button:nth-child('+(score+2)+')').removeClass('btn-default');
+		$('#score-'+part+' button:nth-child('+(score+2)+')').addClass('btn-primary');
 		$('#pass_interview input[name=score_'+part+']').val(score);
 		update_score();
 	}
@@ -119,7 +119,7 @@ foreach($score_standard as $sid => $one)
 			{ ?><div class="btn-toolbar">
 				<div id="score-<?php echo $sid;?>" class="btn-group">
 					<a class="btn btn-primary"><?php echo $one['name'];?></a>
-					<?php for($i = 1; $i <= $score_total; $i++)
+					<?php for($i = 0; $i <= $score_total; $i++)
 					{ 
 						echo form_button(array(
 							'content' => $i,
