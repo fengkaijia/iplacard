@@ -660,7 +660,7 @@ class Document extends CI_Controller
 							$access_list = '';
 							foreach($access as $one)
 							{
-								$access_list .= '<p>'.icon('archive').$this->committee_model->get_committee($one, 'name').'</p>';
+								$access_list .= '<p>'.icon('university').$this->committee_model->get_committee($one, 'name').'</p>';
 							}
 							
 							$access_line .= '<a style="cursor: pointer;" class="committee_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'可访问委员会\' data-toggle="popover" data-content=\''.$access_list.'\'>'.icon('info-circle', false).'</a>';

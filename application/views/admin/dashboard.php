@@ -50,7 +50,7 @@ $this->load->view('header');?>
 					</div>
 					<div class="col-md-6">
 						<p><?php echo anchor_capable('group/manage', icon('users')."<strong>{$count['group']}</strong> 代表团", 'administrator');?></p>
-						<p><?php echo anchor_capable('committee/manage', icon('archive')."<strong>{$count['committee']}</strong> 委员会", 'administrator');?></p>
+						<p><?php echo anchor_capable('committee/manage', icon('university')."<strong>{$count['committee']}</strong> 委员会", 'administrator');?></p>
 						<p><?php echo anchor('seat/manage', icon('th-list')."<strong>{$count['seat']}</strong> 席位");?></p>
 						<p><?php echo anchor_capable('user/manage', icon('user')."<strong>{$count['admin']}</strong> 管理员", array('bureaucrat', 'administrator'));?></p>
 					</div>
