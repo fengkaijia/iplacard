@@ -244,13 +244,21 @@ class Interview extends CI_Controller
 						$score_line = "<span class='label label-primary'>总分</span> <strong>{$score_round}</strong>";
 						if(!empty($interview['feedback']['score']))
 						{
-							foreach(option('interview_score_standard', array('score' => array('name' => '总分'))) as $sid => $one)
+							$score_standard = option('interview_score_standard', array('score' => array('name' => '总分')));
+							
+							if(count($score_standard) > 2)
+								$score_line .= ' <span class="shorten">';
+							
+							foreach($score_standard as $sid => $one)
 							{
 								if(!isset($interview['feedback']['score'][$sid]) || is_null($interview['feedback']['score'][$sid]))
 									continue;
 								
 								$score_line .= " <span class='label label-default'>{$one['name']}</span> {$interview['feedback']['score'][$sid]}";
 							}
+							
+							if(count($score_standard) > 2)
+								$score_line .= '</span>';
 						}
 					}
 					elseif($interview['status'] == 'exempted')
