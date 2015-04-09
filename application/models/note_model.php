@@ -29,6 +29,8 @@ class Note_model extends CI_Model
 		
 		$data = $query->row_array();
 		
+		$data['mention'] = $this->get_note_mentions($id);
+		
 		//返回结果
 		if(empty($part))
 			return $data;
