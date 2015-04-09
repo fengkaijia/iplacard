@@ -460,6 +460,7 @@ class Cron extends CI_Controller
 					foreach($item_ids as $item_id)
 					{
 						$data['note'][$item_id] = $this->note_model->get_note($item_id);
+						$this->note_model->delete_mention($item_id);
 					}
 					
 					$delete_schema['delegate'][] = 'note';
