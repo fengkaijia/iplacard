@@ -8,7 +8,7 @@ if($is_retest_requested)
 		else
 			$user_text = empty($one['title']) ? '' : "（{$one['title']}）";
 
-		$link = $this->admin_model->capable('administrator') ? anchor("/user/edit/{$one['id']}", $one['name']) : $one['name'];
+		$link = $this->admin_model->capable('bureaucrat') ? anchor("/user/edit/{$one['id']}", $one['name']) : $one['name'];
 		
 		$link_text = icon('user', false).$link.$user_text;
 		$retest_data[] = $link_text;
