@@ -1,3 +1,21 @@
+<link href="<?php echo static_url(is_dev() ? 'static/css/jquery.atwho.css' : 'static/css/jquery.atwho.min.css');?>" rel="stylesheet">
+<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.caret.js' : 'static/js/jquery.caret.min.js');?>"></script>
+<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.atwho.js' : 'static/js/jquery.atwho.min.js');?>"></script>
+<script>
+	$('#add_note #note').atwho({
+		at: "@",
+		data: "<?php echo base_url('user/ajax/mention');?>",
+		displayTpl: "<li>${name} <small>${title}</small></li>",
+		insertTpl: "@${name}(${id})",
+		callbacks: {
+			beforeInsert: function(value, $li) {
+				$('#add_note').append('<input type="hidden" name="mention[]" value="' + value + '" />');
+				return value;
+			}
+		}
+	});
+</script>
+
 <?php
 if(!empty($notes))
 {
@@ -30,7 +48,7 @@ echo form_button(array(
 	'data-target' => '#add_note'
 ));
 
-echo form_open("delegate/note/add/$uid", array(
+echo form_open_multipart("delegate/note/add/$uid", array(
 	'class' => 'modal fade form-horizontal',
 	'id' => 'add_note',
 	'tabindex' => '-1',
