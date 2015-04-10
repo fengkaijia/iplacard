@@ -376,6 +376,84 @@ class Delegate extends CI_Controller
 				
 				if($new_id)
 				{
+					//获取提及
+					$mentions = $this->input->post('mention');
+					if(empty($mentions))
+						$mention = array();
+					
+					$mentions = array_unique($mentions);
+					if(!empty($mentions))
+					{
+						$this->load->helper('string');
+						
+						$users = array();
+						
+						foreach($mentions as $mention)
+						{
+							//如果提及仍存在
+							if(strpos($note, $mention) !== false)
+							{
+								$user = extract_mention($mention);
+								if(!$user)
+									continue;
+								
+								if(!$this->user_model->user_exists($user))
+									continue;
+								
+								$users[] = $user;
+							}
+						}
+						
+						//处理提及
+						if(!empty($users))
+						{
+							$this->note_model->add_mention($new_id, $users);
+							
+							$admin = $this->admin_model->get_admin(uid());
+							
+							//邮件通知
+							$this->load->library('email');
+							$this->load->library('parser');
+							$this->load->helper('date');
+							
+							foreach($users as $user_id)
+							{
+								$user = $this->user_model->get_user($user_id);
+								$delegate = $this->delegate_model->get_delegate($uid);
+								
+								$this->user_model->add_message($user_id, "{$admin['name']}在{$delegate['name']}的笔记中提及了你。");
+
+								$data = array(
+									'id' => $new_id,
+									'note' => $note,
+									'delegate' => $delegate['name'],
+									'delegate_id' => $uid,
+									'admin' => $admin['name'],
+									'admin_id' => $admin['id'],
+									'admin_title' => $admin['title'],
+									'user' => $user['name'],
+									'user_id' => $user_id,
+									'url' => base_url("delegate/profile/{$uid}"),
+									'time' => unix_to_human(time())
+								);
+								
+								$this->email->to($user['email']);
+								$this->email->subject('一条笔记提及了您');
+								$this->email->html($this->parser->parse_string(option('email_note_user_mentioned', "{admin}于 {time} 在{delegate}代表的笔记中提及了您。\n\n"
+										. "笔记内容如下：\n\n"
+										. "\t{note}\n\n"
+										. "请访问 {url} 阅读笔记。"), $data, true));
+								$this->email->send();
+								$this->email->clear();
+							}
+							
+							$count = count($users);
+							$this->ui->alert("已经向笔记中提及的 {$count} 位用户发送了通知。", 'success', true);
+							
+							$this->system_model->log('note_mentioned', array('note' => $new_id, 'user' => $users));
+						}
+					}
+					
 					$this->ui->alert("已经成功添加笔记。", 'success', true);
 
 					$this->system_model->log('note_added', array('id' => $new_id));
@@ -2301,6 +2379,7 @@ class Delegate extends CI_Controller
 		}
 		elseif($action == 'note')
 		{
+			$this->load->model('committee_model');
 			$this->load->model('note_model');
 			$this->load->helper('date');
 			
@@ -2317,6 +2396,31 @@ class Delegate extends CI_Controller
 				{
 					$note = $this->note_model->get_note($id);
 					$note['admin'] = $this->admin_model->get_admin($note['admin']);
+					
+					//富格式笔记
+					$text_rich = nl2br($note['text']);
+					
+					if($note['mention'])
+					{
+						foreach($note['mention'] as $mention)
+						{
+							$user = $this->admin_model->get_admin($mention);
+							
+							$mention_string = "@{$user['name']}({$mention})";
+							
+							$mention_tab = !empty($user['title']) ? '<p>'.$user['title'].'</p>' : (!empty($user['committee']) ? '<p>'.$this->committee_model->get_committee($user['committee'], 'name').'</p>' : '');
+							$mention_tab .= '<p>'.icon('phone').$user['phone'].'</p><p>'.icon('envelope-o').$user['email'].'</p>';
+							
+							$mention_link = $this->admin_model->capable('bureaucrat') ? 'href="'.base_url("/user/edit/{$mention}").'"' : 'style="cursor: pointer;"';
+							$mention_rich = '<a '.$mention_link.' class="mention_tab" data-html="1" data-placement="top" data-trigger="hover focus" data-original-title=\''
+									.$user['name']
+									.'\' data-toggle="popover" data-content=\'<div class="user-info">'.$mention_tab.'</div>\'>@'.$user['name'].'</a>';
+							
+							$text_rich = str_replace($mention_string, $mention_rich, $text_rich);
+						}
+					}
+					
+					$note['text_rich'] = $text_rich;
 					
 					$notes[] = $note;
 				}

@@ -29,6 +29,8 @@ class Note_model extends CI_Model
 		
 		$data = $query->row_array();
 		
+		$data['mention'] = $this->get_note_mentions($id);
+		
 		//返回结果
 		if(empty($part))
 			return $data;
@@ -208,6 +210,91 @@ class Note_model extends CI_Model
 	{
 		$this->db->where('id', $id);
 		return $this->db->delete('note_category');
+	}
+	
+	/**
+	 * 获取指定注释笔记中提及的所有用户ID
+	 */
+	function get_note_mentions($note)
+	{
+		$this->db->where('note', $note);
+		
+		$query = $this->db->get('note_mention');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回ID
+		foreach($query->result_array() as $data)
+		{
+			$array[] = $data['user'];
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
+	 * 获取指定用户被提及的所有笔记ID
+	 */
+	function get_user_mentions($user)
+	{
+		$this->db->where('user', $user);
+		
+		$query = $this->db->get('note_mention');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回ID
+		foreach($query->result_array() as $data)
+		{
+			$array[] = $data['note'];
+		}
+		$query->free_result();
+		
+		return $array;
+	}
+	
+	/**
+	 * 添加笔记中提及
+	 * @param int $note 笔记ID
+	 * @param int|array $users 一个或一组用户ID
+	 * @return boolean 是否完成添加
+	 */
+	function add_mention($note, $users)
+	{
+		if(!is_array($users))
+			$users = array($users);
+		
+		//生成数据
+		foreach($users as $user)
+		{
+			$data[] = array(
+				'note' => $note,
+				'user' => $user
+			);
+		}
+		
+		return $this->db->insert_batch('note_mention', $data);
+	}
+	
+	/**
+	 * 删除笔记中提及
+	 * @param int $note 笔记ID
+	 * @param int|array $users 一个或一组用户ID，如为空全部删除
+	 * @return boolean 是否完成删除
+	 */
+	function delete_mention($note, $users = '')
+	{
+		$this->db->where('note', $note);
+		
+		if(!empty($users))
+			$this->db->where('user', $users);
+		
+		return $this->db->delete('note_mention');
 	}
 }
 

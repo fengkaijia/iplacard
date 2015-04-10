@@ -1,3 +1,24 @@
+<link href="<?php echo static_url(is_dev() ? 'static/css/jquery.atwho.css' : 'static/css/jquery.atwho.min.css');?>" rel="stylesheet">
+<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.caret.js' : 'static/js/jquery.caret.min.js');?>"></script>
+<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.atwho.js' : 'static/js/jquery.atwho.min.js');?>"></script>
+<script>
+	$('#add_note #note').atwho({
+		at: "@",
+		data: "<?php echo base_url('user/ajax/mention');?>",
+		displayTpl: "<li>${name} <small>${title}</small></li>",
+		insertTpl: "@${name}(${id})",
+		callbacks: {
+			beforeInsert: function(value, $li) {
+				$('#add_note').append('<input type="hidden" name="mention[]" value="' + value + '" />');
+				return value;
+			}
+		}
+	});
+	
+	$('.mention_tab').popover();
+	$('.noter_tab').popover();
+</script>
+
 <?php
 if(!empty($notes))
 {
@@ -6,15 +27,20 @@ if(!empty($notes))
 	
 	foreach($notes as $id => $note)
 	{ ?><blockquote>
-	<p><?php echo nl2br($note['text']);?></p>
+	<p><?php echo $note['text_rich'];?></p>
 	<small><?php
+	$noter_tab = '<p>'.icon('phone').$note['admin']['phone'].'</p><p>'.icon('envelope-o').$note['admin']['email'].'</p>';
+	$noter_info = '<span class="noter_tab" data-html="1" data-placement="top" data-trigger="hover focus" data-original-title=\''
+			.$note['admin']['name']
+			.'\' data-toggle="popover" data-content=\'<div class="user-info">'.$noter_tab.'</div>\'>'.$note['admin']['name'].'</span>';
+	
 	if(!empty($note['admin']['title']) && !in_array($note['admin']['id'], $admins))
 	{
-		$name_line = sprintf('%1$s（%2$s）', $note['admin']['name'], $note['admin']['title']);
+		$name_line = sprintf('%1$s（%2$s）', $noter_info, $note['admin']['title']);
 		$admins[] = $note['admin']['id'];
 	}
 	else
-		$name_line = sprintf('%1$s', $note['admin']['name']);
+		$name_line = $noter_info;
 	
 	if(!empty($note['category']) && isset($categories[$note['category']]))
 		printf('%4$s / %1$s / %2$s（%3$s）', $name_line, date('n月j日', $note['time']), nicetime($note['time']), icon('tag', false).$categories[$note['category']]);
@@ -30,7 +56,7 @@ echo form_button(array(
 	'data-target' => '#add_note'
 ));
 
-echo form_open("delegate/note/add/$uid", array(
+echo form_open_multipart("delegate/note/add/$uid", array(
 	'class' => 'modal fade form-horizontal',
 	'id' => 'add_note',
 	'tabindex' => '-1',

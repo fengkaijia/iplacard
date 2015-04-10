@@ -424,6 +424,25 @@ class User extends CI_Controller
 			
 			$json = array('aaData' => $datum);
 		}
+		elseif($action == 'mention')
+		{
+			$this->load->model('committee_model');
+			
+			$ids = $this->user_model->get_user_ids('type', 'admin');
+			
+			foreach($ids as $id)
+			{
+				$admin = $this->admin_model->get_admin($id);
+				
+				$data = array(
+					'id' => $admin['id'],
+					'name' => $admin['name'],
+					'title' => !empty($admin['title']) ? $admin['title'] : (!empty($admin['committee']) ? $this->committee_model->get_committee($admin['committee'], 'name') : '')
+				);
+				
+				$json[] = $data;
+			}
+		}
 		
 		echo json_encode($json);
 	}
