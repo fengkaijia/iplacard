@@ -14,6 +14,8 @@
 			}
 		}
 	});
+	
+	$('.mention_tab').popover();
 </script>
 
 <?php
@@ -24,7 +26,7 @@ if(!empty($notes))
 	
 	foreach($notes as $id => $note)
 	{ ?><blockquote>
-	<p><?php echo nl2br($note['text']);?></p>
+	<p><?php echo $note['text_rich'];?></p>
 	<small><?php
 	if(!empty($note['admin']['title']) && !in_array($note['admin']['id'], $admins))
 	{

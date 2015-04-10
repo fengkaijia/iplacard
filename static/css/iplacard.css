@@ -393,6 +393,10 @@ a.editable-click.editable-disabled:hover {
 	font-size: 17px;
 }
 
+#note_area blockquote .user-info p {
+	font-size: 15px;
+}
+
 #note_area blockquote footer,
 #note_area blockquote small,
 #note_area blockquote .small {

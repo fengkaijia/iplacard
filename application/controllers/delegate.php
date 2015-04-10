@@ -2379,6 +2379,7 @@ class Delegate extends CI_Controller
 		}
 		elseif($action == 'note')
 		{
+			$this->load->model('committee_model');
 			$this->load->model('note_model');
 			$this->load->helper('date');
 			
@@ -2395,6 +2396,31 @@ class Delegate extends CI_Controller
 				{
 					$note = $this->note_model->get_note($id);
 					$note['admin'] = $this->admin_model->get_admin($note['admin']);
+					
+					//富格式笔记
+					$text_rich = nl2br($note['text']);
+					
+					if($note['mention'])
+					{
+						foreach($note['mention'] as $mention)
+						{
+							$user = $this->admin_model->get_admin($mention);
+							
+							$mention_string = "@{$user['name']}({$mention})";
+							
+							$mention_tab = !empty($user['title']) ? '<p>'.$user['title'].'</p>' : (!empty($user['committee']) ? '<p>'.$this->committee_model->get_committee($user['committee'], 'name').'</p>' : '');
+							$mention_tab .= '<p>'.icon('phone').$user['phone'].'</p><p>'.icon('envelope-o').$user['email'].'</p>';
+							
+							$mention_link = $this->admin_model->capable('bureaucrat') ? 'href="'.base_url("/user/edit/{$mention}").'"' : 'style="cursor: pointer;"';
+							$mention_rich = '<a '.$mention_link.' class="mention_tab" data-html="1" data-placement="top" data-trigger="hover focus" data-original-title=\''
+									.$user['name']
+									.'\' data-toggle="popover" data-content=\'<div class="user-info">'.$mention_tab.'</div>\'>@'.$user['name'].'</a>';
+							
+							$text_rich = str_replace($mention_string, $mention_rich, $text_rich);
+						}
+					}
+					
+					$note['text_rich'] = $text_rich;
 					
 					$notes[] = $note;
 				}
