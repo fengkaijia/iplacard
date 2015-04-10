@@ -16,6 +16,7 @@
 	});
 	
 	$('.mention_tab').popover();
+	$('.noter_tab').popover();
 </script>
 
 <?php
@@ -28,13 +29,18 @@ if(!empty($notes))
 	{ ?><blockquote>
 	<p><?php echo $note['text_rich'];?></p>
 	<small><?php
+	$noter_tab = '<p>'.icon('phone').$note['admin']['phone'].'</p><p>'.icon('envelope-o').$note['admin']['email'].'</p>';
+	$noter_info = '<span class="noter_tab" data-html="1" data-placement="top" data-trigger="hover focus" data-original-title=\''
+			.$note['admin']['name']
+			.'\' data-toggle="popover" data-content=\'<div class="user-info">'.$noter_tab.'</div>\'>'.$note['admin']['name'].'</span>';
+	
 	if(!empty($note['admin']['title']) && !in_array($note['admin']['id'], $admins))
 	{
-		$name_line = sprintf('%1$s（%2$s）', $note['admin']['name'], $note['admin']['title']);
+		$name_line = sprintf('%1$s（%2$s）', $noter_info, $note['admin']['title']);
 		$admins[] = $note['admin']['id'];
 	}
 	else
-		$name_line = sprintf('%1$s', $note['admin']['name']);
+		$name_line = $noter_info;
 	
 	if(!empty($note['category']) && isset($categories[$note['category']]))
 		printf('%4$s / %1$s / %2$s（%3$s）', $name_line, date('n月j日', $note['time']), nicetime($note['time']), icon('tag', false).$categories[$note['category']]);
