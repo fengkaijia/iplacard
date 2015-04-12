@@ -38,7 +38,7 @@ class User extends CI_Controller
 		}
 		
 		//检查权限
-		if(!$this->user_model->is_admin(uid()) || (!$this->admin_model->capable('bureaucrat') && !$this->admin_model->capable('administrator')))
+		if(!$this->user_model->is_admin(uid()))
 		{
 			redirect('');
 			return;
@@ -52,6 +52,14 @@ class User extends CI_Controller
 	 */
 	function manage()
 	{
+		//检查权限
+		if(!$this->admin_model->capable('bureaucrat') && !$this->admin_model->capable('administrator'))
+		{
+			$this->ui->alert('需要管理员权限以管理用户。', 'warning', true);
+			redirect('');
+			return;
+		}
+		
 		$vars['role_order'] = array('bureaucrat', 'administrator', 'dais', 'interviewer', 'reviewer', 'cashier');
 		$vars['roles'] = $this->roles;
 		
@@ -352,6 +360,10 @@ class User extends CI_Controller
 		
 		if($action == 'list')
 		{
+			//检查权限
+			if(!$this->admin_model->capable('bureaucrat') && !$this->admin_model->capable('administrator'))
+				return;
+			
 			$this->load->helper('date');
 			
 			$interview_enabled = option('interview_enabled', true);
