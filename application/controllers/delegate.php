@@ -1750,9 +1750,7 @@ class Delegate extends CI_Controller
 				//通知代表
 				$this->email->to($delegate['email']);
 				$this->email->subject('您的 iPlacard 帐户将被删除');
-				$this->email->html($this->parser->parse_string(option('email_delegate_deleted', "管理员已经于 {time} 停用了您的 iPlacard 帐户。以下原因造成了帐户停用：\n\n"
-						. "\t{reason}\n\n"
-						. "您的 iPlacard 帐户将于 {lock_time}（{lock_period} 天内）删除。请立即联系管理员了解情况。"), $data, true));
+				$this->email->html($this->parser->parse_string(option('email_delegate_deleted', "管理员已经于 {time} 停用了您的 iPlacard 帐户。您的 iPlacard 帐户将于 {lock_time}（{lock_period} 天内）删除。请立即联系管理员了解情况。"), $data, true));
 				$this->email->send();
 				
 				//短信通知代表
