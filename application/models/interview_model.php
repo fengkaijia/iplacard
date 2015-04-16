@@ -66,19 +66,23 @@ class Interview_model extends CI_Model
 	 */
 	function get_current_interview_id($delegate)
 	{
+		//正在进行的面试
 		$id = $this->get_interview_id('delegate', $delegate, 'status', array('assigned', 'arranged'));
+		if($id)
+			return $id;
 		
-		if(!$id)
-		{
-			$ids = $this->get_interview_ids('delegate', $delegate, 'status', array('completed', 'exempted'));
-			
-			if(!$ids)
-				return false;
-			
+		//已经完成的面试
+		$ids = $this->get_interview_ids('delegate', $delegate, 'status', array('completed', 'exempted', 'failed'));
+		if($ids)
 			return max($ids);
-		}
 		
-		return $id;
+		//已经取消的面试
+		$ids = $this->get_interview_ids('delegate', $delegate, 'status', 'cancelled');
+		if($ids)
+			return max($ids);
+		
+		//无任何面试安排
+		return false;
 	}
 	
 	/**
