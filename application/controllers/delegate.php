@@ -1745,6 +1745,71 @@ class Delegate extends CI_Controller
 				}
 				
 				break;
+				
+			//重发欢迎邮件
+			case 'resend_email':
+				//停用检查
+				if(!$delegate['enabled'])
+				{
+					$this->ui->alert('用户帐户已经停用，代表已无法登录，无法重发欢迎邮件。', 'warning', true);
+					break;
+				}
+				
+				//重置密码
+				$reset = false;
+				if($this->input->post('reset'))
+				{
+					$reset = true;
+					
+					//生成随机密码
+					$this->load->helper('string');
+					$password = random_string('alnum', 8);
+					
+					//更新密码
+					$this->user_model->change_password($uid, $password);
+					
+					$this->user_model->delete_user_option('account_change_password_time', $uid);
+				}
+				
+				//导入时间
+				$time = false;
+				
+				$event = $this->delegate_model->get_event_id('delegate', $uid, 'event', 'application_imported');
+				if($event)
+					$time = $this->delegate_model->get_event($event, 'time');
+				
+				//发送邮件
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+
+				$data = array(
+					'uid' => $uid,
+					'name' => $delegate['name'],
+					'email' => $delegate['email'],
+					'password' => $reset ? $password : '<i>（您原先使用的密码）</i>',
+					'time' => unix_to_human($time ? $time : $delegate['reg_time']),
+					'url' => base_url(),
+				);
+
+				$this->email->to($delegate['email']);
+				$this->email->subject('iPlacard 帐户登录信息');
+				$this->email->html($this->parser->parse_string(option('email_delegate_account_created', "您的参会申请已经导入 iPlacard 系统并开始审核。您的 iPlacard 帐户已经于 {time} 创建。帐户信息如下：\n\n"
+						. "\t登录邮箱：{email}\n"
+						. "\t密码：{password}\n\n"
+						. "请使用以上信息访问：\n\n"
+						. "\t{url}\n\n"
+						. "登录并开始通过 iPlacard 了解您的申请进度。"), $data, true));
+
+				if(!$this->email->send())
+				{
+					$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'delegate_account_created'));
+				}
+				
+				$this->ui->alert("已经向代表重新发送了欢迎邮件。", 'success', true);
+				
+				$this->system_model->log('welcome_email_resent', array('delegate' => $uid, 'reset' => $reset));
+				break;
 			
 			//退会
 			case 'quit':
@@ -2881,6 +2946,12 @@ class Delegate extends CI_Controller
 		//危险操作
 		$html_danger = '';
 		$title_danger = '<p><a style="cursor: pointer;" onclick="$( \'#danger_action\' ).toggle();" class="text-muted" id="danger_button">'.icon('exclamation-triangle').'危险操作</a></p>';
+		
+		//重发欢迎邮件
+		if($this->admin_model->capable('administrator') && $delegate['enabled'] && $delegate['status'] != 'deleted')
+		{
+			$html_danger .= $this->load->view('admin/admission/resend_email', $vars, true);
+		}
 		
 		//退会
 		if($this->admin_model->capable('administrator') && $delegate['status'] != 'quitted' && $delegate['status'] != 'deleted')
