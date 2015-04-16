@@ -378,17 +378,13 @@ class Delegate extends CI_Controller
 				{
 					//获取提及
 					$mentions = $this->input->post('mention');
-					if(empty($mentions))
-						$mention = array();
-					
-					$mentions = array_unique($mentions);
-					if(!empty($mentions))
+					if($mentions && !empty($mentions))
 					{
 						$this->load->helper('string');
 						
 						$users = array();
 						
-						foreach($mentions as $mention)
+						foreach(array_unique($mentions) as $mention)
 						{
 							//如果提及仍存在
 							if(strpos($note, $mention) !== false)
