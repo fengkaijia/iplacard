@@ -28,7 +28,7 @@ if(IP_MAINTENANCE)
  * 当前访问请求的域名
  * @todo 支持Alias
  */
-define('IP_REQUEST_DOMAIN', $_SERVER["HTTP_HOST"]);
+define('IP_REQUEST_DOMAIN', (php_sapi_name() != 'cli' && !defined('STDIN')) ? $_SERVER['HTTP_HOST'] : '');
 
 //是否使用访问SSL
 if(isset($_SERVER['HTTPS']))
