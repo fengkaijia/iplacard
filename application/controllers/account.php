@@ -828,10 +828,10 @@ class Account extends CI_Controller
 			$this->user_model->edit_user(array(
 				'email' => $old_email
 			), $uid);
-
+			
+			$this->user_model->delete_user_option('account_email_pending', $uid);
 			$this->user_model->delete_user_option('account_email_old', $uid);
 			$this->user_model->delete_user_option('account_email_change_key', $uid);
-			$this->user_model->delete_user_option('account_email_change_time', $uid);
 			$this->user_model->delete_user_option('account_email_change_time', $uid);
 			$this->user_model->delete_user_option('account_email_cancel_key', $uid);
 			$this->user_model->delete_user_option('account_email_pending_sudo', $uid);
