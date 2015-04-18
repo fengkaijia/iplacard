@@ -1617,6 +1617,7 @@ class Account extends CI_Controller
 					
 					//更新待验证邮箱
 					$this->user_model->edit_user_option('account_email_pending', $new_email);
+					$this->user_model->edit_user_option('account_email_old', $user['email']);
 					$this->user_model->edit_user_option('account_email_change_time', $change_time);
 					$this->user_model->edit_user_option('account_email_change_key', $change_key);
 					$this->user_model->edit_user_option('account_email_cancel_key', $cancel_key);
