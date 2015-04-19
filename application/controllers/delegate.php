@@ -2225,6 +2225,7 @@ class Delegate extends CI_Controller
 		
 		if($action == 'list')
 		{
+			$this->load->model('interview_model');
 			$this->load->model('committee_model');
 			$this->load->model('seat_model');
 			$this->load->helper('date');
@@ -2328,6 +2329,22 @@ class Delegate extends CI_Controller
 						default:
 							$status_class = 'primary';
 					}
+					
+					//特殊状态
+					if($delegate['status'] == 'review_passed')
+					{
+						if($this->interview_model->get_interview_ids('delegate', $delegate['id'], 'status', 'completed'))
+						{
+							$status_text = '请求复试';
+							$status_class = 'info';
+						}
+						elseif($this->interview_model->get_interview_ids('delegate', $delegate['id'], 'status', 'failed'))
+						{
+							$status_text = '等待二面';
+							$status_class = 'info';
+						}
+					}
+					
 					$status_line = "<span class='label label-{$status_class}'>{$status_text}</span>";
 					
 					//委员会
