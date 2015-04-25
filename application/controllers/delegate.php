@@ -1424,6 +1424,9 @@ class Delegate extends CI_Controller
 			case 'assign_seat':
 				$this->load->model('seat_model');
 				
+				//席位分配模式
+				$seat_mode = option('seat_mode', 'select');
+				
 				if($delegate['application_type'] != 'delegate' || !$this->_check_seat_select_open($delegate))
 				{
 					$this->ui->alert('代表不在席位分配阶段，无法分配席位。', 'danger', true);
@@ -1434,11 +1437,39 @@ class Delegate extends CI_Controller
 				{
 					$this->load->model('interview_model');
 					
-					$interview = $this->interview_model->get_interview($this->interview_model->get_current_interview_id($uid));
-					if($interview['interviewer'] != uid())
+					if($seat_mode == 'select')
 					{
-						$this->ui->alert('您不是此代表的面试官，因此无法分配席位。', 'danger', true);
-						break;
+						$interviews = $this->interview_model->get_interview_ids('delegate', $uid, 'status', array('completed', 'exempted'));
+						if($interviews)
+						{
+							$interviewers = $this->interview_model->get_interviewers_by_interviews($interviews);
+							if(!in_array(uid(), $interviewers))
+							{
+								$this->ui->alert('您没有面试过此代表，无法分配席位。', 'danger', true);
+								break;
+							}
+						}
+						else
+						{
+							$this->ui->alert('当前代表尚无面试，无法分配席位。', 'danger', true);
+							break;
+						}
+					}
+					else
+					{
+						$interview_id = $this->interview_model->get_current_interview_id($uid);
+						if(!$interview_id)
+						{
+							$this->ui->alert('当前代表尚无面试，无法分配席位。', 'danger', true);
+							break;
+						}
+						
+						$interview = $this->interview_model->get_interview($interview_id);
+						if($interview['interviewer'] != uid())
+						{
+							$this->ui->alert('您不是此代表的面试官，无法分配席位。', 'danger', true);
+							break;
+						}
 					}
 					
 					$admin_committee = $this->admin_model->get_admin(uid(), 'committee');
@@ -1452,7 +1483,6 @@ class Delegate extends CI_Controller
 					}
 				}
 				
-				$seat_mode = option('seat_mode', 'select');
 				if($seat_mode == 'select')
 				{
 					$new_seat['primary'] = $this->input->post('seat_primary');
