@@ -494,7 +494,7 @@ $(document).ready(function() {
 		"bProcessing": true,
 		"bAutoWidth": false,
 		"sAjaxSource": '{$selectability_url}',
-		"sDom": "<'row'r>t<'col-xs-8 col-xs-offset-4'p>>",
+		"sDom": "<'row'r>t<'col-xs-8 col-xs-offset-4'p>",
 		"fnDrawCallback": function() {
 			$('.shorten-select').shorten({
 				showChars: '25',
