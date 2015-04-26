@@ -2634,6 +2634,9 @@ class Delegate extends CI_Controller
 			case 'payment_received':
 				$this->load->model('seat_model');
 				
+				//席位分配模式
+				$mode = option('seat_mode', 'select');
+				
 				if(!$this->admin_model->capable($this->_check_interview_enabled($delegate['application_type']) ? 'interviewer' : 'reviewer'))
 					break;
 				
@@ -2646,15 +2649,36 @@ class Delegate extends CI_Controller
 					if(!$current_id)
 						break;
 
-					$interview = $this->interview_model->get_interview($current_id);
-					if(!$interview)
+					$current_interview = $this->interview_model->get_interview($current_id);
+					if(!$current_interview)
 						break;
 
-					if(!in_array($interview['status'], array('completed', 'exempted')))
+					if(!in_array($current_interview['status'], array('completed', 'exempted', 'failed')))
 						break;
+					
+					if($mode == 'select')
+					{
+						//席位选择模式下所有面试过此代表的面试官都可以开放席位选择
+						$interviews = $this->interview_model->get_interview_ids('delegate', $delegate['id'], 'status', array('completed', 'exempted'));
+						if(!$interviews)
+							break;
+						
+						$interviewers = $this->interview_model->get_interviewers_by_interviews($interviews);
+						if(!in_array(uid(), $interviewers))
+							break;
+						
+						$interview = $this->interview_model->get_interview($this->interview_model->get_interview_id('delegate', $delegate['id'], 'interviewer', uid(), 'status', array('completed', 'exempted', 'failed')));
+						
+						$vars['current_interview'] = $current_interview;
+					}
+					else
+					{
+						//席位分配模式下只有当前面试官可以分配席位
+						if($current_interview['interviewer'] != uid())
+							break;
 
-					if($interview['interviewer'] != uid())
-						break;
+						$interview = $current_interview;
+					}
 
 					$vars['interview'] = $interview;
 
@@ -2683,7 +2707,6 @@ class Delegate extends CI_Controller
 					$vars['interview'] = false;
 				}
 				
-				$mode = option('seat_mode', 'select');
 				$vars['mode'] = $mode;
 				
 				//已经分配过席位情况

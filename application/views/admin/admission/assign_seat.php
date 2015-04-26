@@ -62,9 +62,15 @@
 <?php
 if($interview)
 {
-	if($interview['status'] == 'completed' && !$score_level) { ?><p>代表于 <em><?php echo date('Y-m-d H:i', $interview['finish_time']);?></em> 通过面试，面试得分为 <strong><?php echo round($interview['score'], 2);?></strong>，满分为 <?php echo $score_total;?> 分。</p><?php }
-	elseif($interview['status'] == 'completed' && $score_level) { ?><p>代表于 <em><?php echo date('Y-m-d H:i', $interview['finish_time']);?></em> 通过面试，面试得分为 <strong><?php echo round($interview['score'], 2);?></strong>，此成绩大约位于前 <?php echo $score_level;?>%，满分为 <?php echo $score_total;?> 分。</p><?php }
-	elseif($interview['status'] == 'exempted') { ?><p>代表于 <em><?php echo date('Y-m-d H:i', $interview['assign_time']);?></em> 免试通过面试。<?php }
+	if($interview['status'] == 'completed' && !$score_level) { ?><p>您于 <em><?php echo date('Y-m-d H:i', $interview['finish_time']);?></em> 通过代表面试，面试得分为 <strong><?php echo round($interview['score'], 2);?></strong>，满分为 <?php echo $score_total;?> 分。</p><?php }
+	elseif($interview['status'] == 'completed' && $score_level) { ?><p>您于 <em><?php echo date('Y-m-d H:i', $interview['finish_time']);?></em> 通过代表面试，面试得分为 <strong><?php echo round($interview['score'], 2);?></strong>，此成绩大约位于前 <?php echo $score_level;?>%，满分为 <?php echo $score_total;?> 分。</p><?php }
+	elseif($interview['status'] == 'exempted') { ?><p>代表于 <em><?php echo date('Y-m-d H:i', $interview['assign_time']);?></em> 免试通过面试。</p><?php }
+	
+	if(isset($current_interview) && $current_interview['id'] != $interview['id'])
+	{
+		if($interview['status'] == 'failed') { ?><p>代表于 <em><?php echo date('Y-m-d H:i', $current_interview['finish_time']);?></em> 完成终试，但未能通过，终试得分为 <strong><?php echo round($current_interview['score'], 2);?></strong>。</p><?php }
+		else { ?><p>代表于 <em><?php echo date('Y-m-d H:i', $current_interview['finish_time']);?></em> 通过终试，终试得分为 <strong><?php echo round($current_interview['score'], 2);?></strong>。</p><?php }
+	}
 }
 ?>
 
