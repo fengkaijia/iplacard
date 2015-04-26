@@ -602,12 +602,15 @@ class Apply extends CI_Controller
 					$this->user_model->add_message($this->uid, '您已经取消席位。');
 
 					//调整原席位选择许可为候选许可
-					$original_seat_selectability = $this->seat_model->get_selectability_id('delegate', $this->uid, 'seat', $original_seat);
-					if($original_seat_selectability)
+					if(option('seat_revert_original', false))
 					{
-						$this->seat_model->edit_selectability(array(
-							'primary' => false
-						), $original_seat_selectability);
+						$original_seat_selectability = $this->seat_model->get_selectability_id('delegate', $this->uid, 'seat', $original_seat);
+						if($original_seat_selectability)
+						{
+							$this->seat_model->edit_selectability(array(
+								'primary' => false
+							), $original_seat_selectability);
+						}
 					}
 					
 					//TODO: 候选席位调整
