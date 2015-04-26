@@ -12,7 +12,7 @@ class User extends CI_Controller
 	 */
 	private $roles = array(
 		'reviewer' => array('title' => '资料审核', 'short' => '审核', 'description' => '审核参会申请|分配面试安排'),
-		'dais' => array('title' => '主席', 'short' => '主席', 'description' => '查看指定委员会代表信息|向委员会群发信息|向文件中心发布文件'),
+		'dais' => array('title' => '主席', 'short' => '主席', 'description' => '查看指定委员会代表信息|发布文件'),
 		'interviewer' => array('title' => '面试官', 'short' => '面试', 'description' => '面试代表|分配席位'),
 		'cashier' => array('title' => '财务管理', 'short' => '财务', 'description' => '核查和确认账单'),
 		'administrator' => array('title' => '会务管理', 'short' => '会务', 'description' => '站点信息管理|代表管理|委员会席位管理|SUDO|支持单管理'),
