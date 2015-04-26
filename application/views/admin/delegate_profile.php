@@ -399,7 +399,7 @@ $this->load->view('header');?>
 					
 					<hr /><?php } ?>
 					
-					<?php if($seat_mode == 'select') { ?><h3>开放席位分配</h3>
+					<?php if($seat_mode == 'select' && $selectabilities) { ?><h3>开放席位分配</h3>
 					<p>以下席位权限已经开放给<?php echo icon('user', false).$profile['name'];?>代表，代表可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候选席位。</p>
 					<table id="selectability_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
 						<thead>
@@ -420,6 +420,7 @@ $this->load->view('header');?>
 					
 					<?php if($seat_assignable) { ?><p>如需向代表开放分配更多席位选择权限，请点击增加席位分配。</p>
 					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('plus');?>增加席位分配</a></p><?php } }
+					
 					elseif($seat_assignable) { ?><h3>更改席位分配</h3>
 					<p>如需更换代表的席位，请点击更改席位分配。</p>
 					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('pencil');?>更改席位分配</a></p><?php }?>
