@@ -764,20 +764,6 @@ class Apply extends CI_Controller
 				$this->email->send();
 				$this->email->clear();
 				
-				//短信通知
-				if(option('sms_enabled', false))
-				{
-					$this->load->model('sms_model');
-					$this->load->library('sms');
-
-					$this->sms->to($this->uid);
-					if($this->delegate['status'] == 'seat_assigned')
-						$this->sms->message('您已选定席位，请登录 iPlacard 系统查看申请状态。');
-					else
-						$this->sms->message('您已调整您的席位选择，请登录 iPlacard 系统查看申请状态。');
-					$this->sms->queue();
-				}
-				
 				$this->ui->alert('您的席位选择已经保存。', 'success');
 			}
 		}
