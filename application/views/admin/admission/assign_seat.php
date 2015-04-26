@@ -51,7 +51,7 @@
 		$('select[name="recommended_backorder[]"]').find('[value=' + id + ']').remove();
 		$('input[value=' + id + ']').remove();
 		
-		$('#seat-' + id).children().eq(6).html('<a style="cursor: pointer;" onclick="add_seat(' + id + ', true);"><?php echo icon('plus-square', false);?>主项</a> <a onclick="add_seat(' + id + ', false);"><?php echo icon('plus-square-o', false);?>候选</a>');
+		$('#seat-' + id).children().eq(6).html('<a style="cursor: pointer;" onclick="add_seat(' + id + ', true);"><?php echo icon('plus-square', false);?>主项</a> <a style="cursor: pointer;" onclick="add_seat(' + id + ', false);"><?php echo icon('plus-square-o', false);?>候选</a>');
 		
 		$('.selectpicker').selectpicker('refresh');
 	}
