@@ -284,6 +284,10 @@ class Delegate extends CI_Controller
 		$vars['group'] = $group;
 		$vars['head_delegate'] = $head_delegate;
 		
+		//席位分配模式
+		$seat_mode = option('seat_mode', 'select');
+		$vars['seat_mode'] = $seat_mode;
+		
 		//席位选择阶段
 		$seat_open = false;
 		if($profile['application_type'] == 'delegate' && $this->_check_seat_select_open($profile))
@@ -292,7 +296,7 @@ class Delegate extends CI_Controller
 		
 		//显示席位选择
 		$seat_assignable = false;
-		if((!$this->_check_interview_enabled($profile['application_type']) || (!empty($current_interview) && $interviews[$current_interview]['interviewer']['id'] == uid())) && $profile['status'] != 'locked' && $profile['status'] != 'quitted')
+		if(((!$this->_check_interview_enabled($profile['application_type']) && $this->admin_model->capable('reviewer')) || ($seat_mode == 'select' ? $this->_check_interviewer_assign_right($uid, uid()) : (!empty($current_interview) && $interviews[$current_interview]['interviewer']['id'] == uid()))) && $profile['status'] != 'locked' && $profile['status'] != 'quitted')
 		{
 			$seat_assignable = true;
 		}
@@ -307,9 +311,6 @@ class Delegate extends CI_Controller
 			$seat['committee'] = $this->committee_model->get_committee($seat['committee']);
 		}
 		$vars['seat'] = $seat;
-		
-		$seat_mode = option('seat_mode', 'select');
-		$vars['seat_mode'] = $seat_mode;
 		
 		//席位候选数据
 		$backorders = array();
@@ -1506,6 +1507,9 @@ class Delegate extends CI_Controller
 			case 'assign_seat':
 				$this->load->model('seat_model');
 				
+				//席位分配模式
+				$seat_mode = option('seat_mode', 'select');
+				
 				if($delegate['application_type'] != 'delegate' || !$this->_check_seat_select_open($delegate))
 				{
 					$this->ui->alert('代表不在席位分配阶段，无法分配席位。', 'danger', true);
@@ -1516,11 +1520,29 @@ class Delegate extends CI_Controller
 				{
 					$this->load->model('interview_model');
 					
-					$interview = $this->interview_model->get_interview($this->interview_model->get_current_interview_id($uid));
-					if($interview['interviewer'] != uid())
+					if($seat_mode == 'select')
 					{
-						$this->ui->alert('您不是此代表的面试官，因此无法分配席位。', 'danger', true);
-						break;
+						if(!$this->_check_interviewer_assign_right($uid, uid()))
+						{
+							$this->ui->alert('您没有面试过此代表，无法分配席位。', 'danger', true);
+							break;
+						}
+					}
+					else
+					{
+						$interview_id = $this->interview_model->get_current_interview_id($uid);
+						if(!$interview_id)
+						{
+							$this->ui->alert('当前代表尚无面试，无法分配席位。', 'danger', true);
+							break;
+						}
+						
+						$interview = $this->interview_model->get_interview($interview_id);
+						if($interview['interviewer'] != uid())
+						{
+							$this->ui->alert('您不是此代表的面试官，无法分配席位。', 'danger', true);
+							break;
+						}
 					}
 					
 					$admin_committee = $this->admin_model->get_admin(uid(), 'committee');
@@ -1534,7 +1556,6 @@ class Delegate extends CI_Controller
 					}
 				}
 				
-				$seat_mode = option('seat_mode', 'select');
 				if($seat_mode == 'select')
 				{
 					$new_seat['primary'] = $this->input->post('seat_primary');
@@ -2794,6 +2815,9 @@ class Delegate extends CI_Controller
 			case 'payment_received':
 				$this->load->model('seat_model');
 				
+				//席位分配模式
+				$mode = option('seat_mode', 'select');
+				
 				if(!$this->admin_model->capable($this->_check_interview_enabled($delegate['application_type']) ? 'interviewer' : 'reviewer'))
 					break;
 				
@@ -2806,15 +2830,31 @@ class Delegate extends CI_Controller
 					if(!$current_id)
 						break;
 
-					$interview = $this->interview_model->get_interview($current_id);
-					if(!$interview)
+					$current_interview = $this->interview_model->get_interview($current_id);
+					if(!$current_interview)
 						break;
 
-					if(!in_array($interview['status'], array('completed', 'exempted')))
+					if(!in_array($current_interview['status'], array('completed', 'exempted', 'failed')))
 						break;
+					
+					if($mode == 'select')
+					{
+						//席位选择模式下所有面试过此代表的面试官都可以开放席位选择
+						if(!$this->_check_interviewer_assign_right($delegate['id'], uid()))
+							break;
+						
+						$interview = $this->interview_model->get_interview($this->interview_model->get_interview_id('delegate', $delegate['id'], 'interviewer', uid(), 'status', array('completed', 'exempted', 'failed')));
+						
+						$vars['current_interview'] = $current_interview;
+					}
+					else
+					{
+						//席位分配模式下只有当前面试官可以分配席位
+						if($current_interview['interviewer'] != uid())
+							break;
 
-					if($interview['interviewer'] != uid())
-						break;
+						$interview = $current_interview;
+					}
 
 					$vars['interview'] = $interview;
 
@@ -2843,7 +2883,6 @@ class Delegate extends CI_Controller
 					$vars['interview'] = false;
 				}
 				
-				$mode = option('seat_mode', 'select');
 				$vars['mode'] = $mode;
 				
 				//已经分配过席位情况
@@ -3119,6 +3158,24 @@ class Delegate extends CI_Controller
 	private function _check_interview_enabled($application_type)
 	{
 		return option("interview_{$application_type}_enabled", option('interview_enabled', $application_type == 'delegate'));
+	}
+	
+	/**
+	 * 检查席位选择模式下面试官是否可以分配席位
+	 */
+	private function _check_interviewer_assign_right($delegate, $interviewer)
+	{
+		$this->load->model('interview_model');
+		
+		$interviews = $this->interview_model->get_interview_ids('delegate', $delegate, 'status', array('completed', 'exempted'));
+		if(!$interviews)
+			return false;
+
+		$interviewers = $this->interview_model->get_interviewers_by_interviews($interviews);
+		if(!in_array($interviewer, $interviewers))
+			return false;
+		
+		return true;
 	}
 }
 
