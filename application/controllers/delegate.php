@@ -2341,6 +2341,7 @@ class Delegate extends CI_Controller
 						case 9:
 							$status_class = 'success';
 							break;
+						case 8:
 						case 10:
 							$status_class = 'warning';
 							break;
