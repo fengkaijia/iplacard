@@ -3136,6 +3136,9 @@ class Delegate extends CI_Controller
 		
 		if($status_code == $this->delegate_model->status_code('review_refused'))
 			return false;
+		
+		if($status_code == $this->delegate_model->status_code('moved_to_waiting_list'))
+			return false;
 
 		if($status_code == $this->delegate_model->status_code('quitted'))
 			return false;
