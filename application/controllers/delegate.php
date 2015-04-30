@@ -72,6 +72,19 @@ class Delegate extends CI_Controller
 			$title = sprintf("%s代表列表", join('、', $text_committee));
 		}
 		
+		if(isset($param['interviewer']))
+		{
+			$text_interviewer = array();
+			foreach($param['interviewer'] as $one)
+			{
+				if($one == uid())
+					$text_interviewer[] = '我';
+				else
+					$text_interviewer[] = $this->admin_model->get_admin($one, 'name');
+			}
+			$title = sprintf("%s的面试队列", join('、', $text_interviewer));
+		}
+		
 		if(isset($param['group']))
 		{
 			$this->load->model('group_model');
@@ -2288,6 +2301,33 @@ class Delegate extends CI_Controller
 				}
 			}
 			
+			//面试官
+			if(isset($param['interviewer']))
+			{
+				$delegates = array();
+				
+				foreach($param['interviewer'] as $interviewer)
+				{
+					$delegate = array();
+					
+					$iids = $this->interview_model->get_interviewer_interviews($interviewer);
+					if($iids)
+					{
+						$dids = $this->interview_model->get_delegates_by_interviews($iids);
+						if($dids)
+							$delegate = $dids;
+					}
+					
+					if(!empty($delegate))
+						$delegates = array_merge($delegates, $delegate);
+				}
+				
+				if(!empty($delegates))
+					$input_param['id'] = array_unique($delegates);
+				else
+					$input_param['id'] = array(NULL);
+			}
+			
 			$args = array();
 			if(!empty($input_param))
 			{
@@ -3093,6 +3133,22 @@ class Delegate extends CI_Controller
 			}
 			if(!empty($committee))
 				$return['committee'] = $committee;
+		}
+		
+		//面试官
+		if(isset($post['interviewer']))
+		{
+			$interviewer = array();
+			foreach(explode(',', $post['interviewer']) as $param_interviewer)
+			{
+				if($param_interviewer == 'u')
+					$param_interviewer = uid();
+				
+				if($this->admin_model->capable('interviewer', $param_interviewer))
+					$interviewer[] = $param_interviewer;
+			}
+			if(!empty($interviewer))
+				$return['interviewer'] = $interviewer;
 		}
 		
 		//帐户可用性
