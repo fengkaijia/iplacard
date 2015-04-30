@@ -2323,7 +2323,7 @@ class Delegate extends CI_Controller
 				}
 				
 				if(!empty($delegates))
-					$input_param['id'] = array_unique($delegates);
+					$input_param['id'] = isset($input_param['id']) ? array_intersect($input_param['id'], array_unique($delegates)) : array_unique($delegates);
 				else
 					$input_param['id'] = array(NULL);
 			}
