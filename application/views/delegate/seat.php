@@ -334,7 +334,7 @@ $(document).ready(function() {
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,
-		"sDom": "<'row'r>t<'col-xs-4'i><'col-xs-8'p>>"
+		"sDom": "<'row'r>t<'col-xs-4'i><'col-xs-8'p>"
 	} );
 } );
 EOT;
