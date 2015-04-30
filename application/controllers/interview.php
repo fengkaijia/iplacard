@@ -88,7 +88,7 @@ class Interview extends CI_Controller
 		
 		if(isset($param['interviewer']))
 		{
-			$text_group = array();
+			$text_interviewer = array();
 			foreach($param['interviewer'] as $one)
 			{
 				if($one == uid())
