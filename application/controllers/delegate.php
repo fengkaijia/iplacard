@@ -82,7 +82,7 @@ class Delegate extends CI_Controller
 				else
 					$text_interviewer[] = $this->admin_model->get_admin($one, 'name');
 			}
-			$title = sprintf("%s的面试队列", join('、', $text_interviewer));
+			$title = sprintf("%s面试的代表列表", join('、', $text_interviewer));
 		}
 		
 		if(isset($param['group']))
