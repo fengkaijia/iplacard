@@ -21,7 +21,7 @@
 				<p><?php
 				if($seat_mode)
 				{
-					echo sprintf('您将确认申请完成并锁定席位 %1$s，%2$s为您的席位。席位锁定后您将无法调整您的席位和增加席位候选，并且您的面试官也将无法再向您追加席位分配。',
+					echo sprintf('您将确认申请完成并锁定席位 %1$s，%2$s为您的席位。席位锁定后您将无法调整您的席位和增加席位候补请求，并且您的面试官也将无法再向您追加席位分配。',
 						flag($seat['iso'], false).$seat['name'],
 						$seat['committee']['name']
 					);
@@ -35,14 +35,14 @@
 				}
 				?></p>
 
-				<?php if(!empty($backorders)) { ?><p>同时，您的以下 <?php echo count($backorders);?> 项席位候选也将失效。</p>
+				<?php if(!empty($backorders)) { ?><p>同时，您的以下 <?php echo count($backorders);?> 项席位候补申请也将失效。</p>
 
 				<table id="backorder_list" class="table table-striped table-bordered table-hover table-responsive">
 					<thead>
 						<tr>
 							<th>席位名称</th>
 							<th>委员会</th>
-							<th>候选时间</th>
+							<th>申请候补时间</th>
 						</tr>
 					</thead>
 

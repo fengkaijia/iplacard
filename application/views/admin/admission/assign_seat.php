@@ -51,7 +51,7 @@
 		$('select[name="recommended_backorder[]"]').find('[value=' + id + ']').remove();
 		$('input[value=' + id + ']').remove();
 		
-		$('#seat-' + id).children().eq(6).html('<a style="cursor: pointer;" onclick="add_seat(' + id + ', true);"><?php echo icon('plus-square', false);?>主项</a> <a style="cursor: pointer;" onclick="add_seat(' + id + ', false);"><?php echo icon('plus-square-o', false);?>候选</a>');
+		$('#seat-' + id).children().eq(6).html('<a style="cursor: pointer;" onclick="add_seat(' + id + ', true);"><?php echo icon('plus-square', false);?>主项</a> <a style="cursor: pointer;" onclick="add_seat(' + id + ', false);"><?php echo icon('plus-square-o', false);?>候补</a>');
 		
 		$('.selectpicker').selectpicker('refresh');
 	}
@@ -111,7 +111,7 @@ if($interview)
 		</div>
 	
 		<div class="form-group <?php if(form_has_error('recommended_backorder')) echo 'has-error';?>">
-			<?php echo form_label('候选分配席位', 'recommended_backorder', array('class' => 'control-label'));?>
+			<?php echo form_label('候补分配席位', 'recommended_backorder', array('class' => 'control-label'));?>
 			<div>
 				<?php echo form_dropdown_multiselect('recommended_backorder[]', array(), array(), false, array(), array(), array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="选择推荐席位"');
 				if(form_has_error('recommended_backorder'))

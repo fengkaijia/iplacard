@@ -114,7 +114,7 @@ class Apply extends CI_Controller
 				//记录锁定现有席位
 				$this->delegate_model->add_event($this->uid, 'seat_locked', array('seat' => $sid));
 				
-				//取消席位候选
+				//取消席位候补请求
 				if($backorder_ids)
 				{
 					foreach($backorder_ids as $backorder_id)
@@ -573,10 +573,10 @@ class Apply extends CI_Controller
 			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 		
 			$this->form_validation->set_rules('primary', '主席位', 'trim|required|callback__check_selectability[primary]|callback__check_availability');
-			$this->form_validation->set_rules('backorder', '候选席位', "max_count[{$select_backorder_max}]|callback__check_primary_backorder|callback__check_selectability[backorder]");
+			$this->form_validation->set_rules('backorder', '候补席位', "max_count[{$select_backorder_max}]|callback__check_primary_backorder|callback__check_selectability[backorder]");
 			$this->form_validation->set_message('max_count', "最多可以选择 {$select_backorder_max} 个席位。");
 			$this->form_validation->set_message('_check_selectability', '席位选择不符合设定条件。');
-			$this->form_validation->set_message('_check_primary_backorder', '主席位不能同时被选定为候选席位。');
+			$this->form_validation->set_message('_check_primary_backorder', '主席位不能同时被选定为候补席位。');
 			$this->form_validation->set_message('_check_availability', '主席位已被分配不可选择。');
 
 			if($this->form_validation->run() == true)
@@ -601,7 +601,7 @@ class Apply extends CI_Controller
 					$this->delegate_model->add_event($this->uid, 'seat_cancelled', array('seat' => $original_seat));
 					$this->user_model->add_message($this->uid, '您已经取消席位。');
 
-					//调整原席位选择许可为候选许可
+					//调整原席位选择许可为候补许可
 					if(option('seat_revert_original', false))
 					{
 						$original_seat_selectability = $this->seat_model->get_selectability_id('delegate', $this->uid, 'seat', $original_seat);
@@ -613,7 +613,7 @@ class Apply extends CI_Controller
 						}
 					}
 					
-					//TODO: 候选席位调整
+					//TODO: 候补席位调整
 
 					//发送邮件
 					$email_data = array(
@@ -643,7 +643,7 @@ class Apply extends CI_Controller
 				
 				$select_primary_info = $this->seat_model->get_seat($select_primary);
 				
-				//候选席位
+				//候补席位
 				$backorder_add = array();
 				$backorder_remove = array();
 				
@@ -653,7 +653,7 @@ class Apply extends CI_Controller
 				
 				$select_backorder_info = array();
 				
-				//新候选
+				//新候补
 				if(!empty($select_backorders))
 				{
 					foreach($select_backorders as $select_backorder)
@@ -734,7 +734,7 @@ class Apply extends CI_Controller
 				}
 				
 				if(empty($backorder_texts))
-					$backorder_text = "\t无候选席位";
+					$backorder_text = "\t无候补席位";
 				else
 					$backorder_text = join("\n\n", $backorder_texts);
 				
@@ -752,7 +752,7 @@ class Apply extends CI_Controller
 				{
 					$this->email->html($this->parser->parse_string(option('email_seat_selected', "您已于 {time} 选定了您的席位，选定的席位为：\n\n"
 							. "{primary_seat}\n\n"
-							. "选定的候选席位为：\n\n"
+							. "选定的候补席位为：\n\n"
 							. "{backorder_seat}\n\n"
 							. "请登录 iPlacard 系统查看申请状态。"), $email_data, true));
 				}
@@ -760,7 +760,7 @@ class Apply extends CI_Controller
 				{
 					$this->email->html($this->parser->parse_string(option('email_seat_changed', "您已于 {time} 调整了您的席位选择，调整后的席位选择为：\n\n"
 							. "{primary_seat}\n\n"
-							. "调整后的候选席位为：\n\n"
+							. "调整后的候补席位为：\n\n"
 							. "{backorder_seat}\n\n"
 							. "请登录 iPlacard 系统查看申请状态。"), $email_data, true));
 				}
@@ -771,7 +771,7 @@ class Apply extends CI_Controller
 			}
 		}
 		
-		//席位和候选信息
+		//席位和候补信息
 		$seat = array();
 		$attached_seats = array();
 		$attached_primary = array();
@@ -1942,7 +1942,7 @@ class Apply extends CI_Controller
 	}
 	
 	/**
-	 * 主席位为候选席位检查回调函数
+	 * 主席位为候补席位检查回调函数
 	 */
 	function _check_primary_backorder($array)
 	{

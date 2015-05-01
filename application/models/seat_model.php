@@ -436,7 +436,7 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
-	 * 获取指定代表的所有候选席位
+	 * 获取指定代表的所有候补席位
 	 */
 	function get_delegate_backorder($delegate, $only_valid = true)
 	{

@@ -82,14 +82,14 @@ $this->load->view('header');?>
 				<?php if(!empty($backorders)) { ?>
 				<hr />
 				
-				<h3>席位候选</h3>
-				<p>您已候选了以下席位，在锁定席位前，您有可能被调整为以下席位。</p>
+				<h3>候补席位</h3>
+				<p>您已请求候补了以下席位，在锁定席位前，您有可能被调整为以下席位。</p>
 				<table id="backorder_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
 					<thead>
 						<tr>
 							<th>席位名称</th>
 							<th>委员会</th>
-							<th>候选时间</th>
+							<th>候补请求时间</th>
 						</tr>
 					</thead>
 
@@ -203,8 +203,8 @@ $this->load->view('header');?>
 		<?php if($seat_mode == 'select') { ?><div class="tab-pane<?php echo empty($seat) ? ' active' : '';?>" id="select">
 			<div class="col-md-8">
 				<h3>席位分配</h3>
-				<p>我们已经向您分配了 <?php echo $selectability_count;?> 个席位，其中包括了 <?php echo $selectability_primary_count;?> 个主分配席位和 <?php echo $selectability_count - $selectability_primary_count;?> 个候选分配席位。</p>
-				<p>您可以在主分配席位中选择 1 个席位为您的参会席位，同时您在主分配席位和候选分配席位中还可以选择最多 <?php echo $select_backorder_max;?> 个候选席位。由于其他原因（例如席位已经被其他代表选中或者我们尚未决定是否要设置此席位等），您的面试官无法开放部分席位为主分配席位，因此他将此类席位开放为候选分配席位，您可以现在选择这类席位为候选席位，当选中此席位的代表因故退会或调整席位时，您将有机会调整您的席位为此席位。</p>
+				<p>我们已经向您分配了 <?php echo $selectability_count;?> 个席位，其中包括了 <?php echo $selectability_primary_count;?> 个主分配席位和 <?php echo $selectability_count - $selectability_primary_count;?> 个候补分配席位。</p>
+				<p>您可以在主分配席位中选择 1 个席位为您的参会席位，同时您在主分配席位和候补分配席位中还可以选择最多 <?php echo $select_backorder_max;?> 个候补席位。由于其他原因（例如席位已经被其他代表选中或者我们尚未决定是否要设置此席位等），您的面试官无法开放部分席位为主分配席位，因此他将此类席位开放为候补分配席位，您可以现在选择这类席位为候补席位，当选中此席位的代表因故退会或调整席位时，您将有机会调整您的席位为此席位。</p>
 				<p>iPlacard 已经加粗显示了面试官推荐的席位。如果您认为您不适合分配的席位，您可以与您的面试官<?php echo anchor('apply/interview', '联系');?>，他将可以根据情况追加席位分配。</p>
 
 				<table id="selectability_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
@@ -230,13 +230,13 @@ $this->load->view('header');?>
 							<td><?php echo $committees[$one_seat['committee']]['name'];?></td>
 							<td><?php
 							if($selectability['seat']['delegate'] != $delegate['id'])
-								echo $selectability['primary'] ? '<span class="text-success">主分配席位</span>' : '<span class="text-primary">候选分配席位</span>';
+								echo $selectability['primary'] ? '<span class="text-success">主分配席位</span>' : '<span class="text-primary">候补分配席位</span>';
 							else
 								echo '<span class="text-success">已选为主席位</span>';?></td>
 							<td><?php printf('%1$s（%2$s）', date('n月j日', $selectability['time']), nicetime($selectability['time']));?></td>
 							<td><?php if($selectability['primary'] && $one_seat['status'] != 'assigned')
 								echo '<a style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].', true);">'.icon('plus-square', false).'席位</a> ';
-							echo '<a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].', false);">'.icon('plus-square-o', false).'候选</a>';?></td>
+							echo '<a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].', false);">'.icon('plus-square-o', false).'候补</a>';?></td>
 						</tr><?php } ?>
 					</tbody>
 				</table>
@@ -260,7 +260,7 @@ $this->load->view('header');?>
 				<div id="do_select">
 					<?php
 					echo form_open_multipart('apply/seat/select', array('id' => 'seat_form'), array('seat_primary' => empty($seat) ? '' : $seat['id']));?>
-						<p>请在下方下拉框中选择您的参会席位和候选席位。完成选择后请点击提交席位选择按钮。</p>
+						<p>请在下方下拉框中选择您的参会席位和候补席位。完成选择后请点击提交席位选择按钮。</p>
 
 						<div class="form-group <?php if(form_has_error('primary')) echo 'has-error';?>">
 							<?php echo form_label('席位', 'primary', array('class' => 'control-label'));?>
@@ -279,9 +279,9 @@ $this->load->view('header');?>
 						</div>
 
 						<div class="form-group <?php if(form_has_error('backorder')) echo 'has-error';?>">
-							<?php echo form_label('候选席位', 'backorder', array('class' => 'control-label'));?>
+							<?php echo form_label('候补席位', 'backorder', array('class' => 'control-label'));?>
 							<div>
-								<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, empty($backorders) ? array() : $backordered_seats, $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个候选席位"');
+								<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, empty($backorders) ? array() : $backordered_seats, $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个候补席位"');
 								if(form_has_error('backorder'))
 									echo form_error('backorder');
 								?>
@@ -414,9 +414,9 @@ function select_text(id) {
 
 function deselect_text(id) {
 	if($.inArray(id, {$seat_primary_ids}) !== -1) {
-		$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="select_seat(' + id + ', true);">{$icon_add_primary}席位</a> <a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat(' + id + ', false);">{$icon_add_backorder}候选</a>');
+		$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="select_seat(' + id + ', true);">{$icon_add_primary}席位</a> <a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat(' + id + ', false);">{$icon_add_backorder}候补</a>');
 	} else {
-		$('#seat-' + id).children().eq(4).html('<a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat(' + id + ', false);">{$icon_add_backorder}候选</a>');
+		$('#seat-' + id).children().eq(4).html('<a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat(' + id + ', false);">{$icon_add_backorder}候补</a>');
 	}
 }
 
