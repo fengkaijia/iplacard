@@ -1596,19 +1596,22 @@ class Delegate extends CI_Controller
 					$new_selectability = array();
 					foreach(array('primary', 'backorder') as $new_type)
 					{
-						foreach($new_seat[$new_type] as $sid)
+						if(isset($new_seat[$new_type]) && !empty($new_seat[$new_type]))
 						{
-							$seat = $this->seat_model->get_seat($sid);
-							if(!in_array($sid, $existing) && ($seat['status'] != 'preserved' || $seat['committee'] == $admin_committee))
+							foreach($new_seat[$new_type] as $sid)
 							{
-								$recommended = false;
-								if(in_array($sid, $new_recommended[$new_type]))
-									$recommended = true;
+								$seat = $this->seat_model->get_seat($sid);
+								if(!in_array($sid, $existing) && ($seat['status'] != 'preserved' || $seat['committee'] == $admin_committee))
+								{
+									$recommended = false;
+									if(in_array($sid, $new_recommended[$new_type]))
+										$recommended = true;
 
-								$new_selectability[] = $this->seat_model->grant_selectability($sid, $delegate['id'], uid(), $new_type == 'primary', $recommended);
+									$new_selectability[] = $this->seat_model->grant_selectability($sid, $delegate['id'], uid(), $new_type == 'primary', $recommended);
+								}
+								else
+									$this->ui->alert("无法分配席位{$seat['name']}，该席位已经分配或无权分配。", 'warning', true);
 							}
-							else
-								$this->ui->alert("无法分配席位{$seat['name']}，该席位已经分配或无权分配。", 'warning', true);
 						}
 					}
 
