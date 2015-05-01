@@ -154,7 +154,7 @@ class Apply extends CI_Controller
 					$this->load->model('sms_model');
 					$this->load->library('sms');
 
-					$this->sms->to($uid);
+					$this->sms->to($this->uid);
 					$this->sms->message('感谢参与申请，您的申请流程已经完成，请登录 iPlacard 查看申请状态。');
 					$this->sms->queue();
 				}
