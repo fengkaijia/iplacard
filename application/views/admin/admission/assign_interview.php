@@ -34,6 +34,9 @@ if($is_rollbacked)
 
 if($is_retest_requested)
 {
+	$retest_last = '';
+	$retest_last_id = 0;
+	
 	foreach($retest as $one)
 	{
 		if(!empty($one['committee']))
@@ -46,9 +49,21 @@ if($is_retest_requested)
 		$link_text = icon('user', false).$link.$user_text;
 		$retest_data[] = $link_text;
 		
+		//最近一次面试复试情况
 		if($one['id'] == $current_interviewer)
 			$retest_current = $link_text;
+		
+		//早前请求复试最近一次面试未通过情况
+		if($one['id'] > $retest_last_id)
+		{
+			$retest_last = $link_text;
+			$retest_last_id = $one['id'];
+		}
 	}
+	
+	//最后一次复试请求
+	if(!isset($retest_current))
+		$retest_current = $retest_last;
 }
 ?><link href="<?php echo static_url(is_dev() ? 'static/css/bootstrap.select.css' : 'static/css/bootstrap.select.min.css');?>" rel="stylesheet">
 <script src="<?php echo static_url(is_dev() ? 'static/js/bootstrap.select.js' : 'static/js/bootstrap.select.min.js');?>"></script>
