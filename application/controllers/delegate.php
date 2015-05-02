@@ -3049,6 +3049,24 @@ class Delegate extends CI_Controller
 			$html_danger .= $this->load->view('admin/admission/resend_email', $vars, true);
 		}
 		
+		//更换申请类型
+		if($this->admin_model->capable('administrator') && $delegate['status'] != 'deleted')
+		{
+			$types = array();
+			
+			foreach(array('delegate', 'observer', 'volunteer', 'teacher') as $type)
+			{
+				$types[$type] = $this->delegate_model->application_type_text($type);
+			}
+			
+			unset($types[$delegate['application_type']]);
+			
+			$html_danger .= $this->load->view('admin/admission/change_type', $vars + array(
+				'application_type_text' => $this->delegate_model->application_type_text($delegate['application_type']),
+				'types' => $types
+			), true);
+		}
+		
 		//退会
 		if($this->admin_model->capable('administrator') && $delegate['status'] != 'quitted' && $delegate['status'] != 'deleted')
 		{
