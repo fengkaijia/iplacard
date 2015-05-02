@@ -538,6 +538,27 @@ class Event
 	}
 	
 	/**
+	 * 账单已更新事件
+	 */
+	function _event_invoice_cancelled()
+	{
+		$this->title = '取消账单';
+		$this->level = 'warning';
+		$this->icon = 'file-text';
+		
+		if(!empty($this->info['invoice']))
+		{
+			$this->CI->load->model('invoice_model');
+			
+			$invoice = $this->CI->invoice_model->get_invoice($this->info['invoice']);
+			if(!$invoice)
+				return;
+			
+			$this->text = "代表账单 #{$invoice['id']} 已经被取消。";
+		}
+	}
+	
+	/**
 	 * 申请完成事件
 	 */
 	function _event_locked()
