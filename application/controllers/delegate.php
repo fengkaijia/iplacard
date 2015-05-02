@@ -1907,7 +1907,7 @@ class Delegate extends CI_Controller
 					if(!in_array($interview['status'], array('completed', 'exempted', 'cancelled', 'failed')))
 					{
 						$this->interview_model->cancel_interview($interview['id']);
-						$this->delegate_model->add_event($uid, 'interview_cancelled', array('interview' => $interview['id'], 'quit' => true));
+						$this->delegate_model->add_event($uid, 'interview_cancelled', array('interview' => $interview['id'], 'typechange' => true));
 					}
 					
 					$this->user_model->edit_user_option('typechange_affected_interview', $interview_id, $uid);
