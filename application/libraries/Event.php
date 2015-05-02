@@ -633,5 +633,5 @@ class Event
 	}
 }
 
-/* End of file Invoice.php */
-/* Location: ./application/libraries/Invoice.php */
+/* End of file Event.php */
+/* Location: ./application/libraries/Event.php */
