@@ -189,7 +189,7 @@ $this->load->view('header');?>
 								<div class="form-group <?php if(form_has_error('group')) echo 'has-error';?>">
 									<?php echo form_label('所属团队', 'group', array('class' => 'col-lg-3 control-label'));?>
 									<div class="col-lg-5">
-										<?php echo form_dropdown('group', array('' => '选择代表团...') + $groups, set_value('group', $group ? $group['id'] : ''), 'class="form-control" id="committee"');
+										<?php echo form_dropdown('group', array('' => '选择代表团...') + $groups, set_value('group', $group ? $group['id'] : ''), 'class="form-control" id="group"');
 										if(form_has_error('group'))
 											echo form_error('group');
 										else { ?><div class="help-block">代表所属的代表团。</div><?php } ?>

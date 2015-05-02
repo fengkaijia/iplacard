@@ -41,7 +41,7 @@
 					<?php echo form_label('团队支付方式', 'group_payment', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-4">
 						<?php
-						echo form_dropdown('group_payment', array(true => '团队支付', false => '代表个人支付'), set_value('group_payment', $action == 'add' ? true : $group['group_payment']), 'class="form-control" id="committee"');
+						echo form_dropdown('group_payment', array(true => '团队支付', false => '代表个人支付'), set_value('group_payment', $action == 'add' ? true : $group['group_payment']), 'class="form-control" id="group_payment"');
 						if(form_has_error('group_payment'))
 							echo form_error('group_payment');
 						else { ?><div class="help-block">选定是否由团队支付此团队所有代表的账单。</div><?php } ?>

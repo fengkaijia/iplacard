@@ -78,7 +78,7 @@
 					<?php echo form_label('委员会类型', 'type', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-4">
 						<?php
-						echo form_dropdown('type', empty($types) ? array('' => '委员会类型为空') : $types, set_value('type', $action == 'add' ? '' : $committee['type']), 'class="form-control" id="committee"');
+						echo form_dropdown('type', empty($types) ? array('' => '委员会类型为空') : $types, set_value('type', $action == 'add' ? '' : $committee['type']), 'class="form-control" id="type"');
 						if(form_has_error('type'))
 							echo form_error('type');
 						else { ?><div class="help-block">委员会类型对应接口程序生效。</div><?php } ?>
@@ -89,7 +89,7 @@
 					<?php echo form_label('席位宽度', 'seat_width', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-4">
 						<?php
-						echo form_dropdown('seat_width', empty($widths) ? array('' => '不设置席位宽度') : $widths, set_value('seat_width', $action == 'add' ? '' : $committee['seat_width']), 'class="form-control" id="committee"');
+						echo form_dropdown('seat_width', empty($widths) ? array('' => '不设置席位宽度') : $widths, set_value('seat_width', $action == 'add' ? '' : $committee['seat_width']), 'class="form-control" id="seat_width"');
 						if(form_has_error('seat_width'))
 							echo form_error('seat_width');
 						else { ?><div class="help-block">席位宽度对应席位设置功能生效。</div><?php } ?>
