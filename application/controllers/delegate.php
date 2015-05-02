@@ -1843,6 +1843,148 @@ class Delegate extends CI_Controller
 				
 				$this->system_model->log('welcome_email_resent', array('delegate' => $uid, 'reset' => $reset));
 				break;
+				
+			//更换申请类型
+			case 'change_type':
+				$this->load->model('seat_model');
+				$this->load->model('interview_model');
+				
+				//已经删除检查
+				if($delegate['status'] == 'deleted')
+				{
+					$this->ui->alert('用户帐户已被计划删除，无法更换申请类型。', 'warning', true);
+					break;
+				}
+				
+				//更换原因
+				$reason = $this->input->post('reason');
+				if(empty($reason))
+				{
+					$this->ui->alert('更换原因为空，更换操作未执行。', 'warning', true);
+					break;
+				}
+				
+				//更换类型
+				$type = $this->input->post('type');
+				if(empty($type) || !in_array($type, array('delegate', 'observer', 'volunteer', 'teacher')))
+				{
+					$this->ui->alert('更换类型有误，更换操作未执行。', 'warning', true);
+					break;
+				}
+				elseif($type == $delegate['application_type'])
+				{
+					$this->ui->alert('申请类型没有变化，更换操作未执行。', 'warning', true);
+					break;
+				}
+				
+				//取消账单
+				$cancel_invoice = false;
+				if($this->input->post('cancel_invoice'))
+				{
+					$this->load->model('invoice_model');
+					$this->load->library('invoice');
+					
+					$cancel_invoice = true;
+					
+					$invoice_ids = $this->invoice_model->get_delegate_invoices($uid, true);
+					if($invoice_ids)
+					{
+						foreach($invoice_ids as $invoice_id)
+						{
+							$this->invoice->load($invoice_id);
+							$this->invoice->cancel(uid());
+						}
+
+						$this->user_model->edit_user_option('typechange_affected_invoice', $invoice_ids, $uid);
+					}
+				}
+				
+				//取消未完成面试
+				$interview_id = $this->interview_model->get_current_interview_id($uid);
+				if($interview_id)
+				{
+					$interview = $this->interview_model->get_interview($interview_id);
+					if(!in_array($interview['status'], array('completed', 'exempted', 'cancelled')))
+					{
+						$this->interview_model->cancel_interview($interview['id']);
+						$this->delegate_model->add_event($uid, 'interview_cancelled', array('interview' => $interview['id'], 'quit' => true));
+					}
+					
+					$this->user_model->edit_user_option('typechange_affected_interview', $interview_id, $uid);
+				}
+				
+				//释放席位
+				$seat_id = $this->seat_model->get_delegate_seat($uid);
+				if($seat_id)
+				{
+					$this->seat_model->change_seat_status($seat_id, 'available', NULL);
+					$this->seat_model->assign_seat($seat_id, NULL);
+					
+					$this->delegate_model->add_event($uid, 'seat_cancelled', array('seat' => $seat_id));
+					
+					//TODO: 候补席位调整
+					
+					$this->user_model->edit_user_option('typechange_affected_seat', $seat_id, $uid);
+				}
+				
+				//取消候补席位请求
+				$backorder_ids = $this->seat_model->get_delegate_backorder($uid, true);
+				if($backorder_ids)
+				{
+					foreach($backorder_ids as $backorder_id)
+					{
+						$this->seat_model->change_backorder_status($backorder_id, 'cancelled');
+						
+						$this->delegate_model->add_event($uid, 'backorder_cancelled', array('backorder' => $backorder_id));
+					}
+					
+					$this->user_model->edit_user_option('typechange_affected_backorder', $backorder_ids, $uid);
+				}
+				
+				//操作更换申请类型
+				$this->delegate_model->edit_delegate(array('application_type' => $type), $uid);
+				$this->delegate_model->change_status($uid, 'application_imported');
+				$this->delegate_model->add_event($uid, 'type_changed', array('reason' => $reason, 'old' => $delegate['application_type'], 'new' => $type));
+				
+				$this->user_model->add_message($uid, "您的申请类型已经更换。");
+				
+				//发送邮件
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+
+				$data = array(
+					'uid' => $uid,
+					'name' => $delegate['name'],
+					'email' => $delegate['email'],
+					'old_type' => $this->delegate_model->application_type_text($delegate['type']),
+					'new_type' => $this->delegate_model->application_type_text($type),
+					'reason' => $reason,
+					'time' => unix_to_human(time())
+				);
+
+				$this->email->to($delegate['email']);
+				$this->email->subject('申请类型已更换');
+				$this->email->html($this->parser->parse_string(option('email_delegate_type_changed', "您的参会申请类型已经于 {time} 因以下原因：\n\n"
+						. "\t{reason}\n\n"
+						. "由{old_type}变更为{new_type}。请立即登录 iPlacard 查看更换后的申请进度和流程。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+
+					$this->sms->to($uid);
+					$this->sms->message("您的参会申请类型已经由{$data['old_type']}更换为{$data['new_type']}，请立即登录 iPlacard 查看更换后的申请进度和流程。");
+					$this->sms->queue();
+				}
+				
+				$this->ui->alert("已经更换代表申请类型。", 'success', true);
+				
+				$this->system_model->log('application_type_changed', array('reason' => $reason, 'old' => $delegate['application_type'], 'new' => $type, 'cancel_invoice' => $cancel_invoice));
+				break;
 			
 			//退会
 			case 'quit':
