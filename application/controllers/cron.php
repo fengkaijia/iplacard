@@ -47,7 +47,7 @@ class Cron extends CI_Controller
 	function daily()
 	{
 		echo "\nProcessing Cron Daily.\n\n";
-		//$this->_remind_invoice_overdue();
+		$this->_remind_invoice_overdue();
 		$this->_remove_deleted_delegate_data();
 	}
 	
