@@ -559,12 +559,12 @@ class Seat extends CI_Controller
 							$status_class = 'default';
 							break;
 						case 'available':
-						case 'assigned':
 							$status_class = 'primary';
 							break;
 						case 'preserved':
 							$status_class = 'info';
 							break;
+						case 'assigned':
 						case 'approved':
 						case 'locked':
 							$status_class = 'success';
