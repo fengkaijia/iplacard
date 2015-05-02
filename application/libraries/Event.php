@@ -611,6 +611,26 @@ class Event
 		
 		$this->text = "管理员恢复了即将被删除的代表帐户。";
 	}
+	
+	/**
+	 * 更换申请类型事件
+	 */
+	function _event_type_changed()
+	{
+		$this->title = '更换参会申请类型';
+		$this->level = 'warning';
+		$this->icon = 'exchange';
+		
+		if(!empty($this->info['reason']) && !empty($this->info['old']) && !empty($this->info['new']))
+		{
+			$this->CI->load->model('delegate_model');
+			
+			$old = $this->CI->delegate_model->application_type_text($this->info['old']);
+			$new = $this->CI->delegate_model->application_type_text($this->info['new']);
+			
+			$this->text = "代表的参会申请类型由{$old}变更为了{$new}。<blockquote><p>{$this->info['reason']}</p></blockquote>变更由于以上原因产生。";
+		}
+	}
 }
 
 /* End of file Invoice.php */
