@@ -1904,7 +1904,7 @@ class Delegate extends CI_Controller
 				if($interview_id)
 				{
 					$interview = $this->interview_model->get_interview($interview_id);
-					if(!in_array($interview['status'], array('completed', 'exempted', 'cancelled')))
+					if(!in_array($interview['status'], array('completed', 'exempted', 'cancelled', 'failed')))
 					{
 						$this->interview_model->cancel_interview($interview['id']);
 						$this->delegate_model->add_event($uid, 'interview_cancelled', array('interview' => $interview['id'], 'quit' => true));
@@ -2014,7 +2014,7 @@ class Delegate extends CI_Controller
 				if($interview_id)
 				{
 					$interview = $this->interview_model->get_interview($interview_id);
-					if(!in_array($interview['status'], array('completed', 'exempted', 'cancelled')))
+					if(!in_array($interview['status'], array('completed', 'exempted', 'cancelled', 'failed')))
 					{
 						$this->interview_model->cancel_interview($interview['id']);
 						$this->delegate_model->add_event($uid, 'interview_cancelled', array('interview' => $interview['id'], 'quit' => true));
