@@ -1463,7 +1463,7 @@ class Delegate extends CI_Controller
 					break;
 				
 				$interview = $this->interview_model->get_interview($current_id);
-				if($interview['status'] != 'completed' && $interview['status'] != 'exempted')
+				if(!in_array($interview['status'], array('completed', 'exempted', 'failed')))
 				{
 					$this->ui->alert('当前情况下无法变更面试状态。', 'danger', true);
 					break;
