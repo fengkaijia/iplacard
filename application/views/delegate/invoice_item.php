@@ -124,7 +124,7 @@ $this->load->view('header');?>
 					));
 					if(form_has_error('transaction'))
 						echo form_error('transaction');
-					else { ?><div class="help-block">交易流水号或支付宝交易号，如未知请留空。</div><?php } ?>
+					else { ?><div class="help-block">交易流水号、汇款帐号或支付宝交易号，如未知请留空。</div><?php } ?>
 				</div>
 				
 				<div class="form-group <?php if(form_has_error('amount')) echo 'has-error';?>">
