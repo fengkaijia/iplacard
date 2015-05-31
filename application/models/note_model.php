@@ -38,6 +38,34 @@ class Note_model extends CI_Model
 	}
 	
 	/**
+	 * 批量获取注释笔记信息
+	 * @param int $ids 注释笔记IDs
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_notes($ids)
+	{
+		$this->db->where_in('id', $ids);
+		$query = $this->db->get('note');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$return = array();
+		
+		foreach($query->result_array() as $data)
+		{
+			$data['mention'] = $this->get_note_mentions($id);
+			
+			$return[$data['id']] = $data;
+		}
+		$query->free_result();
+		
+		//返回结果
+		return $return;
+	}
+	
+	/**
 	 * 查询符合条件的第一个注释笔记ID
 	 * @return int|false 符合查询条件的第一个注释笔记ID，如不存在返回FALSE
 	 */
