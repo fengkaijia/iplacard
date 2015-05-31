@@ -208,10 +208,15 @@ class Group extends CI_Controller
 			
 			if($ids)
 			{
-				foreach($ids as $id)
+				$groups = $this->group_model->get_groups($ids);
+				$delegates = array();
+				
+				$delegate_ids = $this->delegate_model->get_delegate_ids('group', $ids);
+				if($delegate_ids)
+					$delegates = $this->delegate_model->get_delegates($delegate_ids);
+				
+				foreach($groups as $id => $group)
 				{
-					$group = $this->group_model->get_group($id);
-
 					//操作
 					$operation = anchor("delegate/manage/?display_hd=1&group=$id", icon('group', false).'成员').' '.anchor("group/edit/$id", icon('edit', false).'编辑');
 
@@ -240,9 +245,9 @@ class Group extends CI_Controller
 						}
 
 						//状态统计
-						foreach($all_delegate as $delegate)
+						foreach($all_delegate as $delegate_id)
 						{
-							$status_code = $this->delegate_model->status_code($delegate);
+							$status_code = $this->delegate_model->status_code($delegates[$delegate_id]['status']);
 							if($status_code <= 5)
 								$status['apply']++;
 							elseif($status_code <= 7)
@@ -258,9 +263,7 @@ class Group extends CI_Controller
 					$head_delegate_line = '空缺';
 					if(!empty($group['head_delegate']))
 					{
-						$head_delegate = $this->delegate_model->get_delegate($group['head_delegate']);
-						$head_delegate_name = anchor("delegate/profile/{$head_delegate['id']}", $head_delegate['name']);
-						$head_delegate_line = icon('user', false).$head_delegate_name;
+						$head_delegate_line = icon('user', false).anchor("delegate/profile/{$delegates[$group['head_delegate']]['id']}", $delegates[$group['head_delegate']]['name']);
 					}
 
 					$data = array(
