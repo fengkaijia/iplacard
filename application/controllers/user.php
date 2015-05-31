@@ -437,18 +437,16 @@ class User extends CI_Controller
 		}
 		elseif($action == 'mention')
 		{
-			$this->load->model('committee_model');
-			
 			$ids = $this->user_model->get_user_ids('type', 'admin');
 			
-			foreach($ids as $id)
+			$committees = $this->committee_model->get_committees();
+			
+			foreach($this->admin_model->get_admins($ids) as $id => $admin)
 			{
-				$admin = $this->admin_model->get_admin($id);
-				
 				$data = array(
 					'id' => $admin['id'],
 					'name' => $admin['name'],
-					'title' => !empty($admin['title']) ? $admin['title'] : (!empty($admin['committee']) ? $this->committee_model->get_committee($admin['committee'], 'name') : '')
+					'title' => !empty($admin['title']) ? $admin['title'] : (!empty($admin['committee']) ? $committees[$admin['committee']]['name'] : '')
 				);
 				
 				$json[] = $data;
