@@ -40,9 +40,10 @@ class Committee_model extends CI_Model
 	 * @param int $ids 委员会IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_committees($ids)
+	function get_committees($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('committee');
 		
 		//如果无结果
