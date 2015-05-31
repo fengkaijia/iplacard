@@ -281,7 +281,6 @@ class Interview extends CI_Controller
 						else
 							$special_line = "<span class='label label-danger'>二次</span> ";
 					}
-						
 					
 					$data = array(
 						$interview['id'], //ID
