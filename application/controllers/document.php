@@ -628,10 +628,11 @@ class Document extends CI_Controller
 			
 			if($ids)
 			{
-				foreach($ids as $id)
+				$documents = $this->document_model->get_documents($ids);
+				$committees = $this->committee_model->get_committees();
+				
+				foreach($documents as $id => $document)
 				{
-					$document = $this->document_model->get_document($id);
-
 					//操作
 					$operation = anchor("document/download/$id", icon('download', false).'下载');
 					if($this->admin_model->capable('administrator') || ($this->admin_model->capable('dais') && $admin == $document['user']))
@@ -652,7 +653,7 @@ class Document extends CI_Controller
 						if($access === true)
 							$access_line = '全局分发';
 						elseif($count_access == 1)
-							$access_line = $this->committee_model->get_committee($access[0], 'abbr');
+							$access_line = $committees[$access[0]]['abbr'];
 						else
 						{
 							$access_line = "$count_access 委员会";
@@ -660,7 +661,7 @@ class Document extends CI_Controller
 							$access_list = '';
 							foreach($access as $one)
 							{
-								$access_list .= '<p>'.icon('university').$this->committee_model->get_committee($one, 'name').'</p>';
+								$access_list .= '<p>'.icon('university').$committees[$one]['name'].'</p>';
 							}
 							
 							$access_line .= '<a style="cursor: pointer;" class="committee_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'可访问委员会\' data-toggle="popover" data-content=\''.$access_list.'\'>'.icon('info-circle', false).'</a>';
@@ -670,26 +671,28 @@ class Document extends CI_Controller
 						$access_line = '<span class="text-danger">N/A</span>';
 					
 					//版本下载量
-					$version = $this->document_model->get_document_files($id);
-					if($version)
+					$version_ids = $this->document_model->get_document_files($id);
+					if($version_ids)
 					{
-						$count_version = count($version);
+						$count_version = count($version_ids);
 						
 						if($count_version > 1)
 						{
 							$version_line = "$count_version 版本";
-							
 							$version_list = '';
-							foreach($version as $one)
+							
+							$versions = $this->document_model->get_files($version_ids);
+							
+							foreach($versions as $version_id => $version_info)
 							{
-								$version_info = $this->document_model->get_file($one);
+								$version_info = $this->document_model->get_file($version_id);
 								
 								if(empty($version_info['version']))
 									$version_text = sprintf('<span class="text-muted">%s</span> ', date('n月j日', $version_info['upload_time']));
 								else
 									$version_text = $version_info['version'].sprintf('<span class="text-muted"> / %s</span> ', date('n月j日', $version_info['upload_time']));
 								
-								if($document['file'] == $one)
+								if($document['file'] == $version_id)
 									$version_text .= '<span class="label label-primary">最新</span>';
 								
 								$version_list .= '<p>'.icon('file').$version_text.'</p>';
@@ -701,7 +704,7 @@ class Document extends CI_Controller
 							$version_line = '原始版本';
 						
 						//下载量
-						$downloads = $this->document_model->get_download_ids('file', $version);
+						$downloads = $this->document_model->get_download_ids('file', $version_ids);
 						$download_count = $downloads ? count($downloads) : 0;
 					}
 					else

@@ -37,6 +37,33 @@ class Document_model extends CI_Model
 	}
 	
 	/**
+	 * 批量获取文件信息
+	 * @param int $ids 文件IDs
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_documents($ids)
+	{
+		$this->db->where_in('document.id', $ids);
+		$this->db->join('document', 'document_file.id = document.file');
+		$query = $this->db->get('document_file');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$return = array();
+		
+		foreach($query->result_array() as $data)
+		{
+			$return[$data['id']] = $data;
+		}
+		$query->free_result();
+		
+		//返回结果
+		return $return;
+	}
+	
+	/**
 	 * 查询符合条件的第一个文件ID
 	 * @return int|false 符合查询条件的第一个文件ID，如不存在返回FALSE
 	 */
@@ -262,6 +289,32 @@ class Document_model extends CI_Model
 		if(empty($part))
 			return $data;
 		return $data[$part];
+	}
+	
+	/**
+	 * 批量获取文件版本信息
+	 * @param int $ids 文件版本IDs
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_files($ids)
+	{
+		$this->db->where_in('id', $ids);
+		$query = $this->db->get('document_file');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$return = array();
+		
+		foreach($query->result_array() as $data)
+		{
+			$return[$data['id']] = $data;
+		}
+		$query->free_result();
+		
+		//返回结果
+		return $return;
 	}
 	
 	/**

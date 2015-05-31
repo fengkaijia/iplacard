@@ -49,6 +49,45 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
+	 * 批量获取席位信息
+	 * @param int $ids 席位IDs
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_seats($ids)
+	{
+		$this->db->where_in('id', $ids);
+		$query = $this->db->get('seat');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$return = array();
+		
+		foreach($query->result_array() as $data)
+		{
+			//子席位
+			if(!empty($data['primary']))
+			{
+				//TODO: 递归死循环
+				$primary = $this->get_seat($data['primary']);
+
+				foreach($data as $key => $value)
+				{
+					if(empty($value) && !in_array($key, array('delegate', 'status', 'time')))
+						$data[$key] = $primary[$key];
+				}
+			}
+			
+			$return[$data['id']] = $data;
+		}
+		$query->free_result();
+		
+		//返回结果
+		return $return;
+	}
+	
+	/**
 	 * 查询符合条件的第一个席位ID
 	 * @return int|false 符合查询条件的第一个席位ID，如不存在返回FALSE
 	 */
@@ -364,6 +403,32 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
+	 * 批量席位延期请求信息
+	 * @param int $ids 延期请求IDs
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_backorders($ids)
+	{
+		$this->db->where_in('id', $ids);
+		$query = $this->db->get('seat_backorder');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$return = array();
+		
+		foreach($query->result_array() as $data)
+		{
+			$return[$data['id']] = $data;
+		}
+		$query->free_result();
+		
+		//返回结果
+		return $return;
+	}
+	
+	/**
 	 * 查询符合条件的第一个延期请求ID
 	 * @return int|false 符合查询条件的第一个延期请求ID，如不存在返回FALSE
 	 */
@@ -580,6 +645,32 @@ class Seat_model extends CI_Model
 		if(empty($part))
 			return $data;
 		return $data[$part];
+	}
+	
+	/**
+	 * 批量席位许可信息
+	 * @param int $ids 许可IDs
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_selectabilities($ids)
+	{
+		$this->db->where_in('id', $ids);
+		$query = $this->db->get('seat_selectabilit');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$return = array();
+		
+		foreach($query->result_array() as $data)
+		{
+			$return[$data['id']] = $data;
+		}
+		$query->free_result();
+		
+		//返回结果
+		return $return;
 	}
 	
 	/**

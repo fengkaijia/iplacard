@@ -37,6 +37,33 @@ class Admin_model extends CI_Model
 	}
 	
 	/**
+	 * 批量获取管理员信息
+	 * @param int $ids 用户IDs
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_admins($ids)
+	{
+		$this->db->where_in('user.id', $ids);
+		$this->db->join('admin', 'user.id = admin.id', 'left outer');
+		$query = $this->db->get('user');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$return = array();
+		
+		foreach($query->result_array() as $data)
+		{
+			$return[$data['id']] = $data;
+		}
+		$query->free_result();
+		
+		//返回结果
+		return $return;
+	}
+	
+	/**
 	 * 查询符合条件的第一个管理员ID
 	 * @return int|false 符合查询条件的第一个管理员ID，如不存在返回FALSE
 	 */

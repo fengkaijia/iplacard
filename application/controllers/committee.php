@@ -234,10 +234,8 @@ class Committee extends CI_Controller
 			
 			if($ids)
 			{
-				foreach($ids as $id)
+				foreach($this->committee_model->get_committees() as $id => $committee)
 				{
-					$committee = $this->committee_model->get_committee($id);
-
 					//操作
 					$operation = anchor("delegate/manage/?committee=$id", icon('user', false).'代表').' '.anchor("seat/manage/?committee=$id", icon('th-list', false).'席位').' '.anchor("committee/edit/$id", icon('edit', false).'编辑');
 

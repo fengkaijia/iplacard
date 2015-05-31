@@ -2407,6 +2407,7 @@ class Delegate extends CI_Controller
 			$this->load->model('interview_model');
 			$this->load->model('committee_model');
 			$this->load->model('seat_model');
+			$this->load->model('group_model');
 			$this->load->helper('date');
 			
 			$param = $this->_filter_check($this->input->get());
@@ -2489,10 +2490,27 @@ class Delegate extends CI_Controller
 				//附加属性
 				$profile_option = option('profile_list_manage', array());
 				
-				foreach($ids as $id)
+				$delegates = $this->delegate_model->get_delegates($ids);
+				$committees = $this->committee_model->get_committees();
+				$seats = array();
+				$groups = array();
+				$head_delegates = array();
+				
+				$seat_ids = $this->seat_model->get_seat_ids('delegate', array_column($delegates, 'id'));
+				if($seat_ids)
+					$seats = $this->seat_model->get_seats($seat_ids);
+				
+				$delegate_seats = array_column($seats, 'id', 'delegate');
+				
+				$group_ids = array_unique(array_column($delegates, 'group'));
+				if(!empty($group_ids))
 				{
-					$delegate = $this->delegate_model->get_delegate($id);
-
+					$groups = $this->group_model->get_groups($group_ids);
+					$head_delegates = array_column($groups, 'head_delegate', 'id');
+				}
+				
+				foreach($delegates as $id => $delegate)
+				{
 					//操作
 					$operation = anchor("delegate/profile/$id", icon('info-circle', false).'信息');
 					
@@ -2500,9 +2518,7 @@ class Delegate extends CI_Controller
 					$hd_text = '';
 					if(isset($param['display_hd']) && $param['display_hd'])
 					{
-						$this->load->model('group_model');
-						
-						if($this->group_model->get_group_id('head_delegate', $id))
+						if(in_array($id, $head_delegates))
 							$hd_text = '<span class="label label-primary">领队</span> ';
 					}
 					$contact_list = '<p>'.icon('phone').$delegate['phone'].'</p><p>'.icon('envelope-o').$delegate['email'].'</p>';
@@ -2514,9 +2530,7 @@ class Delegate extends CI_Controller
 					$group_line = '';
 					if(!empty($delegate['group']))
 					{
-						$this->load->model('group_model');
-						$group = $this->group_model->get_group($delegate['group']);
-						$group_line = anchor("delegate/manage/?group={$group['id']}", '<span class="shorten">'.$group['name'].'</span>');
+						$group_line = anchor("delegate/manage/?group={$groups[$delegate['group']]['id']}", '<span class="shorten">'.$groups[$delegate['group']]['name'].'</span>');
 					}
 					
 					//申请状态
@@ -2558,12 +2572,8 @@ class Delegate extends CI_Controller
 					$committee_line = '';
 					if($delegate['application_type'] == 'delegate')
 					{
-						$sid = $this->seat_model->get_delegate_seat($delegate['id']);
-						if($sid)
-						{
-							$seat = $this->seat_model->get_seat($sid);
-							$committee_line = $this->committee_model->get_committee($seat['committee'], 'abbr');
-						}
+						if(isset($delegate_seats[$id]) && !empty($delegate_seats[$id]))
+							$committee_line = $committees[$seats[$delegate_seats[$id]]['committee']]['abbr'];
 					}
 
 					$data = array(

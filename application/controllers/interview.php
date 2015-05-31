@@ -194,11 +194,14 @@ class Interview extends CI_Controller
 			
 			if($ids)
 			{
-				foreach($ids as $id)
+				$interviews = $this->interview_model->get_interviews($ids);
+				$admins = $this->admin_model->get_admins(array_unique(array_column($interviews, 'interviewer')));
+				$delegates = $this->delegate_model->get_delegates(array_unique(array_column($interviews, 'delegate')));
+				
+				foreach($interviews as $id => $interview)
 				{
-					$interview = $this->interview_model->get_interview($id);
-					$delegate = $this->delegate_model->get_delegate($interview['delegate']);
-					$admin = $this->admin_model->get_admin($interview['interviewer']);
+					$admin = $admins[$interview['interviewer']];
+					$delegate = $delegates[$interview['delegate']];
 
 					//操作
 					$operation = anchor("delegate/profile/{$interview['delegate']}", icon('user', false).'代表信息');

@@ -294,10 +294,8 @@ class Knowledgebase extends CI_Controller
 			
 			if($ids)
 			{
-				foreach($ids as $id)
+				foreach($this->knowledgebase_model->get_articles($ids) as $id => $article)
 				{
-					$article = $this->knowledgebase_model->get_article($id);
-
 					//操作
 					$operation = anchor("knowledgebase/article/kb{$article['kb']}", icon('eye', false).'查看');
 					if(!$article['system'])
