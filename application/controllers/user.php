@@ -370,10 +370,10 @@ class User extends CI_Controller
 			
 			$ids = $this->user_model->get_user_ids('type', 'admin');
 			
-			foreach($ids as $id)
+			$committees = $this->committee_model->get_committees();
+			
+			foreach($this->admin_model->get_admins($ids) as $id => $user)
 			{
-				$user = $this->admin_model->get_admin($id);
-				
 				//操作
 				$operation = '';
 				if($this->admin_model->capable('bureaucrat'))
@@ -388,11 +388,10 @@ class User extends CI_Controller
 						.'\' data-toggle="popover" data-content=\''.$contact_list.'\'>'.icon('phone-square', false).'</a>';
 				
 				//委员会
+				$committee_line = '';
 				if($user['committee'])
 				{
-					$committee = $this->committee_model->get_committee($user['committee']);
-					$committee_text = icon('sitemap').$committee['abbr'];
-					$committee_line = anchor("committee/edit/{$committee['id']}", $committee_text);
+					$committee_line = anchor("committee/edit/{$committees[$user['committee']]['id']}", icon('sitemap').$committees[$user['committee']]['abbr']);
 				}
 				
 				//面试队列统计
@@ -417,7 +416,7 @@ class User extends CI_Controller
 					$user['id'], //ID
 					$name_line, //姓名
 					'<span class="shorten">'.$user['title'].'</span>', //职位
-					$user['committee'] ? $committee_line : '', //委员会
+					$committee_line, //委员会
 					$interview_enabled ? $interview_line : '', //面试队列
 					$role_count ? "{$role_count} 项权限" : "无权限", //权限统计
 					$user['role_bureaucrat'] ? $role_line : '', //行政员
