@@ -655,7 +655,7 @@ class Seat_model extends CI_Model
 	function get_selectabilities($ids)
 	{
 		$this->db->where_in('id', $ids);
-		$query = $this->db->get('seat_selectabilit');
+		$query = $this->db->get('seat_selectability');
 		
 		//如果无结果
 		if($query->num_rows() == 0)
