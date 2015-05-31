@@ -14,7 +14,7 @@ class Sms_model extends CI_Model
 	
 	/**
 	 * 获取短信信息
-	 * @param int $id ID
+	 * @param int $id 短信ID
 	 * @param string $part 指定部分
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
