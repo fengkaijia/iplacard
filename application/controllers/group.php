@@ -263,7 +263,7 @@ class Group extends CI_Controller
 					$head_delegate_line = '空缺';
 					if(!empty($group['head_delegate']))
 					{
-						$head_delegate_line = icon('user', false).anchor("delegate/profile/{$delegates[$group['head_delegate']]['id']}", $delegates[$group['head_delegate']]['name']);
+						$head_delegate_line = anchor("delegate/profile/{$delegates[$group['head_delegate']]['id']}", icon('user').$delegates[$group['head_delegate']]['name']);
 					}
 
 					$data = array(
