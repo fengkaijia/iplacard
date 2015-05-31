@@ -30,7 +30,7 @@ else
 	<div class="panel-body">
 		<p><?php echo icon('book')."文章编号：KB{$article['kb']}";?></p>
 		<p><?php echo icon('floppy-o').sprintf('发布时间：%s', date('Y-m-d H:i', $article['create_time']));?></p>
-		<?php if(!is_null($article['update_time']) && $article['update_time'] != $article['create_time']) { ?><p><?php echo icon('pencil').sprintf('最后更新：%s', date('Y-m-d H:i', $article['create_time']));?></p><?php } ?>
+		<?php if(!is_null($article['update_time']) && $article['update_time'] != $article['create_time']) { ?><p><?php echo icon('pencil').sprintf('最后更新：%s', date('Y-m-d H:i', $article['update_time']));?></p><?php } ?>
 		<p style="margin-bottom: 0;"><small><?php if($article['system'])
 			echo '此知识库文章为 iPlacard 系统帮助文章，文档内容将为使用 iPlacard 提供帮助与支持。';
 		else
