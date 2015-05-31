@@ -490,13 +490,19 @@ class Seat extends CI_Controller
 			{
 				$seat_mode = option('seat_mode', 'select');
 				
-				foreach($ids as $id)
+				$seats = $this->seat_model->get_seats($ids);
+				$committees = $this->committee_model->get_committees();
+				$delegates = array();
+				
+				$delegate_ids = array_unique(array_column($seats, 'delegate'));
+				if(!empty($delegate_ids))
+					$delegates = $this->delegate_model->get_delegates($delegate_ids);
+				
+				foreach($seats as $id => $seat)
 				{
-					$seat = $this->seat_model->get_seat($id);
-					
 					$delegate = false;
 					if(!empty($seat['delegate']))
-						$delegate = $this->delegate_model->get_delegate($seat['delegate']);
+						$delegate = $delegates[$seat['delegate']];
 
 					//操作
 					$operation = '';
@@ -588,7 +594,7 @@ class Seat extends CI_Controller
 					$data = array(
 						$seat['id'], //ID
 						$name_line, //席位名称
-						$this->committee_model->get_committee($seat['committee'], 'abbr'), //委员会
+						$committees[$seat['committee']]['abbr'], //委员会
 						$status_line, //席位状态
 						$seat['level'], //席位等级
 						!empty($seat['delegate']) ? $delegate_line : 'N/A', //代表
@@ -615,10 +621,13 @@ class Seat extends CI_Controller
 			$slids = $this->seat_model->get_delegate_selectability($uid);
 			if($slids)
 			{
-				foreach($slids as $slid)
+				$selectabilities = $this->seat_model->get_selectabilities($slids);
+				$seats = $this->seat_model->get_seats(array_unique(array_column($selectabilities, 'seat')));
+				$committees = $this->committee_model->get_committees();
+				
+				foreach($selectabilities as $slid => $selectability)
 				{
-					$selectability = $this->seat_model->get_selectability($slid);
-					$seat = $this->seat_model->get_seat($selectability['seat']);
+					$seat = $seats[$selectability]['seat'];
 					
 					//席位名称
 					$name_line = flag($seat['iso'], true).'<span class="shorten-select">'.$seat['name'].'</span>';
@@ -630,7 +639,7 @@ class Seat extends CI_Controller
 					$data = array(
 						$seat['id'], //ID
 						$name_line, //席位名称
-						$this->committee_model->get_committee($seat['committee'], 'abbr'), //委员会
+						$committees[$seat['committee']]['abbr'], //委员会
 						$seat['level'], //席位等级
 						$selectability['primary'] ? '<span class="text-success">'.icon('check-circle', false).'</span>' : '', //主项
 						$selectability['recommended'] ? '<span class="text-success">'.icon('star', false).'</span>' : '', //推荐
