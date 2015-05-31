@@ -195,20 +195,8 @@ class Interview extends CI_Controller
 			if($ids)
 			{
 				$interviews = $this->interview_model->get_interviews($ids);
-				
-				$admin_ids = array();
-				$delegate_ids = array();
-				foreach($interviews as $interview)
-				{
-					if(!in_array($interview['interviewer'], $admin_ids))
-						$admin_ids[] = $interview['interviewer'];
-					
-					if(!in_array($interview['delegate'], $delegate_ids))
-						$delegate_ids[] = $interview['delegate'];
-				}
-				
-				$admins = $this->admin_model->get_admins($admin_ids);
-				$delegates = $this->delegate_model->get_delegates($delegate_ids);
+				$admins = $this->admin_model->get_admins(array_unique(array_column($interviews, 'interviewer')));
+				$delegates = $this->delegate_model->get_delegates(array_unique(array_column($interviews, 'delegate')));
 				
 				foreach($interviews as $id => $interview)
 				{
