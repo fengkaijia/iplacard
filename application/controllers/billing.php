@@ -262,10 +262,12 @@ class Billing extends CI_Controller
 			
 			if($ids)
 			{
-				foreach($ids as $id)
+				$invoices = $this->invoice_model->get_invoices($ids);
+				$delegates = $this->delegate_model->get_delegates(array_unique(array_column($invoices, 'delegate')));
+				
+				foreach($invoices as $id => $invoice)
 				{
-					$invoice = $this->invoice_model->get_invoice($id);
-					$delegate = $this->delegate_model->get_delegate($invoice['delegate']);
+					$delegate = $delegates[$invoice['delegate']];
 
 					//操作
 					$operation = anchor("billing/invoice/{$invoice['id']}", icon('file-text', false).'账单');
