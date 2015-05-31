@@ -627,7 +627,7 @@ class Seat extends CI_Controller
 				
 				foreach($selectabilities as $slid => $selectability)
 				{
-					$seat = $seats[$selectability]['seat'];
+					$seat = $seats[$selectability['seat']];
 					
 					//席位名称
 					$name_line = flag($seat['iso'], true).'<span class="shorten-select">'.$seat['name'].'</span>';
