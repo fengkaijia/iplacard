@@ -416,6 +416,7 @@ class UI
 	private function _admin_panel()
 	{
 		$this->CI->load->model('admin_model');
+		$this->CI->load->model('delegate_model');
 		
 		//代表
 		if($this->CI->admin_model->capable('administrator') || (!option('interview_enabled', true) && $this->CI->admin_model->capable('reviewer')))
@@ -443,7 +444,11 @@ class UI
 		
 		if($this->CI->admin_model->capable('administrator'))
 		{
-			$this->add_sub_menu('quitted', 'delegate', '退会代表', 'delegate/manage?status=quitted');
+			if($this->CI->delegate_model->get_delegate_ids('status', 'moved_to_waiting_list'))
+				$this->add_sub_menu('waited', 'delegate', '等待队列代表', 'delegate/manage?status=moved_to_waiting_list');
+			
+			if($this->CI->delegate_model->get_delegate_ids('status', 'quitted'))
+				$this->add_sub_menu('quitted', 'delegate', '退会代表', 'delegate/manage?status=quitted');
 		}
 		
 		//面试
