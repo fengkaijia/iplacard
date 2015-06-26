@@ -282,7 +282,7 @@ class Document extends CI_Controller
 					
 						$rids = $this->delegate_model->get_delegate_ids('status', 'review_refused');
 
-						if(!$rids)
+						if($rids)
 							$excludes = $rids;
 					}
 					$users = $this->user_model->get_user_ids('id !=', uid(), 'id NOT', $excludes);
