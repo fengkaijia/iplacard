@@ -909,7 +909,7 @@ class Apply extends CI_Controller
 		$gateways = option('invoice_payment_gateway', array('汇款', '网银转账', '支付宝', '其他'));
 		$gateways = array_combine($gateways, $gateways);
 		
-		//显示代表第一份未支付账单
+		//显示代表最后一份账单
 		if(empty($id))
 		{
 			$invoices = $this->invoice_model->get_delegate_invoices($this->uid);
@@ -922,7 +922,7 @@ class Apply extends CI_Controller
 			}
 			else
 			{
-				$id = $invoices[0];
+				$id = $invoices[count($invoices) - 1];
 			}
 		}
 		
