@@ -60,7 +60,6 @@
 							'class' => 'form-control',
 							'rows' => 4,
 							'value' => set_value('description', $action == 'add' ? '' : $committee['description']),
-							'required' => NULL,
 						));
 						if(form_has_error('description'))
 							echo form_error('description');
