@@ -25,6 +25,13 @@ class Interview extends CI_Controller
 			return;
 		}
 		
+		//检查权限
+		if(!$this->user_model->is_admin(uid()))
+		{
+			redirect('');
+			return;
+		}
+		
 		$this->ui->now('interview');
 	}
 	
