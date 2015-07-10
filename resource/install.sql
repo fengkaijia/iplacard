@@ -71,7 +71,6 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}document` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '文件ID',
   `title` text NOT NULL COMMENT '文件标题',
   `description` text COMMENT '文件介绍',
-  `file` int(11) DEFAULT NULL COMMENT '文件版本ID',
   `user` int(11) NOT NULL COMMENT '上传用户',
   `create_time` int(11) DEFAULT NULL COMMENT '上传时间',
   `highlight` int(11) DEFAULT NULL COMMENT '是否置顶',
@@ -98,15 +97,23 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}document_download` (
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}document_file` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '文件版本ID',
   `document` int(11) NOT NULL COMMENT '文件ID',
+  `format` int(11) NOT NULL COMMENT '文件格式',
   `version` text COMMENT '版本号',
   `filetype` text NOT NULL COMMENT '文件类型',
   `filesize` int(11) NOT NULL COMMENT '文件大小',
   `hash` text NOT NULL COMMENT '散列值',
-  `drm` int(11) NOT NULL COMMENT '启用版权标识',
+  `identifier` text NOT NULL COMMENT '文献标识保护',
   `user` int(11) NOT NULL COMMENT '上传用户',
   `upload_time` int(11) NOT NULL COMMENT '上传时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文件版本' AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}document_format` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '格式ID',
+  `name` text NOT NULL COMMENT '格式名称',
+  `detail` text COMMENT '格式信息',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文件格式' AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}geolocation` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '地理位置ID',
