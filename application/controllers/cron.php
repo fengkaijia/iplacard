@@ -34,7 +34,7 @@ class Cron extends CI_Controller
 	function minutely()
 	{
 		echo "\nProcessing Cron Minutely.\n\n";
-		$this->_cleanup_symlink_download();
+		$this->_cleanup_temp_download();
 		$this->_send_sms();
 	}
 	
@@ -58,9 +58,9 @@ class Cron extends CI_Controller
 	}
 	
 	/**
-	 * 清理过时文件下载符号链接
+	 * 清理过时临时文件下载
 	 */
-	private function _cleanup_symlink_download()
+	private function _cleanup_temp_download()
 	{
 		$this->load->helper('file');
 		
@@ -68,7 +68,7 @@ class Cron extends CI_Controller
 		if($list)
 		{
 			$count = count($list);
-			echo "{$count} symlink(s) to be checked.\n";
+			echo "{$count} temp directory(s) to be checked.\n";
 			
 			foreach($list as $directory)
 			{
@@ -80,11 +80,11 @@ class Cron extends CI_Controller
 					delete_files('./temp/'.IP_INSTANCE_ID.'/download/'.$directory);
 					@rmdir('./temp/'.IP_INSTANCE_ID.'/download/'.$directory);
 					
-					echo "Symlink {$directory} removed.\n";
+					echo "Temp directory {$directory} removed.\n";
 				}
 				else
 				{
-					echo "Symlink {$directory} is unchanged.\n";
+					echo "Temp directory {$directory} is unchanged.\n";
 				}
 			}
 		}
