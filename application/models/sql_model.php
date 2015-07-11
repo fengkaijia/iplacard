@@ -38,9 +38,40 @@ class Sql_model extends CI_Model
 		//获取传入参数数量
 		$num = func_num_args();
 		
-		//检查是否缺少参数
+		//特殊传入值
 		if($num % 2 == 0)
-			return false;
+		{
+			$last = func_get_arg($num - 1);
+			
+			//检查是否缺少参数
+			if(!is_array($last))
+				return false;
+			
+			$num -= 1;
+			
+			foreach($last as $command => $value)
+			{
+				switch($command)
+				{
+					case 'order_by':
+						$this->db->order_by($value['column'], $value['direction']);
+						break;
+					case 'limit':
+						$this->db->limit($value['low'], isset($value['up']) ? $value['up'] : NULL);
+						break;
+					case 'group_by':
+						$this->db->group_by($value);
+						break;
+					case 'having':
+						$this->db->having($value);
+						break;
+					case 'or_having':
+						$this->db->or_having($value);
+						break;
+				}
+			}
+		}
+			
 		
 		//输入查询
 		for($i = 1; $i < $num; $i += 2)
