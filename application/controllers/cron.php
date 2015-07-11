@@ -75,7 +75,7 @@ class Cron extends CI_Controller
 				if(in_array($directory, array('.', '..')))
 					continue;
 				
-				if(filectime('./temp/'.IP_INSTANCE_ID.'/download/'.$directory) < time() - 15 * 60)
+				if(filectime('./temp/'.IP_INSTANCE_ID.'/download/'.$directory) < time() - 30 * 60)
 				{
 					delete_files('./temp/'.IP_INSTANCE_ID.'/download/'.$directory);
 					@rmdir('./temp/'.IP_INSTANCE_ID.'/download/'.$directory);
