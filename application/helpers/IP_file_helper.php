@@ -21,5 +21,5 @@ function ini_max_upload_size($compare = '')
 	return $int_max;
 }
 
-/* End of file IP_form_helper.php */
-/* Location: ./application/helpers/IP_form_helper.php */
+/* End of file IP_file_helper.php */
+/* Location: ./application/helpers/IP_file_helper.php */
