@@ -32,12 +32,63 @@ $this->load->view('header');?>
 							echo "<span class=\"document_info\" data-original-title=\"{$formats[$format]['detail']}\" data-toggle=\"tooltip\">{$formats[$format]['name']}</span>";?></td>
 							<td><?php echo byte_format($document['files'][$file]['filesize']);?></td>
 							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $document['files'][$file]['upload_time']), nicetime($document['files'][$file]['upload_time']));?></td>
-							<td><?php echo anchor("document/download/{$document['id']}/{$format}", icon('download').'点击下载');?></td>
+							<td><?php
+							if(empty($document['files'][$file]['identifier']))
+								echo anchor("document/download/{$document['id']}/{$format}", icon('download').'点击下载');
+							else
+								echo anchor("document/download/{$document['id']}/{$format}", icon('download').'点击下载', array('onclick' => "$('#download_name').html('{$document['title']}'); $('#download_format').html('{$formats[$format]['name']}'); $('#single_download').modal('show');"));?></td>
 						</tr><?php } ?>
 					</tbody>
 				</table>
 			</div><?php } ?>
 		</div>
+		
+		<?php echo form_open("document/download", array(
+			'class' => 'modal fade form-horizontal',
+			'id' => 'single_download',
+			'tabindex' => '-1',
+			'role' => 'dialog',
+			'aria-labelledby' => 'single_label',
+			'aria-hidden' => 'true'
+		));?><div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<?php echo form_button(array(
+							'content' => '&times;',
+							'class' => 'close',
+							'type' => 'button',
+							'data-dismiss' => 'modal',
+							'aria-hidden' => 'true'
+						));?>
+						<h4 class="modal-title" id="single_label">即将开始下载文件</h4>
+					</div>
+					<div class="modal-body">
+						<p>即将开始弹出下载文件<?php echo icon('file-o', false);?><span id="download_name"></span>（<span id="download_format"></span>）。</p>
+						
+						<div class="progress progress-striped active" style="height: 12px; width: 80%; margin: 40px auto;">
+							<div class="progress-bar" style="width: 100%;"></div>
+						</div>
+						
+						<p style="margin-bottom: 0;">如果长时间没有弹出下载提示，请点击下方按钮重新开始下载。</p>
+					</div>
+					<div class="modal-footer">
+						<?php echo form_button(array(
+							'content' => '关闭',
+							'type' => 'button',
+							'class' => 'btn btn-link',
+							'data-dismiss' => 'modal'
+						));
+						echo form_button(array(
+							'name' => 'submit',
+							'content' => '重新下载',
+							'type' => 'submit',
+							'class' => 'btn btn-primary',
+							'onclick' => 'loader(this);'
+						)); ?>
+					</div>
+				</div>
+			</div>
+		<?php echo form_close(); ?>
 	</div>
 	
 	<div class="col-md-4">
@@ -56,10 +107,10 @@ $this->load->view('header');?>
 			
 		echo form_open("document/zip", array(
 			'class' => 'modal fade form-horizontal',
-			'id' => 'download_zip',
+			'id' => 'zip_download',
 			'tabindex' => '-1',
 			'role' => 'dialog',
-			'aria-labelledby' => 'download_label',
+			'aria-labelledby' => 'zip_label',
 			'aria-hidden' => 'true'
 		));?><div class="modal-dialog">
 				<div class="modal-content">
@@ -71,7 +122,7 @@ $this->load->view('header');?>
 							'data-dismiss' => 'modal',
 							'aria-hidden' => 'true'
 						));?>
-						<h4 class="modal-title" id="download_label">即将开始下载</h4>
+						<h4 class="modal-title" id="zip_label">即将开始下载文件合集</h4>
 					</div>
 					<div class="modal-body">
 						<p>即将开始弹出下载文件合集。</p>
@@ -104,23 +155,8 @@ $this->load->view('header');?>
 </div>
 
 <?php
-$width_js = <<<EOT
-$(document).ready(function() {
-	var lowest = Infinity;
-	
-	$('.document_item').each(function() {
-		if($(this).width() < lowest) {
-			lowest = $(this).width();
-		}
-	});
-	
-	$('.document_item').width(lowest);
-});
-EOT;
-$this->ui->js('footer', $width_js);
-
 $zip_js = "$('#submit').click(function(){
-	$('#download_zip').modal('show');
+	$('#zip_download').modal('show');
 });";
 $this->ui->js('footer', $zip_js);
 
