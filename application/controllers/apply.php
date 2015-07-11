@@ -1037,11 +1037,15 @@ class Apply extends CI_Controller
 		{
 			$document = $this->document_model->get_document($document_id);
 			
-			foreach($this->document_model->get_document_formats($document_id) as $format)
+			$formats = $this->document_model->get_document_formats($document_id);
+			if($formats)
 			{
-				$file_id = $this->document_model->get_document_file($document_id, $format);
-				$document['formats'][$format] = $file_id;
-				$document['files'][$file_id] = $this->document_model->get_file($file_id);
+				foreach($formats as $format)
+				{
+					$file_id = $this->document_model->get_document_file($document_id, $format);
+					$document['formats'][$format] = $file_id;
+					$document['files'][$file_id] = $this->document_model->get_file($file_id);
+				}
 			}
 			
 			$document['downloaded'] = $this->document_model->is_user_downloaded($this->uid, $document_id, 'document');

@@ -13,11 +13,11 @@ $this->load->view('header');?>
 		
 		<div id="document-list" class="mimes-16">
 			<?php foreach($documents as $document) { ?><div class="well">
-				<legend style="margin-bottom: 12px;"><?php echo icon(!$document['downloaded'] ? 'folder-o' : 'folder-open-o').$document['title'];?></legend>
+				<legend style="margin-bottom: 12px;"><?php echo icon(!$document['downloaded'] ? (isset($document['formats']) && !empty($document['formats']) ? 'folder' : 'folder-o') : 'folder-open-o').$document['title'];?></legend>
 				<p><?php if($document['highlight']) { ?><span class="text-primary"><?php echo icon('star', false).'重要文件'; ?></span> <?php } ?><span class="text-muted"><?php echo icon('calendar').sprintf('%1$s（%2$s）', date('n月j日', $document['create_time']), nicetime($document['create_time']));?></span></p>
 				<?php if(!empty($document['description'])) { ?><p><?php echo $document['description'];?></p><?php } ?>
 				
-				<table class="table table-bordered table-striped table-hover">
+				<?php if(isset($document['formats']) && !empty($document['formats'])) { ?><table class="table table-bordered table-striped table-hover">
 					<thead>
 						<tr>
 							<th>文件格式</th>
@@ -39,7 +39,7 @@ $this->load->view('header');?>
 								echo anchor("document/download/{$document['id']}/{$format}", icon('download').'点击下载', array('onclick' => "$('#download_name').html('{$document['title']}'); $('#download_format').html('{$formats[$format]['name']}'); $('#single_download').modal('show');"));?></td>
 						</tr><?php } ?>
 					</tbody>
-				</table>
+				</table><?php } else { ?><p class="text-danger">暂无可用文件。</p><?php } ?>
 			</div><?php } ?>
 		</div>
 		
