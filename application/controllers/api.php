@@ -519,6 +519,207 @@ class Api extends CI_Controller
 	}
 	
 	/**
+	 * 文件信息操作
+	 */
+	function document($action = 'upload')
+	{
+		$this->load->model('document_model');
+		
+		if($action == 'add')
+		{
+			$this->load->model('committee_model');
+			
+			//权限检查
+			if(!$this->token_model->capable('document:add', $this->token['permission']))
+			{
+				$this->_error(6, 'Permission denied.');
+				return;
+			}
+			
+			//输入有效性检查
+			if(!isset($this->data['title']) || empty($this->data['title']))
+			{
+				$this->_error(21, 'Empty title.');
+				return;
+			}
+			
+			$id = $this->document_model->add_document($this->data['title'], isset($this->data['description']) ? $this->data['description'] : NULL, isset($this->data['highlight']) && $this->data['highlight']);
+			
+			$this->system_model->log('document_added', array('id' => $id));
+			
+			//设置权限
+			$access = array();
+			if(!isset($this->data['access']) || empty($this->data['access']) || $this->data['access'] == 0)
+			{
+				$access = 0;
+			}
+			else
+			{
+				foreach($this->data['access'] as $access_one)
+				{
+					if(is_numeric($access_one) && $this->committee_model->get_committee($access_one))
+					{
+						$access[] = intval($access_one);
+						continue;
+					}
+					
+					$committee = $this->committee_model->get_committee_id('abbr', $access_one);
+					if($committee)
+					{
+						$access[] = intval($committee);
+						continue;
+					}
+					
+					$committee = $this->committee_model->get_committee_id('name', $access_one);
+					if($committee)
+					{
+						$access[] = $committee;
+						continue;
+					}
+				}
+			}
+			
+			$this->document_model->add_access($id, $access);
+			
+			$this->return['id'] = $id;
+			return;
+		}
+		elseif($action == 'upload')
+		{
+			//权限检查
+			if(!$this->token_model->capable('document:upload', $this->token['permission']))
+			{
+				$this->_error(6, 'Permission denied.');
+				return;
+			}
+			
+			//输入有效性检查
+			if(!isset($this->data['document']) || empty($this->data['document']))
+			{
+				$this->_error(22, 'Empty document.');
+				return;
+			}
+			
+			$document = $this->document_model->get_document($this->data['document']);
+			if(!$document)
+			{
+				$this->_error(31, 'Unable to find document with provided key.');
+				return;
+			}
+			
+			$format = $this->document_model->get_format($this->data['format']);
+			if(!$format)
+			{
+				$this->_error(32, 'Unable to find format with provided key.');
+				return;
+			}
+			
+			//操作上传文件
+			$this->load->helper('string');
+			$this->load->helper('file');
+			
+			$config['file_name'] = time().'_'.random_string('alnum', 32);
+			$config['allowed_types'] = '*';
+			$config['max_size'] = ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)) / 1024;
+			$config['upload_path'] = './temp/'.IP_INSTANCE_ID.'/upload/document/';
+
+			if(!file_exists($config['upload_path']))
+				mkdir($config['upload_path'], DIR_WRITE_MODE, true);
+
+			$this->load->library('upload', $config);
+
+			//储存上传文件
+			if(!$this->upload->do_upload('file'))
+			{
+				$this->_error(33, 'Upload failed.');
+				return;
+			}
+
+			$result = $this->upload->data();
+			
+			//写入文件
+			$id = $this->document_model->add_file($document['id'], $result['full_path'], $format['id'], isset($this->data['version']) ? $this->data['version'] : '', isset($this->data['identifier']) ? $this->data['identifier'] : '', 0);
+				
+			if(!file_exists('./data/'.IP_INSTANCE_ID.'/document/'))
+				mkdir('./data/'.IP_INSTANCE_ID.'/document/', DIR_WRITE_MODE, true);
+
+			rename($result['full_path'], './data/'.IP_INSTANCE_ID.'/document/'.$id.$result['file_ext']);
+
+			$this->system_model->log('document_file_uploaded', array('id' => $id, 'document' => $document['id']));
+
+			//邮件通知
+			$this->load->library('email');
+			$this->load->library('parser');
+			$this->load->helper('date');
+
+			$email_data = array(
+				'id' => $document['id'],
+				'title' => $document['title'],
+				'format' => $format['name'],
+				'url' => base_url("document/download/{$document['id']}/{$format['id']}/$id"),
+				'time' => unix_to_human(time())
+			);
+
+			$access = $this->document_model->get_documents_accessibility($document['id']);
+			if($access === true)
+			{
+				//排除审核未通过代表下载
+				$excludes = array(0);
+				if(!option('document_enable_refused', false))
+				{
+					$this->load->model('delegate_model');
+
+					$rids = $this->delegate_model->get_delegate_ids('status', 'review_refused');
+
+					if($rids)
+						$excludes = $rids;
+				}
+				$users = $this->user_model->get_user_ids('id NOT', $excludes);
+			}
+			else
+			{
+				$this->load->model('seat_model');
+
+				$sids = $this->seat_model->get_seat_ids('committee', $access, 'status', array('assigned', 'approved', 'locked'));
+				if($sids)
+				{
+					$users = $this->seat_model->get_delegates_by_seats($sids);
+				}
+			}
+
+			if($users)
+			{
+				$new = count($this->document_model->get_document_files($document['id'])) == 1;
+				
+				foreach($users as $user)
+				{
+					if($new)
+					{
+						$this->email->subject('新的文件可供下载');
+						$this->email->html($this->parser->parse_string(option('email_document_added', "新的文件《{title}》（{format}）已经于 {time} 上传到 iPlacard，请访问\n\n"
+								. "\t{url}\n\n"
+								. "下载文件。"), $email_data, true));
+					}
+					else
+					{
+						$this->email->subject('文件已经更新');
+						$this->email->html($this->parser->parse_string(option('email_document_updated', "文件《{title}》（{format}）已经于 {time} 更新，请访问\n\n"
+								. "\t{url}\n\n"
+								. "下载文件更新。"), $email_data, true));
+					}
+
+					$this->email->to($this->user_model->get_user($user, 'email'));
+					$this->email->send();
+					$this->email->clear();
+				}
+			}
+			
+			$this->return['id'] = $id;
+			return;
+		}
+	}
+	
+	/**
 	 * 用户信息操作
 	 */
 	function user($action = 'auth')
