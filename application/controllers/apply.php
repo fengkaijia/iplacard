@@ -1035,7 +1035,7 @@ class Apply extends CI_Controller
 		//去除空格式
 		foreach($formats as $format_id => $format)
 		{
-			$files = $this->document_model->get_file_ids('format', $format_id, array('group_by' => 'document'));
+			$files = $this->document_model->get_file_ids('format', $format_id, 'document', $document_ids, array('group_by' => 'document'));
 			if(!$files)
 				unset($formats[$format_id]);
 			else
