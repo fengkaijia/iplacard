@@ -1028,7 +1028,21 @@ class Apply extends CI_Controller
 		$vars['count'] = count($document_ids);
 		
 		//获取文件格式
-		$vars['formats'] = $this->document_model->get_formats();
+		$formats = $this->document_model->get_formats();
+		if(!$formats)
+			$formats = array();
+		
+		//去除空格式
+		foreach($formats as $format_id => $format)
+		{
+			$files = $this->document_model->get_file_ids('format', $format_id, array('group_by' => 'document'));
+			if(!$files)
+				unset($formats[$format_id]);
+			else
+				$formats[$format_id]['count'] = count($files);
+		}
+		
+		$vars['formats'] = $formats;
 		
 		$documents = array();
 		

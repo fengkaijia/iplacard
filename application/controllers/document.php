@@ -401,7 +401,7 @@ class Document extends CI_Controller
 	/**
 	 * 下载文件
 	 */
-	function download($id, $format = 0, $version = 0)
+	function download($id, $format = 0, $version = 0, $zip = false)
 	{
 		$this->load->library('user_agent');
 		$this->load->helper('file');
@@ -506,6 +506,22 @@ class Document extends CI_Controller
 		//写入下载
 		$this->document_model->add_download($file['id'], uid(), $drm);
 		
+		//合集下载
+		if($zip)
+		{
+			$data = read_file(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
+			
+			if(empty($drm) && (empty($data) || sha1($data) != $file['hash']))
+			{
+				$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
+				back_redirect();
+				return;
+			}
+
+			$this->zip->add_data($filename, $data);
+			return;
+		}
+		
 		//弹出下载
 		$this->output->set_content_type($file['filetype']);
 		
@@ -534,7 +550,7 @@ class Document extends CI_Controller
 	/**
 	 * 下载文件压缩包
 	 */
-	function zip()
+	function zip($id = 1)
 	{
 		$this->load->library('zip');
 		$this->load->helper('file');
@@ -572,8 +588,16 @@ class Document extends CI_Controller
 			return;
 		}
 		
+		$format = $this->document_model->get_format($id);
+		if(!$format)
+		{
+			$this->ui->alert('文件格式不存在。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
 		//等待下载窗口弹出
-		sleep(2);
+		sleep(1);
 		
 		$organization = option('organization', 'iPlacard');
 		
@@ -582,38 +606,11 @@ class Document extends CI_Controller
 		{
 			$document = $this->document_model->get_document($document_id);
 
-			//可用性检查
-			$file = $this->document_model->get_file($document['file']);
-			if(!$file)
-			{
-				$this->ui->alert('请求下载的文件不存在。', 'danger', true);
-				back_redirect();
-				return;
-			}
+			$file_id = $this->document_model->get_document_file($document_id, $id);
+			if(!$file_id)
+				continue;
 
-			//读取文件内容
-			$data = read_file("{$this->path}{$file['id']}.{$file['filetype']}");
-
-			if(empty($data) || sha1($data) != $file['hash'])
-			{
-				$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
-				back_redirect();
-				return;
-			}
-
-			//版权标识
-			list($data, $drm) = $this->_drm($data, $file['filetype']);
-
-			$this->document_model->add_download($file['id'], uid(), $drm);
-
-			//文件名
-			if(!empty($file['version']))
-				$filename = "{$organization}-{$document['title']}-{$file['version']}.{$file['filetype']}";
-			else
-				$filename = "{$organization}-{$document['title']}-{$file['id']}.{$file['filetype']}";
-			
-			//将文件加入到归档
-			$this->zip->add_data($filename, $data);
+			$this->download($document_id, $id, $file_id, true);
 		}
 		
 		//弹出下载

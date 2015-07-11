@@ -1,5 +1,14 @@
 <?php
+foreach($formats as $format_id => $format)
+{
+	$option[$format_id] = $format['name'];
+	$subtext[$format_id] = "{$format['count']} 份文件";
+}
+
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/mimes.css' : 'static/css/mimes.min.css').'" rel="stylesheet">');
+$this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/bootstrap.select.css' : 'static/css/bootstrap.select.min.css').'" rel="stylesheet">');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.select.js' : 'static/js/bootstrap.select.min.js').'"></script>');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/bootstrap.select.locale.js' : 'static/js/locales/bootstrap.select.locale.min.js').'"></script>');
 $this->load->view('header');?>
 
 <div class="page-header">
@@ -92,10 +101,15 @@ $this->load->view('header');?>
 	</div>
 	
 	<div class="col-md-4">
-		<?php echo form_open("document/zip"); ?>
+		<?php echo form_open("document/zip/1", array('id' => 'zip')); ?>
 			<h3>下载文件合集</h3>
-			<p>您可以打包下载所有文件，文件合集将会以 ZIP 压缩包格式提供，可以使用常用的解压缩软件打开。</p>
-			<p>请点击下方按钮开始下载文件合集。</p>
+			<p>您可以打包下载指定文件格式的所有文件，文件合集将会以 ZIP 压缩包格式提供，可以使用常用的解压缩软件打开。请在下方选择框中选择需要下载的文件格式。</p>
+			<div class="form-group" style="margin-bottom: 0px;">
+				<?php
+				echo form_label('文件格式', 'format');
+				echo form_dropdown_select('format', $option, array(), count($formats) > 10 ? true : false, array(), $subtext, array(), 'selectpicker', 'data-width="100%" title="选择文件格式"'); ?>
+			</div>
+			<p>完成选择后点击下方按钮开始下载文件合集。</p>
 			<?php echo form_button(array(
 				'name' => 'submit',
 				'content' => '下载文件合集',
@@ -105,7 +119,7 @@ $this->load->view('header');?>
 			)); ?>
 		<?php echo form_close();
 			
-		echo form_open("document/zip", array(
+		echo form_open("document/zip/1", array(
 			'class' => 'modal fade form-horizontal',
 			'id' => 'zip_download',
 			'tabindex' => '-1',
@@ -159,6 +173,18 @@ $zip_js = "$('#submit').click(function(){
 	$('#zip_download').modal('show');
 });";
 $this->ui->js('footer', $zip_js);
+
+$url = base_url('document/zip');
+$select_js = "
+$('select[name=format]').change(function(){
+	value = $('select[name=format] option:selected').val();
+	
+	$('#zip').attr('action', '{$url}/' + value);
+	$('#zip_download').attr('action', '{$url}/' + value);
+});
+$('.selectpicker').selectpicker();
+";
+$this->ui->js('footer', $select_js);
 
 $this->ui->js('footer', "$('.document_info').tooltip();");
 
