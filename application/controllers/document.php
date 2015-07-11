@@ -401,7 +401,7 @@ class Document extends CI_Controller
 	/**
 	 * 下载文件
 	 */
-	function download($id, $version = 0)
+	function download($id, $format = 0, $version = 0)
 	{
 		$this->load->library('user_agent');
 		$this->load->helper('file');
@@ -415,9 +415,30 @@ class Document extends CI_Controller
 			return;
 		}
 		
+		$formats = $this->document_model->get_document_formats($id);
+		if($format == 0)
+		{
+			if(in_array(1, $formats))
+				$format = 1;
+		}
+		else
+		{
+			if(!in_array($format, $formats))
+			{
+				$this->ui->alert('请求下载的文件格式不存在。', 'danger', true);
+				back_redirect();
+				return;
+			}
+		}
+		
 		//许可检查
 		if($version == 0)
-			$version = $document['file'];
+		{
+			if($format == 0)
+				$version = $this->document_model->get_document_file($id);
+			else
+				$version = $this->document_model->get_document_file($id, $format);
+		}
 		
 		$file = $this->document_model->get_file($version);
 		if(!$file)
@@ -441,50 +462,73 @@ class Document extends CI_Controller
 			return;
 		}
 		
-		//读取文件内容
-		if($file['drm'] || option('server_download_method', 'php') == 'php')
-		{
-			$data = read_file("{$this->path}{$file['id']}.{$file['filetype']}");
+		//文件名
+		$organization = option('organization', 'iPlacard');
+		$format_name = $this->document_model->get_format($format, 'name');
+		if(!empty($file['version']))
+			$filename = "{$organization}-{$document['title']}-{$format_name}-{$file['version']}.{$file['filetype']}";
+		else
+			$filename = "{$organization}-{$document['title']}-{$format_name}.{$file['filetype']}";
 		
-			if(empty($data) || sha1($data) != $file['hash'])
+		//文件具有标识功能
+		$drm = NULL;
+		if(!empty($file['identifier']))
+		{
+			$command = option("drm_{$file['filetype']}_command", '');
+			if(!empty($command))
 			{
-				$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
-				back_redirect();
-				return;
+				$this->load->model('user_model');
+				$this->load->library('parser');
+				
+				$user = $this->user_model->get_user(uid());
+				
+				//执行指令
+				$return = array();
+				
+				$flag = array(
+					'file' => realpath("{$this->path}{$file['id']}.{$file['filetype']}"),
+					'identifier' => $file['identifier'],
+					'name' => $user['name'],
+					'email' => $user['email'],
+					'return' => realpath('.').'/'.temp_path().'/'.$filename
+				);
+				
+				exec($this->parser->parse_string($command, $flag, true), $return);
+				
+				//获取DRM值
+				if(!empty($return[count($return) - 1]))
+				{
+					$drm = trim($return[count($return) - 1]);
+				}
 			}
 		}
 		
-		//版权标识
-		$drm = NULL;
-		if($file['drm'])
-		{
-			list($data, $drm) = $this->_drm($data, $file['filetype']);
-		}
-		
+		//写入下载
 		$this->document_model->add_download($file['id'], uid(), $drm);
-		
-		//文件名
-		$organization = option('organization', 'iPlacard');
-		if(!empty($file['version']))
-			$filename = "{$organization}-{$document['title']}-{$file['version']}.{$file['filetype']}";
-		else
-			$filename = "{$organization}-{$document['title']}-{$file['id']}.{$file['filetype']}";
 		
 		//弹出下载
 		$this->output->set_content_type($file['filetype']);
 		
-		if(!$file['drm'] && option('server_download_method', 'php') == 'temp')
+		if(option('server_download_method', 'php') == 'temp')
 		{
-			symlink_download("{$this->path}{$file['id']}.{$file['filetype']}", $filename);
+			temp_download(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename, $filename);
 		}
-		elseif(!$file['drm'] && option('server_download_method', 'php') != 'php')
+		
+		if(option('server_download_method', 'php') != 'php')
 		{
-			xsendfile_download("{$this->path}{$file['id']}.{$file['filetype']}", $filename);
+			xsendfile_download(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename, $filename);
 		}
-		else
+		
+		$data = read_file(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
+
+		if(empty($drm) && (empty($data) || sha1($data) != $file['hash']))
 		{
-			force_download($filename, $data);
+			$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
+			back_redirect();
+			return;
 		}
+
+		force_download($filename, $data);
 	}
 	
 	/**
@@ -737,17 +781,6 @@ class Document extends CI_Controller
 		}
 		
 		echo json_encode($json);
-	}
-	
-	/**
-	 * 增加版权标识
-	 * @param type $data 文件数据
-	 * @param type $type 文件类型
-	 * @todo 支持版权标识
-	 */
-	function _drm($data, $type)
-	{
-		return array($data, NULL);
 	}
 	
 	/**
