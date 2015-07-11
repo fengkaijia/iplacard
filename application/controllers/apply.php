@@ -1027,13 +1027,23 @@ class Apply extends CI_Controller
 		
 		$vars['count'] = count($document_ids);
 		
+		//获取文件格式
+		$vars['formats'] = $this->document_model->get_formats();
+		
 		$documents = array();
 		
 		//导入文件
 		foreach($document_ids as $document_id)
 		{
 			$document = $this->document_model->get_document($document_id);
-			$document['file'] = $this->document_model->get_file($document['file']);
+			
+			foreach($this->document_model->get_document_formats($document_id) as $format)
+			{
+				$file_id = $this->document_model->get_document_file($document_id, $format);
+				$document['formats'][$format] = $file_id;
+				$document['files'][$file_id] = $this->document_model->get_file($file_id);
+			}
+			
 			$document['downloaded'] = $this->document_model->is_user_downloaded($this->uid, $document_id, 'document');
 			
 			$documents[] = $document;

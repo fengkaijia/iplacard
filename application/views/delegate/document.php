@@ -11,40 +11,32 @@ $this->load->view('header');?>
 		<h3>可供下载的文件</h3>
 		<p>当前您共有 <?php echo $count;?> 份文件可供下载，您可以点击下方的下载按钮下载文件。当有新的文件发布时，我们将会向您发送邮件通知。</p>
 		
-		<div id="document-list" class="mimes-22">
-			<?php foreach($documents as $document) { ?>
-			<h4><?php echo sprintf('<span class="document_info" data-original-title="%1$s（%2$s）文件" data-toggle="tooltip">%3$s</span>', strtoupper($document['filetype']), get_mime_by_extension('.'.$document['filetype']), mime($document['filetype'])).$document['title'];
-			if($document['highlight'])
-				echo '<span class="text-primary document_info" data-original-title="重要文件" data-toggle="tooltip">'.icon('star', false).'</span>';
-			?></h4>
-			<table class="table table-bordered table-striped table-hover">
-				<tbody>
-					<?php if(!empty($document['description'])) { ?><tr>
-						<td>文件详细信息</td>
-						<td><?php echo $document['description'];?></td>
-					</tr><?php } ?>
-					<tr>
-						<td class="document_item">文件发布时间</td>
-						<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $document['create_time']), nicetime($document['create_time']));?></td>
-					</tr>
-					<?php if($document['file']['upload_time'] != $document['create_time']) { ?><tr>
-						<td>最后更新时间</td>
-						<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $document['file']['upload_time']), nicetime($document['file']['upload_time']));?></td>
-					</tr><?php } ?>
-					<tr>
-						<td>文件大小</td>
-						<td><?php echo byte_format($document['file']['filesize']);?></td>
-					</tr>
-					<tr>
-						<td>文件下载</td>
-						<td><?php echo anchor("document/download/{$document['id']}", icon('download').'点击下载');
-						if(!$document['downloaded'])
-							echo ' <span class="text-danger">（尚未下载）</span>';
-						?></td>
-					</tr>
-				</tbody>
-			</table>
-			<?php } ?>
+		<div id="document-list" class="mimes-16">
+			<?php foreach($documents as $document) { ?><div class="well">
+				<legend style="margin-bottom: 12px;"><?php echo icon(!$document['downloaded'] ? 'folder-o' : 'folder-open-o').$document['title'];?></legend>
+				<p><?php if($document['highlight']) { ?><span class="text-primary"><?php echo icon('star', false).'重要文件'; ?></span> <?php } ?><span class="text-muted"><?php echo icon('calendar').sprintf('%1$s（%2$s）', date('n月j日', $document['create_time']), nicetime($document['create_time']));?></span></p>
+				<?php if(!empty($document['description'])) { ?><p><?php echo $document['description'];?></p><?php } ?>
+				
+				<table class="table table-bordered table-striped table-hover">
+					<thead>
+						<tr>
+							<th>文件格式</th>
+							<th>文件大小</th>
+							<th>更新时间</th>
+							<th>下载链接</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach($document['formats'] as $format => $file) { ?><tr>
+							<td><?php echo sprintf('<span class="document_info" data-original-title="%1$s（%2$s）文件" data-toggle="tooltip">%3$s</span>', strtoupper($document['files'][$file]['filetype']), get_mime_by_extension('.'.$document['files'][$file]['filetype']), mime($document['files'][$file]['filetype']));
+							echo "<span class=\"document_info\" data-original-title=\"{$formats[$format]['detail']}\" data-toggle=\"tooltip\">{$formats[$format]['name']}</span>";?></td>
+							<td><?php echo byte_format($document['files'][$file]['filesize']);?></td>
+							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $document['files'][$file]['upload_time']), nicetime($document['files'][$file]['upload_time']));?></td>
+							<td><?php echo anchor("document/download/{$document['id']}/{$format}", icon('download').'点击下载');?></td>
+						</tr><?php } ?>
+					</tbody>
+				</table>
+			</div><?php } ?>
 		</div>
 	</div>
 	
