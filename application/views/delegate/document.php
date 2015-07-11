@@ -31,7 +31,7 @@ $this->load->view('header');?>
 						<tr>
 							<th>文件格式</th>
 							<th>文件大小</th>
-							<th>更新时间</th>
+							<th>最后更新</th>
 							<th>下载链接</th>
 						</tr>
 					</thead>
@@ -40,7 +40,10 @@ $this->load->view('header');?>
 							<td><?php echo sprintf('<span class="document_info" data-original-title="%1$s（%2$s）文件" data-toggle="tooltip">%3$s</span>', strtoupper($document['files'][$file]['filetype']), get_mime_by_extension('.'.$document['files'][$file]['filetype']), mime($document['files'][$file]['filetype']));
 							echo "<span class=\"document_info\" data-original-title=\"{$formats[$format]['detail']}\" data-toggle=\"tooltip\">{$formats[$format]['name']}</span>";?></td>
 							<td><?php echo byte_format($document['files'][$file]['filesize']);?></td>
-							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $document['files'][$file]['upload_time']), nicetime($document['files'][$file]['upload_time']));?></td>
+							<td><?php
+							if(!empty($document['files'][$file]['version']))
+								echo "版本 {$document['files'][$file]['version']} / ";
+							echo sprintf('%1$s（%2$s）', date('n月j日 H:i', $document['files'][$file]['upload_time']), nicetime($document['files'][$file]['upload_time']));?></td>
 							<td><?php
 							if(empty($document['files'][$file]['identifier']))
 								echo anchor("document/download/{$document['id']}/{$format}", icon('download').'点击下载');
