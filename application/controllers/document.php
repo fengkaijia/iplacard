@@ -501,6 +501,17 @@ class Document extends CI_Controller
 					$drm = trim($return[count($return) - 1]);
 				}
 			}
+			
+			//DRM无法完成强制退出
+			if(option('drm_force', true))
+			{
+				if(is_null($drm))
+				{
+					$this->ui->alert('无法获取指定文件，请重新尝试下载。', 'danger', true);
+					back_redirect();
+					return;
+				}
+			}
 		}
 		
 		//写入下载
