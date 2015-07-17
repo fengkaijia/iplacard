@@ -533,9 +533,6 @@ class Document extends CI_Controller
 			return;
 		}
 		
-		//弹出下载
-		$this->output->set_content_type($file['filetype']);
-		
 		if(option('server_download_method', 'php') == 'temp')
 		{
 			temp_download(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename, $filename);
@@ -545,7 +542,7 @@ class Document extends CI_Controller
 		{
 			xsendfile_download(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename, $filename);
 		}
-		
+
 		$data = read_file(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
 
 		if(empty($drm) && (empty($data) || sha1($data) != $file['hash']))
@@ -554,6 +551,9 @@ class Document extends CI_Controller
 			back_redirect();
 			return;
 		}
+
+		//弹出下载
+		$this->output->set_content_type($file['filetype']);
 
 		force_download($filename, $data);
 	}
