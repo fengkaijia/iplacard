@@ -78,16 +78,12 @@ class Document extends CI_Controller
 		$this->ui->title($title, '文件管理');
 		$this->load->view('admin/document_manage', $vars);
 	}
-	
-	
+
 	/**
 	 * 编辑或添加文件
 	 */
 	function edit($id = '')
 	{
-		$this->load->helper('number');
-		$this->load->helper('file');
-		
 		//检查权限
 		if(!$this->user_model->is_admin(uid()) || (!$this->admin_model->capable('administrator') && !$this->admin_model->capable('dais')))
 		{
@@ -111,7 +107,9 @@ class Document extends CI_Controller
 		{
 			$document = $this->document_model->get_document($id);
 			if(!$document)
+			{
 				$action = 'add';
+			}
 			elseif(!$this->admin_model->capable('administrator') && $document['user'] != uid())
 			{
 				$this->ui->alert('仅此文件的发布者可以编辑此文件。', 'warning', true);
@@ -154,47 +152,11 @@ class Document extends CI_Controller
 		}
 		
 		$vars['committees'] = $committees;
-		
-		//文件大小上限
-		$file_max_size = byte_format(ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)), 0);
-		$vars['file_max_size'] = $file_max_size;
-		
-		//预上传文件版本
-		if($this->input->post('new_upload'))
-		{
-			//操作上传图像
-			$this->load->helper('string');
-			$config['file_name'] = time().'_'.random_string('alnum', 32);
-			$config['allowed_types'] = '*';
-			$config['max_size'] = ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)) / 1024;
-			$config['upload_path'] = './temp/'.IP_INSTANCE_ID.'/upload/document/';
 
-			if(!file_exists($config['upload_path']))
-				mkdir($config['upload_path'], DIR_WRITE_MODE, true);
-
-			$this->load->library('upload', $config);
-
-			//储存上传文件
-			if(!$this->upload->do_upload('file'))
-			{
-				$error = $this->upload->display_errors('', '');
-				
-				$this->form_validation->set_message('_check_upload_error', $error);
-				
-				$this->form_validation->set_rules('file', '文件', 'callback__check_upload_error');
-			}
-
-			$upload_result = $this->upload->data();
-		}
-		
 		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 		
 		$this->form_validation->set_rules('title', '文件名称', 'trim|required');
 		$this->form_validation->set_rules('access_type', '分发类型', 'trim|required');
-		if($action == 'add')
-		{
-			$this->form_validation->set_rules('new_upload', '文件', 'required');
-		}
 		
 		if($this->form_validation->run() == true)
 		{
@@ -244,87 +206,7 @@ class Document extends CI_Controller
 			
 			$this->document_model->add_access($id, $access_committees);
 			
-			//文件版本
-			if(isset($upload_result))
-			{
-				$file_id = $this->document_model->add_file($id, $upload_result['full_path'], $post['version'], $post['drm']);
-				
-				$this->document_model->edit_document(array('file' => $file_id), $id);
-				
-				if(!file_exists($this->path))
-					mkdir($this->path, DIR_WRITE_MODE, true);
-				
-				rename($upload_result['full_path'], $this->path.$file_id.$upload_result['file_ext']);
-				
-				$this->ui->alert("已经上传文件版本 #{$file_id}。", 'success', true);
-
-				$this->system_model->log('document_file_uploaded', array('id' => $file_id, 'document' => $id));
-				
-				//邮件通知
-				$this->load->library('email');
-				$this->load->library('parser');
-				$this->load->helper('date');
-				
-				$email_data = array(
-					'id' => $id,
-					'title' => $post['title'],
-					'url' => base_url("document/download/$id/$file_id"),
-					'time' => unix_to_human(time())
-				);
-				
-				if($access_committees == 0)
-				{
-					//排除审核未通过代表下载
-					$excludes = array(0);
-					if(!option('document_enable_refused', false))
-					{
-						$this->load->model('delegate_model');
-					
-						$rids = $this->delegate_model->get_delegate_ids('status', 'review_refused');
-
-						if($rids)
-							$excludes = $rids;
-					}
-					$users = $this->user_model->get_user_ids('id !=', uid(), 'id NOT', $excludes);
-				}
-				else
-				{
-					$this->load->model('seat_model');
-					
-					$sids = $this->seat_model->get_seat_ids('committee', $access_committees, 'status', array('assigned', 'approved', 'locked'));
-					if($sids)
-					{
-						$users = $this->seat_model->get_delegates_by_seats($sids);
-					}
-				}
-				
-				if($users)
-				{
-					foreach($users as $user)
-					{
-						if($action == 'add')
-						{
-							$this->email->subject('新的文件可供下载');
-							$this->email->html($this->parser->parse_string(option('email_document_added', "新的文件《{title}》已经于 {time} 上传到 iPlacard，请访问\n\n"
-									. "\t{url}\n\n"
-									. "下载文件。"), $email_data, true));
-						}
-						else
-						{
-							$this->email->subject('文件已经更新');
-							$this->email->html($this->parser->parse_string(option('email_document_updated', "文件《{title}》已经于 {time} 更新，请访问\n\n"
-									. "\t{url}\n\n"
-									. "下载文件更新。"), $email_data, true));
-						}
-						
-						$this->email->to($this->user_model->get_user($user, 'email'));
-						$this->email->send();
-						$this->email->clear();
-					}
-				}
-			}
-			
-			redirect('document/manage');
+			redirect("document/detail/{$id}");
 			return;
 		}
 		

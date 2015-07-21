@@ -6,7 +6,7 @@ $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/local
 $this->load->view('header');?>
 
 <div class="page-header mime-48">
-	<h1><?php echo $action == 'add' ? '添加文件' : mime($document['filetype']).$document['title'];?></h1>
+	<h1><?php echo $action == 'add' ? '添加文件' : $document['title'];?></h1>
 </div>
 
 <div class="row">
@@ -24,7 +24,7 @@ $this->load->view('header');?>
 	</div>
 	
 	<div class="col-md-9">
-		<?php echo form_open_multipart($action == 'add' ? 'document/edit' : "document/edit/{$document['id']}", array('class' => 'well form-horizontal'), array('new_upload' => false));?>
+		<?php echo form_open_multipart($action == 'add' ? 'document/edit' : "document/edit/{$document['id']}", array('class' => 'well form-horizontal'));?>
 			<?php echo form_fieldset('文件信息'); ?>
 				<div class="form-group <?php if(form_has_error('title')) echo 'has-error';?>">
 					<?php echo form_label('文件名称', 'title', array('class' => 'col-lg-2 control-label'));?>
@@ -121,59 +121,6 @@ $this->load->view('header');?>
 						if(form_has_error('access_select'))
 							echo form_error('access_select');
 						else { ?><div class="help-block">委员会分发范围，选定委员会的代表将可以下载此文件。</div><?php } ?>
-					</div>
-				</div>
-			<?php echo form_fieldset_close();?>
-			
-			<br />
-		
-			<?php echo form_fieldset('上传新版本'); ?>
-				<div class="form-group <?php if(form_has_error('version')) echo 'has-error';?>">
-					<?php echo form_label('版本号', 'version', array('class' => 'col-lg-2 control-label'));?>
-					<div class="col-lg-4">
-						<?php echo form_input(array(
-							'name' => 'version',
-							'id' => 'version',
-							'class' => 'form-control',
-							'value' => set_value('version')
-						));
-						if(form_has_error('version'))
-							echo form_error('version');
-						else { ?><div class="help-block">设置版本号将有助于文件管理。</div><?php } ?>
-					</div>
-				</div>
-				
-				<div class="form-group <?php if(form_has_error('file') || form_has_error('new_upload')) echo 'has-error';?>">
-					<?php echo form_label('上传文件', 'file', array('class' => 'col-lg-2 control-label'));?>
-					<div class="col-lg-4">
-						<?php echo form_upload(array(
-							'name' => 'file',
-							'id' => 'file',
-							'class' => 'form-control',
-							'onchange' => "$('input[name=new_upload]').val(true);"
-						));
-						if(form_has_error('file') || form_has_error('new_upload'))
-							echo form_error('file').form_error('new_upload');
-						else { ?><div class="help-block">上传的文件大小应不超过 <?php echo $file_max_size;?>。</div><?php } ?>
-					</div>
-				</div>
-			
-				<div class="form-group <?php if(form_has_error('drm')) echo 'has-error';?>">
-					<?php echo form_label('版权保护', 'drm', array('class' => 'col-lg-2 control-label'));?>
-					<div class="col-lg-10">
-						<div class="checkbox">
-							<label>
-								<?php echo form_checkbox(array(
-									'name' => 'drm',
-									'id' => 'drm',
-									'value' => true,
-									'checked' => set_value('drm', $action == 'add' ? '' : $document['drm']),
-								)); ?> 启用版权标识
-							</label>
-						</div>
-						<?php if(form_has_error('drm'))
-							echo form_error('drm');
-						else { ?><div class="help-block">选中后将会在文件下载中添加版权保护标识，这些标识是不可见的。此功能仅支持部分格式的文件。</div><?php } ?>
 					</div>
 				</div>
 			<?php echo form_fieldset_close();?>
