@@ -1025,8 +1025,6 @@ class Apply extends CI_Controller
 			return;
 		}
 		
-		$vars['count'] = count($document_ids);
-		
 		//获取文件格式
 		$formats = $this->document_model->get_formats();
 		if(!$formats)
@@ -1061,13 +1059,25 @@ class Apply extends CI_Controller
 					$document['files'][$file_id] = $this->document_model->get_file($file_id);
 				}
 			}
+			elseif(!option('document_show_empty', false))
+			{
+				continue;
+			}
 			
 			$document['downloaded'] = $this->document_model->is_user_downloaded($this->uid, $document_id, 'document');
 			
 			$documents[] = $document;
 		}
+
+		if(empty($documents) && !option('document_show_empty', false))
+		{
+			$this->ui->alert('当前无文件可供下载。', 'danger', true);
+			back_redirect();
+			return;
+		}
 		
 		$vars['documents'] = $documents;
+		$vars['count'] = count($documents);
 		
 		$this->ui->now('document');
 		$this->ui->title('文件');
