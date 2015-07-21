@@ -133,7 +133,7 @@ class Delegate_model extends CI_Model
 		
 		$this->db->like('user.id', $keyword, 'none');
 		
-		if(intval($keyword) > 1000 || intval($keyword) == 0)
+		if(intval($keyword) > 5000 || intval($keyword) == 0)
 		{
 			$this->db->or_like('user.name', $keyword);
 			$this->db->or_like('user.email', $keyword);
