@@ -140,8 +140,18 @@ class Document extends CI_Controller
 		
 		//委员会信息
 		$committees = array();
-		
-		$committee_ids = $this->committee_model->get_committee_ids();
+
+		if($this->admin_model->capable('administrator'))
+		{
+			$committee_ids = $this->committee_model->get_committee_ids();
+			$vars['global'] = true;
+		}
+		else
+		{
+			$committee_ids = $this->committee_model->get_committee_ids('id', $this->admin_model->get_admin(uid(), 'committee'));
+			$vars['global'] = false;
+		}
+
 		if($committee_ids)
 		{
 			foreach($committee_ids as $committee_id)

@@ -91,6 +91,8 @@ $this->load->view('header');?>
 							'global' => '全局分发',
 							'committee' => '限定委员会分发',
 						);
+						if(!$global)
+							unset($array['global']);
 						echo form_dropdown('access_type', $array, set_value('access_type', $action == 'add' ? 'global' : $document['access_type']), 'class="form-control"');
 						if(form_has_error('access_type'))
 							echo form_error('access_type');
@@ -106,7 +108,7 @@ $this->load->view('header');?>
 						$this->ui->js('footer', $access_select_js);
 						
 						//委员会分发默认显示范围栏
-						if(set_value('access_type', $action == 'add' ? 'global' : $document['access_type']) == 'committee')
+						if(!$global || set_value('access_type', $action == 'add' ? 'global' : $document['access_type']) == 'committee')
 							$this->ui->js('footer', "$('#access_select').show();");
 						?>
 					</div>
