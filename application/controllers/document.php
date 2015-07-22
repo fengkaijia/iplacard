@@ -608,7 +608,7 @@ class Document extends CI_Controller
 		}
 		
 		//等待下载窗口弹出
-		sleep(1);
+		usleep(500000);
 		
 		$organization = option('organization', 'iPlacard');
 		
