@@ -48,7 +48,7 @@ $this->load->view('header');?>
 							if(empty($document['files'][$file]['identifier']))
 								echo anchor("document/download/{$document['id']}/{$format}", icon('download').'点击下载');
 							else
-								echo anchor("document/download/{$document['id']}/{$format}", icon('download').'点击下载', array('onclick' => "$('#download_name').html('{$document['title']}'); $('#download_format').html('{$formats[$format]['name']}'); $('#single_download').modal('show');"));?></td>
+								echo anchor("document/download/{$document['id']}/{$format}", icon('download').'点击下载', array('onclick' => "$('#download_name').html('{$document['title']}'); $('#download_format').html('{$formats[$format]['name']}'); $('#single_download').attr('action', $(this).attr('href')); $('#single_download').modal('show');"));?></td>
 						</tr><?php } ?>
 					</tbody>
 				</table><?php } else { ?><p class="text-danger" style="margin-bottom: 0px;">暂无可用文件。</p><?php } ?>
@@ -109,7 +109,7 @@ $this->load->view('header');?>
 			<p>您可以打包下载指定文件格式的所有文件，文件合集将会以 ZIP 压缩包格式提供，可以使用常用的解压缩软件打开。请在下方选择框中选择需要下载的文件格式。</p>
 			<div class="form-group" style="margin-bottom: 0px;">
 				<?php
-				echo form_label('文件格式', 'format');
+				echo form_label('文件格式', 'format', array('class' => 'control-label'));
 				echo form_dropdown_select('format', $option, array(), count($formats) > 10 ? true : false, array(), $subtext, array(), 'selectpicker', 'data-width="100%" title="选择文件格式"'); ?>
 			</div>
 			<p>完成选择后点击下方按钮开始下载文件合集。</p>

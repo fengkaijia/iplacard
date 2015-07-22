@@ -114,7 +114,7 @@ class Document_model extends CI_Model
 	/**
 	 * 获取指定文件的访问范围
 	 */
-	function get_documents_accessibility($document)
+	function get_document_accessibility($document)
 	{
 		$this->db->where('document', $document);
 		$query = $this->db->get('document_access');
@@ -268,7 +268,7 @@ class Document_model extends CI_Model
 	 */
 	function is_accessible($document, $committee)
 	{
-		$access = $this->get_documents_accessibility($document);
+		$access = $this->get_document_accessibility($document);
 		
 		if($access === true)
 			return true;
@@ -284,7 +284,7 @@ class Document_model extends CI_Model
 	 */
 	function is_global_accessible($document)
 	{
-		$access = $this->get_documents_accessibility($document);
+		$access = $this->get_document_accessibility($document);
 		
 		if($access === true)
 			return true;
