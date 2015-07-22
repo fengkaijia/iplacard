@@ -770,22 +770,18 @@ class Document extends CI_Controller
 			
 			if($ids)
 			{
+				$formats = $this->document_model->get_formats();
+
 				$documents = $this->document_model->get_documents($ids);
 				$committees = $this->committee_model->get_committees();
 				
 				foreach($documents as $id => $document)
 				{
 					//操作
-					$operation = anchor("document/download/$id", icon('download', false).'下载');
+					$operation = ' '.anchor("document/version/$id", icon('files-o', false).'版本');
 					if($this->admin_model->capable('administrator') || ($this->admin_model->capable('dais') && $admin == $document['user']))
 						$operation .= ' '.anchor("document/edit/$id", icon('edit', false).'编辑');
-					
-					//文件名称
-					$this->load->helper('file');
-					$title_line = sprintf('<span class="document_info" data-original-title="%1$s（%2$s）文件" data-toggle="tooltip">%3$s</span>', strtoupper($document['filetype']), get_mime_by_extension('.'.$document['filetype']), mime($document['filetype'])).$document['title'];
-					if($document['highlight'])
-						$title_line .= '<span class="text-primary document_info" data-original-title="重要文件" data-toggle="tooltip">'.icon('star', false).'</span>';
-					
+
 					//分发范围
 					$access = $this->document_model->get_document_accessibility($id);
 					if($access)
@@ -828,22 +824,21 @@ class Document extends CI_Controller
 							foreach($versions as $version_id => $version_info)
 							{
 								$version_info = $this->document_model->get_file($version_id);
-								
+
+								$format_string = "<span class=\"label label-primary\">{$formats[$version_info['format']]['name']}</span> ";
+
 								if(empty($version_info['version']))
 									$version_text = sprintf('<span class="text-muted">%s</span> ', date('n月j日', $version_info['upload_time']));
 								else
 									$version_text = $version_info['version'].sprintf('<span class="text-muted"> / %s</span> ', date('n月j日', $version_info['upload_time']));
 								
-								if($document['file'] == $version_id)
-									$version_text .= '<span class="label label-primary">最新</span>';
-								
-								$version_list .= '<p>'.icon('file').$version_text.'</p>';
+								$version_list .= "<p>{$format_string}{$version_text}</p>";
 							}
 							
-							$version_line .= '<a style="cursor: pointer;" class="version_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'历史版本\' data-toggle="popover" data-content=\''.$version_list.'\'>'.icon('info-circle', false).'</a>';
+							$version_line .= '<a style="cursor: pointer;" class="version_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'所有版本\' data-toggle="popover" data-content=\''.$version_list.'\'>'.icon('info-circle', false).'</a>';
 						}
 						else
-							$version_line = '原始版本';
+							$version_line = '初始版本';
 						
 						//下载量
 						$downloads = $this->document_model->get_download_ids('file', $version_ids);
@@ -851,17 +846,16 @@ class Document extends CI_Controller
 					}
 					else
 					{
-						$download_count = '<span class="text-danger">N/A</span>';
-						$version_line = '<span class="text-danger">N/A</span>';
+						$download_count = '<span class="text-muted">N/A</span>';
+						$version_line = '<span class="text-muted">N/A</span>';
 					}
 					
 					$data = array(
 						$document['id'], //ID
-						$title_line, //文件名称
+						$document['highlight'] ? $document['title'].'<span class="text-primary document_info" data-original-title="重要文件" data-toggle="tooltip">'.icon('star', false).'</span>' : $document['title'], //文件名称
 						sprintf('%1$s（%2$s）', date('n月j日', $document['create_time']), nicetime($document['create_time'])), //上传时间
 						$access_line, //分发范围
 						$version_line, //版本
-						$document['drm'] ? '<span class="text-success">'.icon('check-circle', false).'</span>' : '', //版权标识
 						$download_count, //下载量
 						$operation, //操作
 						$document['create_time'] //上传时间（排序数据）

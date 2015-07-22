@@ -18,7 +18,6 @@ $this->load->view('header');?>
 			<th>发布时间</th>
 			<th>分发范围</th>
 			<th>版本</th>
-			<th>标识</th>
 			<th>下载量</th>
 			<th>操作</th>
 		</tr>
@@ -30,16 +29,16 @@ $this->load->view('header');?>
 </table>
 
 <?php
-$hide_column = $show_detail ? '' : '5, 6';
+$hide_column = $show_detail ? '' : '5';
 $ajax_url = base_url('document/ajax/list');
 $ajax_js = <<<EOT
 $(document).ready(function() {
 	$('#document_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bSortable": false, "aTargets": [ 0, 7 ] },
+			{ "bSortable": false, "aTargets": [ 0, 6 ] },
 			{ "bVisible": false, "aTargets": [ {$hide_column} ] },
-			{ "bVisible": false, "aTargets": [ 8 ] },
-			{ "iDataSort": 8, "aTargets": [ 2 ] }
+			{ "bVisible": false, "aTargets": [ 7 ] },
+			{ "iDataSort": 7, "aTargets": [ 2 ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,
