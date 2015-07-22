@@ -92,13 +92,76 @@ $this->load->view('header');?>
 			</div>
 		</div>
 		<?php echo form_close(); ?>
+
+		<hr />
+
+		<h3>分发范围</h3>
+		<p><?php if($access === true) { ?>此文件全局分发，所有代表均可查看。<?php } else { ?>此文件限定委员会分发，仅绿色标识的委员会代表可查看。<?php } ?></p>
+
+		<div class="row">
+			<?php
+			$divide = ceil(count($committees) / 3) - 1;
+			$group = array();
+
+			//分组
+			$counter = 0;
+			$now = 0;
+			foreach($committees as $committee)
+			{
+				$group[$now][] = $committee;
+
+				if($counter == $divide)
+				{
+					$counter = 0;
+					$now++;
+				}
+				else
+				{
+					$counter++;
+				}
+			}
+
+			for($i = 0; $i < 3; $i++) { ?><div class="col-md-4"><?php
+				foreach($group[$i] as $committee)
+				{
+					if($access === true || in_array($committee['id'], $access))
+					{
+						echo sprintf("<p class='text-success'>%s%s</p>", icon('check'), $committee['name']);
+					}
+					else
+					{
+						echo sprintf("<p class='text-muted'>%s%s</p>", icon('times'), $committee['name']);
+					}
+				}
+				?></div><?php
+			} ?>
+		</div>
 	</div>
 
 	<div class="col-md-4">
+		<div>
+			<h3>文件信息</h3>
+			<?php if($document['highlight']) { ?><p><span class="text-primary"><?php echo icon('star', false).'重要文件'; ?></span></p><?php } ?>
+
+			<?php if(!empty($document['description'])) { ?><div class="form-group">
+				<?php echo form_label('文件介绍', 'description', array('class' => 'control-label'));?>
+				<div><?php echo nl2br($document['description']);?></div>
+			</div><?php } ?>
+
+			<div class="form-group">
+				<?php echo form_label('发布日期', 'create', array('class' => 'control-label'));?>
+				<div>
+					<?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i', $document['create_time']), nicetime($document['create_time']));?>
+				</div>
+			</div>
+		</div>
+
 		<?php
 		if($upload_allow)
 		{
 			echo form_open_multipart("document/version/{$document['id']}", array(), array('upload' => false));?>
+			<hr />
+
 			<h3>上传新版本</h3>
 			<p>通过此表单上传<?php echo $document['title'];?>的新版本文件。</p>
 			<div class="form-group <?php if(form_has_error('format')) echo 'has-error';?>">

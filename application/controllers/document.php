@@ -85,6 +85,7 @@ class Document extends CI_Controller
 	 */
 	function version($id = '')
 	{
+		$this->load->model('committee_model');
 		$this->load->helper('number');
 		$this->load->helper('file');
 		$this->load->helper('date');
@@ -96,6 +97,7 @@ class Document extends CI_Controller
 			return;
 		}
 
+		//获取文件信息
 		$document = $this->document_model->get_document($id);
 		if(!$document)
 		{
@@ -105,6 +107,13 @@ class Document extends CI_Controller
 		}
 
 		$vars['document'] = $document;
+
+		//获取分发范围
+		$access = $this->document_model->get_document_accessibility($document['id']);
+		$vars['access'] = $access;
+
+		//获取委员会信息
+		$vars['committees'] = $this->committee_model->get_committees();
 
 		//获取文件格式
 		$formats = $this->document_model->get_formats();
@@ -192,7 +201,6 @@ class Document extends CI_Controller
 					'time' => unix_to_human(time())
 				);
 
-				$access = $this->document_model->get_document_accessibility($document['id']);
 				if($access === true)
 				{
 					//排除审核未通过代表下载
