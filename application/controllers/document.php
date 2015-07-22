@@ -80,6 +80,196 @@ class Document extends CI_Controller
 	}
 
 	/**
+	 * 文件及版本信息
+	 * @param string $id 文件ID
+	 */
+	function version($id = '')
+	{
+		$this->load->helper('number');
+		$this->load->helper('file');
+		$this->load->helper('date');
+
+		if(empty($id))
+		{
+			$this->ui->alert('文件未指定。', 'warning', true);
+			redirect('document/manage');
+			return;
+		}
+
+		$document = $this->document_model->get_document($id);
+		if(!$document)
+		{
+			$this->ui->alert('文件不存在。', 'warning', true);
+			redirect('document/manage');
+			return;
+		}
+
+		$vars['document'] = $document;
+
+		//获取文件格式
+		$formats = $this->document_model->get_formats();
+		if(!$formats)
+		{
+			$this->ui->alert('文件格式信息为空，无法正常显示文件。', 'warning', true);
+			redirect('document/manage');
+			return;
+		}
+
+		//上传权限检查
+		$upload_allow = true;
+		if(!$this->admin_model->capable('administrator') && $document['user'] != uid())
+			$upload_allow = false;
+
+		$vars['upload_allow'] = $upload_allow;
+
+		//文件大小上限
+		$file_max_size = byte_format(ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)), 0);
+		$vars['file_max_size'] = $file_max_size;
+
+		//预上传文件版本
+		if($this->input->post('upload') && $upload_allow)
+		{
+			//操作上传文件
+			$this->load->helper('string');
+			$config['file_name'] = time().'_'.random_string('alnum', 32);
+			$config['allowed_types'] = '*';
+			$config['max_size'] = ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)) / 1024;
+			$config['upload_path'] = './temp/'.IP_INSTANCE_ID.'/upload/document/';
+
+			if(!file_exists($config['upload_path']))
+				mkdir($config['upload_path'], DIR_WRITE_MODE, true);
+
+			$this->load->library('upload', $config);
+
+			//储存上传文件
+			if(!$this->upload->do_upload('file'))
+			{
+				$error = $this->upload->display_errors('', '');
+
+				$this->form_validation->set_message('_check_upload_error', $error);
+
+				$this->form_validation->set_rules('file', '文件', 'callback__check_upload_error');
+			}
+
+			$upload_result = $this->upload->data();
+		}
+
+		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+
+		$this->form_validation->set_rules('format', '文件格式', 'trim|required');
+		$this->form_validation->set_rules('version', '文件版本', 'trim');
+		$this->form_validation->set_rules('upload', '文件', 'required');
+		$this->form_validation->set_rules('identifier', '标识', 'trim');
+
+		if($this->form_validation->run() == true)
+		{
+			$post = $this->input->post();
+
+			//文件版本
+			if(isset($upload_result))
+			{
+				$file_id = $this->document_model->add_file($id, $upload_result['full_path'], $post['format'], $post['version'], $post['identifier']);
+
+				if(!file_exists($this->path))
+					mkdir($this->path, DIR_WRITE_MODE, true);
+
+				rename($upload_result['full_path'], $this->path.$file_id.$upload_result['file_ext']);
+
+				$this->ui->alert("已经上传文件版本 #{$file_id}。", 'success', true);
+
+				$this->system_model->log('document_file_uploaded', array('id' => $file_id, 'document' => $id));
+
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+
+				$email_data = array(
+					'id' => $document['id'],
+					'title' => $document['title'],
+					'format' => $formats[$post['format']]['name'],
+					'url' => base_url("document/download/{$document['id']}/{$post['format']}/$file_id"),
+					'time' => unix_to_human(time())
+				);
+
+				$access = $this->document_model->get_documents_accessibility($document['id']);
+				if($access === true)
+				{
+					//排除审核未通过代表下载
+					$excludes = array(0);
+					if(!option('document_enable_refused', false))
+					{
+						$this->load->model('delegate_model');
+
+						$rids = $this->delegate_model->get_delegate_ids('status', 'review_refused');
+
+						if($rids)
+							$excludes = $rids;
+					}
+					$users = $this->user_model->get_user_ids('id NOT', $excludes);
+				}
+				else
+				{
+					$this->load->model('seat_model');
+
+					$sids = $this->seat_model->get_seat_ids('committee', $access, 'status', array('assigned', 'approved', 'locked'));
+					if($sids)
+					{
+						$users = $this->seat_model->get_delegates_by_seats($sids);
+					}
+				}
+
+				if($users)
+				{
+					$new = count($this->document_model->get_document_files($document['id'])) == 1;
+
+					foreach($users as $user)
+					{
+						if($new)
+						{
+							$this->email->subject('新的文件可供下载');
+							$this->email->html($this->parser->parse_string(option('email_document_added', "新的文件《{title}》（{format}）已经于 {time} 上传到 iPlacard，请访问\n\n"
+								. "\t{url}\n\n"
+								. "下载文件。"), $email_data, true));
+						}
+						else
+						{
+							$this->email->subject('文件已经更新');
+							$this->email->html($this->parser->parse_string(option('email_document_updated', "文件《{title}》（{format}）已经于 {time} 更新，请访问\n\n"
+								. "\t{url}\n\n"
+								. "下载文件更新。"), $email_data, true));
+						}
+
+						$this->email->to($this->user_model->get_user($user, 'email'));
+						$this->email->send();
+						$this->email->clear();
+					}
+				}
+			}
+		}
+
+		//获取版本信息
+		$count = 0;
+		foreach($formats as $format_id => $format)
+		{
+			$files = $this->document_model->get_file_ids('format', $format_id, 'document', $id);
+			if(!$files)
+				continue;
+
+			foreach($files as $file_id)
+			{
+				$file = $this->document_model->get_file($file_id);
+				$formats[$format_id]['file'][$file_id] = $file;
+				$count++;
+			}
+		}
+
+		$vars['formats'] = $formats;
+		$vars['count'] = $count;
+		$this->load->view('admin/document_version', $vars);
+	}
+
+	/**
 	 * 编辑或添加文件
 	 */
 	function edit($id = '')
@@ -216,7 +406,7 @@ class Document extends CI_Controller
 			
 			$this->document_model->add_access($id, $access_committees);
 			
-			redirect("document/detail/{$id}");
+			redirect("document/version/{$id}");
 			return;
 		}
 		
@@ -589,7 +779,7 @@ class Document extends CI_Controller
 						$title_line .= '<span class="text-primary document_info" data-original-title="重要文件" data-toggle="tooltip">'.icon('star', false).'</span>';
 					
 					//分发范围
-					$access = $this->document_model->get_documents_accessibility($id);
+					$access = $this->document_model->get_document_accessibility($id);
 					if($access)
 					{
 						$count_access = count($access);
@@ -724,7 +914,7 @@ class Document extends CI_Controller
 		if($this->delegate_model->get_delegate($user, 'status') == 'review_refused' && !option('document_enable_refused', false))
 			return false;
 		
-		$access = $this->document_model->get_documents_accessibility($document);
+		$access = $this->document_model->get_document_accessibility($document);
 		
 		//全局文件所有人有权访问
 		if($access === true)
