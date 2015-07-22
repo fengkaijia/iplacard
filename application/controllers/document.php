@@ -125,18 +125,18 @@ class Document extends CI_Controller
 		}
 
 		//上传权限检查
-		$upload_allow = true;
+		$edit_allow = true;
 		if(!$this->admin_model->capable('administrator') && $document['user'] != uid())
-			$upload_allow = false;
+			$edit_allow = false;
 
-		$vars['upload_allow'] = $upload_allow;
+		$vars['edit_allow'] = $edit_allow;
 
 		//文件大小上限
 		$file_max_size = byte_format(ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)), 0);
 		$vars['file_max_size'] = $file_max_size;
 
 		//预上传文件版本
-		if($this->input->post('upload') && $upload_allow)
+		if($this->input->post('upload') && $edit_allow)
 		{
 			//操作上传文件
 			$this->load->helper('string');

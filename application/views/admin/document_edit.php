@@ -136,6 +136,13 @@ $this->load->view('header');?>
 					echo ' ';
 					if($action == 'edit')
 					{
+						echo form_button(array(
+							'name' => 'version',
+							'content' => '管理版本',
+							'type' => 'button',
+							'class' => 'btn btn-info',
+							'onclick' => onclick_redirect("document/version/{$document['id']}")
+						));
 						echo ' ';
 						echo form_button(array(
 							'name' => 'delete',

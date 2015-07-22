@@ -154,10 +154,12 @@ $this->load->view('header');?>
 					<?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i', $document['create_time']), nicetime($document['create_time']));?>
 				</div>
 			</div>
+
+			<?php if($edit_allow) echo anchor("document/edit/{$document['id']}", '编辑文件信息', array('class' => 'btn btn-primary'));?>
 		</div>
 
 		<?php
-		if($upload_allow)
+		if($edit_allow)
 		{
 			echo form_open_multipart("document/version/{$document['id']}", array(), array('upload' => false));?>
 			<hr />
