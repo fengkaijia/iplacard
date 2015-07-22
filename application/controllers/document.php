@@ -192,7 +192,7 @@ class Document extends CI_Controller
 					'time' => unix_to_human(time())
 				);
 
-				$access = $this->document_model->get_documents_accessibility($document['id']);
+				$access = $this->document_model->get_document_accessibility($document['id']);
 				if($access === true)
 				{
 					//排除审核未通过代表下载
@@ -307,7 +307,7 @@ class Document extends CI_Controller
 				return;
 			}
 			
-			$access = $this->document_model->get_documents_accessibility($id);
+			$access = $this->document_model->get_document_accessibility($id);
 			if($access !== true)
 			{
 				$document['access_select'] = $access;

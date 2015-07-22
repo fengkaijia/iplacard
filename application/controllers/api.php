@@ -660,7 +660,7 @@ class Api extends CI_Controller
 				'time' => unix_to_human(time())
 			);
 
-			$access = $this->document_model->get_documents_accessibility($document['id']);
+			$access = $this->document_model->get_document_accessibility($document['id']);
 			if($access === true)
 			{
 				//排除审核未通过代表下载
