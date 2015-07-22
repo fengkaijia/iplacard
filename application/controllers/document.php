@@ -78,16 +78,210 @@ class Document extends CI_Controller
 		$this->ui->title($title, '文件管理');
 		$this->load->view('admin/document_manage', $vars);
 	}
-	
-	
+
+	/**
+	 * 文件及版本信息
+	 * @param string $id 文件ID
+	 */
+	function version($id = '')
+	{
+		$this->load->model('committee_model');
+		$this->load->helper('number');
+		$this->load->helper('file');
+		$this->load->helper('date');
+
+		if(empty($id))
+		{
+			$this->ui->alert('文件未指定。', 'warning', true);
+			redirect('document/manage');
+			return;
+		}
+
+		//获取文件信息
+		$document = $this->document_model->get_document($id);
+		if(!$document)
+		{
+			$this->ui->alert('文件不存在。', 'warning', true);
+			redirect('document/manage');
+			return;
+		}
+
+		$vars['document'] = $document;
+
+		//获取分发范围
+		$access = $this->document_model->get_document_accessibility($document['id']);
+		$vars['access'] = $access;
+
+		//获取委员会信息
+		$vars['committees'] = $this->committee_model->get_committees();
+
+		//获取文件格式
+		$formats = $this->document_model->get_formats();
+		if(!$formats)
+		{
+			$this->ui->alert('文件格式信息为空，无法正常显示文件。', 'warning', true);
+			redirect('document/manage');
+			return;
+		}
+
+		//上传权限检查
+		$edit_allow = true;
+		if(!$this->admin_model->capable('administrator') && $document['user'] != uid())
+			$edit_allow = false;
+
+		$vars['edit_allow'] = $edit_allow;
+
+		//文件大小上限
+		$file_max_size = byte_format(ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)), 0);
+		$vars['file_max_size'] = $file_max_size;
+
+		//预上传文件版本
+		if($this->input->post('upload') && $edit_allow)
+		{
+			//操作上传文件
+			$this->load->helper('string');
+			$config['file_name'] = time().'_'.random_string('alnum', 32);
+			$config['allowed_types'] = '*';
+			$config['max_size'] = ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)) / 1024;
+			$config['upload_path'] = './temp/'.IP_INSTANCE_ID.'/upload/document/';
+
+			if(!file_exists($config['upload_path']))
+				mkdir($config['upload_path'], DIR_WRITE_MODE, true);
+
+			$this->load->library('upload', $config);
+
+			//储存上传文件
+			if(!$this->upload->do_upload('file'))
+			{
+				$error = $this->upload->display_errors('', '');
+
+				$this->form_validation->set_message('_check_upload_error', $error);
+
+				$this->form_validation->set_rules('file', '文件', 'callback__check_upload_error');
+			}
+
+			$upload_result = $this->upload->data();
+		}
+
+		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+
+		$this->form_validation->set_rules('format', '文件格式', 'trim|required');
+		$this->form_validation->set_rules('version', '文件版本', 'trim');
+		$this->form_validation->set_rules('upload', '文件', 'required');
+		$this->form_validation->set_rules('identifier', '标识', 'trim');
+
+		if($this->form_validation->run() == true)
+		{
+			$post = $this->input->post();
+
+			//文件版本
+			if(isset($upload_result))
+			{
+				$file_id = $this->document_model->add_file($id, $upload_result['full_path'], $post['format'], $post['version'], $post['identifier']);
+
+				if(!file_exists($this->path))
+					mkdir($this->path, DIR_WRITE_MODE, true);
+
+				rename($upload_result['full_path'], $this->path.$file_id.$upload_result['file_ext']);
+
+				$this->ui->alert("已经上传文件版本 #{$file_id}。", 'success', true);
+
+				$this->system_model->log('document_file_uploaded', array('id' => $file_id, 'document' => $id));
+
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+
+				$email_data = array(
+					'id' => $document['id'],
+					'title' => $document['title'],
+					'format' => $formats[$post['format']]['name'],
+					'url' => base_url("document/download/{$document['id']}/{$post['format']}/$file_id"),
+					'time' => unix_to_human(time())
+				);
+
+				if($access === true)
+				{
+					//排除审核未通过代表下载
+					$excludes = array(0);
+					if(!option('document_enable_refused', false))
+					{
+						$this->load->model('delegate_model');
+
+						$rids = $this->delegate_model->get_delegate_ids('status', 'review_refused');
+
+						if($rids)
+							$excludes = $rids;
+					}
+					$users = $this->user_model->get_user_ids('id NOT', $excludes);
+				}
+				else
+				{
+					$this->load->model('seat_model');
+
+					$sids = $this->seat_model->get_seat_ids('committee', $access, 'status', array('assigned', 'approved', 'locked'));
+					if($sids)
+					{
+						$users = $this->seat_model->get_delegates_by_seats($sids);
+					}
+				}
+
+				if($users)
+				{
+					$new = count($this->document_model->get_document_files($document['id'])) == 1;
+
+					foreach($users as $user)
+					{
+						if($new)
+						{
+							$this->email->subject('新的文件可供下载');
+							$this->email->html($this->parser->parse_string(option('email_document_added', "新的文件《{title}》（{format}）已经于 {time} 上传到 iPlacard，请访问\n\n"
+								. "\t{url}\n\n"
+								. "下载文件。"), $email_data, true));
+						}
+						else
+						{
+							$this->email->subject('文件已经更新');
+							$this->email->html($this->parser->parse_string(option('email_document_updated', "文件《{title}》（{format}）已经于 {time} 更新，请访问\n\n"
+								. "\t{url}\n\n"
+								. "下载文件更新。"), $email_data, true));
+						}
+
+						$this->email->to($this->user_model->get_user($user, 'email'));
+						$this->email->send();
+						$this->email->clear();
+					}
+				}
+			}
+		}
+
+		//获取版本信息
+		$count = 0;
+		foreach($formats as $format_id => $format)
+		{
+			$files = $this->document_model->get_file_ids('format', $format_id, 'document', $id);
+			if(!$files)
+				continue;
+
+			foreach($files as $file_id)
+			{
+				$file = $this->document_model->get_file($file_id);
+				$formats[$format_id]['file'][$file_id] = $file;
+				$count++;
+			}
+		}
+
+		$vars['formats'] = $formats;
+		$vars['count'] = $count;
+		$this->load->view('admin/document_version', $vars);
+	}
+
 	/**
 	 * 编辑或添加文件
 	 */
 	function edit($id = '')
 	{
-		$this->load->helper('number');
-		$this->load->helper('file');
-		
 		//检查权限
 		if(!$this->user_model->is_admin(uid()) || (!$this->admin_model->capable('administrator') && !$this->admin_model->capable('dais')))
 		{
@@ -111,7 +305,9 @@ class Document extends CI_Controller
 		{
 			$document = $this->document_model->get_document($id);
 			if(!$document)
+			{
 				$action = 'add';
+			}
 			elseif(!$this->admin_model->capable('administrator') && $document['user'] != uid())
 			{
 				$this->ui->alert('仅此文件的发布者可以编辑此文件。', 'warning', true);
@@ -119,7 +315,7 @@ class Document extends CI_Controller
 				return;
 			}
 			
-			$access = $this->document_model->get_documents_accessibility($id);
+			$access = $this->document_model->get_document_accessibility($id);
 			if($access !== true)
 			{
 				$document['access_select'] = $access;
@@ -142,8 +338,18 @@ class Document extends CI_Controller
 		
 		//委员会信息
 		$committees = array();
-		
-		$committee_ids = $this->committee_model->get_committee_ids();
+
+		if($this->admin_model->capable('administrator'))
+		{
+			$committee_ids = $this->committee_model->get_committee_ids();
+			$vars['global'] = true;
+		}
+		else
+		{
+			$committee_ids = $this->committee_model->get_committee_ids('id', $this->admin_model->get_admin(uid(), 'committee'));
+			$vars['global'] = false;
+		}
+
 		if($committee_ids)
 		{
 			foreach($committee_ids as $committee_id)
@@ -154,47 +360,11 @@ class Document extends CI_Controller
 		}
 		
 		$vars['committees'] = $committees;
-		
-		//文件大小上限
-		$file_max_size = byte_format(ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)), 0);
-		$vars['file_max_size'] = $file_max_size;
-		
-		//预上传文件版本
-		if($this->input->post('new_upload'))
-		{
-			//操作上传图像
-			$this->load->helper('string');
-			$config['file_name'] = time().'_'.random_string('alnum', 32);
-			$config['allowed_types'] = '*';
-			$config['max_size'] = ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)) / 1024;
-			$config['upload_path'] = './temp/'.IP_INSTANCE_ID.'/upload/document/';
 
-			if(!file_exists($config['upload_path']))
-				mkdir($config['upload_path'], DIR_WRITE_MODE, true);
-
-			$this->load->library('upload', $config);
-
-			//储存上传文件
-			if(!$this->upload->do_upload('file'))
-			{
-				$error = $this->upload->display_errors('', '');
-				
-				$this->form_validation->set_message('_check_upload_error', $error);
-				
-				$this->form_validation->set_rules('file', '文件', 'callback__check_upload_error');
-			}
-
-			$upload_result = $this->upload->data();
-		}
-		
 		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 		
 		$this->form_validation->set_rules('title', '文件名称', 'trim|required');
 		$this->form_validation->set_rules('access_type', '分发类型', 'trim|required');
-		if($action == 'add')
-		{
-			$this->form_validation->set_rules('new_upload', '文件', 'required');
-		}
 		
 		if($this->form_validation->run() == true)
 		{
@@ -244,87 +414,7 @@ class Document extends CI_Controller
 			
 			$this->document_model->add_access($id, $access_committees);
 			
-			//文件版本
-			if(isset($upload_result))
-			{
-				$file_id = $this->document_model->add_file($id, $upload_result['full_path'], $post['version'], $post['drm']);
-				
-				$this->document_model->edit_document(array('file' => $file_id), $id);
-				
-				if(!file_exists($this->path))
-					mkdir($this->path, DIR_WRITE_MODE, true);
-				
-				rename($upload_result['full_path'], $this->path.$file_id.$upload_result['file_ext']);
-				
-				$this->ui->alert("已经上传文件版本 #{$file_id}。", 'success', true);
-
-				$this->system_model->log('document_file_uploaded', array('id' => $file_id, 'document' => $id));
-				
-				//邮件通知
-				$this->load->library('email');
-				$this->load->library('parser');
-				$this->load->helper('date');
-				
-				$email_data = array(
-					'id' => $id,
-					'title' => $post['title'],
-					'url' => base_url("document/download/$id/$file_id"),
-					'time' => unix_to_human(time())
-				);
-				
-				if($access_committees == 0)
-				{
-					//排除审核未通过代表下载
-					$excludes = array(0);
-					if(!option('document_enable_refused', false))
-					{
-						$this->load->model('delegate_model');
-					
-						$rids = $this->delegate_model->get_delegate_ids('status', 'review_refused');
-
-						if($rids)
-							$excludes = $rids;
-					}
-					$users = $this->user_model->get_user_ids('id !=', uid(), 'id NOT', $excludes);
-				}
-				else
-				{
-					$this->load->model('seat_model');
-					
-					$sids = $this->seat_model->get_seat_ids('committee', $access_committees, 'status', array('assigned', 'approved', 'locked'));
-					if($sids)
-					{
-						$users = $this->seat_model->get_delegates_by_seats($sids);
-					}
-				}
-				
-				if($users)
-				{
-					foreach($users as $user)
-					{
-						if($action == 'add')
-						{
-							$this->email->subject('新的文件可供下载');
-							$this->email->html($this->parser->parse_string(option('email_document_added', "新的文件《{title}》已经于 {time} 上传到 iPlacard，请访问\n\n"
-									. "\t{url}\n\n"
-									. "下载文件。"), $email_data, true));
-						}
-						else
-						{
-							$this->email->subject('文件已经更新');
-							$this->email->html($this->parser->parse_string(option('email_document_updated', "文件《{title}》已经于 {time} 更新，请访问\n\n"
-									. "\t{url}\n\n"
-									. "下载文件更新。"), $email_data, true));
-						}
-						
-						$this->email->to($this->user_model->get_user($user, 'email'));
-						$this->email->send();
-						$this->email->clear();
-					}
-				}
-			}
-			
-			redirect('document/manage');
+			redirect("document/version/{$id}");
 			return;
 		}
 		
@@ -401,7 +491,7 @@ class Document extends CI_Controller
 	/**
 	 * 下载文件
 	 */
-	function download($id, $version = 0)
+	function download($id, $format = 0, $version = 0, $zip = false)
 	{
 		$this->load->library('user_agent');
 		$this->load->helper('file');
@@ -415,9 +505,30 @@ class Document extends CI_Controller
 			return;
 		}
 		
+		$formats = $this->document_model->get_document_formats($id);
+		if($format == 0)
+		{
+			if(in_array(1, $formats))
+				$format = 1;
+		}
+		else
+		{
+			if(!in_array($format, $formats))
+			{
+				$this->ui->alert('请求下载的文件格式不存在。', 'danger', true);
+				back_redirect();
+				return;
+			}
+		}
+		
 		//许可检查
 		if($version == 0)
-			$version = $document['file'];
+		{
+			if($format == 0)
+				$version = $this->document_model->get_document_file($id);
+			else
+				$version = $this->document_model->get_document_file($id, $format);
+		}
 		
 		$file = $this->document_model->get_file($version);
 		if(!$file)
@@ -441,56 +552,106 @@ class Document extends CI_Controller
 			return;
 		}
 		
-		//读取文件内容
-		if($file['drm'] || option('server_download_method', 'php') == 'php')
-		{
-			$data = read_file("{$this->path}{$file['id']}.{$file['filetype']}");
+		//文件名
+		$organization = option('organization', 'iPlacard');
+		$format_name = $this->document_model->get_format($format, 'name');
+		if(!empty($file['version']))
+			$filename = "{$organization}-{$document['title']}-{$format_name}-{$file['version']}.{$file['filetype']}";
+		else
+			$filename = "{$organization}-{$document['title']}-{$format_name}.{$file['filetype']}";
 		
-			if(empty($data) || sha1($data) != $file['hash'])
+		//文件具有标识功能
+		$drm = NULL;
+		if(!empty($file['identifier']))
+		{
+			$command = option("drm_{$file['filetype']}_command", '');
+			if(!empty($command))
+			{
+				$this->load->model('user_model');
+				$this->load->library('parser');
+				
+				$user = $this->user_model->get_user(uid());
+				
+				//执行指令
+				$return = array();
+				
+				$flag = array(
+					'file' => realpath("{$this->path}{$file['id']}.{$file['filetype']}"),
+					'identifier' => $file['identifier'],
+					'name' => $user['name'],
+					'email' => $user['email'],
+					'return' => realpath('.').'/'.temp_path().'/'.$filename
+				);
+				
+				exec($this->parser->parse_string($command, $flag, true), $return);
+				
+				//获取DRM值
+				if(!empty($return[count($return) - 1]))
+				{
+					$drm = trim($return[count($return) - 1]);
+				}
+			}
+			
+			//DRM无法完成强制退出
+			if(option('drm_force', true))
+			{
+				if(is_null($drm))
+				{
+					$this->ui->alert('无法获取指定文件，请重新尝试下载。', 'danger', true);
+					back_redirect();
+					return;
+				}
+			}
+		}
+		
+		//写入下载
+		$this->document_model->add_download($file['id'], uid(), $drm);
+		
+		//合集下载
+		if($zip)
+		{
+			$data = read_file(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
+			
+			if(empty($drm) && (empty($data) || sha1($data) != $file['hash']))
 			{
 				$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
 				back_redirect();
 				return;
 			}
+
+			$this->zip->add_data($filename, $data);
+			return;
 		}
 		
-		//版权标识
-		$drm = NULL;
-		if($file['drm'])
+		if(option('server_download_method', 'php') == 'temp')
 		{
-			list($data, $drm) = $this->_drm($data, $file['filetype']);
+			temp_download(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename, $filename);
 		}
 		
-		$this->document_model->add_download($file['id'], uid(), $drm);
-		
-		//文件名
-		$organization = option('organization', 'iPlacard');
-		if(!empty($file['version']))
-			$filename = "{$organization}-{$document['title']}-{$file['version']}.{$file['filetype']}";
-		else
-			$filename = "{$organization}-{$document['title']}-{$file['id']}.{$file['filetype']}";
-		
+		if(option('server_download_method', 'php') != 'php')
+		{
+			xsendfile_download(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename, $filename);
+		}
+
+		$data = read_file(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
+
+		if(empty($drm) && (empty($data) || sha1($data) != $file['hash']))
+		{
+			$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
+			back_redirect();
+			return;
+		}
+
 		//弹出下载
 		$this->output->set_content_type($file['filetype']);
-		
-		if(!$file['drm'] && option('server_download_method', 'php') == 'temp')
-		{
-			symlink_download("{$this->path}{$file['id']}.{$file['filetype']}", $filename);
-		}
-		elseif(!$file['drm'] && option('server_download_method', 'php') != 'php')
-		{
-			xsendfile_download("{$this->path}{$file['id']}.{$file['filetype']}", $filename);
-		}
-		else
-		{
-			force_download($filename, $data);
-		}
+
+		force_download($filename, $data);
 	}
 	
 	/**
 	 * 下载文件压缩包
 	 */
-	function zip()
+	function zip($id = 1)
 	{
 		$this->load->library('zip');
 		$this->load->helper('file');
@@ -528,8 +689,16 @@ class Document extends CI_Controller
 			return;
 		}
 		
+		$format = $this->document_model->get_format($id);
+		if(!$format)
+		{
+			$this->ui->alert('文件格式不存在。', 'danger', true);
+			back_redirect();
+			return;
+		}
+		
 		//等待下载窗口弹出
-		sleep(2);
+		usleep(500000);
 		
 		$organization = option('organization', 'iPlacard');
 		
@@ -538,38 +707,11 @@ class Document extends CI_Controller
 		{
 			$document = $this->document_model->get_document($document_id);
 
-			//可用性检查
-			$file = $this->document_model->get_file($document['file']);
-			if(!$file)
-			{
-				$this->ui->alert('请求下载的文件不存在。', 'danger', true);
-				back_redirect();
-				return;
-			}
+			$file_id = $this->document_model->get_document_file($document_id, $id);
+			if(!$file_id)
+				continue;
 
-			//读取文件内容
-			$data = read_file("{$this->path}{$file['id']}.{$file['filetype']}");
-
-			if(empty($data) || sha1($data) != $file['hash'])
-			{
-				$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
-				back_redirect();
-				return;
-			}
-
-			//版权标识
-			list($data, $drm) = $this->_drm($data, $file['filetype']);
-
-			$this->document_model->add_download($file['id'], uid(), $drm);
-
-			//文件名
-			if(!empty($file['version']))
-				$filename = "{$organization}-{$document['title']}-{$file['version']}.{$file['filetype']}";
-			else
-				$filename = "{$organization}-{$document['title']}-{$file['id']}.{$file['filetype']}";
-			
-			//将文件加入到归档
-			$this->zip->add_data($filename, $data);
+			$this->download($document_id, $id, $file_id, true);
 		}
 		
 		//弹出下载
@@ -628,24 +770,20 @@ class Document extends CI_Controller
 			
 			if($ids)
 			{
+				$formats = $this->document_model->get_formats();
+
 				$documents = $this->document_model->get_documents($ids);
 				$committees = $this->committee_model->get_committees();
 				
 				foreach($documents as $id => $document)
 				{
 					//操作
-					$operation = anchor("document/download/$id", icon('download', false).'下载');
+					$operation = ' '.anchor("document/version/$id", icon('files-o', false).'版本');
 					if($this->admin_model->capable('administrator') || ($this->admin_model->capable('dais') && $admin == $document['user']))
 						$operation .= ' '.anchor("document/edit/$id", icon('edit', false).'编辑');
-					
-					//文件名称
-					$this->load->helper('file');
-					$title_line = sprintf('<span class="document_info" data-original-title="%1$s（%2$s）文件" data-toggle="tooltip">%3$s</span>', strtoupper($document['filetype']), get_mime_by_extension('.'.$document['filetype']), mime($document['filetype'])).$document['title'];
-					if($document['highlight'])
-						$title_line .= '<span class="text-primary document_info" data-original-title="重要文件" data-toggle="tooltip">'.icon('star', false).'</span>';
-					
+
 					//分发范围
-					$access = $this->document_model->get_documents_accessibility($id);
+					$access = $this->document_model->get_document_accessibility($id);
 					if($access)
 					{
 						$count_access = count($access);
@@ -686,22 +824,21 @@ class Document extends CI_Controller
 							foreach($versions as $version_id => $version_info)
 							{
 								$version_info = $this->document_model->get_file($version_id);
-								
+
+								$format_string = "<span class=\"label label-primary\">{$formats[$version_info['format']]['name']}</span> ";
+
 								if(empty($version_info['version']))
 									$version_text = sprintf('<span class="text-muted">%s</span> ', date('n月j日', $version_info['upload_time']));
 								else
 									$version_text = $version_info['version'].sprintf('<span class="text-muted"> / %s</span> ', date('n月j日', $version_info['upload_time']));
 								
-								if($document['file'] == $version_id)
-									$version_text .= '<span class="label label-primary">最新</span>';
-								
-								$version_list .= '<p>'.icon('file').$version_text.'</p>';
+								$version_list .= "<p>{$format_string}{$version_text}</p>";
 							}
 							
-							$version_line .= '<a style="cursor: pointer;" class="version_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'历史版本\' data-toggle="popover" data-content=\''.$version_list.'\'>'.icon('info-circle', false).'</a>';
+							$version_line .= '<a style="cursor: pointer;" class="version_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'所有版本\' data-toggle="popover" data-content=\''.$version_list.'\'>'.icon('info-circle', false).'</a>';
 						}
 						else
-							$version_line = '原始版本';
+							$version_line = '初始版本';
 						
 						//下载量
 						$downloads = $this->document_model->get_download_ids('file', $version_ids);
@@ -709,17 +846,16 @@ class Document extends CI_Controller
 					}
 					else
 					{
-						$download_count = '<span class="text-danger">N/A</span>';
-						$version_line = '<span class="text-danger">N/A</span>';
+						$download_count = '<span class="text-muted">N/A</span>';
+						$version_line = '<span class="text-muted">N/A</span>';
 					}
 					
 					$data = array(
 						$document['id'], //ID
-						$title_line, //文件名称
+						$document['highlight'] ? $document['title'].'<span class="text-primary document_info" data-original-title="重要文件" data-toggle="tooltip">'.icon('star', false).'</span>' : $document['title'], //文件名称
 						sprintf('%1$s（%2$s）', date('n月j日', $document['create_time']), nicetime($document['create_time'])), //上传时间
 						$access_line, //分发范围
 						$version_line, //版本
-						$document['drm'] ? '<span class="text-success">'.icon('check-circle', false).'</span>' : '', //版权标识
 						$download_count, //下载量
 						$operation, //操作
 						$document['create_time'] //上传时间（排序数据）
@@ -737,17 +873,6 @@ class Document extends CI_Controller
 		}
 		
 		echo json_encode($json);
-	}
-	
-	/**
-	 * 增加版权标识
-	 * @param type $data 文件数据
-	 * @param type $type 文件类型
-	 * @todo 支持版权标识
-	 */
-	function _drm($data, $type)
-	{
-		return array($data, NULL);
 	}
 	
 	/**
@@ -791,7 +916,7 @@ class Document extends CI_Controller
 		if($this->delegate_model->get_delegate($user, 'status') == 'review_refused' && !option('document_enable_refused', false))
 			return false;
 		
-		$access = $this->document_model->get_documents_accessibility($document);
+		$access = $this->document_model->get_document_accessibility($document);
 		
 		//全局文件所有人有权访问
 		if($access === true)

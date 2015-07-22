@@ -20,9 +20,8 @@ class Document_model extends CI_Model
 	 */
 	function get_document($id, $part = '')
 	{
-		$this->db->where('document.id', intval($id));
-		$this->db->join('document', 'document_file.id = document.file');
-		$query = $this->db->get('document_file');
+		$this->db->where('id', intval($id));
+		$query = $this->db->get('document');
 		
 		//如果无结果
 		if($query->num_rows() == 0)
@@ -43,9 +42,8 @@ class Document_model extends CI_Model
 	 */
 	function get_documents($ids)
 	{
-		$this->db->where_in('document.id', $ids);
-		$this->db->join('document', 'document_file.id = document.file');
-		$query = $this->db->get('document_file');
+		$this->db->where_in('id', $ids);
+		$query = $this->db->get('document');
 		
 		//如果无结果
 		if($query->num_rows() == 0)
@@ -116,7 +114,7 @@ class Document_model extends CI_Model
 	/**
 	 * 获取指定文件的访问范围
 	 */
-	function get_documents_accessibility($document)
+	function get_document_accessibility($document)
 	{
 		$this->db->where('document', $document);
 		$query = $this->db->get('document_access');
@@ -135,6 +133,31 @@ class Document_model extends CI_Model
 		}
 		$query->free_result();
 		
+		return $array;
+	}
+	
+	/**
+	 * 获取指定文件的可用格式
+	 */
+	function get_document_formats($document)
+	{
+		$this->db->where('document', $document);
+		$query = $this->db->get('document_file');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		//返回格式ID
+		$array = array();
+		foreach($query->result_array() as $data)
+		{
+			if(!in_array($data['format'], $array))
+				$array[] = $data['format'];
+		}
+		$query->free_result();
+		
+		sort($array);
 		return $array;
 	}
 	
@@ -245,7 +268,7 @@ class Document_model extends CI_Model
 	 */
 	function is_accessible($document, $committee)
 	{
-		$access = $this->get_documents_accessibility($document);
+		$access = $this->get_document_accessibility($document);
 		
 		if($access === true)
 			return true;
@@ -261,7 +284,7 @@ class Document_model extends CI_Model
 	 */
 	function is_global_accessible($document)
 	{
-		$access = $this->get_documents_accessibility($document);
+		$access = $this->get_document_accessibility($document);
 		
 		if($access === true)
 			return true;
@@ -342,11 +365,31 @@ class Document_model extends CI_Model
 	}
 	
 	/**
+	 * 查询指定文件的最新文件版本ID
+	 * @return int|false 指定文件的最新文件版本ID，如不存在返回FALSE
+	 */
+	function get_document_file($document, $format = '')
+	{
+		if(!empty($format))
+			$ids = $this->get_document_files($document, array($format));
+		else
+			$ids = $this->get_document_files($document);
+		
+		if(!$ids)
+			return false;
+		
+		return max($ids);
+	}
+	
+	/**
 	 * 查询指定文件的所有文件版本ID
 	 * @return array|false 指定文件的所有文件版本ID，如不存在返回FALSE
 	 */
-	function get_document_files($document)
+	function get_document_files($document, $format = array())
 	{
+		if(!empty($format))
+			return $this->get_file_ids('document', $document, 'format', $format);
+		
 		return $this->get_file_ids('document', $document);
 	}
 	
@@ -372,11 +415,12 @@ class Document_model extends CI_Model
 	 * 添加文件版本
 	 * @param int $document 文件ID
 	 * @param string $file_path 上传文件路径
+	 * @param int $format 文件格式ID
 	 * @param string $version 版本号
-	 * @param boolean $drm 是否启用版本标识类型
+	 * @param string $identifier 文献标识保护
 	 * @param int $user 上传用户ID
 	 */
-	function add_file($document, $file_path, $version = '', $drm = true, $user = '')
+	function add_file($document, $file_path, $format = 1, $version = '', $identifier = '', $user = '')
 	{
 		$this->load->helper('file');
 		
@@ -390,18 +434,15 @@ class Document_model extends CI_Model
 		
 		//保护设置
 		$type = pathinfo($file_path, PATHINFO_EXTENSION);
-		if($drm && in_array($type, array('pdf')))
-			$drm = true;
-		else
-			$drm = false;
 		
 		$data = array(
 			'document' => $document,
+			'format' => $format,
 			'version' => $version,
 			'filetype' => $type,
 			'filesize' => $file['size'],
 			'hash' => sha1_file($file_path),
-			'drm' => $drm,
+			'identifier' => !empty($identifier) ? $identifier : NULL,
 			'user' => $user,
 			'upload_time' => time()
 		);
@@ -434,12 +475,131 @@ class Document_model extends CI_Model
 	}
 	
 	/**
-	 * 检查文件版本是否开启版权保护
+	 * 检查文件版本是否开启标识保护
 	 * @param int $file 文件版本ID
 	 */
-	function is_drm_enabled($file)
+	function is_identifier_enabled($file)
 	{
-		return $this->get_file($file, 'drm');
+		$identifier = $this->get_file($file, 'identifier');
+		return $identifier && !empty($identifier);
+	}
+	
+	/**
+	 * 获取文件格式信息
+	 * @param int $id 格式ID
+	 * @param string $part 指定部分
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_format($id, $part = '')
+	{
+		$this->db->where('id', $id);
+		$query = $this->db->get('document_format');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$data = $query->row_array();
+		
+		//返回结果
+		if(empty($part))
+			return $data;
+		return $data[$part];
+	}
+	
+	/**
+	 * 批量获取文件格式信息
+	 * @param int $ids 格式IDs
+	 * @return array|string|boolean 信息，如不存在返回FALSE
+	 */
+	function get_formats($ids = array())
+	{
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
+		$query = $this->db->get('document_format');
+		
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+		
+		$return = array();
+		
+		foreach($query->result_array() as $data)
+		{
+			$return[$data['id']] = $data;
+		}
+		$query->free_result();
+		
+		//返回结果
+		return $return;
+	}
+	
+	/**
+	 * 查询符合条件的第一个文件格式ID
+	 * @return int|false 符合查询条件的第一个格式ID，如不存在返回FALSE
+	 */
+	function get_format_id()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'document_format');
+		//将参数传递给get_id方法
+		return call_user_func_array(array($this->sql_model, 'get_id'), $args);
+	}
+	
+	/**
+	 * 查询符合条件的所有文件格式ID
+	 * @return array|false 符合查询条件的所有格式ID，如不存在返回FALSE
+	 */
+	function get_format_ids()
+	{
+		$args = func_get_args();
+		array_unshift($args, 'document_format');
+		//将参数传递给get_ids方法
+		return call_user_func_array(array($this->sql_model, 'get_ids'), $args);
+	}
+	
+	/**
+	 * 编辑/添加文件格式
+	 * @return int 新的格式ID
+	 */
+	function edit_format($data, $id = '')
+	{
+		//新增文件格式
+		if(empty($id))
+		{
+			$this->db->insert('document_format', $data);
+			return $this->db->insert_id();
+		}
+		
+		//更新文件格式
+		$this->db->where('id', $id);
+		return $this->db->update('document_format', $data);
+	}
+	
+	/**
+	 * 添加文件格式
+	 * @return int 新的文件格式ID
+	 */
+	function add_format($name, $detail = '')
+	{
+		$data = array(
+			'name' => $name,
+			'detail' => $detail
+		);
+		
+		//返回新格式ID
+		return $this->edit_format($data);
+	}
+	
+	/**
+	 * 删除文件格式
+	 * @param int $id 格式ID
+	 * @return boolean 是否完成删除
+	 */
+	function delete_format($id)
+	{
+		$this->db->where('id', $id);
+		return $this->db->delete('document_format');
 	}
 	
 	/**

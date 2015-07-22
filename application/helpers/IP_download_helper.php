@@ -1,31 +1,43 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
- * 使用符号链接发送文件
+ * 使用临时目录发送文件
  */
-function symlink_download($path, $filename = '')
+function temp_download($path, $filename = '')
 {
+	$path = realpath($path);
+	
 	if(!@is_file($path) || !($filesize = @filesize($path)))
 	{
 		return false;
 	}
 	
+	$temp_path = temp_path();
+	
+	if(!file_exists($temp_path))
+	{
+		mkdir($temp_path, DIR_READ_MODE, true);
+	}
+	
+	if(!file_exists("{$temp_path}/{$filename}"))
+	{
+		symlink($path, "{$temp_path}/{$filename}");
+	}
+	
+	redirect("{$temp_path}/{$filename}");
+	exit;
+}
+
+/**
+ * 生成临时下载路径
+ */
+function temp_path()
+{
 	$uid = uid();
 	if(!$uid)
 		$uid = 0;
 	
-	$path = realpath($path);
-	$temp_path = sha1($uid.$path.date('Y-m-d'));
-	
-	if(!file_exists('./temp/'.IP_INSTANCE_ID.'/download/'.$temp_path))
-	{
-		mkdir('./temp/'.IP_INSTANCE_ID.'/download/'.$temp_path);
-		symlink($path, './temp/'.IP_INSTANCE_ID.'/download/'.$temp_path.'/'.$filename);
-	}
-	
-	redirect('./temp/'.IP_INSTANCE_ID.'/download/'.$temp_path.'/'.$filename);
-	
-	exit;
+	return './temp/'.IP_INSTANCE_ID.'/download/'.sha1($uid.date('Y-m-d').$uid);
 }
 
 /**

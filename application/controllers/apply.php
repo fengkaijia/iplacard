@@ -1025,7 +1025,22 @@ class Apply extends CI_Controller
 			return;
 		}
 		
-		$vars['count'] = count($document_ids);
+		//获取文件格式
+		$formats = $this->document_model->get_formats();
+		if(!$formats)
+			$formats = array();
+		
+		//去除空格式
+		foreach($formats as $format_id => $format)
+		{
+			$files = $this->document_model->get_file_ids('format', $format_id, 'document', $document_ids, array('group_by' => 'document'));
+			if(!$files)
+				unset($formats[$format_id]);
+			else
+				$formats[$format_id]['count'] = count($files);
+		}
+		
+		$vars['formats'] = $formats;
 		
 		$documents = array();
 		
@@ -1033,13 +1048,36 @@ class Apply extends CI_Controller
 		foreach($document_ids as $document_id)
 		{
 			$document = $this->document_model->get_document($document_id);
-			$document['file'] = $this->document_model->get_file($document['file']);
+			
+			$formats = $this->document_model->get_document_formats($document_id);
+			if($formats)
+			{
+				foreach($formats as $format)
+				{
+					$file_id = $this->document_model->get_document_file($document_id, $format);
+					$document['formats'][$format] = $file_id;
+					$document['files'][$file_id] = $this->document_model->get_file($file_id);
+				}
+			}
+			elseif(!option('document_show_empty', false))
+			{
+				continue;
+			}
+			
 			$document['downloaded'] = $this->document_model->is_user_downloaded($this->uid, $document_id, 'document');
 			
 			$documents[] = $document;
 		}
+
+		if(empty($documents) && !option('document_show_empty', false))
+		{
+			$this->ui->alert('当前无文件可供下载。', 'danger', true);
+			back_redirect();
+			return;
+		}
 		
 		$vars['documents'] = $documents;
+		$vars['count'] = count($documents);
 		
 		$this->ui->now('document');
 		$this->ui->title('文件');
