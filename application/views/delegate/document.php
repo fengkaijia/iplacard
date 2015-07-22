@@ -48,7 +48,7 @@ $this->load->view('header');?>
 							if(empty($document['files'][$file]['identifier']))
 								echo anchor("document/download/{$document['id']}/{$format}", icon('download').'点击下载');
 							else
-								echo anchor("document/download/{$document['id']}/{$format}", icon('download').'点击下载', array('onclick' => "$('#download_name').html('{$document['title']}'); $('#download_format').html('{$formats[$format]['name']}'); $('#single_download').modal('show');"));?></td>
+								echo anchor("document/download/{$document['id']}/{$format}", icon('download').'点击下载', array('onclick' => "$('#download_name').html('{$document['title']}'); $('#download_format').html('{$formats[$format]['name']}'); $('#single_download').attr('action', $(this).attr('href')); $('#single_download').modal('show');"));?></td>
 						</tr><?php } ?>
 					</tbody>
 				</table><?php } else { ?><p class="text-danger" style="margin-bottom: 0px;">暂无可用文件。</p><?php } ?>

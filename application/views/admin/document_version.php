@@ -39,7 +39,7 @@ $this->load->view('header');?>
 							if(empty($file['identifier']))
 								echo anchor("document/download/{$document['id']}/{$format['id']}/{$file_id}", icon('download').'下载');
 							else
-								echo anchor("document/download/{$document['id']}/{$format['id']}/{$file_id}", icon('download').'下载', array('onclick' => "$('#download_format').html('{$format['name']}'); $('#single_download').modal('show');"));?></td>
+								echo anchor("document/download/{$document['id']}/{$format['id']}/{$file_id}", icon('download').'下载', array('onclick' => "$('#download_format').html('{$format['name']}'); $('#single_download').attr('action', $(this).attr('href')); $('#single_download').modal('show');"));?></td>
 						</tr><?php } ?>
 					</tbody>
 				</table><?php } ?>
