@@ -13,11 +13,9 @@ $this->load->view('header');?>
 		<div class="panel panel-default">
 			<div class="panel-heading">帮助</div>
 			<div class="panel-body"><?php if($action == 'edit') { ?>
-				<p>您可以通过此页面编辑文件属性或上传文件的一个新版本。</p>
-				<p style="margin-bottom: 0;">上传新版本的文件后将会向受影响的用户发送邮件通知。</p>
+				<p style="margin-bottom: 0;">您可以通过此页面修改文件属性。</p>
 				<?php } else { ?>
-				<p>您可以通过此页面添加文件。</p>
-				<p style="margin-bottom: 0;">添加文件后将会向受影响的用户发送邮件通知。</p>
+				<p style="margin-bottom: 0;">您可以通过此页面添加文件。</p>
 			<?php } ?></div>
 		</div>
 	</div>
