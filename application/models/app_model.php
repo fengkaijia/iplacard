@@ -135,6 +135,117 @@ class App_model extends CI_Model
 		$this->db->where('id', $id);
 		return $this->db->delete('app');
 	}
+
+	/**
+	 * 获取用户应用权限
+	 * @param int $app 应用ID
+	 * @param int $user 用户ID
+	 * @return string|false 权限信息
+	 */
+	function get_user_role($app, $user)
+	{
+		$this->db->where('app', $app);
+		$this->db->where('type', 'user');
+		$this->db->where('key', $user);
+		$query = $this->db->get('app_role');
+
+		//如果无结果
+		if($query->num_rows() == 0)
+		{
+			if($this->user_model->is_delegate($user))
+			{
+				$this->load->model('seat_model');
+
+				$seat = $this->seat_model->get_delegate_seat($user);
+				if(!$seat)
+				{
+					return $this->get_seat_role($app, $seat);
+				}
+			}
+
+			return false;
+		}
+
+		$data = $query->row_array();
+
+		//返回权限结果
+		return $data['role'];
+	}
+
+	/**
+	 * 获取用户席位应用权限
+	 * @param int $app 应用ID
+	 * @param int $seat 席位ID
+	 * @return string|false 权限信息
+	 */
+	function get_seat_role($app, $seat)
+	{
+		$this->db->where('app', $app);
+		$this->db->where('type', 'seat');
+		$this->db->where('key', $seat);
+		$query = $this->db->get('app_role');
+
+		//如果无结果
+		if($query->num_rows() == 0)
+			return false;
+
+		$data = $query->row_array();
+
+		//返回权限结果
+		return $data['role'];
+	}
+
+	/**
+	 * 添加用户权限
+	 * @param int $app 应用ID
+	 * @param string $role 权限
+	 * @param string $type 权限类型
+	 * @param int|array $keys 一个或一组用户或席位ID
+	 * @return boolean 是否完成添加
+	 */
+	function add_role($app, $role, $type, $keys)
+	{
+		if(!is_array($keys))
+			$keys = array($keys);
+
+		//生成数据
+		foreach($keys as $key)
+		{
+			$data[] = array(
+				'app' => $app,
+				'role' => $role,
+				'type' => $type,
+				'key' => $key
+			);
+		}
+
+		return $this->db->insert_batch('app_role', $data);
+	}
+
+	/**
+	 * 删除用户权限
+	 * @param int $app 应用ID
+	 * @param string $type 权限类型，如为空全部选择
+	 * @param int|array $keys 一个或一组用户或席位ID，如为空全部删除
+	 * @return boolean 是否完成删除
+	 */
+	function delete_role($app, $type = '', $keys = '')
+	{
+		$this->db->where('app', $app);
+
+		if(!empty($type))
+			$this->db->where('type', $type);
+
+		if(!empty($keys))
+		{
+			if(is_array($keys))
+				$this->db->where_in('key', $keys);
+			else
+				$this->db->where('key', $keys);
+		}
+
+		return $this->db->delete('app_role');
+	}
 }
 
 /* End of file app_model.php */
