@@ -37,12 +37,13 @@ class Group_model extends CI_Model
 	
 	/**
 	 * 批量获取代表团信息
-	 * @param int $ids 代表团IDs
+	 * @param array $ids 代表团IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_groups($ids)
+	function get_groups($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('group');
 		
 		//如果无结果

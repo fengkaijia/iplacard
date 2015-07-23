@@ -41,12 +41,13 @@ class Invoice_model extends CI_Model
 	
 	/**
 	 * 批量获取账单信息
-	 * @param int $ids 账单IDs
+	 * @param array $ids 账单IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_invoices($ids)
+	function get_invoices($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('invoice');
 		
 		//如果无结果

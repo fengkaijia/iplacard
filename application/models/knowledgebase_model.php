@@ -37,12 +37,13 @@ class Knowledgebase_model extends CI_Model
 	
 	/**
 	 * 批量获取知识库文章
-	 * @param int $ids 文章IDs
+	 * @param array $ids 文章IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_articles($ids)
+	function get_articles($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('knowledgebase');
 		
 		//如果无结果

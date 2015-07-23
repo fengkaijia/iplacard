@@ -42,12 +42,13 @@ class User_model extends CI_Model
 	
 	/**
 	 * 批量获取用户信息
-	 * @param int $ids 用户IDs
+	 * @param array $ids 用户IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_users($ids)
+	function get_users($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('user');
 		
 		//如果无结果
@@ -443,12 +444,13 @@ class User_model extends CI_Model
 	
 	/**
 	 * 批量获取用户消息
-	 * @param int $ids 消息IDs
+	 * @param array $ids 消息IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_messages($ids)
+	function get_messages($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('message');
 		
 		//如果无结果

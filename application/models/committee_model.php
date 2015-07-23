@@ -37,7 +37,7 @@ class Committee_model extends CI_Model
 	
 	/**
 	 * 批量获取委员会信息
-	 * @param int $ids 委员会IDs
+	 * @param array $ids 委员会IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
 	function get_committees($ids = array())

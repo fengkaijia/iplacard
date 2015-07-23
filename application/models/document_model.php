@@ -37,12 +37,13 @@ class Document_model extends CI_Model
 	
 	/**
 	 * 批量获取文件信息
-	 * @param int $ids 文件IDs
+	 * @param array $ids 文件IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_documents($ids)
+	function get_documents($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('document');
 		
 		//如果无结果
@@ -316,12 +317,13 @@ class Document_model extends CI_Model
 	
 	/**
 	 * 批量获取文件版本信息
-	 * @param int $ids 文件版本IDs
+	 * @param array $ids 文件版本IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_files($ids)
+	function get_files($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('document_file');
 		
 		//如果无结果
@@ -509,7 +511,7 @@ class Document_model extends CI_Model
 	
 	/**
 	 * 批量获取文件格式信息
-	 * @param int $ids 格式IDs
+	 * @param array $ids 格式IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
 	function get_formats($ids = array())

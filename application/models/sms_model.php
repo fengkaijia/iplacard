@@ -37,12 +37,13 @@ class Sms_model extends CI_Model
 	
 	/**
 	 * 批量获取短信信息
-	 * @param int $ids 短信IDs
+	 * @param array $ids 短信IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_smses($ids)
+	function get_smses($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('sms');
 		
 		//如果无结果

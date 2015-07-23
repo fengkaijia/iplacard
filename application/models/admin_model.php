@@ -38,12 +38,13 @@ class Admin_model extends CI_Model
 	
 	/**
 	 * 批量获取管理员信息
-	 * @param int $ids 用户IDs
+	 * @param array $ids 用户IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_admins($ids)
+	function get_admins($ids = array())
 	{
-		$this->db->where_in('user.id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('user.id', $ids);
 		$this->db->join('admin', 'user.id = admin.id', 'left outer');
 		$query = $this->db->get('user');
 		

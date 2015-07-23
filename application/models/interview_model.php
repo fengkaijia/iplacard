@@ -38,12 +38,13 @@ class Interview_model extends CI_Model
 	
 	/**
 	 * 批量获取面试信息
-	 * @param int $ids 面试IDs
+	 * @param array $ids 面试IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_interviews($ids)
+	function get_interviews($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('interview');
 		
 		//如果无结果

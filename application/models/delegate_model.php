@@ -38,12 +38,13 @@ class Delegate_model extends CI_Model
 	
 	/**
 	 * 批量获取代表信息
-	 * @param int $ids 用户IDs
+	 * @param array $ids 用户IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_delegates($ids)
+	function get_delegates($ids = array())
 	{
-		$this->db->where_in('user.id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('user.id', $ids);
 		$this->db->join('delegate', 'user.id = delegate.id');
 		$query = $this->db->get('user');
 		

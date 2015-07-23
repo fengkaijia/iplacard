@@ -50,12 +50,13 @@ class Seat_model extends CI_Model
 	
 	/**
 	 * 批量获取席位信息
-	 * @param int $ids 席位IDs
+	 * @param array $ids 席位IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_seats($ids)
+	function get_seats($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('seat');
 		
 		//如果无结果
@@ -404,12 +405,13 @@ class Seat_model extends CI_Model
 	
 	/**
 	 * 批量席位延期请求信息
-	 * @param int $ids 延期请求IDs
+	 * @param array $ids 延期请求IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_backorders($ids)
+	function get_backorders($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('seat_backorder');
 		
 		//如果无结果
@@ -649,12 +651,13 @@ class Seat_model extends CI_Model
 	
 	/**
 	 * 批量席位许可信息
-	 * @param int $ids 许可IDs
+	 * @param array $ids 许可IDs
 	 * @return array|string|boolean 信息，如不存在返回FALSE
 	 */
-	function get_selectabilities($ids)
+	function get_selectabilities($ids = array())
 	{
-		$this->db->where_in('id', $ids);
+		if(!empty($ids))
+			$this->db->where_in('id', $ids);
 		$query = $this->db->get('seat_selectability');
 		
 		//如果无结果
