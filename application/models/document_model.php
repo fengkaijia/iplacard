@@ -244,9 +244,14 @@ class Document_model extends CI_Model
 	function delete_access($document, $committees = '')
 	{
 		$this->db->where('document', $document);
-		
+
 		if(!empty($committees))
-			$this->db->where('access', $committees);
+		{
+			if(is_array($committees))
+				$this->db->where_in('access', $committees);
+			else
+				$this->db->where('access', $committees);
+		}
 		
 		return $this->db->delete('document_access');
 	}
