@@ -3,7 +3,7 @@
 /**
  * 应用模块
  * @package iPlacard
- * @since 2.0
+ * @since 2.1
  */
 class App_model extends CI_Model
 {
