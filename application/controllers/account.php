@@ -575,6 +575,79 @@ class Account extends CI_Controller
 		$this->ui->background();
 		$this->load->view('account/auth/reset', array('email' => $user['email'], 'uri' => "$uid/$key"));
 	}
+
+	/**
+	 * 单一登录
+	 * @param string $id 应用ID
+	 */
+	function sso($id)
+	{
+		$this->load->model('app_model');
+
+		$app = $this->app_model->get_app($id);
+
+		//非SSO类型应用
+		if(!start_with($app['type'], 'sso_'))
+			return;
+
+		if(is_logged_in())
+		{
+			//用户信息
+			$user = $this->user_model->get_user(uid(true));
+
+			//姓名显示
+			$title = '';
+
+			$mode = option('sso_name', 'name');
+			switch($mode)
+			{
+				//同时显示职位或席位
+				case 'title':
+				case 'both':
+					if($user['type'] == 'admin')
+					{
+						$this->load->model('admin_model');
+
+						$title = $this->admin_model->get_admin($user['id'], 'title');
+					}
+					else
+					{
+						$this->load->model('seat_model');
+
+						$seat = $this->seat_model->get_delegate_seat($user['id']);
+						if($seat)
+							$title = $this->seat_model->get_seat($seat, 'name');
+					}
+
+					if(!empty($title))
+					{
+						if($mode == 'title')
+							$user['name_display'] = $title;
+						else
+							$user['name_display'] = "{$user['name']}（{$title}）";
+						break;
+					}
+				//仅显示姓名
+				case 'name':
+					$user['name_display'] = $user['name'];
+					break;
+			}
+
+			$user['role'] = $this->app_model->get_user_role($app['id'], $user['id']);
+		}
+		else
+		{
+			$user = false;
+		}
+
+		switch($app['type'])
+		{
+			//Vanilla论坛jsConnect模式
+			case 'sso_vanilla':
+				$this->_sso_vanilla($app, $user);
+				break;
+		}
+	}
 	
 	/**
 	 * 强制注销登录的Session
@@ -2085,6 +2158,42 @@ class Account extends CI_Controller
 		$this->session->unset_userdata('login_try');
 		$this->session->unset_userdata('login_try_last');
 		return true;
+	}
+
+	/**
+	 * Vanilla论坛jsConnect模式单一登录
+	 * @param array $app 应用信息
+	 * @param array|bool $info SSO信息
+	 */
+	function _sso_vanilla($app, $info = false)
+	{
+		require_once APPPATH.'/third_party/Vanilla/functions.jsconnect.php';
+
+		$client_id = $app['token'];
+		$secret = $app['secret'];
+
+		if(!$client_id || !$secret)
+			return;
+
+		if($info)
+		{
+			$data = array(
+				'uniqueid' => $info['id'],
+				'name' => $info['name_display'],
+				'email' => $info['email'],
+				'photourl' => avatar($info['id']),
+				'roles' => $info['role'] ? : 'guest',
+			);
+		}
+		else
+		{
+			$data = array(
+				'name' => '',
+				'photourl' => '',
+			);
+		}
+
+		WriteJsConnect($data, $this->input->get(), $client_id, $secret);
 	}
 	
 	/**
