@@ -29,6 +29,25 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}api_token` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='接口访问令牌' AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}app` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '应用ID',
+  `name` text NOT NULL COMMENT '应用名',
+  `type` text NOT NULL COMMENT '连接类型',
+  `token` text NOT NULL COMMENT '访问令牌字串',
+  `secret` text COMMENT '密钥字串',
+  `info` text COMMENT '连接信息',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='应用' AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}app_role` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '权限ID',
+  `type` text NOT NULL COMMENT '权限类型',
+  `key` int(11) NOT NULL COMMENT '用户或席位',
+  `app` int(11) NOT NULL COMMENT '应用ID',
+  `role` text COMMENT '权限',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='应用用户权限' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}committee` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '委员会ID',
   `name` text NOT NULL COMMENT '委员会名称',
