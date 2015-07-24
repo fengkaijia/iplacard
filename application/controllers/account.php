@@ -2182,7 +2182,7 @@ class Account extends CI_Controller
 				'name' => $info['name_display'],
 				'email' => $info['email'],
 				'photourl' => avatar($info['id']),
-				'roles' => $info['role'] ? : 'guest',
+				'roles' => $info['role'] ? : 'applicant',
 			);
 		}
 		else
