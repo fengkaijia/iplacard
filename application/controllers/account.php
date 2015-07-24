@@ -1824,7 +1824,7 @@ class Account extends CI_Controller
 	 */
 	function avatar($uid, $size = 20)
 	{
-		if(!is_logged_in())
+		if(!is_logged_in() && !option('avatar_public', true))
 		{
 			return;
 		}
