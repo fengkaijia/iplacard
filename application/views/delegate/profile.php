@@ -47,6 +47,21 @@
 						</tr><?php } ?>
 					</tbody>
 				</table>
+
+				<?php
+				$extra = option('profile_block', array());
+				if(!empty($extra))
+				{
+					foreach($extra as $block => $title) { ?><h3><?php echo $title;?></h3>
+				<table class="table table-bordered table-striped table-hover">
+					<tbody>
+					<?php
+					foreach(option("profile_list_{$block}", array()) as $rule => $text) { ?><tr>
+							<td><?php echo $text;?></td>
+							<td><?php if(!empty($delegate[$rule])) echo $delegate[$rule];?></td>
+						</tr><?php } ?>
+					</tbody>
+				</table><?php } } ?>
 			</div>
 			
 			<div class="tab-pane" id="academic">
