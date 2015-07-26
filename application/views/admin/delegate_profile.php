@@ -78,6 +78,25 @@ $this->load->view('header');?>
 					</tbody>
 				</table>
 
+				<?php
+				$extra = option('profile_block', array());
+				if(!empty($extra))
+				{
+					foreach($extra as $block => $title) { ?><h3><?php echo $title;?></h3>
+				<table class="table table-bordered table-striped table-hover">
+					<tbody>
+					<?php
+					foreach(option("profile_list_{$block}", array()) as $rule => $text) { ?><tr>
+							<td><?php echo $text;?></td>
+							<td><?php $profile_text = empty($profile[$rule]) ? '' : $profile[$rule];
+								if(in_array($rule, array_keys($rules_text)))
+									echo "<span class='profile_editable' data-name='{$rule}' data-title='编辑{$text}'>$profile_text</span>";
+								else
+									echo $profile_text; ?></td>
+						</tr><?php } ?>
+					</tbody>
+				</table><?php } } ?>
+
 				<?php if($groups) { ?><h3>团队信息</h3>
 				<?php if($group) { ?><table class="table table-bordered table-striped table-hover">
 					<tbody>
