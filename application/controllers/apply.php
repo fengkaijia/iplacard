@@ -232,8 +232,26 @@ class Apply extends CI_Controller
 		
 		//附加信息
 		$addition_items = option('profile_addition_general', array()) + option("profile_addition_{$this->delegate['application_type']}", array());
+
+		foreach($addition_items as $addition_name => $addition_item)
+		{
+			if(isset($addition_item['max']) && !empty($addition_item['max']))
+			{
+				$this->load->library('parser');
+
+				foreach($addition_item['max'] as $item => $max)
+				{
+					$current = $this->delegate_model->get_profile_ids('name', "addition_{$addition_name}", 'value', json_encode($item));
+					if(!$current)
+						$current = array();
+
+					$addition_items[$addition_name]['current'][$item] = count($current);
+				}
+			}
+		}
+
 		$vars['addition'] = $addition_items;
-		
+
 		$invoice_notice = false;
 		foreach($addition_items as $item)
 		{
@@ -355,7 +373,8 @@ class Apply extends CI_Controller
 				}
 			}
 		}
-		
+
+		//获取代表信息
 		$delegate = $this->delegate;
 		
 		$pids = $this->delegate_model->get_profile_ids('delegate', $this->uid);
