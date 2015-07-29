@@ -104,7 +104,7 @@ $this->load->view('header');?>
 				
 				<div class="form-group <?php if(form_has_error('gateway')) echo 'has-error';?>">
 					<?php echo form_label('交易渠道', 'gateway', array('class' => 'control-label'));
-					echo form_dropdown_select('gateway', $gateway, empty($transaction['gateway']) ? array() : $transaction['gateway'], false, array(), array(), array(), 'selectpicker', 'data-width="100%" title="选择交易渠道"');
+					echo form_dropdown_select('gateway', $gateway, empty($transaction['gateway']) ? array() : $transaction['gateway'], false, array(), array(), array(), array(), 'selectpicker', 'data-width="100%" title="选择交易渠道"');
 					if(form_has_error('gateway'))
 						echo form_error('gateway');
 					?>

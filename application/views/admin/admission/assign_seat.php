@@ -103,7 +103,7 @@ if($interview)
 		<div class="form-group <?php if(form_has_error('recommended_primary')) echo 'has-error';?>">
 			<?php echo form_label('主分配席位', 'recommended_primary', array('class' => 'control-label'));?>
 			<div>
-				<?php echo form_dropdown_multiselect('recommended_primary[]', array(), array(), false, array(), array(), array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="选择推荐席位"');
+				<?php echo form_dropdown_multiselect('recommended_primary[]', array(), array(), false, array(), array(), array(), array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="选择推荐席位"');
 				if(form_has_error('recommended_primary'))
 					echo form_error('recommended_primary');
 				?>
@@ -113,7 +113,7 @@ if($interview)
 		<div class="form-group <?php if(form_has_error('recommended_backorder')) echo 'has-error';?>">
 			<?php echo form_label('候补分配席位', 'recommended_backorder', array('class' => 'control-label'));?>
 			<div>
-				<?php echo form_dropdown_multiselect('recommended_backorder[]', array(), array(), false, array(), array(), array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="选择推荐席位"');
+				<?php echo form_dropdown_multiselect('recommended_backorder[]', array(), array(), false, array(), array(), array(), array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="选择推荐席位"');
 				if(form_has_error('recommended_backorder'))
 					echo form_error('recommended_backorder');
 				?>

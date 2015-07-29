@@ -66,22 +66,22 @@ $this->load->view('header');?>
 								<?php
 								echo form_label('按代表类型筛选', 'type', array('class' => 'control-label'));
 								$now_type = set_value('type', array_keys($select['type']));
-								echo form_dropdown_multiselect('type[]', $select['type'], $now_type, false, array(), array(), array(), 'selectpicker', 'title="无" data-selected-text-format="count > 1" data-width="100%"');
+								echo form_dropdown_multiselect('type[]', $select['type'], $now_type, false, array(), array(), array(), array(), 'selectpicker', 'title="无" data-selected-text-format="count > 1" data-width="100%"');
 								
 								echo form_label('按代表申请状态筛选', 'status', array('class' => 'control-label'));
 								$now_status = set_value('status', array_keys($select['status']));
-								echo form_dropdown_multiselect('status[]', $select['status'], $now_status, false, array(), array(), array(), 'selectpicker', 'title="无" data-selected-text-format="count > 1" data-width="100%"');
+								echo form_dropdown_multiselect('status[]', $select['status'], $now_status, false, array(), array(), array(), array(), 'selectpicker', 'title="无" data-selected-text-format="count > 1" data-width="100%"');
 								?>
 							</div>
 							<div class="col-md-6">
 								<?php
 								echo form_label('按代表委员会筛选', 'committee', array('class' => 'control-label'));
 								$now_committee = set_value('committee', array_keys($select['committee']));
-								echo form_dropdown_multiselect('committee[]', $select['committee'], $now_committee, false, array(), array(), array(), 'selectpicker', 'title="无" data-selected-text-format="count > 1" data-width="100%"');
+								echo form_dropdown_multiselect('committee[]', $select['committee'], $now_committee, false, array(), array(), array(), array(), 'selectpicker', 'title="无" data-selected-text-format="count > 1" data-width="100%"');
 								
 								echo form_label('按管理用户权限筛选', 'role', array('class' => 'control-label'));
 								$now_role = set_value('role', array_keys($select['role']));
-								echo form_dropdown_multiselect('role[]', $select['role'], $now_role, false, array(), array(), array(), 'selectpicker', 'title="无" data-selected-text-format="count > 1" data-width="100%"');
+								echo form_dropdown_multiselect('role[]', $select['role'], $now_role, false, array(), array(), array(), array(), 'selectpicker', 'title="无" data-selected-text-format="count > 1" data-width="100%"');
 								?>
 							</div>
 						</div>

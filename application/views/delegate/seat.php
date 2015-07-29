@@ -265,7 +265,7 @@ $this->load->view('header');?>
 						<div class="form-group <?php if(form_has_error('primary')) echo 'has-error';?>">
 							<?php echo form_label('席位', 'primary', array('class' => 'control-label'));?>
 							<div>
-								<?php echo form_dropdown_select('primary', $option_primary, empty($seat) ? array() : $seat['id'], $selectability_primary_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-width="100%" title="选择主席位"');
+								<?php echo form_dropdown_select('primary', $option_primary, empty($seat) ? array() : $seat['id'], $selectability_primary_count > 10 ? true : false, $option_highlight, array(), $option_html, array(), 'selectpicker flags-16', 'data-width="100%" title="选择主席位"');
 								if(form_has_error('primary'))
 									echo form_error('primary');
 								?>
@@ -281,7 +281,7 @@ $this->load->view('header');?>
 						<div class="form-group <?php if(form_has_error('backorder')) echo 'has-error';?>">
 							<?php echo form_label('候补席位', 'backorder', array('class' => 'control-label'));?>
 							<div>
-								<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, empty($backorders) ? array() : $backordered_seats, $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个候补席位"');
+								<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, empty($backorders) ? array() : $backordered_seats, $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个候补席位"');
 								if(form_has_error('backorder'))
 									echo form_error('backorder');
 								?>

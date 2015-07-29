@@ -116,7 +116,7 @@ $this->load->view('header');?>
 					<div class="col-lg-10">
 						<?php
 						$now_committee = set_value('access_select', $action == 'add'? '' : $document['access_select']);
-						echo form_dropdown_multiselect('access_select[]', $committees, $now_committee, false, array(), array(), array(), 'selectpicker', 'title="选择分发委员会" data-selected-text-format="count > 1"');
+						echo form_dropdown_multiselect('access_select[]', $committees, $now_committee, false, array(), array(), array(), array(), 'selectpicker', 'title="选择分发委员会" data-selected-text-format="count > 1"');
 						if(form_has_error('access_select'))
 							echo form_error('access_select');
 						else { ?><div class="help-block">委员会分发范围，选定委员会的代表将可以下载此文件。</div><?php } ?>

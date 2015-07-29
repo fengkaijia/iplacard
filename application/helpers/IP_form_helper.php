@@ -17,7 +17,7 @@ function form_has_error($field)
 	return true;
 }
 
-function form_dropdown_select($name = '', $options = array(), $selected = array(), $search = false, $highlighted = array(), $subtexts = array(), $htmltexts = array(), $class = 'selectpicker', $extra = '')
+function form_dropdown_select($name = '', $options = array(), $selected = array(), $search = false, $highlighted = array(), $subtexts = array(), $htmltexts = array(), $disabled = array(), $class = 'selectpicker', $extra = '')
 {
 	if ( ! is_array($selected))
 	{
@@ -62,7 +62,9 @@ function form_dropdown_select($name = '', $options = array(), $selected = array(
 				
 				$htm = (array_key_exists($optgroup_key, $htmltexts)) ? ' data-content="'.$htmltexts[$optgroup_key].'"' : '';
 
-				$form .= '<option value="'.$optgroup_key.'"'.$sel.$hig.$sub.$htm.'>'.(string) $optgroup_val."</option>\n";
+				$dis = (in_array($optgroup_key, $disabled)) ? ' disabled="disabled"' : '';
+
+				$form .= '<option value="'.$optgroup_key.'"'.$sel.$hig.$sub.$htm.$dis.'>'.(string) $optgroup_val."</option>\n";
 			}
 
 			$form .= '</optgroup>'."\n";
@@ -77,7 +79,9 @@ function form_dropdown_select($name = '', $options = array(), $selected = array(
 			
 			$htm = (array_key_exists($key, $htmltexts)) ? ' data-content="'.$htmltexts[$key].'"' : '';
 
-			$form .= '<option value="'.$key.'"'.$sel.$hig.$sub.$htm.'>'.(string) $val."</option>\n";
+			$dis = (in_array($key, $disabled)) ? ' disabled="disabled"' : '';
+
+			$form .= '<option value="'.$key.'"'.$sel.$hig.$sub.$htm.$dis.'>'.(string) $val."</option>\n";
 		}
 	}
 
@@ -87,7 +91,7 @@ function form_dropdown_select($name = '', $options = array(), $selected = array(
 }
 
 
-function form_dropdown_multiselect($name = '', $options = array(), $selected = array(), $search = false, $highlighted = array(), $subtexts = array(), $htmltexts = array(), $class = 'selectpicker', $extra = '')
+function form_dropdown_multiselect($name = '', $options = array(), $selected = array(), $search = false, $highlighted = array(), $subtexts = array(), $htmltexts = array(), $disabled = array(), $class = 'selectpicker', $extra = '')
 {
 	if ( ! strpos($extra, 'multiple'))
 	{

@@ -110,7 +110,7 @@ $this->load->view('header');?>
 			<div class="form-group" style="margin-bottom: 0px;">
 				<?php
 				echo form_label('文件格式', 'format', array('class' => 'control-label'));
-				echo form_dropdown_select('format', $option, array(), count($formats) > 10 ? true : false, array(), $subtext, array(), 'selectpicker', 'data-width="100%" title="选择文件格式"'); ?>
+				echo form_dropdown_select('format', $option, array(), count($formats) > 10 ? true : false, array(), $subtext, array(), array(), 'selectpicker', 'data-width="100%" title="选择文件格式"'); ?>
 			</div>
 			<p>完成选择后点击下方按钮开始下载文件合集。</p>
 			<?php echo form_button(array(
