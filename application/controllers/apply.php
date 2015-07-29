@@ -288,6 +288,10 @@ class Apply extends CI_Controller
 						continue;
 					
 					$post = $this->input->post("addition_$name");
+
+					//已选项已停用并不更改
+					if($item['type'] == 'choice' && !$post)
+						continue;
 					
 					switch($item['type'])
 					{
