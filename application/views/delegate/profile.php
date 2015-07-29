@@ -1,4 +1,8 @@
-<?php $this->load->view('header');?>
+<?php
+$this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/bootstrap.select.css' : 'static/css/bootstrap.select.min.css').'" rel="stylesheet">');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.select.js' : 'static/js/bootstrap.select.min.js').'"></script>');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/bootstrap.select.locale.js' : 'static/js/locales/bootstrap.select.locale.min.js').'"></script>');
+$this->load->view('header');?>
 
 <div class="page-header">
 	<div class="row">
@@ -133,7 +137,29 @@
 									break;
 									
 								case 'choice':
-									echo form_dropdown("addition_$name", empty($item['item']) ? array('' => '选项为空') : $item['item'], set_value("addition_$name", isset($delegate["addition_$name"]) ? $delegate["addition_$name"] : $item['default']), ((isset($item['enabled']) && !$item['enabled']) || (isset($item['invoice']) && isset($delegate["addition_$name"]))) ? 'class="form-control" disabled' : 'class="form-control" enabled');
+									$subtexts = array();
+									$disabled = array();
+									if(isset($item['current']) && !empty($item['current']))
+									{
+										foreach($item['item'] as $key => $value)
+										{
+											if(isset($item['current'][$key]))
+											{
+												$sub_data = array(
+													'max' => $item['max'][$key],
+													'current' => $item['current'][$key],
+													'left' => $item['max'][$key] - $item['current'][$key],
+												);
+
+												$subtexts[$key] = $this->parser->parse_string(isset($item['display']) ? $item['display'] : '{current}', $sub_data, true);
+
+												if($item['max'][$key] <= $item['current'][$key])
+													$disabled[] = $key;
+											}
+										}
+									}
+
+									echo form_dropdown_select("addition_$name", empty($item['item']) ? array('' => '选项为空') : $item['item'], set_value("addition_$name", isset($delegate["addition_$name"]) ? $delegate["addition_$name"] : $item['default']), count($item['item']) >= 10, array(), $subtexts, array(), $disabled, 'selectpicker', ((isset($item['enabled']) && !$item['enabled']) || (isset($item['invoice']) && isset($delegate["addition_$name"]))) ? 'disabled data-width="100%"' : 'enabled data-width="100%"');
 									
 									if(form_has_error("addition_$name"))
 										echo form_error("addition_$name");
@@ -188,4 +214,7 @@
 	</div>
 </div>
 
-<?php $this->load->view('footer');?>
+<?php
+$this->ui->js('footer', "$('.selectpicker').selectpicker();");
+
+$this->load->view('footer');?>

@@ -108,7 +108,7 @@ $this->load->view('header');?>
 							}
 						}
 						
-						echo form_dropdown_select('iso', array('' => '请选择国家') + $iso, $now_iso, true, array(), array(), $iso_html, 'selectpicker flags-16');
+						echo form_dropdown_select('iso', array('' => '请选择国家') + $iso, $now_iso, true, array(), array(), $iso_html, array(), 'selectpicker flags-16');
 						if(form_has_error('iso'))
 							echo form_error('iso');
 						else { ?><div class="help-block">国家地区信息，可为空。</div><?php } ?>
@@ -229,7 +229,7 @@ $this->load->view('header');?>
 							}
 						}
 						
-						echo form_dropdown_select('primary', $primary_option, $now_seat, true, array(), array(), $primary_html, 'selectpicker flags-16');
+						echo form_dropdown_select('primary', $primary_option, $now_seat, true, array(), array(), $primary_html, array(), 'selectpicker flags-16');
 						if(form_has_error('primary'))
 							echo form_error('primary');
 						else { ?><div class="help-block">设置此席位的主席位，如为空，此席位将被设置为单代席位。</div><?php } ?>
