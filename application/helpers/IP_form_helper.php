@@ -98,7 +98,7 @@ function form_dropdown_multiselect($name = '', $options = array(), $selected = a
 		$extra .= ' multiple="multiple"';
 	}
 	
-	return form_dropdown_select($name, $options, $selected, $search, $highlighted, $subtexts, $htmltexts, $class, $extra);
+	return form_dropdown_select($name, $options, $selected, $search, $highlighted, $subtexts, $htmltexts, $disabled, $class, $extra);
 }
 
 /* End of file IP_form_helper.php */
