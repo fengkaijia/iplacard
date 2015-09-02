@@ -26,7 +26,7 @@
 							<td><?php
 							$device_name = $one['value']['type'] == 'desktop' ? '桌面设备' : '移动设备';
 							
-							if(!empty($one['value']['browser']) && !empty($one['value']['platform']))
+							if(!empty($one['value']['platform']))
 							{
 								$platform = false;
 								if(substr($one['value']['platform'], 0, 7) == 'Windows')
@@ -37,16 +37,39 @@
 									$platform = 'apple';
 								elseif($one['value']['platform'] == 'Android')
 									$platform = 'android';
-
+								
 								if(!$platform)
 									$platform_icon = '';
 								else
 									$platform_icon = icon($platform, false);
-								
-								echo icon($one['value']['type'])."{$device_name}（使用 {$platform_icon}{$one['value']['platform']} 操作系统的 {$one['value']['browser']} 浏览器）";
 							}
+							
+							if(!empty($one['value']['browser']))
+							{
+								$browser = false;
+								if($one['value']['browser'] == 'Internet Explorer')
+									$browser = 'internet-explorer';
+								elseif($one['value']['browser'] == 'Chrome')
+									$browser = 'chrome';
+								elseif($one['value']['browser'] == 'Firefox')
+									$browser = 'firefox';
+								elseif($one['value']['browser'] == 'Safari')
+									$browser = 'safari';
+								elseif($one['value']['browser'] == 'Opera')
+									$browser = 'opera';
+								
+								if(!$browser)
+									$browser_icon = '';
+								else
+									$browser_icon = icon($browser, false);
+							}
+							
+							if(!empty($one['value']['browser']) && !empty($one['value']['platform']))
+								echo icon($one['value']['type'])."{$device_name}（使用 {$platform_icon}{$one['value']['platform']} 操作系统的 {$browser_icon}{$one['value']['browser']} 浏览器）";
 							elseif(!empty($one['value']['browser']))
-								echo icon($one['value']['type'])."{$device_name}（使用 {$one['value']['browser']} 浏览器）";
+								echo icon($one['value']['type'])."{$device_name}（使用 {$browser_icon}{$one['value']['browser']} 浏览器）";
+							elseif(!empty($one['value']['platform']))
+								echo icon($one['value']['type'])."{$device_name}（使用 {$platform_icon}{$one['value']['platform']} 操作系统）";
 							else
 								echo icon($one['value']['type'])."{$device_name}";
 							
