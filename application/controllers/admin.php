@@ -1063,6 +1063,7 @@ class Admin extends CI_Controller
 							$increment_source = option('chart_application_increment_source', 'event');
 							
 							$stat = array();
+							$last = 0;
 							$first_week = strtotime('Monday this week');
 
 							//导入记录
@@ -1071,7 +1072,11 @@ class Admin extends CI_Controller
 								$event = $this->delegate_model->get_event($imported_id);
 								$delegate = $this->delegate_model->get_delegate($event['delegate']);
 								
-								$week = strtotime('Monday this week', ($increment_source == 'reg') ? $delegate['reg_time'] : $event['time']);
+								$time = ($increment_source == 'reg') ? $delegate['reg_time'] : $event['time'];
+								if($time > $last)
+									$last = $time;
+								
+								$week = strtotime('Monday this week', $time);
 								if(!$week)
 									continue;
 
@@ -1092,7 +1097,10 @@ class Admin extends CI_Controller
 								foreach($quitted_ids as $quitted_id)
 								{
 									$event = $this->delegate_model->get_event($quitted_id);
-
+									
+									if($event['time'] > $last)
+										$last = $event['time'];
+									
 									$week = strtotime('Monday this week', $event['time']);
 									if(!$week)
 										continue;
@@ -1105,12 +1113,15 @@ class Admin extends CI_Controller
 								}
 							}
 
+							//确定最后一周
+							$last_week = strtotime('Monday this week', $last);
+							
 							//确定第一周
-							if($first_week < strtotime('Monday this week') - 8 * 7 * 24 * 60 * 60)
-								$first_week = strtotime('Monday this week') - 8 * 7 * 24 * 60 * 60;
+							if($first_week < $last_week - 8 * 7 * 24 * 60 * 60)
+								$first_week = $last_week - 8 * 7 * 24 * 60 * 60;
 
 							//处理记录
-							for($i = $first_week; $i <= strtotime('Monday this week'); $i += 7 * 24 * 60 * 60)
+							for($i = $first_week; $i <= $last_week; $i += 7 * 24 * 60 * 60)
 							{
 								$chart_category[] = date('m/d', $i);
 
