@@ -86,7 +86,7 @@ $this->load->view('header');?>
 					</span>
 				</div>
 				
-				<small>输入代表ID、姓名、Email、手机或其他唯一身份标识符快速访问代表信息。</small>
+				<small>输入代表 ID、姓名、Email、手机或其他唯一身份标识符快速访问代表信息。</small>
 			</div>
 			
 			<div id="spdy_result" class="list-group"></div>
