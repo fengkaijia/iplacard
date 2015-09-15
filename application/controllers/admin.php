@@ -1117,8 +1117,8 @@ class Admin extends CI_Controller
 							$last_week = strtotime('Monday this week', $last);
 							
 							//确定第一周
-							if($first_week < $last_week - 8 * 7 * 24 * 60 * 60)
-								$first_week = $last_week - 8 * 7 * 24 * 60 * 60;
+							if($first_week < $last_week - option('chart_application_increment_week', 8) * 7 * 24 * 60 * 60)
+								$first_week = $last_week - option('chart_application_increment_week', 8) * 7 * 24 * 60 * 60;
 
 							//处理记录
 							for($i = $first_week; $i <= $last_week; $i += 7 * 24 * 60 * 60)
