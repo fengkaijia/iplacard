@@ -10,12 +10,14 @@ class Cron extends CI_Controller
 	function __construct()
 	{
 		parent::__construct();
-		$this->benchmark->mark('exec_start');
-		
-		$this->load->helper('date');
 		
 		if(!$this->input->is_cli_request())
 			exit('iPlacard Cron Job must be run from the command line.');
+		
+		$this->benchmark->mark('exec_start');
+		
+		$this->load->helper('date');
+		$this->load->driver('cache', array('adapter' => 'memcached', 'backup' => 'file'));
 		
 		$time = date('Y-m-d H:i:s');
 		echo "iPlacard Cron Job started at $time.\n";
@@ -33,28 +35,88 @@ class Cron extends CI_Controller
 	
 	function minutely()
 	{
+		if(!$this->_lock('minutely', 10))
+		{
+			echo "\nCron Minutely had been locked.\n\n";
+			return false;
+		}
+		
 		echo "\nProcessing Cron Minutely.\n\n";
 		$this->_cleanup_temp_download();
 		$this->_send_sms();
+		
+		$this->_unlock('minutely');
+		return true;
 	}
 	
 	function hourly()
 	{
+		if(!$this->_lock('hourly', 30))
+		{
+			echo "\nCron Hourly had been locked.\n\n";
+			return false;
+		}
+		
 		echo "\nProcessing Cron Hourly.\n\n";
 		$this->_remind_interview();
+		
+		$this->_unlock('hourly');
+		return true;
 	}
 	
 	function daily()
 	{
+		if(!$this->_lock('daily', 30))
+		{
+			echo "\nCron Daily had been locked.\n\n";
+			return false;
+		}
+		
 		echo "\nProcessing Cron Daily.\n\n";
 		$this->_remind_invoice_overdue();
 		$this->_remove_deleted_delegate_data();
+		
+		$this->_unlock('daily');
+		return true;
 	}
 	
 	function weekly()
 	{
+		if(!$this->_lock('weekly', 30))
+		{
+			echo "\nCron Weekly had been locked.\n\n";
+			return false;
+		}
+		
 		echo "\nProcessing Cron Weekly.\n\n";
 		$this->_remind_invoice();
+		
+		$this->_unlock('weekly');
+		return true;
+	}
+	
+	/**
+	 * 申请锁
+	 * @param string $type 锁类型
+	 * @param int $ttl 过期时间（分钟）
+	 * @return boolean 是否成功申请
+	 */
+	protected function _lock($type, $ttl)
+	{
+		if($this->cache->get(IP_CACHE_PREFIX.'_'.IP_INSTANCE_ID.'_cron_'.$type))
+			return false;
+		
+		return $this->cache->save(IP_CACHE_PREFIX.'_'.IP_INSTANCE_ID.'_cron_'.$type, time(), $ttl * 60);
+	}
+	
+	/**
+	 * 释放锁
+	 * @param string $type 锁类型
+	 * @return boolean 是否成功释放
+	 */
+	protected function _unlock($type)
+	{
+		return $this->cache->delete(IP_CACHE_PREFIX.'_'.IP_INSTANCE_ID.'_cron_'.$type);
 	}
 	
 	/**
