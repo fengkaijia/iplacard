@@ -1,15 +1,17 @@
 <link href="<?php echo static_url(is_dev() ? 'static/css/jquery.atwho.css' : 'static/css/jquery.atwho.min.css');?>" rel="stylesheet">
+<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.cookie.js' : 'static/js/jquery.cookie.min.js');?>"></script>
+<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.sayt.js' : 'static/js/jquery.sayt.min.js');?>"></script>
 <script src="<?php echo static_url(is_dev() ? 'static/js/jquery.caret.js' : 'static/js/jquery.caret.min.js');?>"></script>
 <script src="<?php echo static_url(is_dev() ? 'static/js/jquery.atwho.js' : 'static/js/jquery.atwho.min.js');?>"></script>
 <script>
-	$('#add_note #note').atwho({
+	$('#add_note_<?php echo $uid;?> #note').atwho({
 		at: "@",
 		data: "<?php echo base_url('user/ajax/mention');?>",
 		displayTpl: "<li>${name} <small>${title}</small></li>",
 		insertTpl: "@${name}(${id})",
 		callbacks: {
 			beforeInsert: function(value, $li) {
-				$('#add_note').append('<input type="hidden" name="mention[]" value="' + value + '" />');
+				$('#add_note_<?php echo $uid;?>').append('<input type="hidden" name="mention[]" value="' + value + '" />');
 				return value;
 			}
 		}
@@ -17,6 +19,8 @@
 	
 	$('.mention_tab').popover();
 	$('.noter_tab').popover();
+	
+	$('#add_note_<?php echo $uid;?>').sayt({'days': 15});
 </script>
 
 <?php
@@ -53,12 +57,12 @@ echo form_button(array(
 	'type' => 'button',
 	'class' => 'btn btn-primary',
 	'data-toggle' => 'modal',
-	'data-target' => '#add_note'
+	'data-target' => "#add_note_{$uid}"
 ));
 
 echo form_open_multipart("delegate/note/add/$uid", array(
 	'class' => 'modal fade form-horizontal',
-	'id' => 'add_note',
+	'id' => "add_note_{$uid}",
 	'tabindex' => '-1',
 	'role' => 'dialog',
 	'aria-labelledby' => 'add_label',
@@ -116,7 +120,7 @@ echo form_open_multipart("delegate/note/add/$uid", array(
 				'content' => '添加笔记',
 				'type' => 'submit',
 				'class' => 'btn btn-primary',
-				'onclick' => 'loader(this);'
+				'onclick' => "$('#add_note_{$uid}').sayt({'erase': true}); loader(this);"
 			)); ?>
 		</div>
 	</div>
