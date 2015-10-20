@@ -31,7 +31,7 @@ foreach($score_standard as $sid => $one)
 	
 	function click_score(part, score)
 	{
-		$scored = true;
+		scored = true;
 		open_submit();
 		
 		$('#score-'+part+' button').removeClass('btn-primary');
@@ -71,7 +71,7 @@ foreach($score_standard as $sid => $one)
 	
 	function open_submit()
 	{
-		if($scored<?php if($feedback_required) { ?> && $('#feedback').val().length !== 0<?php } ?>)
+		if(scored<?php if($feedback_required) { ?> && $('#feedback').val().length !== 0<?php } ?>)
 		{
 			$('#submit').removeClass('disabled');
 			$('#retest').removeClass('disabled');
