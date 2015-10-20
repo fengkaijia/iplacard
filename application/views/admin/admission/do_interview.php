@@ -4,7 +4,9 @@ foreach($score_standard as $sid => $one)
 {
 	$hiddens["score_$sid"] = 0;
 }
-?><script>
+?><script src="<?php echo static_url(is_dev() ? 'static/js/jquery.cookie.js' : 'static/js/jquery.cookie.min.js');?>"></script>
+<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.sayt.js' : 'static/js/jquery.sayt.min.js');?>"></script>
+<script>
 	var scored = false;
 	
 	jQuery(function($){
@@ -15,7 +17,7 @@ foreach($score_standard as $sid => $one)
 		$('#fail').click(function(){
 			<?php foreach($score_standard as $sid => $one)
 			{
-				echo "$('#fail_interview input[name=\"score_$sid\"]').val($('#pass_interview input[name=\"score_$sid\"]').val());";
+				echo "$('#fail_interview input[name=\"score_$sid\"]').val($('#pass_interview_{$uid} input[name=\"score_$sid\"]').val());";
 			} ?>
 			$('#fail_interview input[name="feedback"]').val($('#feedback').val());
 		});
@@ -23,10 +25,12 @@ foreach($score_standard as $sid => $one)
 		$('#retest').click(function(){
 			<?php foreach($score_standard as $sid => $one)
 			{
-				echo "$('#retest_interview input[name=\"score_$sid\"]').val($('#pass_interview input[name=\"score_$sid\"]').val());";
+				echo "$('#retest_interview input[name=\"score_$sid\"]').val($('#pass_interview_{$uid} input[name=\"score_$sid\"]').val());";
 			} ?>
 			$('#retest_interview input[name="feedback"]').val($('#feedback').val());
 		});
+		
+		$('#pass_interview_<?php echo $uid;?>').sayt({'days': 15});
 	});
 	
 	function click_score(part, score)
@@ -38,7 +42,7 @@ foreach($score_standard as $sid => $one)
 		$('#score-'+part+' button').addClass('btn-default');
 		$('#score-'+part+' button:nth-child('+(score+2)+')').removeClass('btn-default');
 		$('#score-'+part+' button:nth-child('+(score+2)+')').addClass('btn-primary');
-		$('#pass_interview input[name=score_'+part+']').val(score);
+		$('#pass_interview_<?php echo $uid;?> input[name=score_'+part+']').val(score);
 		update_score();
 	}
 	
@@ -54,7 +58,7 @@ foreach($score_standard as $sid => $one)
 		echo 'total = ';
 		foreach($score_standard as $sid => $one)
 		{
-			echo "parseInt($('#pass_interview input[name=\"score_$sid\"]').val()) * {$one['weight']} + ";
+			echo "parseInt($('#pass_interview_{$uid} input[name=\"score_$sid\"]').val()) * {$one['weight']} + ";
 		}
 		echo '0';?>;
 		
@@ -111,7 +115,7 @@ foreach($score_standard as $sid => $one)
 	<p>在面试时，建议您保持此页面打开并可随时填写面试反馈。面试完成后，您需要为代表的表现评分。完成评价后，您可以认定面试是否通过。如果认为面试通过但需要更换面试官继续面试，您可以选择增加复试。</p>
 
 	<?php echo form_open("delegate/operation/interview/{$delegate['id']}", array(
-		'id' => 'pass_interview'
+		'id' => "pass_interview_{$uid}"
 	), array('pass' => true, 'retest' => false) + $hiddens); ?>
 		
 		<div class="form-group <?php if(form_has_error('feedback')) echo 'has-error';?>">
@@ -163,7 +167,7 @@ foreach($score_standard as $sid => $one)
 					'content' => '面试通过',
 					'type' => 'submit',
 					'class' => 'btn btn-primary disabled',
-					'onclick' => 'loader(this);'
+					'onclick' => "$('#pass_interview_{$uid}').sayt({'erase': true}); loader(this);"
 				));
 				echo ' ';
 				echo form_button(array(
