@@ -215,6 +215,10 @@ class Seat extends CI_Controller
 		{
 			foreach($primary_seats as $seat_id)
 			{
+				//避免主席位循环
+				if($action == 'edit' && $seat_id == $id)
+					continue;
+				
 				$primary_seat = $this->seat_model->get_seat($seat_id);
 				
 				$seats[$primary_seat['committee']][] = array(
