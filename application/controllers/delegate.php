@@ -3028,6 +3028,8 @@ class Delegate extends CI_Controller
 				if(in_array(uid(), option('seat_global_admin', array())))
 					$global_admin = true;
 				
+				$vars['global_admin'] = $global_admin;
+				
 				//席位分配模式
 				$mode = option('seat_mode', 'select');
 				
