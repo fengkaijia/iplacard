@@ -1527,6 +1527,11 @@ class Delegate extends CI_Controller
 			case 'assign_seat':
 				$this->load->model('seat_model');
 				
+				//全局席位分配权限
+				$global_admin = false;
+				if(in_array(uid(), option('seat_global_admin', array())))
+					$global_admin = true;
+				
 				//席位分配模式
 				$seat_mode = option('seat_mode', 'select');
 				
@@ -1542,7 +1547,7 @@ class Delegate extends CI_Controller
 					
 					if($seat_mode == 'select')
 					{
-						if(!$this->_check_interviewer_assign_right($uid, uid()))
+						if(!$global_admin && !$this->_check_interviewer_assign_right($uid, uid()))
 						{
 							$this->ui->alert('您没有面试过此代表，无法分配席位。', 'danger', true);
 							break;
@@ -1558,7 +1563,7 @@ class Delegate extends CI_Controller
 						}
 						
 						$interview = $this->interview_model->get_interview($interview_id);
-						if($interview['interviewer'] != uid())
+						if(!$global_admin && $interview['interviewer'] != uid())
 						{
 							$this->ui->alert('您不是此代表的面试官，无法分配席位。', 'danger', true);
 							break;
@@ -1569,7 +1574,7 @@ class Delegate extends CI_Controller
 				}
 				else
 				{
-					if(!$this->admin_model->capable('reviewer'))
+					if(!$global_admin && !$this->admin_model->capable('reviewer'))
 					{
 						$this->ui->alert('您无权分配席位。', 'danger', true);
 						break;
@@ -3017,11 +3022,18 @@ class Delegate extends CI_Controller
 			case 'invoice_issued':
 			case 'payment_received':
 				$this->load->model('seat_model');
+			
+				//全局席位分配权限
+				$global_admin = false;
+				if(in_array(uid(), option('seat_global_admin', array())))
+					$global_admin = true;
+				
+				$vars['global_admin'] = $global_admin;
 				
 				//席位分配模式
 				$mode = option('seat_mode', 'select');
 				
-				if(!$this->admin_model->capable($this->_check_interview_enabled($delegate['application_type']) ? 'interviewer' : 'reviewer'))
+				if(!$global_admin && !$this->admin_model->capable($this->_check_interview_enabled($delegate['application_type']) ? 'interviewer' : 'reviewer'))
 					break;
 				
 				//经过面试
@@ -3043,7 +3055,7 @@ class Delegate extends CI_Controller
 					if($mode == 'select')
 					{
 						//席位选择模式下所有面试过此代表的面试官都可以开放席位选择
-						if(!$this->_check_interviewer_assign_right($delegate['id'], uid()))
+						if(!$global_admin && !$this->_check_interviewer_assign_right($delegate['id'], uid()))
 							break;
 						
 						$interview = $this->interview_model->get_interview($this->interview_model->get_interview_id('delegate', $delegate['id'], 'interviewer', uid(), 'status', array('completed', 'exempted', 'failed')));
@@ -3053,7 +3065,7 @@ class Delegate extends CI_Controller
 					else
 					{
 						//席位分配模式下只有当前面试官可以分配席位
-						if($current_interview['interviewer'] != uid())
+						if(!$global_admin && $current_interview['interviewer'] != uid())
 							break;
 
 						$interview = $current_interview;
