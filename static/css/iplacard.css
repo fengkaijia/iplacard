@@ -142,7 +142,9 @@ body {
 		z-index: 2;
 	}
 	.wizard a:first-child:before,
-	.wizard a:last-child:after {
+	.wizard .first:before,
+	.wizard a:last-child:after,
+	.wizard .last:after {
 		border: none;
 	}
 	.wizard .label {
