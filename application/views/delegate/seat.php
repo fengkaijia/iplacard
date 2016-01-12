@@ -151,7 +151,7 @@ $this->load->view('header');?>
 							<td><?php echo icon('envelope-o').$attached_primary['delegate']['email'];?></td>
 						</tr><?php if(!empty($profile_extra))
 						{
-							foreach($profile_extra as $profile_title => $profile_item) { ?><tr>
+							foreach($profile_extra as $profile_item => $profile_title) { ?><tr>
 							<td><?php echo $profile_title;?></td>
 							<td><?php echo $attached_primary['delegate'][$profile_item];?></td>
 						</tr><?php } } } else { ?><tr>
@@ -188,7 +188,7 @@ $this->load->view('header');?>
 							<td><?php echo icon('envelope-o').$attached_seat['delegate']['email'];?></td>
 						</tr><?php if(!empty($profile_extra))
 						{
-							foreach($profile_extra as $profile_title => $profile_item) { ?><tr>
+							foreach($profile_extra as $profile_item => $profile_title) { ?><tr>
 							<td><?php echo $profile_title;?></td>
 							<td><?php echo $attached_seat['delegate'][$profile_item];?></td>
 						</tr><?php } } } else { ?><tr>

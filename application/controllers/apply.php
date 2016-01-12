@@ -834,7 +834,7 @@ class Apply extends CI_Controller
 						//附加属性
 						if(!empty($profile_option))
 						{
-							foreach($profile_option as $profile_name => $profile_item)
+							foreach($profile_option as $profile_item => $profile_title)
 							{
 								$attached_delegate[$profile_item] = $this->delegate_model->get_profile_by_name($attached_delegate['id'], $profile_item, '');
 							}
