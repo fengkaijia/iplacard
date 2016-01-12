@@ -808,6 +808,10 @@ class Apply extends CI_Controller
 			//多代席位
 			if(!$this->seat_model->is_single_seat($seat_id))
 			{
+				//附加属性
+				$profile_option = option('profile_list_related', array());
+				$vars['profile_extra'] = $profile_option;
+				
 				//确认席位类型
 				if(!empty($seat['primary']))
 					$primary_id = $seat['primary'];
@@ -824,7 +828,20 @@ class Apply extends CI_Controller
 					$attached_seat['committee'] = $this->committee_model->get_committee($attached_seat['committee']);
 
 					if(!empty($attached_seat['delegate']))
-						$attached_seat['delegate'] = $this->delegate_model->get_delegate($attached_seat['delegate']);
+					{
+						$attached_delegate = $this->delegate_model->get_delegate($attached_seat['delegate']);
+						
+						//附加属性
+						if(!empty($profile_option))
+						{
+							foreach($profile_option as $profile_name => $profile_item)
+							{
+								$attached_delegate[$profile_item] = $this->delegate_model->get_profile_by_name($attached_delegate['id'], $profile_item, '');
+							}
+						}
+						
+						$attached_seat['delegate'] = $attached_delegate;
+					}
 
 					if($attached_id == $primary_id)
 						$attached_primary = $attached_seat;

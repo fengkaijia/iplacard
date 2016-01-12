@@ -149,7 +149,12 @@ $this->load->view('header');?>
 						<tr>
 							<td>代表邮箱</td>
 							<td><?php echo icon('envelope-o').$attached_primary['delegate']['email'];?></td>
-						</tr><?php } else { ?><tr>
+						</tr><?php if(!empty($profile_extra))
+						{
+							foreach($profile_extra as $profile_title => $profile_item) { ?><tr>
+							<td><?php echo $profile_title;?></td>
+							<td><?php echo $attached_primary['delegate'][$profile_item];?></td>
+						</tr><?php } } } else { ?><tr>
 							<td>状态</td>
 							<td>席位尚未被分配</td>
 						</tr><?php } ?>
@@ -181,7 +186,12 @@ $this->load->view('header');?>
 						<tr>
 							<td>代表邮箱</td>
 							<td><?php echo icon('envelope-o').$attached_seat['delegate']['email'];?></td>
-						</tr><?php } else { ?><tr>
+						</tr><?php if(!empty($profile_extra))
+						{
+							foreach($profile_extra as $profile_title => $profile_item) { ?><tr>
+							<td><?php echo $profile_title;?></td>
+							<td><?php echo $attached_seat['delegate'][$profile_item];?></td>
+						</tr><?php } } } else { ?><tr>
 							<td>状态</td>
 							<td>席位尚未被分配</td>
 						</tr><?php } ?>
