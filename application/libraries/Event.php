@@ -196,14 +196,18 @@ class Event
 			
 			$interviewer_link = anchor_capable("interview/manage?interviewer={$interview['interviewer']}", icon('user', false).$this->CI->admin_model->get_admin($interview['interviewer'], 'name'), 'administrator');
 			
-			if(!empty($interview['feedback']['feedback']))
+			$this->text = "面试官{$interviewer_link}认定本次面试不通过并给出了 {$interview['score']} 分的评分。";
+			
+			if(!empty($interview['feedback']['remark']))
 			{
-				$feedback = nl2br($interview['feedback']['feedback']);
-				$this->text = "面试官{$interviewer_link}认定本次面试不通过。他对本次面试给出了 {$interview['score']} 分的评分。<blockquote><p>{$feedback}</p></blockquote>以上为面试官给出的面试不通过原因。";
+				$remark = nl2br($interview['feedback']['remark']);
+				$this->text .= "<blockquote><p>{$remark}</p></blockquote>以上为面试官向代表发送的面试评价。";
 			}
-			else
+			
+			if(!empty($interview['feedback']['supplement']) && !empty($interview['feedback']['feedback'])) //兼容2.1版之前数据结构
 			{
-				$this->text = "面试官{$interviewer_link}认定本次面试不通过。他对本次面试给出了 {$interview['score']} 分的评分。";
+				$supplement = nl2br($interview['feedback'][empty($interview['feedback']['feedback']) ? 'supplement' : 'feedback']);
+				$this->text .= "<blockquote><p>{$supplement}</p></blockquote>以上为面试官撰写的内部反馈。";
 			}
 		}
 	}
@@ -227,14 +231,18 @@ class Event
 			
 			$interviewer_link = anchor_capable("interview/manage?interviewer={$interview['interviewer']}", icon('user', false).$this->CI->admin_model->get_admin($interview['interviewer'], 'name'), 'administrator');
 			
-			if(!empty($interview['feedback']['feedback']))
+			$this->text = "面试官{$interviewer_link}对本次面试给出了 {$interview['score']} 分的评分。";
+			
+			if(!empty($interview['feedback']['remark']))
 			{
-				$feedback = nl2br($interview['feedback']['feedback']);
-				$this->text = "面试官{$interviewer_link}对本次面试给出了 {$interview['score']} 分的评分。<blockquote><p>{$feedback}</p></blockquote>以上为面试官给出的详细评价。";
+				$remark = nl2br($interview['feedback']['remark']);
+				$this->text .= "<blockquote><p>{$remark}</p></blockquote>以上为面试官向代表发送的面试评价。";
 			}
-			else
+			
+			if(!empty($interview['feedback']['supplement']) && !empty($interview['feedback']['feedback'])) //兼容2.1版之前数据结构
 			{
-				$this->text = "面试官{$interviewer_link}对本次面试给出了 {$interview['score']} 分的评分。";
+				$supplement = nl2br($interview['feedback'][empty($interview['feedback']['feedback']) ? 'supplement' : 'feedback']);
+				$this->text .= "<blockquote><p>{$supplement}</p></blockquote>以上为面试官撰写的内部反馈。";
 			}
 		}
 	}
