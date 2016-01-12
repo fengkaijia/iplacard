@@ -19,7 +19,7 @@
 			</div>
 			<div class="modal-body flags-16">
 				<p><?php
-				if($seat_mode)
+				if($seat_mode == 'select')
 				{
 					echo sprintf('您将确认申请完成并锁定席位 %1$s，%2$s为您的席位。席位锁定后您将无法调整您的席位和增加席位候选，并且您的面试官也将无法再向您追加席位分配。',
 						flag($seat['iso'], false).$seat['name'],
