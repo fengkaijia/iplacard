@@ -1729,9 +1729,14 @@ class Delegate extends CI_Controller
 						break;
 					}
 					
-					//回退原席位
-					if($re_assign)
+					//初次分配
+					if(!$re_assign)
 					{
+						$this->delegate_model->change_status($uid, 'seat_assigned');
+					}
+					else
+					{
+						//回退原席位
 						$this->seat_model->change_seat_status($original_seat_id, 'available', NULL);
 						$this->seat_model->assign_seat($original_seat_id, NULL);
 					}
@@ -1739,8 +1744,6 @@ class Delegate extends CI_Controller
 					//分配席位
 					$this->seat_model->change_seat_status($new_seat_id, 'assigned', true);
 					$this->seat_model->assign_seat($new_seat_id, $delegate['id']);
-					
-					$this->delegate_model->change_status($uid, 'seat_assigned');
 
 					$this->delegate_model->add_event($uid, 'seat_assigned', array('seat' => $new_seat_id, 'new' => !$re_assign));
 
