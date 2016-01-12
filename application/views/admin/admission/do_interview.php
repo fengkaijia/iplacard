@@ -187,7 +187,7 @@ foreach($score_standard as $sid => $one)
 					'name' => 'submit',
 					'content' => '面试通过',
 					'type' => 'submit',
-					'class' => 'btn btn-primary disabled',
+					'class' => 'btn btn-success disabled',
 					'onclick' => "$('#pass_interview_{$uid}').sayt({'erase': true}); loader(this);"
 				));
 				echo ' ';
@@ -195,7 +195,7 @@ foreach($score_standard as $sid => $one)
 					'id' => 'retest',
 					'content' => '增加复试',
 					'type' => 'button',
-					'class' => 'btn btn-warning disabled',
+					'class' => 'btn btn-primary disabled',
 					'data-toggle' => 'modal',
 					'data-target' => '#retest_interview',
 				));
@@ -281,7 +281,7 @@ foreach($score_standard as $sid => $one)
 				</div>
 				<div class="modal-body">
 					<p>将会认定<?php echo icon('user', false).$delegate['name'];?>的面试通过但需要复试。您可以在笔记中注明推荐的复试面试官人选方便审核人员安排下一轮面试。</p>
-					<p><span class="label label-warning">注意</span> 选择提交后本次面试将被标记为通过，但直到代表的终试面试官认定面试通过并不需要复试后，您才可以向代表分配席位。</p>
+					<p><span class="label label-primary">注意</span> 选择提交后本次面试将被标记为通过，但直到代表的终试面试官认定面试通过并不需要复试后，您才可以向代表分配席位。</p>
 				</div>
 				<div class="modal-footer">
 					<?php echo form_button(array(
@@ -294,7 +294,7 @@ foreach($score_standard as $sid => $one)
 						'name' => 'submit',
 						'content' => '确定提交',
 						'type' => 'submit',
-						'class' => 'btn btn-warning',
+						'class' => 'btn btn-primary',
 						'onclick' => 'loader(this);'
 					)); ?>
 				</div>
