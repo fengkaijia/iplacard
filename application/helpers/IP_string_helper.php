@@ -10,8 +10,7 @@ function extract_mention($text)
 	if(empty($match))
 		return false;
 	
-	$count = count($match[1]);
-	$user = intval($match[1][$count - 1]);
+	$user = intval(end($match[1]));
 	
 	if(empty($user))
 		return false;

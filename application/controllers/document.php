@@ -586,9 +586,9 @@ class Document extends CI_Controller
 				exec($this->parser->parse_string($command, $flag, true), $return);
 				
 				//获取DRM值
-				if(!empty($return[count($return) - 1]))
+				if(!empty(end($return)))
 				{
-					$drm = trim($return[count($return) - 1]);
+					$drm = trim(end($return));
 				}
 			}
 			

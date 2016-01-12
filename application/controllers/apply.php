@@ -962,7 +962,7 @@ class Apply extends CI_Controller
 			}
 			else
 			{
-				$id = $invoices[count($invoices) - 1];
+				$id = end($invoices);
 			}
 		}
 		
