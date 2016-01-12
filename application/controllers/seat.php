@@ -518,7 +518,7 @@ class Seat extends CI_Controller
 							$operation .= '<a style="cursor: pointer;" onclick="add_seat('.$seat['id'].', true);">'.icon('plus-square', false).'主项</a> ';
 							$operation .= '<a style="cursor: pointer;" onclick="add_seat('.$seat['id'].', false);">'.icon('plus-square-o', false).'备选</a>';
 						}
-						elseif($seat_mode == 'assign' && ($seat['status'] == 'available' || ($seat['status'] == 'preserved' || $seat['committee'] == $admin_committee)))
+						elseif($seat_mode == 'assign' && ($seat['status'] == 'available' || ($seat['status'] == 'preserved' && $seat['committee'] == $admin_committee)))
 						{
 							$operation .= '<a style="cursor: pointer;" onclick="assign_seat('.$seat['id'].');">'.icon('check-square-o', false).'分配</a>';
 						}
