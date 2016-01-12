@@ -793,9 +793,8 @@ class Account extends CI_Controller
 			//非请求帐户登录时登出原帐户
 			if(uid() != $uid)
 			{
-				$this->ui->alert('请使用验证请求的帐户登录 iPlacard。', 'warning', true);
 				$this->_do_logout('email_change');
-				login_redirect();
+				login_redirect('请使用验证请求的帐户登录 iPlacard。');
 				return;
 			}
 		}
@@ -803,8 +802,7 @@ class Account extends CI_Controller
 		{
 			if($action == 'confirm' && !$sudo)
 			{
-				$this->ui->alert('请登录 iPlacard 以完成验证。在完成验证之前，登录时您的帐户仍然为旧的电子邮箱地址。', 'info', true);
-				login_redirect();
+				login_redirect('请登录 iPlacard 以完成验证。在完成验证之前，登录时您的帐户仍然为旧的电子邮箱地址。');
 				return;
 			}
 		}

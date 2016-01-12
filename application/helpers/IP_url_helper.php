@@ -52,10 +52,14 @@ function anchor_capable($uri = '', $title = '', $role = '', $attributes = '')
 /**
  * 跳转到请求登录页面并且保留请求链接
  */
-function login_redirect()
+function login_redirect($message = '请登录 iPlacard 以继续访问。')
 {
 	$CI =& get_instance();
 	$CI->session->set_flashdata('redirect', $CI->input->server('REQUEST_URI'));
+	
+	if(!empty($message))
+		$CI->ui->alert($message, 'info', true);
+	
 	redirect("account/login");
 }
 
