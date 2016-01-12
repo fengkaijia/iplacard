@@ -1308,26 +1308,30 @@ class Delegate extends CI_Controller
 					$score_all[$sid] = $score_one;
 				}
 				
-				//反馈
-				$feedback = $this->input->post('feedback');
-				if(empty($feedback))
+				//面试反馈
+				$remark = $this->input->post('remark');
+				$supplement = $this->input->post('supplement');
+				
+				if(empty($remark) && option('interview_feedback_required', true))
 				{
-					if(option('interview_feedback_required', true))
-					{
-						$this->ui->alert('面试反馈为空，无法提交。', 'danger', true);
-						break;
-					}
-						
-					$feedback = NULL;
+					$this->ui->alert('面试反馈为空，无法提交。', 'danger', true);
+					break;
 				}
 				
-				$feedback_data = array(
+				if(empty($remark))
+					$remark = NULL;
+				
+				if(empty($supplement))
+					$supplement = NULL;
+				
+				$feedback = array(
 					'score' => $score_all,
-					'feedback' => $feedback
+					'remark' => $remark,
+					'supplement' => $supplement
 				);
 				
 				//执行面试结果
-				$this->interview_model->complete_interview($interview_id, $score, $pass, $feedback_data);
+				$this->interview_model->complete_interview($interview_id, $score, $pass, $feedback);
 				
 				//载入邮件通知
 				$this->load->library('email');
@@ -1338,6 +1342,7 @@ class Delegate extends CI_Controller
 					'uid' => $uid,
 					'delegate' => $delegate['name'],
 					'interviewer' => $this->admin_model->get_admin($interview['interviewer'], 'name'),
+					'remark' => $remark,
 					'time' => unix_to_human(time())
 				);
 				
@@ -1354,7 +1359,10 @@ class Delegate extends CI_Controller
 						//邮件通知
 						$this->email->to($delegate['email']);
 						$this->email->subject('面试未通过');
-						$this->email->html($this->parser->parse_string(option('email_delegate_interview_failed', "您的面试官已经于 {time} 认定您未能通过面试，您将需要进行二次面试，我们将在近期内为您重新分配面试官，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						if(is_null($remark))
+							$this->email->html($this->parser->parse_string(option('email_delegate_interview_failed', "您的面试官已经于 {time} 认定您未能通过面试，您将需要进行二次面试，我们将在近期内为您重新分配面试官，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						else
+							$this->email->html($this->parser->parse_string(option('email_delegate_interview_failed_remark', "您的面试官已经于 {time} 认定您未能通过面试并给予如下评价：\n\n\t{remark}\n\n您将需要进行二次面试，我们将在近期内为您重新分配面试官，请登录 iPlacard 系统查看申请状态。"), $data, true));
 						$this->email->send();
 
 						//短信通知代表
@@ -1379,7 +1387,10 @@ class Delegate extends CI_Controller
 						//邮件通知
 						$this->email->to($delegate['email']);
 						$this->email->subject('二次面试未通过');
-						$this->email->html($this->parser->parse_string(option('email_delegate_interview_failed_2nd', "您的面试官已经于 {time} 认定您未能通过二次面试。您的申请已经移入等待队列，当席位出现空缺时，我们将会为您分配席位，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						if(is_null($remark))
+							$this->email->html($this->parser->parse_string(option('email_delegate_interview_failed_2nd', "您的面试官已经于 {time} 认定您未能通过二次面试。您的申请已经移入等待队列，当席位出现空缺时，我们将会为您分配席位，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						else
+							$this->email->html($this->parser->parse_string(option('email_delegate_interview_failed_2nd_remark', "您的面试官已经于 {time} 认定您未能通过二次面试并给予如下评价：\n\n\t{remark}\n\n您的申请已经移入等待队列，当席位出现空缺时，我们将会为您分配席位，请登录 iPlacard 系统查看申请状态。"), $data, true));
 						$this->email->send();
 
 						//短信通知代表
@@ -1409,7 +1420,10 @@ class Delegate extends CI_Controller
 						//邮件通知
 						$this->email->to($delegate['email']);
 						$this->email->subject('面试通过');
-						$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed', "您的面试官已经于 {time} 认定您成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						if(is_null($remark))
+							$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed', "您的面试官已经于 {time} 认定您成功通过面试，我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						else
+							$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed_remark', "您的面试官已经于 {time} 认定您成功通过面试并给予如下评价：\n\n\t{remark}\n\n我们将在近期内为您分配席位选择，请登录 iPlacard 系统查看申请状态。"), $data, true));
 						$this->email->send();
 
 						//短信通知代表
@@ -1434,7 +1448,10 @@ class Delegate extends CI_Controller
 						//邮件通知
 						$this->email->to($delegate['email']);
 						$this->email->subject('面试通过等待复试分配');
-						$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed', "您的面试官已经于 {time} 认定您成功通过面试，我们将在近期内为您分配复试面试官，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						if(is_null($remark))
+							$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed', "您的面试官已经于 {time} 认定您成功通过面试，我们将在近期内为您分配复试面试官，请登录 iPlacard 系统查看申请状态。"), $data, true));
+						else
+							$this->email->html($this->parser->parse_string(option('email_delegate_interview_passed_remark', "您的面试官已经于 {time} 认定您成功通过面试并给予如下评价：\n\n\t{remark}\n\n我们将在近期内为您分配复试面试官，请登录 iPlacard 系统查看申请状态。"), $data, true));
 						$this->email->send();
 
 						//短信通知代表
@@ -2879,6 +2896,7 @@ class Delegate extends CI_Controller
 				$vars['score_level'] = $this->interview_model->get_score_levels(20);
 				
 				$vars['feedback_required'] = option('interview_feedback_required', true);
+				$vars['feedback_supplement_enabled'] = option('interview_feedback_supplement_enabled', true);
 				
 				return $this->load->view('admin/admission/do_interview', $vars, true);
 			

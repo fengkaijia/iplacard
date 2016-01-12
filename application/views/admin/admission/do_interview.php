@@ -19,7 +19,8 @@ foreach($score_standard as $sid => $one)
 			{
 				echo "$('#fail_interview input[name=\"score_$sid\"]').val($('#pass_interview_{$uid} input[name=\"score_$sid\"]').val());";
 			} ?>
-			$('#fail_interview input[name="feedback"]').val($('#feedback').val());
+			$('#fail_interview input[name="remark"]').val($('#remark').val());
+			$('#fail_interview input[name="supplement"]').val($('#supplement').val());
 		});
 		
 		$('#retest').click(function(){
@@ -27,7 +28,8 @@ foreach($score_standard as $sid => $one)
 			{
 				echo "$('#retest_interview input[name=\"score_$sid\"]').val($('#pass_interview_{$uid} input[name=\"score_$sid\"]').val());";
 			} ?>
-			$('#retest_interview input[name="feedback"]').val($('#feedback').val());
+			$('#retest_interview input[name="remark"]').val($('#remark').val());
+			$('#retest_interview input[name="supplement"]').val($('#supplement').val());
 		});
 		
 		$('#pass_interview_<?php echo $uid;?>').sayt({'days': 15});
@@ -75,7 +77,7 @@ foreach($score_standard as $sid => $one)
 	
 	function open_submit()
 	{
-		if(scored<?php if($feedback_required) { ?> && $('#feedback').val().length !== 0<?php } ?>)
+		if(scored<?php if($feedback_required) { ?> && $('#remark').val().length !== 0<?php } ?>)
 		{
 			$('#submit').removeClass('disabled');
 			$('#retest').removeClass('disabled');
@@ -118,23 +120,42 @@ foreach($score_standard as $sid => $one)
 		'id' => "pass_interview_{$uid}"
 	), array('pass' => true, 'retest' => false) + $hiddens); ?>
 		
-		<div class="form-group <?php if(form_has_error('feedback')) echo 'has-error';?>">
-			<?php echo form_label('面试反馈', 'feedback', array('class' => 'control-label'));
+		<div class="form-group <?php if(form_has_error('remark')) echo 'has-error';?>">
+			<?php echo form_label('面试评价', 'remark', array('class' => 'control-label'));
 			echo form_textarea(array(
-				'name' => 'feedback',
-				'id' => 'feedback',
+				'name' => 'remark',
+				'id' => 'remark',
 				'class' => 'form-control',
 				$feedback_required ? 'required' : 'enabled' => NULL,
 				'rows' => 3,
-				'value' => set_value('feedback'),
-				'placeholder' => '面试情况反馈',
+				'value' => set_value('remark'),
+				'placeholder' => '面试评价',
 				'onkeyup' => 'open_submit();',
 				'onblur' => 'open_submit();'
 			));
-			if(form_has_error('feedback'))
-				echo form_error('feedback');
-			else { ?><div class="help-block">面试反馈将不会发送给代表。</div><?php } ?>
+			if(form_has_error('remark'))
+				echo form_error('remark');
+			else { ?><div class="help-block">面试评价将反馈给代表。</div><?php } ?>
 		</div>
+	
+		<?php if($feedback_supplement_enabled) { ?><div class="form-group <?php if(form_has_error('supplement')) echo 'has-error';?>">
+			<?php echo form_label('内部反馈', 'supplement', array('class' => 'control-label'));
+			echo form_textarea(array(
+				'name' => 'supplement',
+				'id' => 'supplement',
+				'class' => 'form-control',
+				'rows' => 2,
+				'value' => set_value('supplement'),
+				'placeholder' => '内部反馈',
+				'onkeyup' => 'open_submit();',
+				'onblur' => 'open_submit();'
+			));
+			if(form_has_error('supplement'))
+				echo form_error('supplement');
+			else { ?><div class="help-block">内部反馈将不公开给代表，可留空。</div><?php } ?>
+		</div><?php } else {
+			form_hidden('supplement', '');
+		} ?>
 		
 		<div class="form-group <?php if(form_has_error('score')) echo 'has-error';?>">
 			<?php echo form_label('面试评分', 'score', array('class' => 'control-label'));
@@ -187,7 +208,7 @@ foreach($score_standard as $sid => $one)
 					'data-toggle' => 'modal',
 					'data-target' => '#fail_interview',
 				)); ?>
-				<div id="submit_note" class="help-block"><?php echo $feedback_required ? "需要撰写面试反馈并评分后才可提交面试结果。" : "需要评分后才可提交面试结果。";?></div>
+				<div id="submit_note" class="help-block"><?php echo $feedback_required ? "需要撰写面试评价并评分后才可提交面试结果。" : "需要评分后才可提交面试结果。";?></div>
 			</div>
 		</div>
 		
@@ -201,7 +222,7 @@ foreach($score_standard as $sid => $one)
 		'role' => 'dialog',
 		'aria-labelledby' => 'fail_label',
 		'aria-hidden' => 'true'
-	), array('pass' => false, 'retest' => false, 'feedback' => '') + $hiddens);?><div class="modal-dialog">
+	), array('pass' => false, 'retest' => false, 'remark' => '', 'supplement' => '') + $hiddens);?><div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
 					<?php echo form_button(array(
@@ -246,7 +267,7 @@ foreach($score_standard as $sid => $one)
 		'role' => 'dialog',
 		'aria-labelledby' => 'retest_label',
 		'aria-hidden' => 'true'
-	), array('pass' => true, 'retest' => true, 'feedback' => '') + $hiddens);?><div class="modal-dialog">
+	), array('pass' => true, 'retest' => true, 'remark' => '', 'supplement' => '') + $hiddens);?><div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
 					<?php echo form_button(array(
