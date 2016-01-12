@@ -1308,26 +1308,30 @@ class Delegate extends CI_Controller
 					$score_all[$sid] = $score_one;
 				}
 				
-				//反馈
-				$feedback = $this->input->post('feedback');
-				if(empty($feedback))
+				//面试反馈
+				$remark = $this->input->post('remark');
+				$supplement = $this->input->post('supplement');
+				
+				if(empty($remark) && option('interview_feedback_required', true))
 				{
-					if(option('interview_feedback_required', true))
-					{
-						$this->ui->alert('面试反馈为空，无法提交。', 'danger', true);
-						break;
-					}
-						
-					$feedback = NULL;
+					$this->ui->alert('面试反馈为空，无法提交。', 'danger', true);
+					break;
 				}
 				
-				$feedback_data = array(
+				if(empty($remark))
+					$remark = NULL;
+				
+				if(empty($supplement))
+					$supplement = NULL;
+				
+				$feedback = array(
 					'score' => $score_all,
-					'feedback' => $feedback
+					'remark' => $remark,
+					'supplement' => $supplement
 				);
 				
 				//执行面试结果
-				$this->interview_model->complete_interview($interview_id, $score, $pass, $feedback_data);
+				$this->interview_model->complete_interview($interview_id, $score, $pass, $feedback);
 				
 				//载入邮件通知
 				$this->load->library('email');
@@ -2879,6 +2883,7 @@ class Delegate extends CI_Controller
 				$vars['score_level'] = $this->interview_model->get_score_levels(20);
 				
 				$vars['feedback_required'] = option('interview_feedback_required', true);
+				$vars['feedback_supplement_enabled'] = option('interview_feedback_supplement_enabled', true);
 				
 				return $this->load->view('admin/admission/do_interview', $vars, true);
 			
