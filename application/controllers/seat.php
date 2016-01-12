@@ -522,10 +522,6 @@ class Seat extends CI_Controller
 						{
 							$operation .= '<a style="cursor: pointer;" onclick="assign_seat('.$seat['id'].');">'.icon('check-square-o', false).'分配</a>';
 						}
-						else
-						{
-							$operation .= '<p class="text-warning">不可操作</p>';
-						}
 					}
 					else
 					{
