@@ -1732,7 +1732,27 @@ class Delegate extends CI_Controller
 					//初次分配
 					if(!$re_assign)
 					{
-						$this->delegate_model->change_status($uid, 'seat_assigned');
+						if(option("invoice_amount_{$delegate['application_type']}", 0) > 0)
+						{
+							$this->load->library('invoice');
+							
+							$this->delegate_model->change_status($uid, 'invoice_issued');
+							
+							//生成账单
+							$this->invoice->title(option('invoice_title_fee_delegate', option('invoice_title_fee', '参会会费')));
+							$this->invoice->to($uid);
+							$this->invoice->item(option('invoice_title_fee_delegate', option('invoice_title_fee', '参会会费')), option('invoice_amount_delegate', 1000), option('invoice_item_fee_delegate', option('invoice_item_fee', array())));
+							$this->invoice->due_time(time() + option('invoice_due_fee', 15) * 24 * 60 * 60);
+							
+							$this->invoice->trigger('overdue', 'release_seat', array('delegate' => $uid));
+							$this->invoice->trigger('receive', 'change_status', array('delegate' => $uid, 'status' => 'payment_received'));
+							
+							$this->invoice->generate();
+						}
+						else
+						{
+							$this->delegate_model->change_status($uid, 'seat_assigned');
+						}
 					}
 					else
 					{
