@@ -535,7 +535,7 @@ if($seat_mode == 'select' && $selectabilities)
 $seat_opened_ids = json_encode(array());
 if($seat_mode == 'assign' && $seat)
 	$seat_opened_ids = json_encode(array($seat['id']));
-elseif($selectabilities)
+elseif($seat_mode == 'select' && $selectabilities)
 	$seat_opened_ids = json_encode($selectabilities);
 $seat_opened_text = $seat_mode == 'select' ? '已经开放' : '已经分配';
 $seat_hide_column = $seat_mode == 'select' ? '5' : '5, 6';
