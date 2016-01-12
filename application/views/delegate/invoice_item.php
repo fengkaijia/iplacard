@@ -16,6 +16,11 @@ $this->load->view('header');?>
 		<div id="invoice-detail" style="padding-top: 16px;">
 			<?php echo $invoice_html;?>
 		</div>
+		
+		<?php if(!is_null($previous) || !is_null($next)) { ?><ul class="pager">
+			<?php if(!is_null($previous)) { ?><li class="previous"><?php echo anchor("apply/invoice/{$previous}", '&larr; 前一份账单');?></li><?php } ?>
+			<?php if(!is_null($next)) { ?><li class="next"><?php echo anchor("apply/invoice/{$next}", '&rarr; 后一份账单');?></li><?php } ?>
+		</ul><?php } ?>
 	</div>
 	
 	<?php if($unpaid) { ?><div class="col-md-4">

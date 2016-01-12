@@ -949,31 +949,30 @@ class Apply extends CI_Controller
 		$gateways = option('invoice_payment_gateway', array('汇款', '网银转账', '支付宝', '其他'));
 		$gateways = array_combine($gateways, $gateways);
 		
+		$invoices = $this->invoice_model->get_delegate_invoices($this->uid);
+		
+		if(!$invoices)
+		{
+			$this->ui->alert('您当前没有账单需要处理。', 'success', true);
+			back_redirect();
+			return;
+		}
+		
 		//显示代表最后一份账单
 		if(empty($id))
 		{
-			$invoices = $this->invoice_model->get_delegate_invoices($this->uid);
-			
-			if(!$invoices)
-			{
-				$this->ui->alert('您当前没有账单需要处理。', 'success', true);
-				back_redirect();
-				return;
-			}
-			else
-			{
-				$id = end($invoices);
-			}
+			$id = end($invoices);
 		}
 		
-		$this->invoice->load($id);
-		
-		if($this->invoice->get('delegate') != $this->uid)
+		//检查账单是否为对应代表所有
+		if(!in_array($id, $invoices))
 		{
 			$this->ui->alert('无权访问账单信息。', 'danger', true);
 			back_redirect();
 			return;
 		}
+		
+		$this->invoice->load($id);
 		
 		//编辑转账信息
 		if($action == 'transaction')
@@ -1008,6 +1007,23 @@ class Apply extends CI_Controller
 			}
 		}
 		
+		//计算前后账单
+		$previous = NULL;
+		$next = NULL;
+		
+		if(count($invoices) > 1)
+		{
+			$current = array_search($id, $invoices);
+			
+			if(isset($invoices[$current - 1]))
+				$previous = $invoices[$current - 1];
+			
+			if(isset($invoices[$current + 1]))
+				$next = $invoices[$current + 1];
+		}
+		
+		$vars['previous'] = $previous;
+		$vars['next'] = $next;
 		$vars['invoice_html'] = $this->invoice->display();
 		$vars['due_time'] = $this->invoice->get('due_time');
 		$vars['transaction'] = $this->invoice->get('transaction');
