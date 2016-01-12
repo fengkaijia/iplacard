@@ -505,7 +505,7 @@ class Seat extends CI_Controller
 				foreach($seats as $id => $seat)
 				{
 					$delegate = false;
-					if(!empty($seat['delegate']))
+					if(!empty($seat['delegate']) && isset($delegates[$seat['delegate']]))
 						$delegate = $delegates[$seat['delegate']];
 
 					//操作
