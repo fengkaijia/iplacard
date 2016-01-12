@@ -336,9 +336,13 @@ $this->load->view('header');?>
 								echo "<span class=\"label label-primary\">{$one['name']}</span> {$score} ";
 							} ?></td>
 						</tr><?php }
-						if(!empty($interview['feedback'])) { ?><tr>
-							<td style="min-width: 100px;">面试反馈</td>
-							<td><?php echo nl2br($interview['feedback']['feedback']);?></td>
+						if(!empty($interview['feedback']['remark'])) { ?><tr>
+							<td style="min-width: 100px;">面试评价</td>
+							<td><?php echo nl2br($interview['feedback']['remark']);?></td>
+						</tr><?php }
+						if(!empty($interview['feedback']['supplement']) || !empty($interview['feedback']['feedback'])) { //兼容2.1版之前数据结构 ?><tr>
+							<td style="min-width: 100px;">内部反馈</td>
+							<td><?php echo nl2br($interview['feedback'][empty($interview['feedback']['feedback']) ? 'supplement' : 'feedback']);?></td>
 						</tr><?php } ?>
 					</tbody>
 				</table>
