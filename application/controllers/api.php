@@ -384,11 +384,13 @@ class Api extends CI_Controller
 			}
 			
 			//获取席位
-			$seat = $this->seat_model->get_delegate_seat($delegate['id']);
-			if($seat)
+			$seat_id = $this->seat_model->get_delegate_seat($delegate['id']);
+			if($seat_id)
 			{
-				$this->return['seat'] = $this->seat_model->get_seat($seat);
-				$this->return['seat']['committee'] = $this->committee_model->get_committee($seat['committee'], 'name');
+				$seat = $this->seat_model->get_seat($seat_id);
+				$seat['committee'] = $this->committee_model->get_committee($seat['committee'], 'name');
+				
+				$this->return['seat'] = $seat;
 			}
 			
 			//获取退会信息
