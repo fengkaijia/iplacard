@@ -3,7 +3,7 @@
 /**
  * 跨实例查询客户端类库
  * @package iPlacard
- * @since 2.1
+ * @since 2.2
  */
 class Ciq
 {
