@@ -82,6 +82,21 @@ $this->load->view('header');?>
 			</div>
 		</div>
 		
+		<div id="ui-message" class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title"><?php echo icon('inbox');?>消息</h3>
+			</div>
+			<ul class="list-group"><?php foreach($messages as $message) { ?>
+				<li class="list-group-item">
+					<a class="close" data-dismiss="alert" onclick="archive_message(<?php echo $message['id'];?>);">
+						<span aria-hidden="true" class="text-muted">&times;</span>
+					</a>
+					<?php if($message['status'] == 'unread') { ?><span class="label label-primary">新消息</span> <?php echo $message['text']; ?> <small class="text-muted"><?php echo nicetime($message['time']); ?></small><?php
+					} else { ?><span class="text-muted"><?php echo $message['text']; ?></span> <small class="text-muted"><?php echo nicetime($message['time']); ?></small><?php } ?>
+				</li><?php } ?>
+			</ul>
+		</div>
+		
 		<?php if($lock_open) { ?><div id="ui-lock" class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><?php echo icon('lock');?>确认锁定</h3>
@@ -153,5 +168,22 @@ $('.shorten').shorten({
 EOT;
 if($lock_open)
 	$this->ui->js('footer', $shorten_js);
+
+$archive_url = base_url('apply/ajax/archive_message');
+$message_count = count($messages);
+$message_js = <<<EOT
+var message_count = {$message_count};
+function archive_message(id) {
+	$.ajax({
+		url: "{$archive_url}?id=" + id,
+	});
+	message_count--;
+	if(message_count == 0) {
+		$('#ui-message').hide();
+	}
+}
+EOT;
+if(!empty($messages))
+	$this->ui->js('footer', $message_js);
 
 $this->load->view('footer');?>

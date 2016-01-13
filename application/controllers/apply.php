@@ -168,6 +168,25 @@ class Apply extends CI_Controller
 		}
 		$vars['lock_open'] = $lock_open;
 		
+		//消息
+		$messages = array();
+		
+		$message_ids = $this->user_model->get_message_ids('receiver', $this->uid, 'status', array('unread', 'read'));
+		if($message_ids)
+		{
+			$picked = array_slice(array_reverse($message_ids), 0, 5);
+			
+			$messages = array_reverse($this->user_model->get_messages($picked));
+			
+			foreach($messages as $message)
+			{
+				if($message['status'] == 'unread')
+					$this->user_model->update_message_status($message['id'], 'read');
+			}
+		}
+		
+		$vars['messages'] = $messages;
+		
 		//状态信息
 		$application_fee_amount = option("invoice_amount_{$this->delegate['application_type']}", 0);
 		
@@ -1152,6 +1171,27 @@ class Apply extends CI_Controller
 			if($this->user_model->is_delegate($this->uid))
 			{
 				$this->user_model->edit_user_option('ui_dismiss_welcome', true);
+				
+				$json['result'] = true;
+			}
+			else
+			{
+				$json['result'] = false;
+			}
+		}
+		elseif($action == 'archive_message')
+		{
+			$message_id = $this->input->get('id');
+			if(empty($message_id))
+				return;
+			
+			$message = $this->user_model->get_message($message_id);
+			if($message['receiver'] != $this->uid)
+				return;
+			
+			if($message['status'] != 'archived')
+			{
+				$this->user_model->update_message_status($message_id, 'archived');
 				
 				$json['result'] = true;
 			}
