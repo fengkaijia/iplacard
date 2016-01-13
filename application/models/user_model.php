@@ -520,6 +520,23 @@ class User_model extends CI_Model
 	}
 	
 	/**
+	 * 更新用户消息状态
+	 */
+	function update_message_status($id, $status)
+	{
+		$available = array(
+			'unread',
+			'read',
+			'archived'
+		);
+		
+		if(!in_array($status, $available))
+			return false;
+		
+		return $this->edit_message(array('status' => $status), $id);
+	}
+	
+	/**
 	 * 添加用户消息
 	 * @return int 新的用户消息ID
 	 */
@@ -530,7 +547,8 @@ class User_model extends CI_Model
 			'receiver' => $receiver,
 			'text' => $text,
 			'type' => $type,
-			'time' => time()
+			'time' => time(),
+			'status' => 'unread'
 		);
 		
 		//返回新消息ID
