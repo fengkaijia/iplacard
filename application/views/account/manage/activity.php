@@ -57,6 +57,8 @@
 									$browser = 'safari';
 								elseif($one['value']['browser'] == 'Opera')
 									$browser = 'opera';
+								elseif($one['value']['browser'] == 'Spartan')
+									$browser = 'edge';
 								
 								if(!$browser)
 									$browser_icon = '';
