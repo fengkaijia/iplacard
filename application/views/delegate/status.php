@@ -125,7 +125,7 @@ $this->load->view('header');?>
 			</div>
 		</div><?php } ?>
 		
-		<?php if(!empty($messages)) { ?><div id="ui-kb" class="panel panel-default">
+		<?php if(!empty($articles)) { ?><div id="ui-kb" class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><?php echo anchor('knowledgebase', icon('book').'知识库文章');?></h3>
 			</div>
