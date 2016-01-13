@@ -8,8 +8,8 @@
 | mobile device data. The array keys are used to identify the device
 | and the array values are used to set the actual name of the item.
 */
-
 $platforms = array(
+	'windows nt 10.0'	=> 'Windows 10',
 	'windows nt 6.3'	=> 'Windows 8.1',
 	'windows nt 6.2'	=> 'Windows 8',
 	'windows nt 6.1'	=> 'Windows 7',
@@ -59,6 +59,7 @@ $platforms = array(
 $browsers = array(
 	'OPR'			=> 'Opera',
 	'Flock'			=> 'Flock',
+	'Edge'			=> 'Spartan',
 	'Chrome'		=> 'Chrome',
 	// Opera 10+ always reports Opera/9.80 and appends Version/<real version> to the user agent string
 	'Opera.*?Version'	=> 'Opera',
@@ -90,20 +91,20 @@ $browsers = array(
 $mobiles = array(
 	// legacy array, old values commented out
 	'mobileexplorer'	=> 'Mobile Explorer',
-//  'openwave'			=> 'Open Wave',
-//	'opera mini'		=> 'Opera Mini',
-//	'operamini'			=> 'Opera Mini',
-//	'elaine'			=> 'Palm',
+	//  'openwave'			=> 'Open Wave',
+	//	'opera mini'		=> 'Opera Mini',
+	//	'operamini'			=> 'Opera Mini',
+	//	'elaine'			=> 'Palm',
 	'palmsource'		=> 'Palm',
-//	'digital paths'		=> 'Palm',
-//	'avantgo'			=> 'Avantgo',
-//	'xiino'				=> 'Xiino',
+	//	'digital paths'		=> 'Palm',
+	//	'avantgo'			=> 'Avantgo',
+	//	'xiino'				=> 'Xiino',
 	'palmscape'			=> 'Palmscape',
-//	'nokia'				=> 'Nokia',
-//	'ericsson'			=> 'Ericsson',
-//	'blackberry'		=> 'BlackBerry',
-//	'motorola'			=> 'Motorola'
-
+	//	'nokia'				=> 'Nokia',
+	//	'ericsson'			=> 'Ericsson',
+	//	'blackberry'		=> 'BlackBerry',
+	//	'motorola'			=> 'Motorola'
+	
 	// Phones and Manufacturers
 	'motorola'		=> 'Motorola',
 	'nokia'			=> 'Nokia',
@@ -147,7 +148,7 @@ $mobiles = array(
 	'wii'			=> 'Nintendo Wii',
 	'open web'		=> 'Open Web',
 	'openweb'		=> 'OpenWeb',
-
+	
 	// Operating Systems
 	'android'		=> 'Android',
 	'symbian'		=> 'Symbian',
@@ -155,7 +156,7 @@ $mobiles = array(
 	'elaine'		=> 'Palm',
 	'series60'		=> 'Symbian S60',
 	'windows ce'	=> 'Windows CE',
-
+	
 	// Browsers
 	'obigo'			=> 'Obigo',
 	'netfront'		=> 'Netfront Browser',
@@ -165,7 +166,7 @@ $mobiles = array(
 	'opera mini'	=> 'Opera Mini',
 	'opera mobi'	=> 'Opera Mobile',
 	'fennec'		=> 'Firefox Mobile',
-
+	
 	// Other
 	'digital paths'	=> 'Digital Paths',
 	'avantgo'		=> 'AvantGo',
@@ -174,7 +175,7 @@ $mobiles = array(
 	'vodafone'		=> 'Vodafone',
 	'docomo'		=> 'NTT DoCoMo',
 	'o2'			=> 'O2',
-
+	
 	// Fallback
 	'mobile'		=> 'Generic Mobile',
 	'wireless'		=> 'Generic Mobile',
@@ -191,15 +192,20 @@ $mobiles = array(
 $robots = array(
 	'googlebot'		=> 'Googlebot',
 	'msnbot'		=> 'MSNBot',
-	'baiduspider'	=> 'Baiduspider',
+	'baiduspider'		=> 'Baiduspider',
 	'bingbot'		=> 'Bing',
 	'slurp'			=> 'Inktomi Slurp',
 	'yahoo'			=> 'Yahoo',
-	'askjeeves'		=> 'AskJeeves',
-	'fastcrawler'	=> 'FastCrawler',
+	'ask jeeves'		=> 'Ask Jeeves',
+	'fastcrawler'		=> 'FastCrawler',
 	'infoseek'		=> 'InfoSeek Robot 1.0',
 	'lycos'			=> 'Lycos',
-	'yandex'		=> 'YandexBot'
+	'yandex'		=> 'YandexBot',
+	'mediapartners-google'	=> 'MediaPartners Google',
+	'CRAZYWEBCRAWLER'	=> 'Crazy Webcrawler',
+	'adsbot-google'		=> 'AdsBot Google',
+	'feedfetcher-google'	=> 'Feedfetcher Google',
+	'curious george'	=> 'Curious George'
 );
 
 /* End of file user_agents.php */
