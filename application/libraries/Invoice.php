@@ -211,7 +211,6 @@ class Invoice
 		$vars['invoice']['status_text'] = $this->CI->invoice_model->status_text($this->status);
 		$vars['invoice']['status_class'] = $status_class;
 		
-		
 		$vars['currency']['sign'] = option('invoice_currency_sign', '￥');
 		$vars['currency']['text'] = option('invoice_currency_text', 'RMB');
 		
