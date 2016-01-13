@@ -68,7 +68,7 @@ $this->load->view('header');?>
 
 <div class="row">
 	<div class="col-md-4">
-		<div id="ui-news" class="panel panel-default">
+		<div id="ui-status" class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><?php echo icon('info');?>申请状态</h3>
 			</div>
@@ -82,7 +82,7 @@ $this->load->view('header');?>
 			</div>
 		</div>
 		
-		<?php if($lock_open) { ?><div id="ui-news" class="panel panel-default">
+		<?php if($lock_open) { ?><div id="ui-lock" class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><?php echo icon('lock');?>确认锁定</h3>
 			</div>
@@ -112,7 +112,7 @@ $this->load->view('header');?>
 	</div>
 	
 	<div class="col-md-4">
-		<div id="ui-news" class="panel panel-default">
+		<div id="ui-profile" class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><?php echo icon('user');?>个人信息</h3>
 			</div>
