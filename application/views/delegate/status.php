@@ -156,7 +156,7 @@ $this->load->view('header');?>
 			<div class="list-group">
 				<?php foreach($articles as $article) {
 					echo anchor("knowledgebase/article/kb{$article['kb']}", '<span class="badge">'.$article['count'].'</span>'.character_limiter($article['title'], 30), array('class' => 'list-group-item'));
-				}?>
+				} ?>
 			</div>
 		</div><?php } ?>
 	</div>
