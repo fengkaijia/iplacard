@@ -153,6 +153,25 @@ $this->load->view('header');?>
 				<p style="margin-bottom: 4px; margin-left: 104px;"><?php echo icon('phone').$delegate['phone'];?></p>
 			</div>
 		</div>
+		
+		<div id="ui-invoice" class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title"><?php echo icon('file-text');?>账单</h3>
+			</div>
+			<div class="list-group">
+				<?php foreach($invoices as $invoice) { ?><a href="<?php echo base_url("apply/invoice/{$invoice['id']}");?>" class="list-group-item<?php
+				if($invoice['due_time'] < time())
+					echo ' list-group-item-danger';
+				elseif((time() - $invoice['generate_time']) / ($invoice['due_time'] - $invoice['generate_time']) > 0.75)
+					echo ' list-group-item-warning';
+				?>">
+					<h4 class="list-group-item-heading"><?php echo $invoice['title'];?> <small>#<?php echo $invoice['id'];?></small></h4>
+					<div class="list-group-item-text">
+						<?php echo $currency['sign'].number_format((double) $invoice['amount'], 2).' '.$currency['text'];?> / <?php echo date('Y年m月d日到期', $invoice['due_time']);?>
+					</div>
+				</a><?php } ?>
+			</div>
+		</div>
 	</div>
 </div>
 

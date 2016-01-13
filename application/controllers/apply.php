@@ -187,6 +187,25 @@ class Apply extends CI_Controller
 		
 		$vars['messages'] = $messages;
 		
+		//账单
+		$invoices = array();
+		
+		$invoice_ids = $this->invoice_model->get_delegate_invoices($this->uid, true);
+		if($invoice_ids)
+		{
+			$this->load->model('invoice_model');
+			
+			foreach($invoice_ids as $invoice_id)
+			{
+				$invoices[] = $this->invoice_model->get_invoice($invoice_id);
+			}
+			
+			$vars['currency']['sign'] = option('invoice_currency_sign', '￥');
+			$vars['currency']['text'] = option('invoice_currency_text', 'RMB');
+		}
+		
+		$vars['invoices'] = $invoices;
+		
 		//状态信息
 		$application_fee_amount = option("invoice_amount_{$this->delegate['application_type']}", 0);
 		
