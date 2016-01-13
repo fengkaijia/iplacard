@@ -124,6 +124,17 @@ $this->load->view('header');?>
 				</a><?php } ?>
 			</div>
 		</div><?php } ?>
+		
+		<?php if(!empty($messages)) { ?><div id="ui-kb" class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title"><?php echo icon('book');?>知识库文章</h3>
+			</div>
+			<div class="list-group">
+				<?php foreach($articles as $article) {
+					echo anchor("knowledgebase/article/kb{$article['kb']}", '<span class="badge">'.$article['count'].'</span>'.character_limiter($article['title'], 30), array('class' => 'list-group-item'));
+				}?>
+			</div>
+		</div><?php } ?>
 	</div>
 	
 	<div class="col-md-4">

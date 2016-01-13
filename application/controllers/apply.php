@@ -55,6 +55,7 @@ class Apply extends CI_Controller
 	function status($action = 'view')
 	{
 		$this->load->model('seat_model');
+		$this->load->model('knowledgebase_model');
 		$this->load->library('form_validation');
 		$this->load->helper('form');
 		
@@ -205,6 +206,20 @@ class Apply extends CI_Controller
 		}
 		
 		$vars['invoices'] = $invoices;
+		
+		//知识库
+		$articles = array();
+		
+		$article_ids = $this->knowledgebase_model->get_ordered_articles('order', 4);
+		if($article_ids)
+		{
+			foreach($article_ids as $article_id)
+			{
+				$articles[] = $this->knowledgebase_model->get_article($article_id);
+			}
+		}
+		
+		$vars['articles'] = $articles;
 		
 		//状态信息
 		$application_fee_amount = option("invoice_amount_{$this->delegate['application_type']}", 0);
