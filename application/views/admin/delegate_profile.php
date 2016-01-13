@@ -295,6 +295,28 @@ $this->load->view('header');?>
 						} ?>
 					</tbody>
 				</table><?php } ?>
+				
+				<?php if(!empty($profile['test'])) { ?><h3 id="ciq">参会历史</h3>
+				<p>在向本系统开放查询权限的其他 iPlacard 实例中共找到了 <?php echo count($ciq);?> 条<?php echo icon('user', false).$profile['name'];?>代表的参会记录。</p>
+				<table class="table table-bordered table-striped table-hover">
+					<thead>
+						<th>会议名称</th>
+						<th>参会类型</th>
+						<th>申请状态</th>
+						<th>委员会</th>
+						<th>席位</th>
+					</thead>
+					<tbody>
+					<?php foreach($ciq as $ciq_id => $record) { ?>
+						<tr>
+							<td><?php echo anchor($record['data']['url'], icon('external-link').$record['name']);?></td>
+							<td><?php echo $record['data']['application_type_text'];?></td>
+							<td><span class="label label-<?php echo $record['data']['status_class'];?>"><?php echo $record['data']['status_text'];?></span></td>
+							<td><span class="shorten-ciq"><?php echo $record['data']['seat']['committee'];?></span></td>
+							<td><?php echo flag($record['data']['seat']['iso'])."<span class=\"shorten-ciq\">{$record['data']['seat']['name']}</span>";?></td>
+						</tr><?php } ?>
+					</tbody>
+				</table><?php } ?>
 			</div>
 			
 			<div class="tab-pane" id="interview">
@@ -507,6 +529,16 @@ $this->load->view('header');?>
 <?php
 $read_more = icon('caret-right', false);
 $read_less = icon('caret-left', false);
+
+$shorten_js = <<<EOT
+$('.shorten-ciq').shorten({
+	showChars: '15',
+	moreText: '{$read_more}',
+	lessText: '{$read_less}'
+});
+EOT;
+if(!empty($ciq))
+	$this->ui->js('footer', $shorten_js);
 
 $selectability_url = base_url("seat/ajax/list_selectability?delegate=$uid");
 $selectability_js = <<<EOT
