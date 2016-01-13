@@ -68,6 +68,15 @@ $this->load->view('header');?>
 
 <div class="row">
 	<div class="col-md-4">
+		<?php if(!empty($announcement)) { ?><div id="ui-announcement" class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title"><?php echo icon('bullhorn');?>公告</h3>
+			</div>
+			<div class="panel-body">
+				<?php echo $announcement;?>
+			</div>
+		</div><?php } ?>
+		
 		<div id="ui-status" class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><?php echo icon('info');?>申请状态</h3>

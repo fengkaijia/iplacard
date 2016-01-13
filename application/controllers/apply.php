@@ -290,6 +290,9 @@ class Apply extends CI_Controller
 		
 		$vars['feed_enable'] = $feed_enable;
 		
+		//公告
+		$vars['announcement'] = option('site_announcement', '');
+		
 		$seat_mode = option('seat_mode', 'select');
 		$vars['seat_mode'] = $seat_mode;
 		
