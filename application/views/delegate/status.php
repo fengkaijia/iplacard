@@ -111,6 +111,21 @@ $this->load->view('header');?>
 	</div>
 	
 	<div class="col-md-4">
+		<?php if(!empty($documents)) { ?><div id="ui-document" class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title"><?php echo anchor('apply/document', icon('file').'新文件');?></h3>
+			</div>
+			<div class="list-group">
+				<?php foreach($documents as $document) { ?><a href="<?php echo base_url("apply/document/#document-{$document['id']}");?>" class="list-group-item">
+					<h4 class="list-group-item-heading"><?php echo $document['title'];?> <small><?php echo nicetime($document['create_time']);?></small></h4>
+					<div class="list-group-item-text">
+						<?php if($document['highlight']) { ?><span class="label label-primary">重要</span> <?php }
+						echo character_limiter($document['description'], 200);?>
+					</div>
+				</a><?php } ?>
+			</div>
+		</div><?php } ?>
+		
 		<?php if($feed_enable) { ?><div id="ui-news" class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><?php echo icon('globe');?>会议新闻</h3>

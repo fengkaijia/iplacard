@@ -54,6 +54,7 @@ class Apply extends CI_Controller
 	 */
 	function status($action = 'view')
 	{
+		$this->load->model('document_model');
 		$this->load->model('seat_model');
 		$this->load->model('knowledgebase_model');
 		$this->load->library('form_validation');
@@ -187,6 +188,30 @@ class Apply extends CI_Controller
 		}
 		
 		$vars['messages'] = $messages;
+		
+		//文件
+		$documents = array();
+		
+		$committee_id = 0;
+		if($this->delegate['application_type'] == 'delegate' && $sid)
+			$committee_id = $seat['committee']['id'];
+		
+		$document_ids = $this->document_model->get_committee_documents($committee_id);
+		if($document_ids)
+		{
+			foreach($document_ids as $document_id)
+			{
+				if(!$this->document_model->get_document_formats($document_id))
+					continue;
+				
+				if($this->document_model->is_user_downloaded($this->uid, $document_id, 'document'))
+					continue;
+				
+				$documents[] = $this->document_model->get_document($document_id);
+			}
+		}
+		
+		$vars['documents'] = $documents;
 		
 		//账单
 		$invoices = array();

@@ -21,7 +21,7 @@ $this->load->view('header');?>
 		<p>当前您共有 <?php echo $count;?> 份文件可供下载，您可以点击下方的下载按钮下载文件。当有新的文件发布时，我们将会向您发送邮件通知。</p>
 		
 		<div id="document-list" class="mimes-16">
-			<?php foreach($documents as $document) { ?><div class="well">
+			<?php foreach($documents as $document) { ?><div class="well" id="document-<?php echo $document['id'];?>">
 				<legend style="margin-bottom: 12px;"><?php echo icon(!$document['downloaded'] ? (isset($document['formats']) && !empty($document['formats']) ? 'folder' : 'folder-o') : 'folder-open-o').$document['title'];?></legend>
 				<p><?php if($document['highlight']) { ?><span class="text-primary"><?php echo icon('star', false).'重要文件'; ?></span> <?php } ?><span class="text-muted"><?php echo icon('calendar').sprintf('%1$s（%2$s）', date('n月j日', $document['create_time']), nicetime($document['create_time']));?></span></p>
 				<?php if(!empty($document['description'])) { ?><p><?php echo $document['description'];?></p><?php } ?>
