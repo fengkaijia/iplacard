@@ -54,7 +54,9 @@ class Apply extends CI_Controller
 	 */
 	function status($action = 'view')
 	{
+		$this->load->model('document_model');
 		$this->load->model('seat_model');
+		$this->load->model('knowledgebase_model');
 		$this->load->library('form_validation');
 		$this->load->helper('form');
 		
@@ -168,6 +170,82 @@ class Apply extends CI_Controller
 		}
 		$vars['lock_open'] = $lock_open;
 		
+		//消息
+		$messages = array();
+		
+		$message_ids = $this->user_model->get_message_ids('receiver', $this->uid, 'status', array('unread', 'read'));
+		if($message_ids)
+		{
+			$picked = array_slice(array_reverse($message_ids), 0, 5);
+			
+			$messages = array_reverse($this->user_model->get_messages($picked));
+			
+			foreach($messages as $message)
+			{
+				if($message['status'] == 'unread')
+					$this->user_model->update_message_status($message['id'], 'read');
+			}
+		}
+		
+		$vars['messages'] = $messages;
+		
+		//文件
+		$documents = array();
+		
+		$committee_id = 0;
+		if($this->delegate['application_type'] == 'delegate' && $sid)
+			$committee_id = $seat['committee']['id'];
+		
+		$document_ids = $this->document_model->get_committee_documents($committee_id);
+		if($document_ids)
+		{
+			foreach($document_ids as $document_id)
+			{
+				if(!$this->document_model->get_document_formats($document_id))
+					continue;
+				
+				if($this->document_model->is_user_downloaded($this->uid, $document_id, 'document'))
+					continue;
+				
+				$documents[] = $this->document_model->get_document($document_id);
+			}
+		}
+		
+		$vars['documents'] = $documents;
+		
+		//账单
+		$invoices = array();
+		
+		$invoice_ids = $this->invoice_model->get_delegate_invoices($this->uid, true);
+		if($invoice_ids)
+		{
+			$this->load->model('invoice_model');
+			
+			foreach($invoice_ids as $invoice_id)
+			{
+				$invoices[] = $this->invoice_model->get_invoice($invoice_id);
+			}
+			
+			$vars['currency']['sign'] = option('invoice_currency_sign', '￥');
+			$vars['currency']['text'] = option('invoice_currency_text', 'RMB');
+		}
+		
+		$vars['invoices'] = $invoices;
+		
+		//知识库
+		$articles = array();
+		
+		$article_ids = $this->knowledgebase_model->get_ordered_articles('order', 4);
+		if($article_ids)
+		{
+			foreach($article_ids as $article_id)
+			{
+				$articles[] = $this->knowledgebase_model->get_article($article_id);
+			}
+		}
+		
+		$vars['articles'] = $articles;
+		
 		//状态信息
 		$application_fee_amount = option("invoice_amount_{$this->delegate['application_type']}", 0);
 		
@@ -211,6 +289,9 @@ class Apply extends CI_Controller
 		}
 		
 		$vars['feed_enable'] = $feed_enable;
+		
+		//公告
+		$vars['announcement'] = option('site_announcement', '');
 		
 		$seat_mode = option('seat_mode', 'select');
 		$vars['seat_mode'] = $seat_mode;
@@ -1152,6 +1233,27 @@ class Apply extends CI_Controller
 			if($this->user_model->is_delegate($this->uid))
 			{
 				$this->user_model->edit_user_option('ui_dismiss_welcome', true);
+				
+				$json['result'] = true;
+			}
+			else
+			{
+				$json['result'] = false;
+			}
+		}
+		elseif($action == 'archive_message')
+		{
+			$message_id = $this->input->get('id');
+			if(empty($message_id))
+				return;
+			
+			$message = $this->user_model->get_message($message_id);
+			if($message['receiver'] != $this->uid)
+				return;
+			
+			if($message['status'] != 'archived')
+			{
+				$this->user_model->update_message_status($message_id, 'archived');
 				
 				$json['result'] = true;
 			}

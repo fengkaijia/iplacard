@@ -68,6 +68,15 @@ $this->load->view('header');?>
 
 <div class="row">
 	<div class="col-md-4">
+		<?php if(!empty($announcement)) { ?><div id="ui-announcement" class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title"><?php echo icon('bullhorn');?>公告</h3>
+			</div>
+			<div class="panel-body">
+				<?php echo $announcement;?>
+			</div>
+		</div><?php } ?>
+		
 		<div id="ui-status" class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><?php echo icon('info');?>申请状态</h3>
@@ -82,9 +91,24 @@ $this->load->view('header');?>
 			</div>
 		</div>
 		
+		<?php if(!empty($messages)) { ?><div id="ui-message" class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title"><?php echo icon('inbox');?>消息</h3>
+			</div>
+			<ul class="list-group"><?php foreach($messages as $message) { ?>
+				<li class="list-group-item">
+					<a class="close" data-dismiss="alert" onclick="archive_message(<?php echo $message['id'];?>);">
+						<span aria-hidden="true" class="text-muted">&times;</span>
+					</a>
+					<?php if($message['status'] == 'unread') { ?><span class="label label-primary">新消息</span> <?php echo $message['text']; ?> <small class="text-muted"><?php echo nicetime($message['time']); ?></small><?php
+					} else { ?><span class="text-muted"><?php echo $message['text']; ?></span> <small class="text-muted"><?php echo nicetime($message['time']); ?></small><?php } ?>
+				</li><?php } ?>
+			</ul>
+		</div><?php } ?>
+		
 		<?php if($lock_open) { ?><div id="ui-lock" class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><?php echo icon('lock');?>确认锁定</h3>
+				<h3 class="panel-title"><?php echo anchor('apply/seat', icon('lock').'确认锁定');?></h3>
 			</div>
 			<div class="panel-body flags-16">
 				<p>现可以确认申请完成并锁定您的席位，锁定后将不会发生变动。</p>
@@ -96,6 +120,21 @@ $this->load->view('header');?>
 	</div>
 	
 	<div class="col-md-4">
+		<?php if(!empty($documents)) { ?><div id="ui-document" class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title"><?php echo anchor('apply/document', icon('file').'新文件');?></h3>
+			</div>
+			<div class="list-group">
+				<?php foreach($documents as $document) { ?><a href="<?php echo base_url("apply/document/#document-{$document['id']}");?>" class="list-group-item">
+					<h4 class="list-group-item-heading"><?php echo $document['title'];?> <small><?php echo nicetime($document['create_time']);?></small></h4>
+					<div class="list-group-item-text">
+						<?php if($document['highlight']) { ?><span class="label label-primary">重要</span> <?php }
+						echo character_limiter($document['description'], 200);?>
+					</div>
+				</a><?php } ?>
+			</div>
+		</div><?php } ?>
+		
 		<?php if($feed_enable) { ?><div id="ui-news" class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><?php echo icon('globe');?>会议新闻</h3>
@@ -109,12 +148,23 @@ $this->load->view('header');?>
 				</a><?php } ?>
 			</div>
 		</div><?php } ?>
+		
+		<?php if(!empty($articles)) { ?><div id="ui-kb" class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title"><?php echo anchor('knowledgebase', icon('book').'知识库文章');?></h3>
+			</div>
+			<div class="list-group">
+				<?php foreach($articles as $article) {
+					echo anchor("knowledgebase/article/kb{$article['kb']}", '<span class="badge">'.$article['count'].'</span>'.character_limiter($article['title'], 30), array('class' => 'list-group-item'));
+				} ?>
+			</div>
+		</div><?php } ?>
 	</div>
 	
 	<div class="col-md-4">
 		<div id="ui-profile" class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><?php echo icon('user');?>个人信息</h3>
+				<h3 class="panel-title"><?php echo anchor('apply/profile', icon('user').'个人信息');?></h3>
 			</div>
 			<div class="panel-body flags-16" style="position: relative;">
 				<a class="thumbnail" style="width: 90px; height: 90px; position: absolute; margin-top: 2px;">
@@ -138,6 +188,25 @@ $this->load->view('header');?>
 				<p style="margin-bottom: 4px; margin-left: 104px;"><?php echo icon('phone').$delegate['phone'];?></p>
 			</div>
 		</div>
+		
+		<?php if(!empty($invoices)) { ?><div id="ui-invoice" class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title"><?php echo anchor('apply/invoice', icon('file-text').'账单');?></h3>
+			</div>
+			<div class="list-group">
+				<?php foreach($invoices as $invoice) { ?><a href="<?php echo base_url("apply/invoice/{$invoice['id']}");?>" class="list-group-item<?php
+				if($invoice['due_time'] < time())
+					echo ' list-group-item-danger';
+				elseif((time() - $invoice['generate_time']) / ($invoice['due_time'] - $invoice['generate_time']) > 0.75)
+					echo ' list-group-item-warning';
+				?>">
+					<h4 class="list-group-item-heading"><?php echo $invoice['title'];?> <small>#<?php echo $invoice['id'];?></small></h4>
+					<div class="list-group-item-text">
+						<?php echo $currency['sign'].number_format((double) $invoice['amount'], 2).' '.$currency['text'];?> / <?php echo date('Y年m月d日到期', $invoice['due_time']);?>
+					</div>
+				</a><?php } ?>
+			</div>
+		</div><?php } ?>
 	</div>
 </div>
 
@@ -153,5 +222,22 @@ $('.shorten').shorten({
 EOT;
 if($lock_open)
 	$this->ui->js('footer', $shorten_js);
+
+$archive_url = base_url('apply/ajax/archive_message');
+$message_count = count($messages);
+$message_js = <<<EOT
+var message_count = {$message_count};
+function archive_message(id) {
+	$.ajax({
+		url: "{$archive_url}?id=" + id,
+	});
+	message_count--;
+	if(message_count == 0) {
+		$('#ui-message').hide();
+	}
+}
+EOT;
+if(!empty($messages))
+	$this->ui->js('footer', $message_js);
 
 $this->load->view('footer');?>
