@@ -82,7 +82,7 @@ $this->load->view('header');?>
 			</div>
 		</div>
 		
-		<div id="ui-message" class="panel panel-default">
+		<?php if(!empty($messages)) { ?><div id="ui-message" class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><?php echo icon('inbox');?>消息</h3>
 			</div>
@@ -95,7 +95,7 @@ $this->load->view('header');?>
 					} else { ?><span class="text-muted"><?php echo $message['text']; ?></span> <small class="text-muted"><?php echo nicetime($message['time']); ?></small><?php } ?>
 				</li><?php } ?>
 			</ul>
-		</div>
+		</div><?php } ?>
 		
 		<?php if($lock_open) { ?><div id="ui-lock" class="panel panel-default">
 			<div class="panel-heading">
@@ -154,7 +154,7 @@ $this->load->view('header');?>
 			</div>
 		</div>
 		
-		<div id="ui-invoice" class="panel panel-default">
+		<?php if(!empty($invoices)) { ?><div id="ui-invoice" class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title"><?php echo icon('file-text');?>账单</h3>
 			</div>
@@ -171,7 +171,7 @@ $this->load->view('header');?>
 					</div>
 				</a><?php } ?>
 			</div>
-		</div>
+		</div><?php } ?>
 	</div>
 </div>
 
