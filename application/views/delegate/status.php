@@ -99,7 +99,7 @@ $this->load->view('header');?>
 		
 		<?php if($lock_open) { ?><div id="ui-lock" class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><?php echo icon('lock');?>确认锁定</h3>
+				<h3 class="panel-title"><?php echo anchor('apply/seat', icon('lock').'确认锁定');?></h3>
 			</div>
 			<div class="panel-body flags-16">
 				<p>现可以确认申请完成并锁定您的席位，锁定后将不会发生变动。</p>
@@ -127,7 +127,7 @@ $this->load->view('header');?>
 		
 		<?php if(!empty($messages)) { ?><div id="ui-kb" class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><?php echo icon('book');?>知识库文章</h3>
+				<h3 class="panel-title"><?php echo anchor('knowledgebase', icon('book').'知识库文章');?></h3>
 			</div>
 			<div class="list-group">
 				<?php foreach($articles as $article) {
@@ -140,7 +140,7 @@ $this->load->view('header');?>
 	<div class="col-md-4">
 		<div id="ui-profile" class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><?php echo icon('user');?>个人信息</h3>
+				<h3 class="panel-title"><?php echo anchor('apply/profile', icon('user').'个人信息');?></h3>
 			</div>
 			<div class="panel-body flags-16" style="position: relative;">
 				<a class="thumbnail" style="width: 90px; height: 90px; position: absolute; margin-top: 2px;">
@@ -167,7 +167,7 @@ $this->load->view('header');?>
 		
 		<?php if(!empty($invoices)) { ?><div id="ui-invoice" class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title"><?php echo icon('file-text');?>账单</h3>
+				<h3 class="panel-title"><?php echo anchor('apply/invoice', icon('file-text').'账单');?></h3>
 			</div>
 			<div class="list-group">
 				<?php foreach($invoices as $invoice) { ?><a href="<?php echo base_url("apply/invoice/{$invoice['id']}");?>" class="list-group-item<?php
