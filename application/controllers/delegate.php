@@ -357,6 +357,24 @@ class Delegate extends CI_Controller
 				$this->ciq->parse();
 				
 				$instance_data = $this->ciq->get();
+				
+				$instance_data['application_type_text'] = $this->delegate_model->application_type_text($instance_data['application_type']);
+				$instance_data['status_text'] = $this->delegate_model->status_text($instance_data['status']);
+				switch($this->delegate_model->status_code($instance_data['status']))
+				{
+					case 9:
+						$instance_data['status_class'] = 'success';
+						break;
+					case 10:
+						$instance_data['status_class'] = 'warning';
+						break;
+					case 100:
+						$instance_data['status_class'] = 'danger';
+						break;
+					default:
+						$instance_data['status_class'] = 'primary';
+				}
+				
 				if($instance_data)
 				{
 					$ciq[$instance_id] = array(
