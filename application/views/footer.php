@@ -16,7 +16,10 @@
 						echo anchor($link, icon($social, false), array('style' => 'color: inherit;', 'target' => '_blank')).' ';
 				}
 			} ?></p>
-		&copy; 2008-<?php echo date('Y');?> <a href="http://imunc.com/">IMUNC</a>. All rights reserved.
+		<?php
+		if(!empty(option('site_copyright', '')))
+			echo option('site_copyright', '');
+		else { ?>&copy; 2008-<?php echo date('Y');?> <a href="http://imunc.com/">IMUNC</a>. All rights reserved.<?php } ?>
 	</footer>
 	
 	<?php if(!empty($this->ui->js['footer'])) { ?><script language="javascript"><?php echo is_dev() ? $this->ui->js['footer'] : preg_replace("/\s+/", ' ', $this->ui->js['footer']);?></script><?php } ?>
