@@ -473,7 +473,8 @@ class User_model extends CI_Model
 			'receiver' => $receiver,
 			'text' => $text,
 			'type' => $type,
-			'time' => time()
+			'time' => time(),
+			'status' => 'unread'
 		);
 		
 		//返回新消息ID
