@@ -30,9 +30,8 @@ class Seat_model extends CI_Model
 		$data = $query->row_array();
 		
 		//子席位
-		if(!empty($data['primary']))
+		if(!empty($data['primary']) && $data['primary'] != $data['id'])
 		{
-			//TODO: 递归死循环
 			$primary = $this->get_seat($data['primary']);
 			
 			foreach($data as $key => $value)
@@ -68,9 +67,8 @@ class Seat_model extends CI_Model
 		foreach($query->result_array() as $data)
 		{
 			//子席位
-			if(!empty($data['primary']))
+			if(!empty($data['primary']) && $data['primary'] != $data['id'])
 			{
-				//TODO: 递归死循环
 				$primary = $this->get_seat($data['primary']);
 
 				foreach($data as $key => $value)
