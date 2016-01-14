@@ -9,7 +9,7 @@
 			<?php
 			if($this->ui->is_backend() || $this->ui->is_frontend())
 			{
-				foreach(array('rss', 'renren', 'weibo', 'tencent-weibo', 'wechat', 'qq', 'github', 'twitter', 'facebook', 'google-plus') as $social)
+				foreach(array('rss', 'renren', 'weibo', 'tencent-weibo', 'google', 'wechat', 'qq', 'github', 'twitter', 'facebook') as $social)
 				{
 					$link = option("link_{$social}", false);
 					if($link)
