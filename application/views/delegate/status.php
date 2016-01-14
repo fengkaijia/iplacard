@@ -44,10 +44,16 @@ $this->load->view('header');?>
 			<?php foreach($wizard as $step => $one)
 			{
 				$attr = 'data-html="1" data-placement="bottom" data-trigger="click" data-original-title="'.$one['text'].'" data-toggle="popover" data-content="'.$one['intro'].'"';
+				
+				$class = 'status_intro';
 				if($one['current'])
-					$attr .= ' class="status_intro current"';
-				else
-					$attr .= ' class="status_intro"';
+					$class .= ' current"';
+				if($wizard[0] == $one)
+					$class .= ' first';
+				if(end($wizard) == $one)
+					$class .= ' last';
+				
+				$attr .= " class=\"{$class}\"";
 				
 				$now = $step + 1;
 				$label = $one['current'] ? 'default' : 'primary';
