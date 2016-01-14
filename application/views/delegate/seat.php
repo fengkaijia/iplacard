@@ -82,12 +82,12 @@ $this->load->view('header');?>
 				<?php if(!empty($backorders)) { ?>
 				<hr />
 				
-				<h3>候补席位</h3>
-				<p>您已请求候补了以下席位，在锁定席位前，您有可能被调整为以下席位。</p>
+				<h3>席位候补</h3>
+				<p>您已请求以下席位为候补，在您锁定现有席位前，您将有可能被调整为以下席位。</p>
 				<table id="backorder_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
 					<thead>
 						<tr>
-							<th>席位名称</th>
+							<th>候补席位名称</th>
 							<th>委员会</th>
 							<th>候补请求时间</th>
 						</tr>
@@ -104,22 +104,22 @@ $this->load->view('header');?>
 			</div>
 			
 			<div class="col-md-4">
-				<?php if($seat_mode == 'select') { ?><h3>调整席位选择</h3>
-				<p>您当前已经选择席位，但您的面试官仍可能会继续向您开放席位选择。在您锁定席位前，您可以随时调整您的席位选择。锁定席位后，您将无法调整席位。</p>
+				<?php if($seat_mode == 'select') { ?><h3>更换席位</h3>
+				<p>您当前已经选择席位，但您的面试官稍后仍可能会向您提供更多席位供选择。在您锁定现有席位前，您可以随时更换您的席位；锁定席位后，您将无法更换您的席位。</p>
 				<?php
 				if(!$change_open)
 				{
 					$this->ui->js('footer', "$('#seat_change_lock').popover();");
-					if($delegate['status'] == 'locked') { ?><a id="seat_change_lock" data-original-title="无法选择席位" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="您锁定席位，无法调整席位。" title="">调整席位</a><?php }
-				} else { ?><a id="seat_change_start" href="#select" data-toggle="tab" class="btn btn-primary" onclick="$('.nav-menu li').removeClass('active'); $('#select_tab').addClass('active');">调整席位</a><?php } ?>
+					if($delegate['status'] == 'locked') { ?><a id="seat_change_lock" data-original-title="无法选择新的席位" href="#" class="btn btn-primary" data-toggle="popover" data-placement="right" data-content="您已锁定现有席位，无法更换席位。" title="">更换席位</a><?php }
+				} else { ?><a id="seat_change_start" href="#select" data-toggle="tab" class="btn btn-primary" onclick="$('.nav-menu li').removeClass('active'); $('#select_tab').addClass('active');">更换席位</a><?php } ?>
 				
-				<hr /><?php } else { ?><h3>调整席位分配</h3>
-				<p>当前您已经分配有席位。在您锁定席位前，如果对席位分配结果不满意，您可以随时联系您的面试官调整席位。锁定席位后，您将无法调整席位。</p>
+				<hr /><?php } else { ?><h3>更换席位分配</h3>
+				<p>当前您已经分配有席位。如果对席位分配结果不满意，您可以在您锁定现有席位前随时联系您的面试官（或学术团队成员）调整席位。锁定席位后，您的面试官将无法为您更换席位。</p>
 				
 				<hr /><?php } ?>
 				
 				<?php if($lock_open) { ?><h3>确认锁定席位</h3>
-				<p>现可以确认申请完成并锁定您的席位，锁定后将不会发生变动。</p>
+				<p>现可以确认申请完成并锁定您的席位，锁定后您的席位将不可被调整。</p>
 				<a class="btn btn-primary" href="#" data-toggle="modal" data-target="#lock">立即锁定席位</a><?php $this->load->view('delegate/panel/lock'); } ?>
 			</div>
 		</div><?php } ?>
@@ -204,18 +204,18 @@ $this->load->view('header');?>
 			
 			<div class="col-md-4">
 				<h3>多代席位</h3>
-				<p>您选择的席位为多代席位，本页显示与您合作代表该席位的代表。</p>
-				<p>在显示的信息中，主席位和子席位可能存在等级关系，同时也可能没有区别（例如处理双代席位的情况）。部分尚无代表的席位将会提示尚未分配，随着代表录取和席位滚动的进行，多代信息的名单将会随时变化。</p>
-				<p>我们建议使用提供的电邮地址联系您的合作伙伴。</p>
+				<p>您的席位为多代席位，本页显示与您合作代表该席位的代表。</p>
+				<p>请注意通常情况下，例如常见的双代席位，主席位和子席位没有区别，但部分情况下，例如正副代表席位，主席位和子席位可能存在上下级关系。部分尚无代表的席位将会提示尚未分配，多代名单将随着录取和席位滚动随时变化。</p>
+				<p>我们建议您使用提供的电子邮箱地址和其他信息联系您的合作代表。</p>
 			</div>
 		</div><?php } ?>
 		
 		<?php if($seat_mode == 'select') { ?><div class="tab-pane<?php echo empty($seat) ? ' active' : '';?>" id="select">
 			<div class="col-md-8">
 				<h3>席位分配</h3>
-				<p>我们已经向您分配了 <?php echo $selectability_count;?> 个席位，其中包括了 <?php echo $selectability_primary_count;?> 个主分配席位和 <?php echo $selectability_count - $selectability_primary_count;?> 个候补分配席位。</p>
-				<p>您可以在主分配席位中选择 1 个席位为您的参会席位，同时您在主分配席位和候补分配席位中还可以选择最多 <?php echo $select_backorder_max;?> 个候补席位。由于其他原因（例如席位已经被其他代表选中或者我们尚未决定是否要设置此席位等），您的面试官无法开放部分席位为主分配席位，因此他将此类席位开放为候补分配席位，您可以现在选择这类席位为候补席位，当选中此席位的代表因故退会或调整席位时，您将有机会调整您的席位为此席位。</p>
-				<p>iPlacard 已经加粗显示了面试官推荐的席位。如果您认为您不适合分配的席位，您可以与您的面试官<?php echo anchor('apply/interview', '联系');?>，他将可以根据情况追加席位分配。</p>
+				<p>我们已经向您分配了 <?php echo $selectability_count;?> 个席位，其中包括了 <?php echo $selectability_primary_count;?> 个主分配席位和 <?php echo $selectability_count - $selectability_primary_count;?> 个候补分配席位。如有席位显示为候补分配席位，说明您的面试官无法开放此席位为主分配席位，这通常表示此席位已经被其他代表选中。</p>
+				<p>您可以在主分配席位中选择 1 个席位为您的参会席位，同时在以下所有席位中选择最多 <?php echo $select_backorder_max;?> 个席位为候补。当您候补席位的现有代表因故退会或更换席位导致您候补的席位空出时，您将有机会更换您的席位为此候补席位。因此，通常情况下，您候补的席位难度应当高于您现选中的席位。</p>
+				<p>面试官推荐的席位已被加粗显示。如果您对以下席位感到不满意或不适合，您可以与您的面试官<?php echo anchor('apply/interview', '联系');?>，他将可以向您提供更多席位供选择。</p>
 
 				<table id="selectability_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
 					<thead>
@@ -255,8 +255,9 @@ $this->load->view('header');?>
 			<div class="col-md-4">
 				<h3>选择席位</h3>
 				<div id="pre_select">
-					<p>提交席位选择后，您选择的席位将被临时保留，其他人无法继续选择其为参会席位。</p>
-					<p>点击提交席位选择后，我们将为您生成会费账单，您将可以在 <?php echo option('seat_payment_timeout', 7);?> 天内完成会费支付，支付完成后您的席位将被锁定。如果未能在 <?php echo option('seat_payment_timeout', 7);?> 天内完成会费支付，您的席位将会自动解锁。</p>
+					<?php
+					if(option("invoice_amount_{$delegate['application_type']}", 0) > 0) { ?><p>提交席位选择后，您选择的席位将被临时保留，其他人无法继续选择其为参会席位。同时我们将为您生成会费账单，您将可以在 <?php echo option('seat_payment_timeout', 7);?> 天内完成会费支付，支付完成后您的席位将被锁定。如果未能在 <?php echo option('seat_payment_timeout', 7);?> 天内完成会费支付，您的席位将被自动释放给其他代表选择，您可以在完成会费支付后继续选择此席位或者其他席位。</p><?php }
+					else { ?><p>提交席位选择后，您选择的席位将被临时保留，其他人无法继续选择其为参会席位，直到您锁定席位前，您都可以随时调整席位。</p><?php } ?>
 					<?php
 					if(!$select_open)
 					{
@@ -270,7 +271,7 @@ $this->load->view('header');?>
 				<div id="do_select">
 					<?php
 					echo form_open_multipart('apply/seat/select', array('id' => 'seat_form'), array('seat_primary' => empty($seat) ? '' : $seat['id']));?>
-						<p>请在下方下拉框中选择您的参会席位和候补席位。完成选择后请点击提交席位选择按钮。</p>
+						<p>请在下方下拉框中选择您的参会席位和席位候补。完成选择后请点击提交席位选择按钮。</p>
 
 						<div class="form-group <?php if(form_has_error('primary')) echo 'has-error';?>">
 							<?php echo form_label('席位', 'primary', array('class' => 'control-label'));?>
@@ -289,9 +290,9 @@ $this->load->view('header');?>
 						</div>
 
 						<div class="form-group <?php if(form_has_error('backorder')) echo 'has-error';?>">
-							<?php echo form_label('候补席位', 'backorder', array('class' => 'control-label'));?>
+							<?php echo form_label('席位候补', 'backorder', array('class' => 'control-label'));?>
 							<div>
-								<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, empty($backorders) ? array() : $backordered_seats, $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个候补席位"');
+								<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, empty($backorders) ? array() : $backordered_seats, $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个席位为候补"');
 								if(form_has_error('backorder'))
 									echo form_error('backorder');
 								?>

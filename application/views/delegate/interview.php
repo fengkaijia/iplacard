@@ -49,7 +49,7 @@
 			<div id="countdown_area">
 				<p><?php echo icon('calendar');?>当前面试将于<?php echo sprintf('%1$s（%2$s）', date('n月j日 H:i:s', $current['schedule_time']), nicetime($current['schedule_time']));?>开始。</p>
 				
-				<p><small>在面试开始前一小时，iPlacard 将会发送短信通知。请做好面试准备，面试官将按照约定的方式与您取得联系。如果因故无法于约定的时间参加面试，请提前联系面试官更改时间。</small></p>
+				<p><small>在面试开始前一小时，iPlacard 将会发送短信通知。请做好面试准备，面试官将按照约定的方式与您取得联系。如果因故无法于约定的时间参加面试，请提前联系面试官更改时间。如果您对面试有任何意见，您可以随时于<?php echo safe_mailto(option('site_contact_email', 'contact@iplacard.com'), '联系组委邮箱');?>。</small></p>
 			</div>
 			
 			<hr />
@@ -84,7 +84,7 @@
 					<p style="margin-bottom: 4px; margin-left: 100px;"><?php echo icon('phone').$interviewer['phone'];?></p>
 				</div>
 				
-				<p><small>iPlacard 仅提供负责当前面试的面试官信息，请自行保留早前面试官信息。面试中如有任何问题请与面试官取得联系。</small></p>
+				<p><small>iPlacard 仅会负责您当前面试官的信息，请自行保留早前面试官信息。通常情况下，如有任何问题请与当前面试官取得联系，早前的面试官可能无法进行相关操作。</small></p>
 			</div>
 		</div>
 	</div>

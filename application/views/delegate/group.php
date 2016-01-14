@@ -26,7 +26,7 @@ $this->load->view('header');?>
 	<div class="tab-content">
 		<div class="tab-pane active" id="member">
 			<div class="col-md-12">
-				<p>您是<?php echo icon('users', false).$group['name'];?>代表团成员，当前代表团中有 <strong><?php echo count($delegates);?></strong> 位成员。</p>
+				<p>您是<?php echo icon('users', false).$group['name'];?>代表团成员，当前代表团中有 <strong><?php echo count($delegates);?></strong> 位成员，如果您不应是此代表团成员，请<?php echo safe_mailto(option('site_contact_email', 'contact@iplacard.com'), '联系管理员');?>调整代表团。</p>
 				<table class="table table-bordered table-striped table-hover">
 					<thead>
 						<tr>

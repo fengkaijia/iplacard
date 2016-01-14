@@ -115,7 +115,7 @@ $this->load->view('header');?>
 			
 			<div class="tab-pane" id="addition">
 				<h3>可编辑附加信息</h3>
-				<p>您可以修改以下信息，修改完成后请单击保存。</p>
+				<p>您可以修改以下信息，这类信息通常为住宿、餐饮登记，它们将可能在一定时间后，例如在向宾馆提交名单前停止接受修改，请尽快完成信息填写。修改完成后请单击保存。</p>
 				<?php
 				echo form_open_multipart('apply/profile/edit', array('class' => 'form-horizontal'), array('edit' => true));
 					foreach($addition as $name => $item) { ?><div class="form-group <?php if(form_has_error("addition_$name")) echo 'has-error';?>">
@@ -195,7 +195,7 @@ $this->load->view('header');?>
 								'class' => 'btn btn-primary',
 								'onclick' => 'loader(this);'
 							));
-							if($invoice_notice) { ?><div class="help-block">部分附加信息将可生成账单，此类信息将无法在首次保存后修改。</div><?php } ?>
+							if($invoice_notice) { ?><div class="help-block">部分附加信息将用于生成对应的账单，此类信息将无法在首次保存后更改。</div><?php } ?>
 						</div>
 					</div>
 				<?php echo form_close();?>
@@ -207,10 +207,9 @@ $this->load->view('header');?>
 		<h3>编辑信息</h3>
 		<p>由于会务变动需要，您提交的申请单中可能并没有包含全部的申请及会务信息。随着会议准备工作的进行，我们将会不断添加更多信息编辑请求。</p>
 		<?php if(!empty($addition)) { ?>
-		<p>当前有 <strong><?php echo count($addition);?></strong> 项信息可编辑。</p>
+		<p>当前有 <strong><?php echo count($addition);?></strong> 项信息可以编辑，请尽快完成填写。</p>
 		<p><a class="btn btn-primary" href="#addition" data-toggle="tab" onclick="$('.nav-menu li').removeClass('active'); $('#addition_tab').addClass('active');"><?php echo icon('edit');?>编辑信息</a></p>
 		<?php } else { ?><p>当前没有信息需要编辑。</p><?php } ?>
-		<p>当有新的附加信息请求时 iPlacard 将会以邮件方式通知您。</p>
 	</div>
 </div>
 

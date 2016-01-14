@@ -106,7 +106,7 @@ $this->load->view('header');?>
 	<div class="col-md-4">
 		<?php echo form_open("document/zip/1", array('id' => 'zip')); ?>
 			<h3>下载文件合集</h3>
-			<p>您可以打包下载指定文件格式的所有文件，文件合集将会以 ZIP 压缩包格式提供，可以使用常用的解压缩软件打开。请在下方选择框中选择需要下载的文件格式。</p>
+			<p>您可以打包下载指定文件格式的所有文件，文件合集将会以 ZIP 压缩包格式提供，可以使用通用的解压缩软件打开。请在下方选择框中选择需要下载的文件格式。</p>
 			<div class="form-group" style="margin-bottom: 0px;">
 				<?php
 				echo form_label('文件格式', 'format', array('class' => 'control-label'));
