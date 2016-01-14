@@ -468,7 +468,7 @@ $this->load->view('header');?>
 					
 					elseif($seat_assignable) { ?><h3>更改席位分配</h3>
 					<p>如需更换代表的席位，请点击更改席位分配。</p>
-					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('pencil');?>更改席位分配</a></p><?php }?>
+					<p><a class="btn btn-primary" onclick="open_seat();"><?php echo icon('pencil');?>更改席位分配</a></p><?php } ?>
 				</div><?php } ?>
 				
 				<?php
