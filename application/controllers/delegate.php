@@ -1875,6 +1875,72 @@ class Delegate extends CI_Controller
 				}
 				
 				break;
+			
+			//移出等待队列
+			case 'accept_waitlist':
+				if($delegate['status'] != 'moved_to_waiting_list')
+					break;
+				
+				$this->load->model('interview_model');
+				
+				$interviewer = $this->admin_model->get_admin($this->input->post('interviewer'));
+				if(!$interviewer)
+				{
+					$this->ui->alert('面试官不存在。', 'warning', true);
+					break;
+				}
+				if(!$this->admin_model->capable('interviewer', $interviewer['id']))
+				{
+					$this->ui->alert('指派的面试官没有对应面试权限。', 'warning', true);
+					break;
+				}
+				
+				$this->interview_model->assign_interview($uid, $interviewer['id'], true);
+				
+				$this->delegate_model->change_status($uid, 'interview_completed');
+				
+				$this->user_model->add_message($uid, "我们已将您从等待队列中移出，面试官{$interviewer['name']}将在近期内为您分配席位。");
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'interviewer' => $interviewer['name'],
+					'time' => unix_to_human(time())
+				);
+				
+				//邮件通知代表
+				$this->email->to($delegate['email']);
+				$this->email->subject('等待队列通过通知');
+				$this->email->html($this->parser->parse_string(option('email_delegate_waitlist_accepted', "我们已经于 {time} 将您从等待队列中移出，面试官{interviewer}将为您分配席位，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				$this->email->clear();
+				
+				//邮件通知面试官
+				$this->email->to($interviewer['email']);
+				$this->email->subject('新的分配席位请求');
+				$this->email->html($this->parser->parse_string(option('email_interviewer_waitlist_accepted', "管理员已经于 {time} 将{delegate}代表从等待队列中移出并安排您为其分配席位。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+					
+					$this->sms->to($uid);
+					$this->sms->message('您已通过等待队列，将有面试官直接为您分配席位，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->queue();
+				}
+				
+				$this->ui->alert("已经将代表从等待队列中移除并安排{$interviewer['name']}为其分配席位。", 'success', true);
+				
+				$this->system_model->log('waitlist_accepted', array('delegate' => $uid, 'interviewer' => $interviewer['id']));
+				break;
 				
 			//重发欢迎邮件
 			case 'resend_email':
@@ -3217,6 +3283,51 @@ class Delegate extends CI_Controller
 				$vars['assigned'] = $assigned;
 				
 				return $this->load->view('admin/admission/assign_seat', $vars, true);
+			
+			//移除等待队列界面
+			case 'moved_to_waiting_list':
+				if(!$this->admin_model->capable('reviewer'))
+					break;
+				
+				$this->load->model('interview_model');
+				$this->load->model('committee_model');
+				
+				$list_ids = $this->admin_model->get_admin_ids('role_interviewer', true);
+				
+				//获取可选择面试官列表
+				$select = array();
+				$committees = array();
+				$count = 0;
+				
+				if($list_ids)
+				{
+					foreach($list_ids as $id)
+					{
+						$admin = $this->admin_model->get_admin($id);
+						
+						//面试官队列数
+						$queues = $this->interview_model->get_interviewer_interviews($id, array('assigned', 'arranged'));
+						$queue = !$queues ? 0 : count($queues);
+						
+						$committee = empty($admin['committee']) ? 0 : $admin['committee'];
+						if($committee > 0 && !isset($committees[$committee]))
+							$committees[$committee] = $this->committee_model->get_committee($committee);
+						
+						$select[$committee][] = array(
+							'id' => $id,
+							'name' => $admin['name'],
+							'title' => $admin['title'],
+							'queue' => $queue
+						);
+					}
+					
+					$count = count($list_ids);
+				}
+				$vars['select'] = $select;
+				$vars['interviewer_count'] = $count;
+				$vars['committees'] = $committees;
+				
+				return $this->load->view('admin/admission/accept_waitlist', $vars, true);
 		}
 		
 		return '';
