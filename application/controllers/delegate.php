@@ -1426,6 +1426,8 @@ class Delegate extends CI_Controller
 					else
 					{
 						$this->delegate_model->change_status($uid, 'moved_to_waiting_list');
+						
+						$this->delegate_model->add_event($uid, 'waitlist_entered');
 
 						$this->user_model->add_message($uid, "很遗憾，您未能通过二次面试。您的申请已经移入等待队列。");
 						
@@ -1898,6 +1900,8 @@ class Delegate extends CI_Controller
 				$this->interview_model->assign_interview($uid, $interviewer['id'], true);
 				
 				$this->delegate_model->change_status($uid, 'interview_completed');
+				
+				$this->delegate_model->add_event($uid, 'waitlist_accepted');
 				
 				$this->user_model->add_message($uid, "我们已将您从等待队列中移出，面试官{$interviewer['name']}将在近期内为您分配席位。");
 				

@@ -271,6 +271,26 @@ class Event
 	}
 	
 	/**
+	 * 移入等待队列事件
+	 */
+	function _event_waitlist_entered()
+	{
+		$this->title = '移入等待队列';
+		$this->level = 'warning';
+		$this->icon = 'clock-o';
+	}
+	
+	/**
+	 * 移入等待队列事件
+	 */
+	function _event_waitlist_accepted()
+	{
+		$this->title = '移出等待队列';
+		$this->level = 'primary';
+		$this->icon = 'clock-o';
+	}
+	
+	/**
 	 * 席位已分配事件
 	 */
 	function _event_seat_assigned()
