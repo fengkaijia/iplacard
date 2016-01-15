@@ -2277,6 +2277,74 @@ class Delegate extends CI_Controller
 				
 				$this->system_model->log('delegate_quitted', array('delegate' => $uid));
 				break;
+			
+			//取消退会
+			case 'unquit':
+				$old = user_option('quit_status', 'application_imported', $uid);
+				
+				//确定新申请状态
+				$status = 'application_imported';
+				switch($old)
+				{
+					case 'application_imported':
+					case 'review_passed':
+					case 'review_refused':
+					case 'interview_completed':
+					case 'waitlist_entered':
+					case 'seat_assigned':
+						$status = $old;
+						break;
+					case 'interview_assigned':
+					case 'interview_arranged':
+						$status = 'review_passed';
+						break;
+					case 'seat_selected':
+					case 'invoice_issued':
+					case 'payment_received':
+					case 'locked':
+						$status = 'seat_assigned';
+				}
+				
+				$this->delegate_model->change_status($uid, $status);
+				
+				$this->user_model->delete_user_option('quit_status', $uid);
+				$this->user_model->delete_user_option('quit_time', $uid);
+				$this->user_model->delete_user_option('quit_operator', $uid);
+				$this->user_model->delete_user_option('quit_reason', $uid);
+				
+				$this->delegate_model->add_event($uid, 'unquitted');
+				
+				//邮件通知
+				$this->load->library('email');
+				$this->load->library('parser');
+				$this->load->helper('date');
+				
+				$data = array(
+					'uid' => $uid,
+					'delegate' => $delegate['name'],
+					'time' => unix_to_human(time())
+				);
+				
+				$this->email->to($delegate['email']);
+				$this->email->subject('您已取消退会');
+				$this->email->html($this->parser->parse_string(option('email_delegate_unquitted', "管理员已经于 {time} 取消了您的退会状态，请登录 iPlacard 系统查看申请状态。"), $data, true));
+				$this->email->send();
+				
+				//短信通知代表
+				if(option('sms_enabled', false))
+				{
+					$this->load->model('sms_model');
+					$this->load->library('sms');
+					
+					$this->sms->to($uid);
+					$this->sms->message('管理员已经取消了您的退会状态，您的申请将会继续，请登录 iPlacard 系统查看申请状态。');
+					$this->sms->queue();
+				}
+				
+				$this->ui->alert("已经取消{$delegate['name']}代表的退会状态。", 'success', true);
+				
+				$this->system_model->log('delegate_unquitted', array('delegate' => $uid));
+				break;
 				
 			//永久删除用户帐户
 			case 'delete_account':
@@ -3349,7 +3417,15 @@ class Delegate extends CI_Controller
 			'uid' => $delegate['id'],
 			'delegate' => $delegate
 		);
-				
+		
+		//取消退会
+		if($this->admin_model->capable('administrator') && $delegate['status'] == 'quitted')
+		{
+			$html .= $this->load->view('admin/admission/unquit', $vars + array(
+				'quit_reason' => user_option('quit_reason', '', $delegate['id'])
+			), true);
+		}
+		
 		//恢复帐户
 		if($this->admin_model->capable('administrator') && $delegate['status'] == 'deleted')
 		{

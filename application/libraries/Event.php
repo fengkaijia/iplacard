@@ -614,6 +614,18 @@ class Event
 	}
 	
 	/**
+	 * 取消退会事件
+	 */
+	function _event_unquitted()
+	{
+		$this->title = '退会取消';
+		$this->level = 'success';
+		$this->icon = 'undo';
+		
+		$this->text = "管理员取消了代表的退会状态。";
+	}
+	
+	/**
 	 * 计划删除事件
 	 */
 	function _event_deleted()
