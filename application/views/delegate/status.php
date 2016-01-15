@@ -81,13 +81,8 @@ $this->load->view('header');?>
 			<div class="panel-heading">
 				<h3 class="panel-title"><?php echo icon('info');?>申请状态</h3>
 			</div>
-			<div class="panel-body flags-16">
-				<?php
-				foreach($wizard as $step => $one)
-				{
-					if($one['current'])
-						echo $one['intro'];
-				} ?>
+			<div class="panel-body">
+				<?php echo $status_intro;?>
 			</div>
 		</div>
 		

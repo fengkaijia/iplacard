@@ -293,6 +293,9 @@ class Apply extends CI_Controller
 		//公告
 		$vars['announcement'] = option('site_announcement', '');
 		
+		//申请状态介绍
+		$vars['status_intro'] = $this->_status_intro($this->delegate['status']);
+		
 		$seat_mode = option('seat_mode', 'select');
 		$vars['seat_mode'] = $seat_mode;
 		
@@ -2041,56 +2044,174 @@ class Apply extends CI_Controller
 		if(empty($status))
 			$status = $this->delegate['status'];
 		
+		$interview_enabled = option("interview_{$this->delegate['application_type']}_enabled", option('interview_enabled', $this->delegate['application_type'] == 'delegate'));
+		$seat_enabled = $this->delegate['application_type'] == 'delegate' && option('seat_enabled', true);
+		$seat_mode = option('seat_mode', 'select');
+		$seat_lock = option('seat_lock_open', true);
+		
 		switch($status)
 		{
+			//进度面板显示提示
 			case 'signin':
-				$intro = '<p style=\'margin-bottom: 0;\'>您的申请已经成功导入到 iPlacard。</p>';
+				$intro = "<p style='margin-bottom: 0;'>iPlacard 成功导入您的申请并建立帐号。</p>";
 				break;
-			case 'application_imported':
-			case 'review_refused':
 			case 'admit':
-				$intro = '<p>您的申请已经成功导入到 iPlacard，我们将在近期内审核您提交的申请材料。在此期间，请核对您的申请材料，如果内容有误，您将可以修改部分数据。</p>'
-					. '<p style=\'margin-bottom: 0;\'>材料审核通过之后，您将进入下一申请流程。</p>';
+				$intro = "<p style='margin-bottom: 0;'>您的材料将在此阶段通过审核。</p>";
 				break;
-			case 'review_passed':
-			case 'interview_assigned':
-			case 'interview_arranged':
-			case 'interview_completed':
 			case 'interview':
-				$intro = '<p>在面试阶段中，我们将会根据您的委员会意向指派一位面试官，他将与您取得联系并且确定面试时间和面试方式。</p>'
-					. '<p>请尽量为面试预留足够的时间，如果您无法在约定的时间进行面试，请联系您的面试官，他将会重新为您安排面试时间。</p>'
-					. '<p style=\'margin-bottom: 0;\'>如果面试没有通过，您将进入等待队列。</p>';
+				$intro = "<p>我们将根据意向指派一位面试官进行面试。面试官可以根据面试情况决定是否通过面试及是否需要进行复试。</p><p style='margin-bottom: 0;'>如果您未能通过面试，您将进入等待队列，我们将在后续为您提供空余席位。</p>";
 				break;
-			case 'seat_assigned':
-			case 'seat_selected':
 			case 'seat':
-				$intro = '<p>面试通过之后，面试官将会根据您的面试表现为您分配适合的席位选择。通常情况下，面试官将在完成面试后立即为您分配合适的席位选择。</p>'
-					. '<p style=\'margin-bottom: 0;\'>席位分配后，您将可以在席位信息页面选择并确认席位；如果您认为分配的席位不适合您，请联系您的面试官，他将可以为您重新分配席位。</p>';
+				if($seat_mode == 'select')
+				{
+					if($interview_enabled)
+						$intro = "<p>您的面试官将在此阶段向您开放席位，您可以从中选择参会席位及设置席位候补。</p><p style='margin-bottom: 0;'>如果对您的席位选项不满意，您可以联系面试官，他将可以向您提供更多的席位供您选择。</p>";
+					else
+						$intro = "<p>我们将在此阶段向您开放席位，您可以从中选择参会席位及设置席位候补。</p><p style='margin-bottom: 0;'>如果对您的席位选项不满意，您可以联系我们，我们将可以向您提供更多的席位供您选择。</p>";
+				}
+				else
+				{
+					if($interview_enabled)
+						$intro = "<p style='margin-bottom: 0;'>您的面试官将在此阶段为您分配参会席位。如果对席位分配不满意，您可以联系我们更换您的席位分配。</p>";
+					else
+						$intro = "<p style='margin-bottom: 0;'>我们将在此阶段为您分配参会席位。如果对席位分配不满意，您可以联系我们更换您的席位分配。</p>";
+				}
 				break;
-			case 'invoice_issued':
-			case 'payment_received':
 			case 'pay':
-				$intro = '<p style=\'margin-bottom: 0;\'>您将可以通过银行转账、网银支付或者邮政汇款完成会费支付，我们将在收到汇款之后确定完成支付。</p>';
+				$intro = "<p style='margin-bottom: 0;'>您的会费账单将在此阶段生成，您将可以通过多种方式完成会费支付。</p>";
 				break;
-			case 'locked':
-			case 'moved_to_waiting_list':
 			case 'lock':
 				if($this->delegate['status'] == 'moved_to_waiting_list')
-					$intro = '<p style=\'margin-bottom: 0;\'>您已经移动到等待队列。我们将会通过邮件通知您后续事宜，请频繁检查您的电子邮箱并定期登录 iPlacard 了解更新。</p>';
+					$intro = "<p style='margin-bottom: 0;'>您未能通过面试，现在您正在等待队列中。我们将在后续为您提供空余席位，请等待进一步通知。</p>";
 				else
-					$intro = '<p style=\'margin-bottom: 0;\'>您已经完成申请流程。我们将会通过邮件通知您后续事宜，请频繁检查您的电子邮箱并定期登录 iPlacard 了解更新。</p>';
+				{
+					if($seat_enabled)
+						$intro = "<p style='margin-bottom: 0;'>您将可以在此阶段完成申请并锁定您的席位。</p>";
+					else
+						$intro = "<p style='margin-bottom: 0;'>您的申请将在此阶段完成。</p>";
+				}
+				break;
+			case 'quit':
+				$lock_time = option('delegate_quit_lock', 7);
+				
+				$intro = "<p style='margin-bottom: 0;'>您已退会，您的 iPlacard 帐户数据将在 {$lock_time} 天内被停用，届时您将无法登录系统。</p>";
+				break;
+			//申请状态面板显示提示
+			case 'application_imported':
+				$link_settings = anchor('account/settings/home', '设置');
+				$link_contact = safe_mailto(option('site_contact_email', 'contact@iplacard.com'), '联系我们');
+				
+				$intro = "<p>我们将在近期内审核您的申请材料。在此期间，请核对您的申请材料，如果有误请{$link_contact}修改信息。同时，你可以在{$link_settings}中修改密码并更改您的邮箱、手机等信息。</p><p style='margin-bottom: 0;'>材料审核通过之后，您将进入下一申请流程。</p>";
+				break;
+			case 'review_refused':
+				$intro = "<p style='margin-bottom: 0;'>很遗憾，您的申请未通过审核，再次感谢您参与申请本次会议。</p>";
+				break;
+			case 'review_passed':
+				$this->load->model('interview_model');
+				
+				$interview_status = '';
+				$current_interview = $this->interview_model->get_current_interview_id($this->uid);
+				if($interview_enabled && $current_interview)
+					$interview_status = $this->interview_model->get_interview($current_interview, 'status');
+				
+				if($interview_enabled && $interview_status == 'failed')
+					$intro = "<p style='margin-bottom: 0;'>您未能通过上次面试，接下来我们将会为您指派新面试官，他将联系您安排二次面试。</p>";
+				elseif($interview_enabled && $interview_status == 'completed')
+					$intro = "<p style='margin-bottom: 0;'>您已通过面试，按照面试官要求，我们将为您安排新的面试官进行复试。</p>";
+				elseif($interview_enabled)
+					$intro = "<p style='margin-bottom: 0;'>我们已经审核通过了您的申请材料，接下来我们将会为您指派面试官，他将联系您安排面试。</p>";
+				elseif($seat_enabled)
+					$intro = "<p style='margin-bottom: 0;'>我们已经审核通过了您的申请材料，接下来我们将会为您分配席位。</p>";
+				else
+					$intro = "<p style='margin-bottom: 0;'>我们已经审核通过了您的申请材料。</p>";
+				break;
+			case 'interview_assigned':
+				$link_interview = anchor('apply/interview', '面试信息页面');
+				
+				$intro = "<p>我们已经为您分配了面试官，他将在近期联系您安排面试时间。</p><p style='margin-bottom: 0;'>您可以在{$link_interview}中查看您的面试官信息。</p>";
+				break;
+			case 'interview_arranged':
+				$link_interview = anchor('apply/interview', '面试信息页面');
+				
+				$intro = "<p>您的面试官已经将安排了面试时间。您可以在{$link_interview}中查看面试安排。</p><p style='margin-bottom: 0;'>在面试开始前一小时，iPlacard 将会通过邮件或短信通知您相关面试。</p>";
+				break;
+			case 'interview_completed':
+				$link_interview = anchor('apply/interview', '面试结果');
+				
+				if($seat_enabled)
+				{
+					if($seat_mode == 'select')
+						$intro = "<p>您已完成面试，您可以查看{$link_interview}。</p><p style='margin-bottom: 0;'>稍后您的面试官将根据您的面试表现为您提供合适的席位，您将可以从中选择参会席位。</p>";
+					else
+						$intro = "<p>您已完成面试，您可以查看{$link_interview}。</p><p style='margin-bottom: 0;'>接下来，您的面试官将会为您分配参会席位。</p>";
+				}
+				else
+					$intro = "<p style='margin-bottom: 0;'>您已完成面试，您可以查看{$link_interview}。</p>";
+				break;
+			case 'seat_assigned':
+				$link_seat = anchor('apply/seat', '席位');
+				
+				if($seat_mode == 'select')
+				{
+					if($interview_enabled)
+						$intro = "<p>您的面试官已经开放了席位选项，请查看可选的{$link_seat}并选择您的参会席位。</p><p style='margin-bottom: 0;'>如果对您的席位选项不满意，您可以联系面试官，他将可以向您提供更多的席位供您选择。请注意，单个席位可能同时向多位代表开放，请尽快选择席位。</p>";
+					else
+						$intro = "<p>我们已经向您开放了席位选项，请查看可选的{$link_seat}并选择您的参会席位。</p><p style='margin-bottom: 0;'>如果对您的席位选项不满意，您可以联系我们向您提供更多的席位供您选择。请注意，单个席位可能同时向多位代表开放，请尽快选择席位。</p>";
+				}
+				else
+				{
+					if($seat_lock)
+						$intro = "<p>我们已经为您分配了席位，请查看您的{$link_seat}。</p><p style='margin-bottom: 0;'>现在，您可以锁定您的席位。如果对席位分配不满意，您可以联系我们更换您的席位分配。</p>";
+					else
+						$intro = "<p>我们已经为您分配了席位，请查看您的{$link_seat}。</p><p style='margin-bottom: 0;'>如果对席位分配不满意，您可以联系我们更换您的席位分配。</p>";
+				}
+				break;
+			case 'seat_selected':
+				$link_seat = anchor('apply/seat', '席位');
+				
+				if($seat_lock)
+					$intro = "<p>您已经选择了席位，您可以随时在{$link_seat}中调整您的席位。</p><p style='margin-bottom: 0;'>现在，您可以锁定您的席位。</p>";
+				else
+					$intro = "<p style='margin-bottom: 0;'>您已经选择了席位，您可以随时在{$link_seat}中调整您的席位。</p>";
+				break;
+			case 'invoice_issued':
+				$payment_time = option('seat_payment_timeout', 7);
+				$link_invoice = anchor('apply/invoice', '账单');
+				
+				$intro = "<p>您的会费{$link_invoice}已经生成，您需要在 {$payment_time} 天内支付您的账单。</p><p style='margin-bottom: 0;'>如果您使用线下方式支付，请在支付完成后访问{$link_invoice}页面填写支付信息，我们将在稍后确认您的汇款。</p>";
+				break;
+			case 'payment_received':
+				if($seat_enabled)
+				{
+					if($seat_lock)
+						$intro = "<p>我们已经收到并确认了您的汇款，您已经完成了申请流程。</p><p style='margin-bottom: 0;'>现在，您可以锁定您的席位并完成申请，在此之前，您仍可以调整您席位。</p>";
+					else
+						$intro = "<p style='margin-bottom: 0;'>我们已经收到并确认了您的汇款，您已经完成了申请流程。稍后，您将可以锁定您的席位，在此之前，您仍可以调整您席位。</p>";
+				}
+				else
+					$intro = "<p style='margin-bottom: 0;'>我们已经收到并确认了您的汇款，您已经完成了申请流程。</p>";
+				break;
+			case 'locked':
+				if($seat_enabled)
+					$intro = "<p style='margin-bottom: 0;'>您已经完成了申请流程并锁定了席位。我们将会通过邮件和短信通知后续事项。会场见！</p>";
+				else
+					$intro = "<p style='margin-bottom: 0;'>您已经完成了申请流程。我们将会通过邮件和短信通知后续事项。会场见！</p>";
+				break;
+			case 'moved_to_waiting_list':
+				$intro = "<p style='margin-bottom: 0;'>很遗憾，您未能通过面试，现在您正在等待队列中。我们将在后续为您提供空余席位，请等待进一步通知。</p>";
 				break;
 			case 'quitted':
-			case 'quit':
 				$this->load->helper('date');
-				
 				$lock_time = user_option('quit_time', time()) + option('delegate_quit_lock', 7) * 24 * 60 * 60;
-				$intro = '<p style=\'margin-bottom: 0;\'>您已退会，您的 iPlacard 帐户数据将在 <span id=\'clock_lock\'>'.nicetime($lock_time).'</span> 秒内删除，届时您将无法登录系统。如果这是管理员的误操作请立即联系管理员恢复帐户。</p>';
-				
 				$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.countdown.js' : 'static/js/jquery.countdown.min.js').'"></script>');
 				$this->ui->js('footer', "$('#clock_lock').countdown({$lock_time} * 1000, function(event) {
 					$(this).html(event.strftime('%-D 天 %H:%M:%S'));
 				});");
+				
+				$lock_nicetime = nicetime($lock_time);
+				$link_contact = safe_mailto(option('site_contact_email', 'contact@iplacard.com'), '联系管理员');
+				
+				$intro = "<p style='margin-bottom: 0;'>您已退会，您的 iPlacard 帐户数据将在 <span id='clock_lock'>{$lock_nicetime}</span> 秒内被停用，届时您将无法登录系统。如果这是管理员的误操作请立即{$link_contact}恢复帐户。</p>";
 				break;
 			default:
 				$intro = '';
