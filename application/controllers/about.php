@@ -42,6 +42,14 @@ class About extends CI_Controller
 		$this->ui->background();
 		$this->load->view('book');
 	}
+	
+	/**
+	 * 作者
+	 */
+	function author()
+	{
+		redirect('http://kaijia.me/');
+	}
 }
 
 /* End of file about.php */
