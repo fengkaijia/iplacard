@@ -1425,7 +1425,7 @@ class Delegate extends CI_Controller
 					}
 					else
 					{
-						$this->delegate_model->change_status($uid, 'moved_to_waiting_list');
+						$this->delegate_model->change_status($uid, 'waitlist_entered');
 						
 						$this->delegate_model->add_event($uid, 'waitlist_entered');
 
@@ -1880,7 +1880,7 @@ class Delegate extends CI_Controller
 			
 			//移出等待队列
 			case 'accept_waitlist':
-				if($delegate['status'] != 'moved_to_waiting_list')
+				if($delegate['status'] != 'waitlist_entered')
 					break;
 				
 				$this->load->model('interview_model');
@@ -3289,7 +3289,7 @@ class Delegate extends CI_Controller
 				return $this->load->view('admin/admission/assign_seat', $vars, true);
 			
 			//移除等待队列界面
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				if(!$this->admin_model->capable('reviewer'))
 					break;
 				
@@ -3491,7 +3491,7 @@ class Delegate extends CI_Controller
 			$status = array();
 			foreach(explode(',', $post['status']) as $param_status)
 			{
-				if(in_array($param_status, array('application_imported', 'review_passed', 'review_refused', 'interview_assigned', 'interview_arranged', 'interview_completed', 'moved_to_waiting_list', 'seat_assigned', 'seat_selected', 'invoice_issued', 'payment_received', 'locked', 'quitted', 'deleted')))
+				if(in_array($param_status, array('application_imported', 'review_passed', 'review_refused', 'interview_assigned', 'interview_arranged', 'interview_completed', 'waitlist_entered', 'seat_assigned', 'seat_selected', 'invoice_issued', 'payment_received', 'locked', 'quitted', 'deleted')))
 					$status[] = $param_status;
 			}
 			if(!empty($status))
@@ -3587,7 +3587,7 @@ class Delegate extends CI_Controller
 		if($status_code == $this->delegate_model->status_code('review_refused'))
 			return false;
 		
-		if($status_code == $this->delegate_model->status_code('moved_to_waiting_list'))
+		if($status_code == $this->delegate_model->status_code('waitlist_entered'))
 			return false;
 
 		if($status_code == $this->delegate_model->status_code('quitted'))

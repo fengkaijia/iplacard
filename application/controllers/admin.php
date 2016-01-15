@@ -1641,7 +1641,7 @@ class Admin extends CI_Controller
 					'interview_assigned',
 					'interview_arranged',
 					'interview_completed',
-					'moved_to_waiting_list',
+					'waitlist_entered',
 					'seat_assigned',
 					'invoice_issued',
 					'payment_received',

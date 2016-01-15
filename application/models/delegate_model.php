@@ -189,7 +189,7 @@ class Delegate_model extends CI_Model
 			'interview_assigned', //在面试队列
 			'interview_arranged', //等待面试（面试时间已经确定）
 			'interview_completed', //面试通过
-			'moved_to_waiting_list', //在等待队列
+			'waitlist_entered', //在等待队列
 			'seat_assigned', //席位已分配
 			'seat_selected', //席位已选择
 			'invoice_issued', //等待支付账单
@@ -219,7 +219,7 @@ class Delegate_model extends CI_Model
 			'interview_assigned' => 2, //在面试队列
 			'interview_arranged' => 3, //等待面试（面试时间已经确定）
 			'interview_completed' => 4, //面试通过
-			'moved_to_waiting_list' => 8, //在等待队列
+			'waitlist_entered' => 8, //在等待队列
 			'seat_assigned' => 5, //席位已分配
 			'seat_selected' => 7, //席位已选择
 			'invoice_issued' => 6, //等待支付账单
@@ -263,7 +263,7 @@ class Delegate_model extends CI_Model
 				return '已安排面试';
 			case 'interview_completed':
 				return '面试通过';
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				return '在等待队列';
 			case 'seat_assigned':
 				return '席位已分配';

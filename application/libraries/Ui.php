@@ -444,8 +444,8 @@ class UI
 		
 		if($this->CI->admin_model->capable('administrator'))
 		{
-			if($this->CI->delegate_model->get_delegate_ids('status', 'moved_to_waiting_list'))
-				$this->add_sub_menu('waited', 'delegate', '等待队列代表', 'delegate/manage?status=moved_to_waiting_list');
+			if($this->CI->delegate_model->get_delegate_ids('status', 'waitlist_entered'))
+				$this->add_sub_menu('waited', 'delegate', '等待队列代表', 'delegate/manage?status=waitlist_entered');
 			
 			if($this->CI->delegate_model->get_delegate_ids('status', 'quitted'))
 				$this->add_sub_menu('quitted', 'delegate', '退会代表', 'delegate/manage?status=quitted');

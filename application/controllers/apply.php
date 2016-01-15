@@ -1328,7 +1328,7 @@ class Apply extends CI_Controller
 				$w['pay'] = NULL;
 				$w['lock'] = NULL;
 				break;
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$w['signin'] = '申请已录入';
 				$w['admit'] = '初审已通过';
 				$w['interview'] = '面试未通过';
@@ -1361,7 +1361,7 @@ class Apply extends CI_Controller
 				$current = 'pay';
 				break;
 			case 'locked':
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$current = 'lock';
 				break;
 		}
@@ -1428,7 +1428,7 @@ class Apply extends CI_Controller
 				$w['pay'] = NULL;
 				$w['lock'] = NULL;
 				break;
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$w['signin'] = '申请已录入';
 				$w['admit'] = '初审已通过';
 				$w['seat'] = NULL;
@@ -1455,7 +1455,7 @@ class Apply extends CI_Controller
 				$current = 'pay';
 				break;
 			case 'locked':
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$current = 'lock';
 				break;
 		}
@@ -1534,7 +1534,7 @@ class Apply extends CI_Controller
 				$w['seat'] = NULL;
 				$w['lock'] = NULL;
 				break;
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$w['signin'] = '申请已录入';
 				$w['admit'] = '初审已通过';
 				$w['interview'] = '面试未通过';
@@ -1562,7 +1562,7 @@ class Apply extends CI_Controller
 				$current = 'seat';
 				break;
 			case 'locked':
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$current = 'lock';
 				break;
 		}
@@ -1625,7 +1625,7 @@ class Apply extends CI_Controller
 				$w['seat'] = NULL;
 				$w['lock'] = NULL;
 				break;
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$w['signin'] = '申请已录入';
 				$w['admit'] = '初审已通过';
 				$w['seat'] = NULL;
@@ -1647,7 +1647,7 @@ class Apply extends CI_Controller
 				$current = 'seat';
 				break;
 			case 'locked':
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$current = 'lock';
 				break;
 		}
@@ -1726,7 +1726,7 @@ class Apply extends CI_Controller
 				$w['pay'] = NULL;
 				$w['lock'] = NULL;
 				break;
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$w['signin'] = '申请已录入';
 				$w['admit'] = '初审已通过';
 				$w['interview'] = '面试未通过';
@@ -1755,7 +1755,7 @@ class Apply extends CI_Controller
 				$current = 'pay';
 				break;
 			case 'locked':
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$current = 'lock';
 				break;
 		}
@@ -1843,7 +1843,7 @@ class Apply extends CI_Controller
 				$current = 'pay';
 				break;
 			case 'locked':
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$current = 'lock';
 				break;
 		}
@@ -1918,7 +1918,7 @@ class Apply extends CI_Controller
 				$w['interview'] = NULL;
 				$w['lock'] = NULL;
 				break;
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$w['signin'] = '申请已录入';
 				$w['admit'] = '初审已通过';
 				$w['interview'] = '面试未通过';
@@ -1942,7 +1942,7 @@ class Apply extends CI_Controller
 				$current = 'interview';
 				break;
 			case 'locked':
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$current = 'lock';
 				break;
 		}
@@ -2081,7 +2081,7 @@ class Apply extends CI_Controller
 				$intro = "<p style='margin-bottom: 0;'>您的会费账单将在此阶段生成，您将可以通过多种方式完成会费支付。</p>";
 				break;
 			case 'lock':
-				if($this->delegate['status'] == 'moved_to_waiting_list')
+				if($this->delegate['status'] == 'waitlist_entered')
 					$intro = "<p style='margin-bottom: 0;'>您未能通过面试，现在您正在等待队列中。我们将在后续为您提供空余席位，请等待进一步通知。</p>";
 				else
 				{
@@ -2197,7 +2197,7 @@ class Apply extends CI_Controller
 				else
 					$intro = "<p style='margin-bottom: 0;'>您已经完成了申请流程。我们将会通过邮件和短信通知后续事项。会场见！</p>";
 				break;
-			case 'moved_to_waiting_list':
+			case 'waitlist_entered':
 				$intro = "<p style='margin-bottom: 0;'>很遗憾，您未能通过面试，现在您正在等待队列中。我们将在后续为您提供空余席位，请等待进一步通知。</p>";
 				break;
 			case 'quitted':
