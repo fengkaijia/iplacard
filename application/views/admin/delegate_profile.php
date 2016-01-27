@@ -296,7 +296,7 @@ $this->load->view('header');?>
 					</tbody>
 				</table><?php } ?>
 				
-				<?php if(!empty($profile['test'])) { ?><h3 id="ciq">参会历史</h3>
+				<?php if(!empty($ciq)) { ?><h3 id="ciq">参会历史</h3>
 				<p>在向本系统开放查询权限的其他 iPlacard 实例中共找到了 <?php echo count($ciq);?> 条<?php echo icon('user', false).$profile['name'];?>代表的参会记录。</p>
 				<table class="table table-bordered table-striped table-hover">
 					<thead>
