@@ -379,6 +379,9 @@ class Delegate extends CI_Controller
 				
 				$instance_data = $this->ciq->get();
 				
+				if(!$instance_data)
+					continue;
+				
 				$instance_data['application_type_text'] = $this->delegate_model->application_type_text($instance_data['application_type']);
 				$instance_data['status_text'] = $this->delegate_model->status_text($instance_data['status']);
 				switch($this->delegate_model->status_code($instance_data['status']))
@@ -396,14 +399,11 @@ class Delegate extends CI_Controller
 						$instance_data['status_class'] = 'primary';
 				}
 				
-				if($instance_data)
-				{
-					$ciq[$instance_id] = array(
-						'name' => $instance['name'],
-						'url' => $instance['api'],
-						'data' => $instance_data
-					);
-				}
+				$ciq[$instance_id] = array(
+					'name' => $instance['name'],
+					'url' => $instance['api'],
+					'data' => $instance_data
+				);
 			}
 		}
 		$vars['ciq'] = $ciq;
