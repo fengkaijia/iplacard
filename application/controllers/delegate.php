@@ -161,6 +161,11 @@ class Delegate extends CI_Controller
 			foreach($pids as $pid)
 			{
 				$one = $this->delegate_model->get_profile($pid);
+				
+				//学术测试为空
+				if($one['name'] == 'test' && !array_filter($one['value']))
+						$one['value'] = false;
+				
 				$profile[$one['name']] = $one['value'];
 			}
 		}
