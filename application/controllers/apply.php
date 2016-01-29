@@ -340,6 +340,8 @@ class Apply extends CI_Controller
 							{
 								$this->load->library('invoice');
 								
+								$this->invoice->clear();
+								
 								//调整状态
 								if(isset($invoice['status']) && !empty($invoice['status']))
 									$this->delegate_model->change_status($this->uid, $invoice['status']);
