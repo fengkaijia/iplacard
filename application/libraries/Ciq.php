@@ -45,19 +45,24 @@ class Ciq
 					'crypt' => crypt(sha1($post), '$1$'.substr($this->access_token, 0, 10).'&')
 			));
 			
-			if(empty($raw))
-				return false;
-
-			//获取结果
-			$return = json_decode($raw, true);
-			
-			if($return['result'] == false)
-				return false;
-
-			$data = $return['data'];
+			$data = array();
+			if(!empty($raw))
+			{
+				//获取结果
+				$return = json_decode($raw, true);
+				
+				if($return['result'])
+				{
+					$data = $return['data'];
+				}
+			}
 			
 			$this->CI->cache->save(IP_CACHE_PREFIX.'_'.IP_INSTANCE_ID.'_ciq_'.md5($url).'_'.md5($post), $data, option('ciq_cache_life', 3600 * 24));
 		}
+		
+		if(empty($data))
+			return false;
+		
 		$this->data = $data;
 		return true;
 	}
