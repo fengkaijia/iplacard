@@ -184,7 +184,7 @@ class Document extends CI_Controller
 
 				rename($upload_result['full_path'], $this->path.$file_id.$upload_result['file_ext']);
 
-				$this->ui->alert("已经上传文件版本 #{$file_id}。", 'success', true);
+				$this->ui->alert("已经上传文件版本 #{$file_id}。", 'success');
 
 				$this->system_model->log('document_file_uploaded', array('id' => $file_id, 'document' => $id));
 
