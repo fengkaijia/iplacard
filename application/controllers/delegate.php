@@ -377,6 +377,7 @@ class Delegate extends CI_Controller
 			
 			foreach($instances as $instance_id => $instance)
 			{
+				$this->ciq->clear();
 				$this->ciq->set_api($instance['api'], $instance['access_token']);
 				$this->ciq->set_request('delegate', 'info');
 				$this->ciq->set_post(array('key' => $profile['unique_identifier']));
