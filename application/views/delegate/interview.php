@@ -17,7 +17,7 @@
 				<tr>
 					<td>面试官</td>
 					<td><?php echo icon('user').$interview['interviewer']['name'];
-					if(!empty($interview['interviewer']['committee']))
+					if(!empty($interview['interviewer']['committee']) && option('interview_interviewer_committe', true))
 						echo "（{$interview['interviewer']['committee']['name']}）";?></td>
 				</tr>
 				<tr>
@@ -73,11 +73,11 @@
 					if(isset($interviewer['committee']))
 						$committee = $interviewer['committee']['name'];
 
-					if(!empty($title) && !empty($committee))
+					if(!empty($title) && !empty($committee) && option('interview_interviewer_committe', true))
 						echo "{$title}，{$committee}";
 					elseif(!empty($title) && empty($committee))
 						echo $title;
-					elseif(empty($title) && !empty($committee))
+					elseif(empty($title) && !empty($committee) && option('interview_interviewer_committe', true))
 						echo $committee;
 					?></p>
 					<p style="margin-bottom: 4px; margin-left: 100px;"><?php echo icon('envelope-o').mailto($interviewer['email']);?></p>
