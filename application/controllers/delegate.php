@@ -321,7 +321,7 @@ class Delegate extends CI_Controller
 		
 		//显示席位选择
 		$seat_assignable = false;
-		if(((!$this->_check_interview_enabled($profile['application_type']) && $this->admin_model->capable('reviewer')) || ($seat_mode == 'select' ? $this->_check_interviewer_assign_right($uid, uid()) : (!empty($current_interview) && $interviews[$current_interview]['interviewer']['id'] == uid()))) && $profile['status'] != 'locked' && $profile['status'] != 'quitted')
+		if((in_array(uid(), option('seat_global_admin', array())) || (!$this->_check_interview_enabled($profile['application_type']) && $this->admin_model->capable('reviewer')) || ($seat_mode == 'select' ? $this->_check_interviewer_assign_right($uid, uid()) : (!empty($current_interview) && $interviews[$current_interview]['interviewer']['id'] == uid()))) && $profile['status'] != 'locked' && $profile['status'] != 'quitted')
 		{
 			$seat_assignable = true;
 		}
