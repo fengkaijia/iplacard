@@ -284,6 +284,7 @@ class Delegate extends CI_Controller
 		}
 		
 		$vars['groups'] = $groups;
+		$vars['group_count'] = count($groups);
 		
 		//代表团队数据
 		$group = false;
