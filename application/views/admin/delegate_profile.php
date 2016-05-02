@@ -4,6 +4,9 @@ $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquer
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/jquery.datatables.locale.js' : 'static/js/locales/jquery.datatables.locale.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.datatables.js' : 'static/js/bootstrap.datatables.min.js').'"></script>');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.shorten.js' : 'static/js/jquery.shorten.min.js').'"></script>');
+$this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/bootstrap.select.css' : 'static/css/bootstrap.select.min.css').'" rel="stylesheet">');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/bootstrap.select.js' : 'static/js/bootstrap.select.min.js').'"></script>');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/locales/bootstrap.select.locale.js' : 'static/js/locales/bootstrap.select.locale.min.js').'"></script>');
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/flags.css' : 'static/css/flags.min.css').'" rel="stylesheet">');
 
 if($profile_editable)
@@ -208,7 +211,7 @@ $this->load->view('header');?>
 								<div class="form-group <?php if(form_has_error('group')) echo 'has-error';?>">
 									<?php echo form_label('所属团队', 'group', array('class' => 'col-lg-3 control-label'));?>
 									<div class="col-lg-5">
-										<?php echo form_dropdown('group', array('' => '选择代表团...') + $groups, set_value('group', $group ? $group['id'] : ''), 'class="form-control" id="group"');
+										<?php echo form_dropdown_select('group', array('' => '选择代表团...') + $groups, set_value('group', $group ? $group['id'] : ''), $group_count > 10);
 										if(form_has_error('group'))
 											echo form_error('group');
 										else { ?><div class="help-block">代表所属的代表团。</div><?php } ?>
@@ -251,7 +254,11 @@ $this->load->view('header');?>
 							</div>
 						</div>
 					</div>
-				<?php echo form_close(); } ?>
+				<?php echo form_close();
+				$this->ui->js('footer', "$('.selectpicker').selectpicker({
+					iconBase: 'fa',
+					tickIcon: 'fa-check'
+				});"); } ?>
 				
 				<?php if(!empty($profile['experience'])) { ?><h3>参会经历</h3>
 				<table class="table table-bordered table-striped table-hover">
