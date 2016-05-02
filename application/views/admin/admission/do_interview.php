@@ -4,8 +4,9 @@ foreach($score_standard as $sid => $one)
 {
 	$hiddens["score_$sid"] = 0;
 }
-?><script src="<?php echo static_url(is_dev() ? 'static/js/jquery.cookie.js' : 'static/js/jquery.cookie.min.js');?>"></script>
-<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.sayt.js' : 'static/js/jquery.sayt.min.js');?>"></script>
+
+if(option('interview_save_enabled', false)) { ?><script src="<?php echo static_url(is_dev() ? 'static/js/jquery.cookie.js' : 'static/js/jquery.cookie.min.js');?>"></script>
+<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.sayt.js' : 'static/js/jquery.sayt.min.js');?>"></script><?php } ?>
 <script>
 	var scored = false;
 	
@@ -32,7 +33,7 @@ foreach($score_standard as $sid => $one)
 			$('#retest_interview input[name="supplement"]').val($('#supplement').val());
 		});
 		
-		$('#pass_interview_<?php echo $uid;?>').sayt({'days': 15});
+		<?php if(option('interview_save_enabled', false)) { ?>$('#pass_interview_<?php echo $uid;?>').sayt({'days': 15});<?php } ?>
 	});
 	
 	function click_score(part, score)
@@ -188,7 +189,7 @@ foreach($score_standard as $sid => $one)
 					'content' => '面试通过',
 					'type' => 'submit',
 					'class' => 'btn btn-success disabled',
-					'onclick' => "$('#pass_interview_{$uid}').sayt({'erase': true}); loader(this);"
+					'onclick' => option('interview_save_enabled', false) ? "$('#pass_interview_{$uid}').sayt({'erase': true}); loader(this);" : 'loader(this);'
 				));
 				echo ' ';
 				echo form_button(array(
