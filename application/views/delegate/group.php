@@ -1,5 +1,6 @@
 <?php
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/flags.css' : 'static/css/flags.min.css').'" rel="stylesheet">');
+$this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.shorten.js': 'static/js/jquery.shorten.min.js').'"></script>');
 $this->load->view('header');?>
 
 <div class="page-header">
@@ -48,7 +49,7 @@ $this->load->view('header');?>
 							<td><?php echo $one['email'];?></td>
 							<td><?php echo $one['phone'];?></td>
 							<td><?php if(isset($one['seat'])) echo $one['committee']['name']; ?></td>
-							<td><?php if(isset($one['seat'])) echo empty($one['seat']['iso']) ? $one['seat']['name'] : flag($one['seat']['iso'], true).$one['seat']['name']; ?></td>
+							<td><span class="shorten"><?php if(isset($one['seat'])) echo empty($one['seat']['iso']) ? $one['seat']['name'] : flag($one['seat']['iso'], true).$one['seat']['name']; ?></span></td>
 							<?php if($head_delegate) { ?><td><?php echo "<span class='label label-{$one['status_class']}'>{$one['status_text']}</span>";?></td><?php } ?>
 						</tr>
 					<?php } ?></tbody>
@@ -94,4 +95,16 @@ $this->load->view('header');?>
 	</div>
 </div>
 
-<?php $this->load->view('footer');?>
+<?php
+$read_more = icon('caret-right', false);
+$read_less = icon('caret-left', false);
+$shorten_js = <<<EOT
+$('.shorten').shorten({
+	showChars: '25',
+	moreText: '{$read_more}',
+	lessText: '{$read_less}'
+});
+EOT;
+$this->ui->js('footer', $shorten_js);
+
+$this->load->view('footer');?>
