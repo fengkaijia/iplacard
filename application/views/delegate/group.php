@@ -48,9 +48,7 @@ $this->load->view('header');?>
 							<td><?php echo $one['email'];?></td>
 							<td><?php echo $one['phone'];?></td>
 							<td><?php if(isset($one['seat'])) echo $one['committee']['name']; ?></td>
-							<td><?php if(isset($one['seat']) && !empty($one['seat']['iso']))
-								echo flag($one['seat']['iso'], true).$one['seat']['name'];
-							?></td>
+							<td><?php if(isset($one['seat'])) echo empty($one['seat']['iso']) ? $one['seat']['name'] : flag($one['seat']['iso'], true).$one['seat']['name']; ?></td>
 							<?php if($head_delegate) { ?><td><?php echo "<span class='label label-{$one['status_class']}'>{$one['status_text']}</span>";?></td><?php } ?>
 						</tr>
 					<?php } ?></tbody>
