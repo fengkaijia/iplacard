@@ -85,6 +85,33 @@ class IP_Image_lib extends CI_Image_lib
 
 		return TRUE;
 	}
+	
+	/**
+	 * Dynamically outputs an image
+	 *
+	 * @access	public
+	 * @param	resource
+	 * @return	void
+	 */
+	function image_display_gd($resource)
+	{
+		header("Content-Disposition: filename={$this->source_image};");
+		header("Content-Type: {$this->mime_type}");
+		header('Content-Transfer-Encoding: binary');
+		header('Last-Modified: '.gmdate('D, d M Y H:i:s', time()).' GMT');
+		
+		switch ($this->image_type)
+		{
+			case 1		:	imagegif($resource);
+				break;
+			case 2		:	imagejpeg($resource, NULL, $this->quality);
+				break;
+			case 3		:	imagepng($resource);
+				break;
+			default		:	echo 'Unable to display the image';
+				break;
+		}
+	}
 }
 
 /* End of file IP_Image_lib.php */
