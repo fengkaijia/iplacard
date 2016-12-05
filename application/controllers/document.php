@@ -590,12 +590,16 @@ class Document extends CI_Controller
 				{
 					$drm = trim(end($return));
 				}
+				else
+				{
+					$drm = '';
+				}
 			}
 			
 			//DRM无法完成强制退出
 			if(option('drm_force', true))
 			{
-				if(is_null($drm))
+				if(empty($drm))
 				{
 					$this->ui->alert('无法获取指定文件，请重新尝试下载。', 'danger', true);
 					back_redirect();
@@ -610,9 +614,9 @@ class Document extends CI_Controller
 		//合集下载
 		if($zip)
 		{
-			$data = read_file(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
+			$data = read_file(is_null($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
 			
-			if(empty($drm) && (empty($data) || sha1($data) != $file['hash']))
+			if(is_null($drm) && (empty($data) || sha1($data) != $file['hash']))
 			{
 				$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
 				back_redirect();
@@ -625,17 +629,17 @@ class Document extends CI_Controller
 		
 		if(option('server_download_method', 'php') == 'temp')
 		{
-			temp_download(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename, $filename);
+			temp_download(is_null($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename, $filename);
 		}
 		
 		if(option('server_download_method', 'php') != 'php')
 		{
-			xsendfile_download(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename, $filename);
+			xsendfile_download(is_null($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename, $filename);
 		}
 
-		$data = read_file(empty($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
+		$data = read_file(is_null($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
 
-		if(empty($drm) && (empty($data) || sha1($data) != $file['hash']))
+		if(is_null($drm) && (empty($data) || sha1($data) != $file['hash']))
 		{
 			$this->ui->alert('文件系统出现未知错误导致无法下载文件，请重新尝试下载。', 'danger', true);
 			back_redirect();
