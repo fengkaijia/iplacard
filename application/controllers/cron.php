@@ -534,6 +534,7 @@ class Cron extends CI_Controller
 				{
 					$data['seat'] = $this->seat_model->get_seat($seat_id);
 					$this->seat_model->change_seat_status($seat_id, 'available', NULL);
+					$this->seat_model->assign_seat($seat_id, NULL);
 					
 					//TODO: 候补席位调整
 				}
