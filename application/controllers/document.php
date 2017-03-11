@@ -141,7 +141,7 @@ class Document extends CI_Controller
 			//操作上传文件
 			$this->load->helper('string');
 			$config['file_name'] = time().'_'.random_string('alnum', 32);
-			$config['allowed_types'] = '*';
+			$config['disallowed_types'] = 'php|cgi|html|htm';
 			$config['max_size'] = ini_max_upload_size(option('file_max_size', 10 * 1024 * 1024)) / 1024;
 			$config['upload_path'] = './temp/'.IP_INSTANCE_ID.'/upload/document/';
 
