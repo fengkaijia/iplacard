@@ -2165,7 +2165,7 @@ class Account extends CI_Controller
 	 */
 	function _sso_vanilla($app, $info = false)
 	{
-		require_once APPPATH.'/third_party/Vanilla/functions.jsconnect.php';
+		require_once APPPATH.'/third_party/vanilla/functions.jsconnect.php';
 
 		$client_id = $app['token'];
 		$secret = $app['secret'];

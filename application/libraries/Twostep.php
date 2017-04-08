@@ -1,6 +1,6 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-require_once APPPATH.'/third_party/GoogleAuthenticator.php';
+require_once APPPATH.'/third_party/chregu/GoogleAuthenticator.php';
 
 /**
  * 两步验证类库
