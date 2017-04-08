@@ -513,7 +513,6 @@ class Delegate extends CI_Controller
 										. "\t{note}\n\n"
 										. "请访问 {url} 阅读笔记。"), $data, true));
 								$this->email->send();
-								$this->email->clear();
 							}
 							
 							$count = count($users);
@@ -600,7 +599,6 @@ class Delegate extends CI_Controller
 				$this->email->subject('您已调整为个人代表');
 				$this->email->html($this->parser->parse_string(option('email_group_delegate_removed', "您已于 {time} 由管理员操作退出{group_old_name}代表团，如为误操作请立即与管理员取得联系。"), $data, true));
 				$this->email->send();
-				$this->email->clear();
 				
 				//通知团队领队
 				if($group['head_delegate'] != $uid)
@@ -696,7 +694,6 @@ class Delegate extends CI_Controller
 						$this->email->html($this->parser->parse_string(option('email_group_delegate_joined', "您已于 {time} 由管理员操作加入{group_new_name}代表团代表。"), $data, true));
 					}
 					$this->email->send();
-					$this->email->clear();
 				}
 				
 				//通知旧团队领队
@@ -706,7 +703,6 @@ class Delegate extends CI_Controller
 					$this->email->subject('代表退出了您领队的代表团');
 					$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_removed', "{delegate_name}代表已于 {time} 由管理员操作退出您领队的{group_old_name}代表团，如为误操作请立即与管理员取得联系。"), $data, true));
 					$this->email->send();
-					$this->email->clear();
 				}
 				
 				//通知新团队领队
@@ -726,7 +722,6 @@ class Delegate extends CI_Controller
 					$this->email->subject('您已经成为代表团领队');
 					$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_granted', "您已于 {time} 由管理员操作成为{group_new_name}代表团的领队。"), $data, true));
 					$this->email->send();
-					$this->email->clear();
 					
 					//通知取消原领队
 					if(!is_null($group_new['head_delegate']))
@@ -735,7 +730,6 @@ class Delegate extends CI_Controller
 						$this->email->subject('代表团领队已经更换');
 						$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_changed', "您领队的{group_new_name}代表团已于 {time} 由管理员操作更换领队为{delegate_name}代表，如为误操作请立即与管理员取得联系。"), $data, true));
 						$this->email->send();
-						$this->email->clear();
 					}
 				}
 				
@@ -747,7 +741,6 @@ class Delegate extends CI_Controller
 					$this->email->subject('您的代表团领队已经取消');
 					$this->email->html($this->parser->parse_string(option('email_group_manage_delegate_removed', "您领队的{group_new_name}代表团已于 {time} 由管理员操作取消了领队，目前{group_new_name}代表团没有领队，如为误操作请立即与管理员取得联系。"), $data, true));
 					$this->email->send();
-					$this->email->clear();
 				}
 				
 				if(is_null($delegate['group']) || $delegate['group'] != $group_id || ($group_new['head_delegate'] != $uid && $this->input->post('head_delegate') == true) || ($group_new['head_delegate'] == $uid && $this->input->post('head_delegate') == false))
@@ -879,7 +872,6 @@ class Delegate extends CI_Controller
 						$this->email->subject('申请已经完成');
 						$this->email->html($this->parser->parse_string(option('email_application_locked', '感谢参与申请，您的申请流程已经于 {time} 锁定完成，请登录 iPlacard 查看申请状态。'), $data, true));
 						$this->email->send();
-						$this->email->clear();
 
 						//短信通知代表
 						if(option('sms_enabled', false))
@@ -999,7 +991,6 @@ class Delegate extends CI_Controller
 				$this->email->subject('已经为您分配面试官');
 				$this->email->html($this->parser->parse_string(option('email_delegate_interview_assigned', "我们已经于 {time} 为您分配了面试官，面试官{interviewer}将会在近期内与您取得联系，您可登录 iPlacard 系统查看面试官联系方式及申请状态。"), $data, true));
 				$this->email->send();
-				$this->email->clear();
 				
 				//邮件通知面试官
 				$this->email->to($interviewer['email']);
@@ -1067,7 +1058,6 @@ class Delegate extends CI_Controller
 				$this->email->subject('您已获得免试分配资格');
 				$this->email->html($this->parser->parse_string(option('email_delegate_interview_exempted', "经过审核，您的参会申请符合免试分配条件，无需进行面试。我们已经于 {time} 安排面试官{interviewer}为您分配席位，请登录 iPlacard 系统查看申请状态。"), $data, true));
 				$this->email->send();
-				$this->email->clear();
 				
 				//邮件通知面试官
 				$this->email->to($interviewer['email']);
@@ -1570,7 +1560,6 @@ class Delegate extends CI_Controller
 				$this->email->subject('您将被直接分配席位');
 				$this->email->html($this->parser->parse_string(option('email_delegate_retest_denied', "我们已经于 {time} 确定您将无需复试，面试官将会直接为您分配席位，请登录 iPlacard 系统查看申请状态。"), $data, true));
 				$this->email->send();
-				$this->email->clear();
 				
 				//邮件通知面试官
 				$this->email->to($interviewer['email']);
@@ -1929,7 +1918,6 @@ class Delegate extends CI_Controller
 				$this->email->subject('等待队列通过通知');
 				$this->email->html($this->parser->parse_string(option('email_delegate_waitlist_accepted', "我们已经于 {time} 将您从等待队列中移出，面试官{interviewer}将为您分配席位，请登录 iPlacard 系统查看申请状态。"), $data, true));
 				$this->email->send();
-				$this->email->clear();
 				
 				//邮件通知面试官
 				$this->email->to($interviewer['email']);

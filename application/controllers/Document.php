@@ -250,7 +250,6 @@ class Document extends CI_Controller
 
 						$this->email->to($this->user_model->get_user($user, 'email'));
 						$this->email->send();
-						$this->email->clear();
 					}
 				}
 			}
@@ -614,7 +613,7 @@ class Document extends CI_Controller
 		//合集下载
 		if($zip)
 		{
-			$data = read_file(is_null($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
+			$data = file_get_contents(is_null($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
 			
 			if(is_null($drm) && (empty($data) || sha1($data) != $file['hash']))
 			{
@@ -637,7 +636,7 @@ class Document extends CI_Controller
 			xsendfile_download(is_null($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename, $filename);
 		}
 
-		$data = read_file(is_null($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
+		$data = file_get_contents(is_null($drm) ? "{$this->path}{$file['id']}.{$file['filetype']}" : temp_path().'/'.$filename);
 
 		if(is_null($drm) && (empty($data) || sha1($data) != $file['hash']))
 		{

@@ -38,8 +38,9 @@
 |
 */
 
-$route['default_controller'] = "account";
+$route['default_controller'] = 'account';
 $route['404_override'] = '';
+$route['translate_uri_dashes'] = FALSE;
 
 
 /* End of file routes.php */

@@ -203,7 +203,6 @@ class Committee extends CI_Controller
 					$this->email->subject('您的委员会已被删除');
 					$this->email->html($this->parser->parse_string(option('email_admin_committee_deleted', "您的委员会{committee}已经于 {time} 被管理员删除，如存在误操作请立即与管理团队取得联系。"), $email_data, true));
 					$this->email->send();
-					$this->email->clear();
 				}
 			}
 			

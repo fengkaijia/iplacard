@@ -740,7 +740,6 @@ class Apply extends CI_Controller
 							. "\t委员会：{committee}\n\n"
 							. "请登录 iPlacard 系统查看申请状态。"), $email_data, true));
 					$this->email->send();
-					$this->email->clear();
 				}
 				
 				//增加现有席位
@@ -874,7 +873,6 @@ class Apply extends CI_Controller
 							. "请登录 iPlacard 系统查看申请状态。"), $email_data, true));
 				}
 				$this->email->send();
-				$this->email->clear();
 				
 				$this->ui->alert('您的席位选择已经保存。', 'success');
 			}

@@ -26,7 +26,7 @@ $platforms = array(
 	'windows 95'		=> 'Windows 95',
 	'win95'				=> 'Windows 95',
 	'windows phone'			=> 'Windows Phone',
-	'windows'			=> 'Windows OS',
+	'windows'			=> 'Unknown Windows OS',
 	'android'			=> 'Android',
 	'blackberry'		=> 'BlackBerry',
 	'iphone'			=> 'iOS',
@@ -49,7 +49,7 @@ $platforms = array(
 	'bsdi'				=> 'BSDi',
 	'openbsd'			=> 'OpenBSD',
 	'gnu'				=> 'GNU/Linux',
-	'unix'				=> 'Unix OS',
+	'unix'				=> 'Unknown Unix OS',
 	'symbian' 			=> 'Symbian OS'
 );
 
@@ -59,7 +59,7 @@ $platforms = array(
 $browsers = array(
 	'OPR'			=> 'Opera',
 	'Flock'			=> 'Flock',
-	'Edge'			=> 'Microsoft Edge',
+	'Edge'			=> 'Spartan',
 	'Chrome'		=> 'Chrome',
 	// Opera 10+ always reports Opera/9.80 and appends Version/<real version> to the user agent string
 	'Opera.*?Version'	=> 'Opera',
@@ -104,7 +104,7 @@ $mobiles = array(
 	//	'ericsson'			=> 'Ericsson',
 	//	'blackberry'		=> 'BlackBerry',
 	//	'motorola'			=> 'Motorola'
-	
+
 	// Phones and Manufacturers
 	'motorola'		=> 'Motorola',
 	'nokia'			=> 'Nokia',
@@ -148,7 +148,7 @@ $mobiles = array(
 	'wii'			=> 'Nintendo Wii',
 	'open web'		=> 'Open Web',
 	'openweb'		=> 'OpenWeb',
-	
+
 	// Operating Systems
 	'android'		=> 'Android',
 	'symbian'		=> 'Symbian',
@@ -156,7 +156,7 @@ $mobiles = array(
 	'elaine'		=> 'Palm',
 	'series60'		=> 'Symbian S60',
 	'windows ce'	=> 'Windows CE',
-	
+
 	// Browsers
 	'obigo'			=> 'Obigo',
 	'netfront'		=> 'Netfront Browser',
@@ -166,7 +166,7 @@ $mobiles = array(
 	'opera mini'	=> 'Opera Mini',
 	'opera mobi'	=> 'Opera Mobile',
 	'fennec'		=> 'Firefox Mobile',
-	
+
 	// Other
 	'digital paths'	=> 'Digital Paths',
 	'avantgo'		=> 'AvantGo',
@@ -175,7 +175,7 @@ $mobiles = array(
 	'vodafone'		=> 'Vodafone',
 	'docomo'		=> 'NTT DoCoMo',
 	'o2'			=> 'O2',
-	
+
 	// Fallback
 	'mobile'		=> 'Generic Mobile',
 	'wireless'		=> 'Generic Mobile',
@@ -205,7 +205,10 @@ $robots = array(
 	'CRAZYWEBCRAWLER'	=> 'Crazy Webcrawler',
 	'adsbot-google'		=> 'AdsBot Google',
 	'feedfetcher-google'	=> 'Feedfetcher Google',
-	'curious george'	=> 'Curious George'
+	'curious george'	=> 'Curious George',
+	'ia_archiver'		=> 'Alexa Crawler',
+	'MJ12bot'		=> 'Majestic-12',
+	'Uptimebot'		=> 'Uptimebot'
 );
 
 /* End of file user_agents.php */

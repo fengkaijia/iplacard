@@ -331,7 +331,6 @@ class User extends CI_Controller
 			$this->email->subject('您的 iPlacard 帐户已被删除');
 			$this->email->html($this->parser->parse_string(option('email_admin_account_deleted', "您的 iPlacard 帐户 {email} 已经于 {time} 被行政员删除，如为误删请立即与管理团队取得联系恢复帐户。"), $data, true));
 			$this->email->send();
-			$this->email->clear();
 			
 			//通知管理员
 			$this->email->to($this->admin_model->get_admin(uid(), 'email'));

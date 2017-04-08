@@ -11,7 +11,7 @@ class Cron extends CI_Controller
 	{
 		parent::__construct();
 		
-		if(!$this->input->is_cli_request())
+		if(!is_cli())
 			exit('iPlacard Cron Job must be run from the command line.');
 		
 		$this->benchmark->mark('exec_start');
@@ -25,7 +25,7 @@ class Cron extends CI_Controller
 	
 	function __destruct()
 	{
-		if($this->input->is_cli_request())
+		if(is_cli())
 		{
 			$this->benchmark->mark('exec_end');
 			$time = (int) ($this->benchmark->elapsed_time('exec_start', 'exec_end') * 1000);

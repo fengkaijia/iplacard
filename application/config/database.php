@@ -46,7 +46,7 @@
 */
 
 $active_group = 'default';
-$active_record = TRUE;
+$query_builder = TRUE;
 
 $db['default']['hostname'] = IP_DB_HOSTNAME;
 $db['default']['username'] = IP_DB_USERNAME;

@@ -369,9 +369,7 @@ class Admin extends CI_Controller
 							$this->email->to($this->user_model->get_user($id, 'email'));
 							$this->email->subject($subject);
 							$this->email->html($content, false);
-
 							$this->email->send();
-							$this->email->clear();
 						}
 						
 						$this->ui->alert("已经向 {$count} 位代表或管理用户发送邮件通知。", 'success');
@@ -494,7 +492,7 @@ class Admin extends CI_Controller
 					->setCreator(option('organization', 'iPlacard'))
 					->setLastModifiedBy($admin['name'])
 					->setTitle(sprintf('%s数据导出', option('site_name', 'iPlacard Instance')))
-					->setSubject(sprintf('%1$s iPlacard 数据导出 %2$s', option('site_name', 'iPlacard Instance'), standard_date('DATE_W3C')))
+					->setSubject(sprintf('%1$s iPlacard 数据导出 %2$s', option('site_name', 'iPlacard Instance'), date('DATE_W3C')))
 					->setDescription($description)
 					->setKeywords('iplacard '.strtolower(option('organization', '')));
 			

@@ -713,7 +713,6 @@ class Api extends CI_Controller
 
 					$this->email->to($this->user_model->get_user($user, 'email'));
 					$this->email->send();
-					$this->email->clear();
 				}
 			}
 			

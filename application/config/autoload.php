@@ -20,10 +20,11 @@
 |
 | 1. Packages
 | 2. Libraries
-| 3. Helper files
-| 4. Custom config files
-| 5. Language files
-| 6. Models
+| 3. Drivers
+| 4. Helper files
+| 5. Custom config files
+| 6. Language files
+| 7. Models
 |
 */
 
@@ -54,6 +55,26 @@ $autoload['packages'] = array();
 
 $autoload['libraries'] = array('database');
 
+/*
+| -------------------------------------------------------------------
+|  Auto-load Drivers
+| -------------------------------------------------------------------
+| These classes are located in system/libraries/ or in your
+| application/libraries/ directory, but are also placed inside their
+| own subdirectory and they extend the CI_Driver_Library class. They
+| offer multiple interchangeable driver options.
+|
+| Prototype:
+|
+|	$autoload['drivers'] = array('cache');
+|
+| You can also supply an alternative property name to be assigned in
+| the controller:
+|
+|	$autoload['drivers'] = array('cache' => 'cch');
+|
+*/
+$autoload['drivers'] = array();
 
 /*
 | -------------------------------------------------------------------

@@ -288,7 +288,6 @@ class Invoice
 		if($pdf_data)
 			$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 		$this->CI->email->send();
-		$this->CI->email->clear();
 
 		//短信通知代表
 		if($this->amount > 0 && option('sms_enabled', false))
@@ -349,7 +348,6 @@ class Invoice
 			if($pdf_data)
 				$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 			$this->CI->email->send();
-			$this->CI->email->clear();
 
 			//短信通知代表
 			if($this->amount > 0 && option('sms_enabled', false))
@@ -403,7 +401,6 @@ class Invoice
 		if($pdf_data)
 			$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 		$this->CI->email->send();
-		$this->CI->email->clear();
 
 		//短信通知代表
 		if($this->amount > 0 && option('sms_enabled', false))
@@ -457,7 +454,6 @@ class Invoice
 		if($pdf_data)
 			$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 		$this->CI->email->send();
-		$this->CI->email->clear();
 
 		//短信通知代表
 		if($this->amount > 0 && option('sms_enabled', false))
@@ -527,7 +523,6 @@ class Invoice
 			$this->CI->email->attach($pdf_data, 'attachment', "Invoice-{$this->id}.pdf");
 		
 		$this->CI->email->send();
-		$this->CI->email->clear();
 		
 		$this->CI->system_model->log('invoice_reminded', array('invoice' => $this->id));
 	}
@@ -648,7 +643,6 @@ class Invoice
 		$this->CI->email->subject('申请已经完成');
 		$this->CI->email->html($this->CI->parser->parse_string(option('email_application_locked', '感谢参与申请，您的申请流程已经于 {time} 锁定完成，请登录 iPlacard 查看申请状态。'), $data, true));
 		$this->CI->email->send();
-		$this->CI->email->clear();
 
 		//短信通知代表
 		if(option('sms_enabled', false))
@@ -700,7 +694,6 @@ class Invoice
 			$this->CI->email->subject('选定席位已释放');
 			$this->CI->email->html($this->CI->parser->parse_string(option('email_seat_overdue_released', '由于账单逾期，您选定的席位{seat}已于 {time} 释放，您可登录 iPlacard 系统重新选择席位。'), $data, true));
 			$this->CI->email->send();
-			$this->CI->email->clear();
 
 			//短信通知代表
 			if(option('sms_enabled', false))

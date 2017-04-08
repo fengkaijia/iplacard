@@ -163,7 +163,6 @@ class Group extends CI_Controller
 				$this->email->subject('您领队的代表团已经删除');
 				$this->email->html($this->parser->parse_string(option('email_group_manage_group_deleted', "您领队的代表团{group}已经于 {time} 被管理员删除，如存在误操作请立即联系管理员。"), $email_data, true));
 				$this->email->send();
-				$this->email->clear();
 			}
 			
 			$group_delegates = $this->delegate_model->get_delegate_ids('group', $id);
@@ -179,7 +178,7 @@ class Group extends CI_Controller
 					
 					//通知代表团成员
 					$this->email->to($this->user_model->get_user($delegate, 'email'));
-					$this->email->send();
+					$this->email->send(false);
 				}
 			}
 			
