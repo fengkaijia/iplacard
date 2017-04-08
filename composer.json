@@ -1,0 +1,16 @@
+{
+	"name": "imunc/iplacard",
+	"description": "iPlacard by IMUNC",
+	"minimum-stability": "stable",
+	"license": "proprietary",
+	"authors": [
+		{
+			"name": "Kaijia Feng",
+			"email": "feng@kaijia.me"
+		}
+	],
+	"require": {
+		"codeigniter/framework": "3.1.*",
+		"phpoffice/phpexcel": "1.8.*"
+	}
+}

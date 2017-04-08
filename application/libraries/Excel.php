@@ -1,7 +1,5 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-require_once APPPATH.'/third_party/PHPOffice/PHPExcel.php';
-
 /**
  * Excel类库
  * @package iPlacard

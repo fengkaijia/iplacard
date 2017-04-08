@@ -1,4 +1,0 @@
-[submodule "codeigniter"]
-	path = system
-	url = https://dev.kaijia.me/open-source-submodules/codeigniter.git
-	branch = release/3.1.4
