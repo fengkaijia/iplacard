@@ -279,6 +279,17 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}seat_selectability` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='席位选择许可' AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `ip_session` (
+  `id` varchar(128) NOT NULL COMMENT '显示ID',
+  `session` int(11) NOT NULL AUTO_INCREMENT COMMENT '系统记录ID',
+  `ip_address` varchar(45) NOT NULL COMMENT 'IP地址',
+  `timestamp` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最后活动',
+  `data` text NOT NULL COMMENT 'Session数据',
+  PRIMARY KEY (`session`),
+  KEY `ci_sessions_id` (`id`),
+  KEY `ci_sessions_timestamp` (`timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Session' AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}sms` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '短信ID',
   `user` int(11) NOT NULL COMMENT '接收用户',

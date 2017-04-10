@@ -666,7 +666,7 @@ class Account extends CI_Controller
 		}
 		
 		//获取session_id
-		$this->db->where('id', $halt_id);
+		$this->db->where('session', $halt_id);
 		$query = $this->db->get('session');
 		
 		//已经自行注销
@@ -682,7 +682,7 @@ class Account extends CI_Controller
 			$sess_data = $query->row_array();
 			
 			//链接错误
-			if(md5($sess_data['session_id']) != strtolower($md5))
+			if(md5($sess_data['id']) != strtolower($md5))
 			{
 				$this->ui->alert('无效的强制登出请求。', 'danger', true);
 				redirect('account/login');
@@ -691,7 +691,7 @@ class Account extends CI_Controller
 			
 			//强制退出
 			$this->_do_halt($halt_id);
-			$this->system_model->log('session_halted', array('ip' => $this->input->ip_address(), 'session' => $halt_id, 'userdata' => $sess_data['user_data'], 'panel' => false), 0);
+			$this->system_model->log('session_halted', array('ip' => $this->input->ip_address(), 'session' => $halt_id, 'userdata' => $sess_data['data'], 'panel' => false), 0);
 		}
 		
 		$this->ui->title('强制登出');
@@ -719,9 +719,7 @@ class Account extends CI_Controller
 		{
 			$sudoer = uid(true);
 			
-			$this->session->unset_userdata(array(
-				'sudoer' => ''
-			));
+			$this->session->unset_userdata(array('sudoer'));
 			
 			$this->ui->alert('已经退出 SUDO 模式。', 'success', true);
 			
@@ -978,32 +976,32 @@ class Account extends CI_Controller
 			{
 				//检查是否仍然在线
 				$data['value'] = json_decode($data['value'], true);
-				$this->db->where('id', $data['value']['session']);
+				$this->db->where('session', $data['value']['session']);
 				$check = $this->db->get('session');
 				
 				if($check->num_rows() != 0)
 				{
 					$session = $check->row_array();
 					
-					if($this->input->post('halt') && $session['session_id'] != $this->session->userdata('session_id'))
+					if($this->input->post('halt') && $session['id'] != $this->session->session_id)
 					{
 						//确认退出其他所有会话
 						$this->_do_halt($data['value']['session']);
-						$this->system_model->log('session_halted', array('ip' => $this->input->ip_address(), 'session' => $session['session_id'], 'userdata' => $session['user_data'], 'panel' => true), uid());
+						$this->system_model->log('session_halted', array('ip' => $this->input->ip_address(), 'session' => $session['id'], 'userdata' => $session['data'], 'panel' => true), uid());
 					}
 					else
 					{
 						//仅显示数据
-						$data['last_activity'] = $session['last_activity'];
+						$data['last_activity'] = $session['timestamp'];
 						$data['ip'] = hide_ip($data['value']['ip']);
 						$data['place'] = ip_lookup($data['value']['ip']);
 						
 						//是否是当前位置
-						if($session['session_id'] == $this->session->userdata('session_id'))
+						if($session['id'] == $this->session->session_id)
 							$data['current'] = true;
 						
 						//是否已经关闭
-						$user_data = $this->session->_unserialize($session['user_data']);
+						$user_data = session_decode($session['data']);
 						if(!isset($user_data['halt']) || !$user_data['halt'])
 							$active[] = $data;
 					}
@@ -1883,7 +1881,7 @@ class Account extends CI_Controller
 			'logged_in' => true));
 
 		//获取Session信息
-		$session_id = $this->session->userdata('session_id');
+		$session_id = $this->session->session_id;
 		$system_sess_id = $this->system_model->get_session_id($session_id);
 
 		//写入日志
@@ -1985,13 +1983,7 @@ class Account extends CI_Controller
 			return;
 		
 		//销毁Session
-		$this->session->unset_userdata(array(
-			'uid' => '',
-			'sudo' => '',
-			'email' => '',
-			'type' => '',
-			'logged_in' => ''
-		));
+		$this->session->unset_userdata(array('uid', 'sudo', 'email', 'type', 'logged_in'));
 		
 		//写入日志
 		if($sudo && !$sudo_in)
@@ -2005,12 +1997,8 @@ class Account extends CI_Controller
 	 */
 	function _do_halt($halt_id)
 	{
-		$new_userdata = $this->session->_serialize(array(
-			'halt' => true,
-			'halt_time' => time()
-		));
-		$this->db->where('id', $halt_id);
-		$this->db->update('session', array('user_data' => $new_userdata));
+		$this->db->where('session', $halt_id);
+		$this->db->update('session', array('data' => 'halt|b:1;halt_time|i:'.time().';'));
 	}
 	
 	/**

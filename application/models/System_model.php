@@ -159,7 +159,7 @@ class System_model extends CI_Model
 	 */
 	function get_session_id($session)
 	{
-		$this->db->where('session_id', $session);
+		$this->db->where('id', $session);
 		$query = $this->db->get('session');
 		
 		//如不存在
@@ -169,7 +169,7 @@ class System_model extends CI_Model
 		$data = $query->row_array();
 		$query->free_result();
 		
-		return intval($data['id']);
+		return intval($data['session']);
 	}
 }
 
