@@ -1983,7 +1983,7 @@ class Account extends CI_Controller
 			return;
 		
 		//销毁Session
-		$this->session->unset_userdata(array('uid', 'sudo', 'email', 'type', 'logged_in'));
+		$this->session->unset_userdata(array('uid', 'name', 'sudo', 'email', 'type', 'logged_in'));
 		
 		//写入日志
 		if($sudo && !$sudo_in)
