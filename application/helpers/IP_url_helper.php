@@ -30,7 +30,7 @@ function anchor($uri = '', $title = '', $attributes = '', $inline = false)
 
 	if ($attributes != '')
 	{
-		$attributes = _parse_attributes($attributes);
+		$attributes = _stringify_attributes($attributes);
 	}
 
 	return '<a href="'.$site_url.'"'.$attributes.'>'.$title.'</a>';
