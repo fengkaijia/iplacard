@@ -72,16 +72,6 @@ class IP_Email extends CI_Email
 	}
 	
 	/**
-	 * 附件支持重命名
-	 */
-	public function attach($filename, $disposition = 'attachment', $new_name = NULL)
-	{
-		parent::attach($filename, $disposition);
-		
-		$this->_attach_new_name[] = $new_name;
-	}
-	
-	/**
 	 * 生成邮件内容
 	 */
 	protected function _build_message()
