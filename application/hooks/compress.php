@@ -9,7 +9,7 @@ function compress_output()
 	$CI =& get_instance();
 	
 	//开发模式或输出类型部委HTML时不压缩
-	if(is_dev() || !in_array($CI->output->get_content_type(), array('html', 'htm', 'css', 'js')))
+	if(is_dev() || !in_array($CI->output->get_content_type(), array('text/html', 'text/css', 'application/x-javascript', 'text/plain')))
 	{
 		$CI->output->_display();
 		return;
