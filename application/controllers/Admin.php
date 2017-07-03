@@ -251,19 +251,22 @@ class Admin extends CI_Controller
 			unset($sidebar['task']);
 		
 		//RSS
-		$this->load->library('feed');
-		
-		$this->feed->set_feed_url(option('feed_url', 'http://iplacard.com/feed/'));
-		
+		$feed = option('feed_url', '');
 		$feed_enable = false;
-		if(!$this->feed->parse())
+		if(!empty($feed))
 		{
-			unset($sidebar['news']);
-		}
-		else
-		{
-			$feed_enable = true;
-			$vars['feed'] = $this->feed->get_feed(2);
+			$this->load->library('feed');
+			
+			$this->feed->set_feed_url($feed);
+			if(!$this->feed->parse())
+			{
+				unset($sidebar['news']);
+			}
+			else
+			{
+				$feed_enable = true;
+				$vars['feed'] = $this->feed->get_feed(2);
+			}
 		}
 		
 		$vars['feed_enable'] = $feed_enable;
