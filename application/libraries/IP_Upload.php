@@ -4,6 +4,8 @@
  * CodeIgniter Upload延伸类库
  * @package iPlacard
  * @since 2.2
+ * @author Garrett St. John
+ * @link https://garrettstjohn.com/article/codeigniter-file-upload-setting-disallowed-file-types/
  */
 class IP_Upload extends CI_Upload {
 
