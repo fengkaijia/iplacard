@@ -279,7 +279,7 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}seat_selectability` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='席位选择许可' AUTO_INCREMENT=1;
 
-CREATE TABLE IF NOT EXISTS `ip_session` (
+CREATE TABLE IF NOT EXISTS `{IP_PREFIX}session` (
   `id` varchar(128) NOT NULL COMMENT '显示ID',
   `session` int(11) NOT NULL AUTO_INCREMENT COMMENT '系统记录ID',
   `ip_address` varchar(45) NOT NULL COMMENT 'IP地址',
