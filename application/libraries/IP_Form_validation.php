@@ -7,9 +7,9 @@
  */
 class IP_Form_validation extends CI_Form_validation {
 
-	function __construct()
+	function __construct($rules = array())
 	{
-		parent::__construct();
+		parent::__construct($rules);
 	}
 	
 	/**
@@ -21,6 +21,14 @@ class IP_Form_validation extends CI_Form_validation {
 		if(count($param) == 1)
 			return !$this->{$param[0]}($str);
 		return !$this->{$param[0]}($str, $param[1]);
+	}
+	
+	/**
+	 * 存在POST参数（替代不可用的原生PHP函数isset）
+	 */
+	public function exist($str)
+	{
+		return isset($_POST[$str]);
 	}
 	
 	/**

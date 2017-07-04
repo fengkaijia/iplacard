@@ -347,14 +347,14 @@ class Apply extends CI_Controller
 		if($action == 'edit' && !empty($addition_items))
 		{
 			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
-			$this->form_validation->set_rules('提交验证', 'edit', 'isset');
+			$this->form_validation->set_rules('提交验证', 'edit', 'exist');
 			
 			//输入检查
 			foreach($addition_items as $name => $item)
 			{
 				if($item['required'])
 				{
-					$this->form_validation->set_rules($item['title'], "addition_$name", 'isset');
+					$this->form_validation->set_rules($item['title'], "addition_$name", 'exist');
 				}
 			}
 			
