@@ -17,4 +17,4 @@ $lang['upload_bad_filename'] = '已经存在同名文件。';
 $lang['upload_not_writable'] = '上传文件目录不可写。';
 
 /* End of file upload_lang.php */
-/* Location: ./application/language/chinese_simplified/upload_lang.php */
+/* Location: ./application/language/simplified-chinese/upload_lang.php */

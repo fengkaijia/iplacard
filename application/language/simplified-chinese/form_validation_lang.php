@@ -21,4 +21,4 @@ $lang['form_validation_is_natural_no_zero'] = '{field}必须是正数。';
 $lang['form_validation_is_unique'] = '存在相同的{field}。';
 
 /* End of file form_validation_lang.php */
-/* Location: ./application/language/chinese_simplified/form_validation_lang.php */
+/* Location: ./application/language/simplified-chinese/form_validation_lang.php */
