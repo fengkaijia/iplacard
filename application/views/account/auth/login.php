@@ -26,11 +26,7 @@ $this->load->view('header');?>
 		'placeholder' => '密码',
 		'required' => NULL
 	));
-	?>
-	<label for="remember" class="checkbox">
-		<?php echo form_checkbox('remember', true);?> 记住登录
-	</label>
-	<?php echo form_button(array(
+	echo form_button(array(
 		'name' => 'login',
 		'content' => '登录',
 		'type' => 'submit',
@@ -75,11 +71,7 @@ $this->load->view('header');?>
 		'placeholder' => '密码',
 		'required' => NULL
 	));
-	?>
-	<label for="remember" class="checkbox">
-		<?php echo form_checkbox('remember', true);?> 记住登录
-	</label>
-	<?php echo form_button(array(
+	echo form_button(array(
 		'name' => 'login',
 		'content' => '登录',
 		'type' => 'submit',
