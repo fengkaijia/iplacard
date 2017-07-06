@@ -31,7 +31,7 @@ function pinyin($string, $type = 'combine')
 		return false;
 	
 	//彩蛋
-	if(in_array($string, array('黄启凡', '黄百万', '大老板', '吉祥物', '逗你玩')))
+	if(in_array($string, array('黄启凡', '黄百万', '大老板', '吉祥物', '逗你玩')) && option('easteregg_enabled', false))
 		$data['data']['combine'] = 'huáng méng méng';
 	
 	if($type == 'combine')
