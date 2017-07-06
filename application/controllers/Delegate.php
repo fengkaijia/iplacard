@@ -337,27 +337,9 @@ class Delegate extends CI_Controller
 			$seat['committee'] = $this->committee_model->get_committee($seat['committee']);
 		}
 		$vars['seat'] = $seat;
-		
-		//席位候补数据
-		$backorders = array();
-		$backorder_ids = $this->seat_model->get_delegate_backorder($uid, true);
-		if($backorder_ids)
-		{
-			foreach($backorder_ids as $backorder_id)
-			{
-				$backorder = $this->seat_model->get_backorder($backorder_id);
-
-				$seat = $this->seat_model->get_seat($backorder['seat']);
-				$seat['committee'] = $this->committee_model->get_committee($seat['committee']);
-				$backorder['seat'] = $seat;
-
-				$backorders[] = $backorder;
-			}
-		}
-		$vars['backorders'] = $backorders;
 
 		//席位选择数据
-		$vars['selectabilities'] = $this->seat_model->get_delegate_selectability($uid, false, false, 'seat');
+		$vars['selectabilities'] = $this->seat_model->get_delegate_selectability($uid, false, 'seat');
 		
 		//检查权限
 		$profile_editable = false;
@@ -1643,47 +1625,39 @@ class Delegate extends CI_Controller
 				
 				if($seat_mode == 'select')
 				{
-					$new_seat['primary'] = $this->input->post('seat_primary');
-					$new_seat['backorder'] = $this->input->post('seat_backorder');
-					if(empty($new_seat['primary']) && empty($new_seat['backorder']))
+					$new_seat = $this->input->post('seat_primary');
+					if(empty($new_seat))
 					{
 						$this->ui->alert('没有任何席位被分配开放。', 'warning', true);
 						break;
 					}
 
-					$new_recommended['primary'] = $this->input->post('recommended_primary');
-					if(empty($new_recommended['primary']))
-						$new_recommended['primary'] = array();
-
-					$new_recommended['backorder'] = $this->input->post('recommended_backorder');
-					if(empty($new_recommended['backorder']))
-						$new_recommended['backorder'] = array();
+					$new_recommended = $this->input->post('recommended_primary');
+					if(empty($new_recommended))
+						$new_recommended = array();
 
 					//已经开放许可
-					$existing = $this->seat_model->get_delegate_selectability($delegate['id'], false, false, 'seat');
+					$existing = $this->seat_model->get_delegate_selectability($delegate['id'], false, 'seat');
 					if(!$existing)
 						$existing = array();
 					
 					//添加席位选择许可
 					$new_selectability = array();
-					foreach(array('primary', 'backorder') as $new_type)
+					if(isset($new_seat) && !empty($new_seat))
 					{
-						if(isset($new_seat[$new_type]) && !empty($new_seat[$new_type]))
+						foreach($new_seat as $sid)
 						{
-							foreach($new_seat[$new_type] as $sid)
+							$seat = $this->seat_model->get_seat($sid);
+							if(!in_array($sid, $existing) && ($seat['status'] != 'preserved' || $seat['committee'] == $admin_committee))
 							{
-								$seat = $this->seat_model->get_seat($sid);
-								if(!in_array($sid, $existing) && ($seat['status'] != 'preserved' || $seat['committee'] == $admin_committee))
-								{
-									$recommended = false;
-									if(in_array($sid, $new_recommended[$new_type]))
-										$recommended = true;
+								$recommended = false;
+								if(in_array($sid, $new_recommended))
+									$recommended = true;
 
-									$new_selectability[] = $this->seat_model->grant_selectability($sid, $delegate['id'], uid(), $new_type == 'primary', $recommended);
-								}
-								else
-									$this->ui->alert("无法分配席位{$seat['name']}，该席位已经分配或无权分配。", 'warning', true);
+								$new_selectability[] = $this->seat_model->grant_selectability($sid, $delegate['id'], uid(), $recommended);
 							}
+							else
+								$this->ui->alert("无法分配席位{$seat['name']}，该席位已经分配或无权分配。", 'warning', true);
 						}
 					}
 
@@ -1698,7 +1672,6 @@ class Delegate extends CI_Controller
 							'uid' => $uid,
 							'delegate' => $delegate['name'],
 							'count' => count($new_selectability),
-							'backorder' => option('seat_backorder_max', 2),
 							'time' => unix_to_human(time())
 						);
 
@@ -1713,7 +1686,7 @@ class Delegate extends CI_Controller
 
 							$this->email->to($delegate['email']);
 							$this->email->subject('席位已分配');
-							$this->email->html($this->parser->parse_string(option('email_delegate_seat_added', "我们已经向您分配了总计 {count} 个席位，您将可以在其中选择 1 个席位为您的主席位，同时您还可以选择最多 {backorder} 个席位为候补席位，请尽快登录 iPlacard 系统选择您的席位。"), $data, true));
+							$this->email->html($this->parser->parse_string(option('email_delegate_seat_added', "我们已经向您分配了总计 {count} 个席位选项，您将可以从中选择 1 个席位为您的席位，请尽快登录 iPlacard 系统选择您的席位。"), $data, true));
 							$this->email->send();
 
 							//短信通知代表
@@ -2084,23 +2057,7 @@ class Delegate extends CI_Controller
 					
 					$this->delegate_model->add_event($uid, 'seat_cancelled', array('seat' => $seat_id));
 					
-					//TODO: 候补席位调整
-					
 					$this->user_model->edit_user_option('typechange_affected_seat', $seat_id, $uid);
-				}
-				
-				//取消候补席位请求
-				$backorder_ids = $this->seat_model->get_delegate_backorder($uid, true);
-				if($backorder_ids)
-				{
-					foreach($backorder_ids as $backorder_id)
-					{
-						$this->seat_model->change_backorder_status($backorder_id, 'cancelled');
-						
-						$this->delegate_model->add_event($uid, 'backorder_cancelled', array('backorder' => $backorder_id));
-					}
-					
-					$this->user_model->edit_user_option('typechange_affected_backorder', $backorder_ids, $uid);
 				}
 				
 				//操作更换申请类型
@@ -2194,23 +2151,7 @@ class Delegate extends CI_Controller
 					
 					$this->delegate_model->add_event($uid, 'seat_cancelled', array('seat' => $seat_id));
 					
-					//TODO: 候补席位调整
-					
 					$this->user_model->edit_user_option('quit_affected_seat', $seat_id, $uid);
-				}
-				
-				//取消候补席位请求
-				$backorder_ids = $this->seat_model->get_delegate_backorder($uid, true);
-				if($backorder_ids)
-				{
-					foreach($backorder_ids as $backorder_id)
-					{
-						$this->seat_model->change_backorder_status($backorder_id, 'cancelled');
-						
-						$this->delegate_model->add_event($uid, 'backorder_cancelled', array('backorder' => $backorder_id));
-					}
-					
-					$this->user_model->edit_user_option('quit_affected_backorder', $backorder_ids, $uid);
 				}
 				
 				//取消账单
@@ -3328,10 +3269,6 @@ class Delegate extends CI_Controller
 					if($selectabilities)
 					{
 						$vars['selectability_count'] = count($selectabilities);
-
-						$selectabilities_primary = $this->seat_model->get_delegate_selectability($delegate['id'], true);
-						if($selectabilities_primary)
-							$vars['selectability_primary_count'] = count($selectabilities_primary);
 
 						$assigned = true;
 					}

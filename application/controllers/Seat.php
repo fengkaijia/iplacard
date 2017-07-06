@@ -423,11 +423,7 @@ class Seat extends CI_Controller
 					if($sids)
 						$this->seat_model->remove_selectability($sids);
 					
-					$bids = $this->seat_model->get_backorder_ids('seat', $id);
-					if($bids)
-						$this->seat_model->delete_backorder($bids);
-					
-					$this->system_model->log('seat_deleted', array('id' => $id, 'seat' => $seat, 'selectability' => $sids, 'backorder' => $bids));
+					$this->system_model->log('seat_deleted', array('id' => $id, 'seat' => $seat, 'selectability' => $sids));
 					
 					$this->ui->alert("席位 #{$id} 已删除。", 'success', true);
 					redirect('seat/manage');
@@ -515,8 +511,7 @@ class Seat extends CI_Controller
 					{
 						if($seat_mode == 'select' && $seat['status'] != 'unavailable' && ($seat['status'] != 'preserved' || $seat['committee'] == $admin_committee))
 						{
-							$operation .= '<a style="cursor: pointer;" onclick="add_seat('.$seat['id'].', true);">'.icon('plus-square', false).'主项</a> ';
-							$operation .= '<a style="cursor: pointer;" onclick="add_seat('.$seat['id'].', false);">'.icon('plus-square-o', false).'备选</a>';
+							$operation .= '<a style="cursor: pointer;" onclick="add_seat('.$seat['id'].');">'.icon('plus-square', false).'开放</a>';
 						}
 						elseif($seat_mode == 'assign' && ($seat['status'] == 'available' || ($seat['status'] == 'preserved' && $seat['committee'] == $admin_committee)))
 						{
@@ -581,15 +576,7 @@ class Seat extends CI_Controller
 					$status_line = "<span class='label label-{$status_class}'>{$status_text}</span>";
 					
 					//可分配情况
-					$condition_line = '';
-					
 					$selectability = $this->seat_model->get_selectability_ids('seat', $seat['id']);
-					if($selectability)
-						$condition_line .= '<span class="label label-primary">可选</span> '.count($selectability).' ';
-					
-					$backorder = $this->seat_model->get_seat_backorders($seat['id']);
-					if($backorder)
-						$condition_line .= '<span class="label label-success">预约</span> '.count($backorder);
 					
 					$data = array(
 						$seat['id'], //ID
@@ -598,7 +585,7 @@ class Seat extends CI_Controller
 						$status_line, //席位状态
 						$seat['level'], //席位等级
 						!empty($seat['delegate']) ? $delegate_line : 'N/A', //代表
-						$condition_line, //可分配情况
+						$selectability ? '<span class="label label-primary">可选</span> '.count($selectability) : '', //可分配情况
 						$operation, //操作
 					);
 					
@@ -641,7 +628,6 @@ class Seat extends CI_Controller
 						$name_line, //席位名称
 						$committees[$seat['committee']]['abbr'], //委员会
 						$seat['level'], //席位等级
-						$selectability['primary'] ? '<span class="text-success">'.icon('check-circle', false).'</span>' : '', //主项
 						$selectability['recommended'] ? '<span class="text-success">'.icon('star', false).'</span>' : '', //推荐
 					);
 					

@@ -449,60 +449,6 @@ class Event
 	}
 	
 	/**
-	 * 席位候补已经添加事件
-	 */
-	function _event_backorder_added()
-	{
-		$this->title = '添加候补席位';
-		$this->level = 'success';
-		$this->icon = 'list-alt';
-		
-		if(!empty($this->info['backorder']))
-		{
-			$this->CI->load->model('seat_model');
-			
-			$backorder = $this->CI->seat_model->get_backorder($this->info['backorder']);
-			if(!$backorder)
-				return;
-			
-			$seat = $this->CI->seat_model->get_seat($backorder['seat']);
-			if(!$seat)
-				return;
-			
-			$seat_text = '<span class="flags-16">'.flag($seat['iso'], true).$seat['name'].'</span>';
-			
-			$this->text = "代表添加 {$seat_text} 为其候补席位。";
-		}
-	}
-	
-	/**
-	 * 席位候补已关闭事件
-	 */
-	function _event_backorder_cancelled()
-	{
-		$this->title = '关闭席位候补请求';
-		$this->level = 'info';
-		$this->icon = 'list-alt';
-		
-		if(!empty($this->info['backorder']))
-		{
-			$this->CI->load->model('seat_model');
-			
-			$backorder = $this->CI->seat_model->get_backorder($this->info['backorder']);
-			if(!$backorder)
-				return;
-			
-			$seat = $this->CI->seat_model->get_seat($backorder['seat']);
-			if(!$seat)
-				return;
-			
-			$seat_text = '<span class="flags-16">'.flag($seat['iso'], true).$seat['name'].'</span>';
-			
-			$this->text = "{$seat_text} 的席位候补请求已经关闭。";
-		}
-	}
-	
-	/**
 	 * 账单生成事件
 	 */
 	function _event_invoice_generated()

@@ -675,8 +675,6 @@ class Invoice
 			
 			$this->CI->delegate_model->add_event($this->delegate, 'seat_released', array('seat' => $seat_id));
 			$this->CI->user_model->add_message($this->delegate, '您选定的席位由于账单逾期已经被释放。');
-			
-			//TODO: 候补席位调整
 
 			//发送邮件
 			$this->CI->load->library('email');

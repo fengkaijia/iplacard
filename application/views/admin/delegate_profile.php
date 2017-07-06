@@ -425,34 +425,8 @@ $this->load->view('header');?>
 					
 					<hr /><?php } ?>
 					
-					<?php if(!empty($backorders)) { ?>
-					<h3>候补席位</h3>
-					<p><?php echo icon('user', false).$profile['name'];?>代表当前候补了以下席位，在候补窗口关闭之前，他都有可能调整为以下席位。</p>
-					
-					<table id="backorder_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
-						<thead>
-							<tr>
-								<th>ID</th>
-								<th>席位名称</th>
-								<th>委员会</th>
-								<th>候补请求时间</th>
-							</tr>
-						</thead>
-
-						<tbody>
-							<?php foreach($backorders as $backorder) { ?><tr id="backorder-<?php echo $backorder['id'];?>">
-								<td><?php echo $backorder['seat']['id'];?></td>
-								<td><?php echo flag($backorder['seat']['iso'], true).$backorder['seat']['name'];?></td>
-								<td><?php echo $backorder['seat']['committee']['abbr'];?></td>
-								<td><?php echo sprintf('%1$s（%2$s）', date('n月j日', $backorder['order_time']), nicetime($backorder['order_time']));?></td>
-							</tr><?php } ?>
-						</tbody>
-					</table>
-					
-					<hr /><?php } ?>
-					
 					<?php if($seat_mode == 'select' && $selectabilities) { ?><h3>开放席位分配</h3>
-					<p>以下席位权限已经开放给<?php echo icon('user', false).$profile['name'];?>代表，代表可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候补席位。</p>
+					<p>以下席位权限已经开放给<?php echo icon('user', false).$profile['name'];?>代表，代表可以在其中选择 1 个为其席位。</p>
 					<table id="selectability_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
 						<thead>
 							<tr>
@@ -460,7 +434,6 @@ $this->load->view('header');?>
 								<th>席位名称</th>
 								<th>委员会</th>
 								<th>等级</th>
-								<th>主项</th>
 								<th>推荐</th>
 							</tr>
 						</thead>
@@ -487,7 +460,7 @@ $this->load->view('header');?>
 							});
 						"); ?><div id="seat_add">
 					<h3>分配席位</h3>
-					<p><?php if($seat_mode == 'select') { ?>将会向<?php echo icon('user', false).$profile['name'];?>代表分配席位选择权限。之后，代表将可以在其中选择 1 个为其主席位，同时他还可以选择 <?php echo option('seat_backorder_max', 2);?> 个候补席位。<?php }
+					<p><?php if($seat_mode == 'select') { ?>将会向<?php echo icon('user', false).$profile['name'];?>代表分配席位选择权限。之后，代表将可以在其中选择 1 个为其席位。<?php }
 					else { ?>将会向<?php echo icon('user', false).$profile['name'];?>代表分配席位。<?php } ?></p>
 					<table id="seat_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
 						<thead>
