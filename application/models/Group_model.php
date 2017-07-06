@@ -108,11 +108,10 @@ class Group_model extends CI_Model
 	 * 添加代表团
 	 * @return int 新的代表团ID
 	 */
-	function add_group($name, $head_delegate = NULL, $group_payment = true)
+	function add_group($name, $head_delegate = NULL)
 	{
 		$data = array(
-			'name' => $name,
-			'group_payment' => $group_payment
+			'name' => $name
 		);
 		if(!empty($head_delegate))
 			$data['head_delegate'] = $head_delegate;
@@ -130,18 +129,6 @@ class Group_model extends CI_Model
 	{
 		$this->db->where('id', $id);
 		return $this->db->delete('group');
-	}
-	
-	/**
-	 * 检查代表团是否支付代表账单
-	 */
-	function is_group_paying($id)
-	{
-		$pay = $this->get_group($id, 'group_payment');
-		
-		if($pay)
-			return true;
-		return false;
 	}
 }
 

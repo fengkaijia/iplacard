@@ -88,15 +88,13 @@ class Group extends CI_Controller
 		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 		
 		$this->form_validation->set_rules('name', '团队名称', 'trim|required');
-		$this->form_validation->set_rules('group_payment', '团队支付方式', 'trim|required');
 		
 		if($this->form_validation->run() == true)
 		{
 			$post = $this->input->post();
 			
 			$data = array(
-				'name' => $post['name'],
-				'group_payment' => $post['group_payment'] ? true : false
+				'name' => $post['name']
 			);
 			
 			$new_id = $this->group_model->edit_group($data, $action == 'add' ? '' : $id);
@@ -274,7 +272,6 @@ class Group extends CI_Controller
 						$status['lock'] ? "<span class=\"text-{$this->statuses['lock']['class']}\">{$status['lock']} 人</span>" : '', //锁定状态
 						$status['wait'] ? "<span class=\"text-{$this->statuses['wait']['class']}\">{$status['wait']} 人</span>" : '', //等待状态
 						$head_delegate_line, //领队
-						$group['group_payment'] ? '团队支付' : '个人支付', //支付方式
 						$operation, //操作
 					);
 

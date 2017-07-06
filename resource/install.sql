@@ -52,8 +52,6 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}committee` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '委员会ID',
   `name` text NOT NULL COMMENT '委员会名称',
   `abbr` text NOT NULL COMMENT '委员会缩写',
-  `description` text COMMENT '委员会介绍',
-  `type` text COMMENT '委员会席位类型',
   `seat_width` int(11) DEFAULT NULL COMMENT '一般席位代表容量',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='委员会' AUTO_INCREMENT=1;
@@ -145,8 +143,6 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}group` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '代表团ID',
   `name` text NOT NULL COMMENT '代表团名称',
   `head_delegate` int(11) DEFAULT NULL COMMENT '负责代表ID',
-  `group_payment` int(11) DEFAULT NULL COMMENT '是否团队支付',
-  `geolocation` int(11) DEFAULT NULL COMMENT '地理位置',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='代表团' AUTO_INCREMENT=1;
 

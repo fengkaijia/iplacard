@@ -50,40 +50,13 @@
 						else { ?><div class="help-block">英文简写请尽量使用大写字母。</div><?php } ?>
 					</div>
 				</div>
-		
-				<div class="form-group <?php if(form_has_error('description')) echo 'has-error';?>">
-					<?php echo form_label('委员会介绍', 'description', array('class' => 'col-lg-2 control-label'));?>
-					<div class="col-lg-6">
-						<?php echo form_textarea(array(
-							'name' => 'description',
-							'id' => 'description',
-							'class' => 'form-control',
-							'rows' => 4,
-							'value' => set_value('description', $action == 'add' ? '' : $committee['description']),
-						));
-						if(form_has_error('description'))
-							echo form_error('description');
-						else { ?><div class="help-block">委员会详细介绍将会公开显示，可为空。</div><?php } ?>
-					</div>
-				</div>
 			<?php echo form_fieldset_close();?>
 			
 			<br />
 			
 			<?php echo form_fieldset('委员会设置'); ?>
 				<p>设置委员会类型数据，这些数据将会影响席位设置功能和与 iPlacard 对接的程序。</p>
-				
-				<div class="form-group <?php if(form_has_error('type')) echo 'has-error';?>">
-					<?php echo form_label('委员会类型', 'type', array('class' => 'col-lg-2 control-label'));?>
-					<div class="col-lg-4">
-						<?php
-						echo form_dropdown('type', empty($types) ? array('' => '委员会类型为空') : $types, set_value('type', $action == 'add' ? '' : $committee['type']), 'class="form-control" id="type"');
-						if(form_has_error('type'))
-							echo form_error('type');
-						else { ?><div class="help-block">委员会类型对应接口程序生效。</div><?php } ?>
-					</div>
-				</div>
-				
+		
 				<div class="form-group <?php if(form_has_error('seat_width')) echo 'has-error';?>">
 					<?php echo form_label('席位宽度', 'seat_width', array('class' => 'col-lg-2 control-label'));?>
 					<div class="col-lg-4">

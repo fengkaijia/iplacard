@@ -30,7 +30,6 @@ $this->load->view('header');?>
 			</th><?php $this->ui->js('footer', "$('#status_{$now_status}_help').popover();");
 			} ?>
 			<th>领队</th>
-			<th>支付方式</th>
 			<th>操作</th>
 		</tr>
 	</thead>
@@ -46,7 +45,7 @@ $ajax_js = <<<EOT
 $(document).ready(function() {
 	$('#group_list').dataTable( {
 		"aoColumnDefs": [
-			{ "bSortable": false, "aTargets": [ 0, 3, 4, 5, 6, 9 ] }
+			{ "bSortable": false, "aTargets": [ 0, 3, 4, 5, 6, 8 ] }
 		],
 		"bProcessing": true,
 		"bAutoWidth": false,

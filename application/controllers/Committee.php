@@ -8,19 +8,6 @@
 class Committee extends CI_Controller
 {
 	/**
-	 * @var array 委员会类型信息
-	 */
-	private $types = array(
-		'regular' => '常规委员会',
-		'special' => '特殊委员会',
-		'infoflow-sc' => 'Info Flow / 安理会',
-		'infoflow-cabinet' => 'Info Flow / 内阁',
-		'infoflow-press' => 'Info Flow / 媒体',
-		'infoflow-special' => 'Info Flow / 特殊委员会',
-		'law' => '法律委员会',
-	);
-	
-	/**
 	 * @var array 席位宽度信息
 	 */
 	private $widths = array(
@@ -92,7 +79,6 @@ class Committee extends CI_Controller
 			$action = 'add';
 		
 		//设定委员会信息
-		$vars['types'] = $this->types;
 		$vars['widths'] = $this->widths;
 		
 		if($action == 'edit')
@@ -123,8 +109,6 @@ class Committee extends CI_Controller
 			$data = array(
 				'name' => $post['name'],
 				'abbr' => $post['abbr'],
-				'description' => $post['description'],
-				'type' => $post['type'],
 				'seat_width' => $post['seat_width']
 			);
 			
@@ -278,11 +262,6 @@ class Committee extends CI_Controller
 					$dais_text = $dais_count.' 位主席<a style="cursor: pointer;" class="dais_list" data-html="1" data-placement="right" data-trigger="click" data-original-title="主席团列表" data-toggle="popover" data-content=\''.$dais_list.'\'>'.icon('info-circle', false).'</a>';
 
 					//委员会类型
-					if(in_array($committee['type'], array_keys($this->types)))
-						$type_text = $this->types[$committee['type']];
-					else
-						$type_text = '未知';
-
 					if(!empty($committee['seat_width']))
 					{
 						if(in_array($committee['seat_width'], array_keys($this->widths)))
@@ -307,7 +286,7 @@ class Committee extends CI_Controller
 						$committee['name'], //委员会名称
 						$committee['abbr'], //委员会缩写
 						$dais_text, //主席团
-						!empty($seat_width_text) ? "{$type_text} / {$seat_width_text}" : $type_text, //委员会类型
+						$seat_width_text, //委员会类型
 						$seat_line, //席位
 						$operation, //操作
 					);
