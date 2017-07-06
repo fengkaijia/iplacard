@@ -593,7 +593,7 @@ $(document).ready(function() {
 		"fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
 			$(nRow).attr("id", 'seat-' + aData[0]);
 			if($.inArray(aData[0], {$seat_opened_ids}) !== -1) {
-				$(nRow).children().eq(5).html('<p class="text-success">{$seat_opened_text}</p>');
+				$(nRow).children().eq(6).html('<p class="text-success">{$seat_opened_text}</p>');
 			}
 		},
 		/* TODO
