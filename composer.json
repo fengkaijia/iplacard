@@ -10,7 +10,28 @@
 		}
 	],
 	"require": {
+		"imunc/iplacard-3rdparty": "2.3.*",
 		"codeigniter/framework": "3.1.*",
 		"phpoffice/phpexcel": "1.8.*"
+	},
+	"repositories": [
+		{
+			"type":"package",
+			"package": {
+				"name": "imunc/iplacard-3rdparty",
+				"version": "2.3.0",
+				"source": {
+					"url": "https://dev.kaijia.me/imunc/iplacard-3rdparty.git",
+					"type": "git",
+					"reference": "v2.3"
+				}
+			}
+		}
+	],
+	"scripts": {
+		"pre-autoload-dump": [
+			"rm -Rf static/{css,js,fonts,img}",
+			"cp -R vendor/imunc/iplacard-3rdparty/css vendor/imunc/iplacard-3rdparty/js vendor/imunc/iplacard-3rdparty/fonts vendor/imunc/iplacard-3rdparty/img static/"
+		]
 	}
 }

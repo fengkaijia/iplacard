@@ -9,11 +9,11 @@
 	<link href="<?php echo static_url(is_dev() ? 'static/css/bootstrap.css' : 'static/css/bootstrap.min.css');?>" rel="stylesheet">
 	<link href="<?php echo static_url(is_dev() ? 'static/css/webfont.css' : 'static/css/webfont.min.css');?>" rel="stylesheet">
 	<link href="<?php echo static_url(is_dev() ? 'static/css/font-awesome.css' : 'static/css/font-awesome.min.css');?>" rel="stylesheet">
-	<link href="<?php echo static_url(is_dev() ? 'static/css/iplacard.css' : 'static/css/iplacard.min.css');?>" rel="stylesheet">
+	<link href="<?php echo static_url(is_dev() ? 'static/iplacard.css' : 'static/iplacard.min.css');?>" rel="stylesheet">
 	
 	<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.js' : 'static/js/jquery.min.js');?>"></script>
 	<script src="<?php echo static_url(is_dev() ? 'static/js/bootstrap.js' : 'static/js/bootstrap.min.js');?>"></script>
-	<script src="<?php echo static_url(is_dev() ? 'static/js/iplacard.js' : 'static/js/iplacard.min.js');?>"></script>
+	<script src="<?php echo static_url(is_dev() ? 'static/iplacard.js' : 'static/iplacard.min.js');?>"></script>
 	
 	<?php if(!empty($this->ui->js['header'])) { ?><script language="javascript"><?php echo is_dev() ? $this->ui->js['header'] : preg_replace("/\s+/", ' ', $this->ui->js['header']);?></script><?php } ?>
 
@@ -48,7 +48,7 @@
 		}
 	</style><?php } ?>
 
-	<link href="<?php echo static_url('static/img/favicon.ico');?>" rel="shortcut icon" />
+	<link href="<?php echo static_url('static/favicon.ico');?>" rel="shortcut icon" />
 
 	<?php if(!option('robots_allow', false)) { ?><meta name="robots" content="noallow" /><?php } ?>
 	<meta name="description" content="iPlacard is the Next-Gen Model United Nations Conference Management Service Provider backed by IMUNC." />
