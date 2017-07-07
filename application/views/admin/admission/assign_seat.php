@@ -34,8 +34,8 @@
 	}
 	
 	function add_seat(id) {
-		$('select[name="recommended_primary[]"]').append($('<option data-subtext="' + $('#seat-' + id).children().eq(2).html() + '"></option>').val($('#seat-' + id).children().eq(0).html()).html($('#seat-' + id).children().eq(1).html()));
-		$('<input>').attr('type','hidden').attr('name', 'seat_primary[]').val(id).appendTo('#seat_form');
+		$('select[name="recommended[]"]').append($('<option data-subtext="' + $('#seat-' + id).children().eq(2).html() + '"></option>').val($('#seat-' + id).children().eq(0).html()).html($('#seat-' + id).children().eq(1).html()));
+		$('<input>').attr('type','hidden').attr('name', 'seat_open[]').val(id).appendTo('#seat_form');
 		
 		$('#seat-' + id).children().eq(6).html('<a style="cursor: pointer;" onclick="remove_seat(' + id + ');"><?php echo icon('minus-square', false);?>移除</a>');
 		
@@ -43,7 +43,7 @@
 	}
 	
 	function remove_seat(id) {
-		$('select[name="recommended_primary[]"]').find('[value=' + id + ']').remove();
+		$('select[name="recommended[]"]').find('[value=' + id + ']').remove();
 		$('input[value=' + id + ']').remove();
 		
 		$('#seat-' + id).children().eq(6).html('<a style="cursor: pointer;" onclick="add_seat(' + id + ');"><?php echo icon('plus-square', false);?>开放</a>');
@@ -97,12 +97,12 @@ if($interview)
 		if($mode == 'select')
 		{ ?><p>下方选择框包含所有将要添加的席位列表，选定某一席位将会设置此席位为推荐席位。设置完成后点击提交分配将向代表开放选择框中所有席位。</p>
 		
-		<div class="form-group <?php if(form_has_error('recommended_primary')) echo 'has-error';?>">
-			<?php echo form_label('分配席位', 'recommended_primary', array('class' => 'control-label'));?>
+		<div class="form-group <?php if(form_has_error('recommended')) echo 'has-error';?>">
+			<?php echo form_label('分配席位', 'recommended', array('class' => 'control-label'));?>
 			<div>
-				<?php echo form_dropdown_multiselect('recommended_primary[]', array(), array(), false, array(), array(), array(), array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="选择推荐席位"');
-				if(form_has_error('recommended_primary'))
-					echo form_error('recommended_primary');
+				<?php echo form_dropdown_multiselect('recommended[]', array(), array(), false, array(), array(), array(), array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="选择推荐席位"');
+				if(form_has_error('recommended'))
+					echo form_error('recommended');
 				?>
 			</div>
 		</div>

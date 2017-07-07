@@ -1625,14 +1625,14 @@ class Delegate extends CI_Controller
 				
 				if($seat_mode == 'select')
 				{
-					$new_seat = $this->input->post('seat_primary');
+					$new_seat = $this->input->post('seat_open');
 					if(empty($new_seat))
 					{
 						$this->ui->alert('没有任何席位被分配开放。', 'warning', true);
 						break;
 					}
 
-					$new_recommended = $this->input->post('recommended_primary');
+					$new_recommended = $this->input->post('recommended');
 					if(empty($new_recommended))
 						$new_recommended = array();
 

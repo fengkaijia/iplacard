@@ -1,5 +1,5 @@
 <?php
-$option_primary = array();
+$option_available = array();
 $option_highlight = array();
 $option_html = array();
 foreach($selectabilities as $selectability)
@@ -7,7 +7,7 @@ foreach($selectabilities as $selectability)
 	$groupname = $committees[$selectability['seat']['committee']]['name'];
 	
 	if(in_array($selectability['seat']['id'], $selectability_available))
-		$option_primary[$groupname][$selectability['seat']['id']] = $selectability['seat']['name'];
+		$option_available[$groupname][$selectability['seat']['id']] = $selectability['seat']['name'];
 	
 	$option_html[$selectability['seat']['id']] = flag($selectability['seat']['iso'], true, true, false, false).$selectability['seat']['name'];
 	
@@ -243,20 +243,20 @@ $this->load->view('header');?>
 
 				<div id="do_select">
 					<?php
-					echo form_open_multipart('apply/seat/select', array('id' => 'seat_form'), array('seat_primary' => empty($seat) ? '' : $seat['id']));?>
+					echo form_open_multipart('apply/seat/select', array('id' => 'seat_form'), array('seat_selected' => empty($seat) ? '' : $seat['id']));?>
 						<p>请在下方下拉框中选择您的参会席位。完成选择后请点击提交席位选择按钮。</p>
 
-						<div class="form-group <?php if(form_has_error('primary')) echo 'has-error';?>">
-							<?php echo form_label('席位', 'primary', array('class' => 'control-label'));?>
+						<div class="form-group <?php if(form_has_error('seat')) echo 'has-error';?>">
+							<?php echo form_label('席位', 'seat', array('class' => 'control-label'));?>
 							<div>
-								<?php echo form_dropdown_select('primary', $option_primary, empty($seat) ? array() : $seat['id'], $selectability_available_count > 10 ? true : false, $option_highlight, array(), $option_html, array(), 'selectpicker flags-16', 'data-width="100%" title="选择席位"');
-								if(form_has_error('primary'))
-									echo form_error('primary');
+								<?php echo form_dropdown_select('seat', $option_available, empty($seat) ? array() : $seat['id'], $selectability_available_count > 10 ? true : false, $option_highlight, array(), $option_html, array(), 'selectpicker flags-16', 'data-width="100%" title="选择席位"');
+								if(form_has_error('seat'))
+									echo form_error('seat');
 								?>
 							</div>
-							<?php $this->ui->js('footer', "$('select[name=\"primary\"]').change(function () {
-								if($('select[name=\"primary\"]').val() != null) {
-									select_seat($('select[name=\"primary\"]').val());
+							<?php $this->ui->js('footer', "$('select[name=\"seat\"]').change(function () {
+								if($('select[name=\"seat\"]').val() != null) {
+									select_seat($('select[name=\"seat\"]').val());
 								}
 							});");?>
 						</div>
@@ -310,26 +310,26 @@ EOT;
 if($seat_mode == 'select')
 	$this->ui->js('footer', $selectability_js);
 
-$seat_primary_ids = json_encode(array());
+$seat_available_ids = json_encode(array());
 if($selectability_available)
-	$seat_primary_ids = json_encode($selectability_available);
+	$seat_available_ids = json_encode($selectability_available);
 $icon_remove = icon('minus-square', false);
-$icon_add_primary = icon('plus-square', false);
+$icon_add = icon('plus-square', false);
 $select_js = <<<EOT
 function select_seat(id) {
-	if($('input[name=seat_primary]').val() != '')
-		remove_seat($('input[name=seat_primary]').val());
+	if($('input[name=seat_selected]').val() != '')
+		remove_seat($('input[name=seat_selected]').val());
 	
-	$('select[name=primary]').val(id);
-	$('input[name=seat_primary]').val(id);
+	$('select[name=seat]').val(id);
+	$('input[name=seat_selected]').val(id);
 	$('.selectpicker').selectpicker('refresh');
 
 	select_text(id);
 }
 
 function remove_seat(id) {
-	$('select[name=primary]').val(null);
-	$('input[name=seat_primary]').val('');
+	$('select[name=seat]').val(null);
+	$('input[name=seat_selected]').val('');
 	$('.selectpicker').selectpicker('refresh');
 
 	deselect_text(id);
@@ -340,7 +340,7 @@ function select_text(id) {
 }
 
 function deselect_text(id) {
-	$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="select_seat(' + id + ');">{$icon_add_primary}选择</a>');
+	$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="select_seat(' + id + ');">{$icon_add}选择</a>');
 }
 EOT;
 if($seat_mode == 'select')

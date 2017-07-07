@@ -649,7 +649,7 @@ class Apply extends CI_Controller
 		{
 			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 		
-			$this->form_validation->set_rules('primary', '席位', 'trim|required|callback__check_selectability|callback__check_availability');
+			$this->form_validation->set_rules('seat', '席位', 'trim|required|callback__check_selectability|callback__check_availability');
 			$this->form_validation->set_message('_check_selectability', '席位选择不符合设定条件。');
 			$this->form_validation->set_message('_check_availability', '席位已被分配不可选择。');
 
@@ -659,7 +659,7 @@ class Apply extends CI_Controller
 				$this->load->library('parser');
 				$this->load->helper('date');
 
-				$select_seat = $this->input->post('primary');
+				$select_seat = $this->input->post('seat');
 				
 				//已有席位
 				$original_seat = $this->seat_model->get_delegate_seat($this->uid);
