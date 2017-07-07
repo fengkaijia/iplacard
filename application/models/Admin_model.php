@@ -7,6 +7,8 @@
  */
 class Admin_model extends CI_Model
 {
+	private $self = array();
+	
 	function __construct()
 	{
 		parent::__construct();
@@ -20,15 +22,25 @@ class Admin_model extends CI_Model
 	 */
 	function get_admin($id, $part = '')
 	{
-		$this->db->where('user.id', intval($id));
-		$this->db->join('admin', 'user.id = admin.id', 'left outer');
-		$query = $this->db->get('user');
-		
-		//如果无结果
-		if($query->num_rows() == 0)
-			return false;
-		
-		$data = $query->row_array();
+		if(!empty($this->self) && $id == uid())
+		{
+			$data = $this->self;
+		}
+		else
+		{
+			$this->db->where('user.id', intval($id));
+			$this->db->join('admin', 'user.id = admin.id', 'left outer');
+			$query = $this->db->get('user');
+			
+			//如果无结果
+			if($query->num_rows() == 0)
+				return false;
+			
+			$data = $query->row_array();
+			
+			if($id == uid())
+				$this->self = $data;
+		}
 		
 		//返回结果
 		if(empty($part))
