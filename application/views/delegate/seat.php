@@ -256,9 +256,7 @@ $this->load->view('header');?>
 							</div>
 							<?php $this->ui->js('footer', "$('select[name=\"primary\"]').change(function () {
 								if($('select[name=\"primary\"]').val() != null) {
-									var next = $('select[name=\"primary\"]').val();
-									deselect_primary($('input[name=seat_primary]').val());
-									select_primary(next);
+									select_seat($('select[name=\"primary\"]').val());
 								}
 							});");?>
 						</div>
@@ -320,15 +318,8 @@ $icon_add_primary = icon('plus-square', false);
 $select_js = <<<EOT
 function select_seat(id) {
 	if($('input[name=seat_primary]').val() != '')
-		deselect_primary($('input[name=seat_primary]').val());
-	select_primary(id);
-}
-
-function remove_seat(id) {
-	deselect_primary(id);
-}
-
-function select_primary(id) {
+		remove_seat($('input[name=seat_primary]').val());
+	
 	$('select[name=primary]').val(id);
 	$('input[name=seat_primary]').val(id);
 	$('.selectpicker').selectpicker('refresh');
@@ -336,7 +327,7 @@ function select_primary(id) {
 	select_text(id);
 }
 
-function deselect_primary(id) {
+function remove_seat(id) {
 	$('select[name=primary]').val(null);
 	$('input[name=seat_primary]').val('');
 	$('.selectpicker').selectpicker('refresh');
