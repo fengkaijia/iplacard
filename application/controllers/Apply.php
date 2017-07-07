@@ -788,6 +788,7 @@ class Apply extends CI_Controller
 					$primary_id = $seat_id;
 
 				$vars['attached_primary_id'] = $primary_id;
+				$vars['attached_double'] = $this->seat_model->is_double_seat($seat_id);
 
 				//席位信息
 				$attached_ids = $this->seat_model->get_attached_seat_ids($primary_id, true);

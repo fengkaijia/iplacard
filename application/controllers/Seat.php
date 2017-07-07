@@ -537,10 +537,15 @@ class Seat extends CI_Controller
 					
 					//席位名称
 					$name_line = flag($seat['iso'], true).'<span class="shorten">'.$seat['name'].'</span>';
-					if(!empty($seat['primary']))
-						$name_line .= ' <span class="label label-primary">子席位</span>';
-					elseif(!$this->seat_model->is_single_seat($id))
-						$name_line .= ' <span class="label label-primary">多代席位</span>';
+					if(!$this->seat_model->is_single_seat($id))
+					{
+						if($this->seat_model->is_double_seat($id))
+							$name_line .= ' <span class="label label-primary">多代席位</span>';
+						elseif(!empty($seat['primary']))
+							$name_line .= ' <span class="label label-primary">子席位</span>';
+						else
+							$name_line .= ' <span class="label label-primary">主席位</span>';
+					}
 					
 					//代表
 					$delegate_line = '';
@@ -618,10 +623,15 @@ class Seat extends CI_Controller
 					
 					//席位名称
 					$name_line = flag($seat['iso'], true).'<span class="shorten-select">'.$seat['name'].'</span>';
-					if(!empty($seat['primary']))
-						$name_line .= ' <span class="label label-primary">子席位</span>';
-					elseif(!$this->seat_model->is_single_seat($seat['id']))
-						$name_line .= ' <span class="label label-primary">多代席位</span>';
+					if(!$this->seat_model->is_single_seat($seat['id']))
+					{
+						if($this->seat_model->is_double_seat($seat['id']))
+							$name_line .= ' <span class="label label-primary">多代席位</span>';
+						elseif(!empty($seat['primary']))
+							$name_line .= ' <span class="label label-primary">子席位</span>';
+						else
+							$name_line .= ' <span class="label label-primary">主席位</span>';
+					}
 					
 					$data = array(
 						$seat['id'], //ID

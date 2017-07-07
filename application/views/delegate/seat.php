@@ -102,7 +102,7 @@ $this->load->view('header');?>
 		<?php if(!empty($attached_seats)) { ?>
 		<div class="tab-pane" id="attach">
 			<div class="col-md-8">
-				<h3>主席位</h3>
+				<h3><?php echo $attached_double ? '全部席位' : '主席位';?></h3>
 				<table class="table table-bordered table-striped table-hover flags-16">
 					<tbody>
 						<tr>
@@ -136,9 +136,9 @@ $this->load->view('header');?>
 					</tbody>
 				</table>
 				
-				<hr />
+				<?php if(!$attached_double) { ?><hr />
 				
-				<h3>子席位</h3>
+				<h3>子席位</h3><?php } else {?><br /><?php } ?>
 				<?php foreach($attached_seats as $attached_seat) { ?>
 				<table class="table table-bordered table-striped table-hover flags-16">
 					<tbody>
@@ -180,7 +180,7 @@ $this->load->view('header');?>
 			<div class="col-md-4">
 				<h3>多代席位</h3>
 				<p>您的席位为多代席位，本页显示与您合作代表该席位的代表。</p>
-				<p>请注意通常情况下，例如常见的双代席位，主席位和子席位没有区别，但部分情况下，例如正副代表席位，主席位和子席位可能存在上下级关系。部分尚无代表的席位将会提示尚未分配，多代名单将随着录取和席位滚动随时变化。</p>
+				<p>请注意通常情况下席位为常见的双代席位，部分情况下，例如正副代表席位，系统将标识主席位和子席位。部分尚无代表的席位将会提示尚未分配，多代名单将随着录取和席位滚动随时变化。</p>
 				<p>我们建议您使用提供的电子邮箱地址和其他信息联系您的合作代表。</p>
 			</div>
 		</div><?php } ?>

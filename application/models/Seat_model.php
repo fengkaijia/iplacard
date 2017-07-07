@@ -379,6 +379,24 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
+	 * 是否主席位和子席位为同等地位（同名同级同委）
+	 * @param int $id 单个席位ID
+	 * @return boolean
+	 */
+	function is_double_seat($id)
+	{
+		$primary = $this->get_seat($id, 'primary');
+		
+		$seats = $this->get_seats($this->get_attached_seat_ids(empty($primary) ? $id : $primary, true));
+		
+		//单代席位
+		if(count($seats) == 1)
+			return false;
+		
+		return count(array_count_values(array_column($seats, 'name'))) == 1 && count(array_count_values(array_column($seats, 'committee'))) == 1 && count(array_count_values(array_column($seats, 'level'))) == 1;
+	}
+	
+	/**
 	 * 获取席位许可信息
 	 * @param int $id 许可ID
 	 * @param string $part 指定部分
