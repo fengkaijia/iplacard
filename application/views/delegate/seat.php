@@ -324,7 +324,7 @@ function select_seat(id) {
 	$('input[name=seat_selected]').val(id);
 	$('.selectpicker').selectpicker('refresh');
 
-	select_text(id);
+	$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="remove_seat(' + id + ');">{$icon_remove}取消</a>');
 }
 
 function remove_seat(id) {
@@ -332,14 +332,6 @@ function remove_seat(id) {
 	$('input[name=seat_selected]').val('');
 	$('.selectpicker').selectpicker('refresh');
 
-	deselect_text(id);
-}
-
-function select_text(id) {
-	$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="remove_seat(' + id + ');">{$icon_remove}移除</a>');
-}
-
-function deselect_text(id) {
 	$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="select_seat(' + id + ');">{$icon_add}选择</a>');
 }
 EOT;
