@@ -535,20 +535,6 @@ class Cron extends CI_Controller
 					$data['seat'] = $this->seat_model->get_seat($seat_id);
 					$this->seat_model->change_seat_status($seat_id, 'available', NULL);
 					$this->seat_model->assign_seat($seat_id, NULL);
-					
-					//TODO: 候补席位调整
-				}
-				
-				//席位候补
-				$item_ids = $this->seat_model->get_delegate_backorder($id);
-				if($item_ids)
-				{
-					foreach($item_ids as $item_id)
-					{
-						$data['seat_backorder'][$item_id] = $this->seat_model->get_backorder($item_id);
-					}
-					
-					$delete_schema['delegate'][] = 'seat_backorder';
 				}
 				
 				//席位选择

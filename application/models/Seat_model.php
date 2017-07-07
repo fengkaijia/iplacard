@@ -379,252 +379,6 @@ class Seat_model extends CI_Model
 	}
 	
 	/**
-	 * 获取席位延期请求信息
-	 * @param int $id 延期请求ID
-	 * @param string $part 指定部分
-	 * @return array|string|boolean 信息，如不存在返回FALSE
-	 */
-	function get_backorder($id, $part = '')
-	{
-		$this->db->where('id', $id);
-		$query = $this->db->get('seat_backorder');
-		
-		//如果无结果
-		if($query->num_rows() == 0)
-			return false;
-		
-		$data = $query->row_array();
-		
-		//返回结果
-		if(empty($part))
-			return $data;
-		return $data[$part];
-	}
-	
-	/**
-	 * 批量席位延期请求信息
-	 * @param array $ids 延期请求IDs
-	 * @return array|string|boolean 信息，如不存在返回FALSE
-	 */
-	function get_backorders($ids = array())
-	{
-		if(!empty($ids))
-			$this->db->where_in('id', $ids);
-		$query = $this->db->get('seat_backorder');
-		
-		//如果无结果
-		if($query->num_rows() == 0)
-			return false;
-		
-		$return = array();
-		
-		foreach($query->result_array() as $data)
-		{
-			$return[$data['id']] = $data;
-		}
-		$query->free_result();
-		
-		//返回结果
-		return $return;
-	}
-	
-	/**
-	 * 查询符合条件的第一个延期请求ID
-	 * @return int|false 符合查询条件的第一个延期请求ID，如不存在返回FALSE
-	 */
-	function get_backorder_id()
-	{
-		$args = func_get_args();
-		array_unshift($args, 'seat_backorder');
-		//将参数传递给get_id方法
-		return call_user_func_array(array($this->sql_model, 'get_id'), $args);
-	}
-	
-	/**
-	 * 查询符合条件的所有延期请求ID
-	 * @return array|false 符合查询条件的所有延期请求ID，如不存在返回FALSE
-	 */
-	function get_backorder_ids()
-	{
-		$args = func_get_args();
-		array_unshift($args, 'seat_backorder');
-		//将参数传递给get_ids方法
-		return call_user_func_array(array($this->sql_model, 'get_ids'), $args);
-	}
-	
-	/**
-	 * 根据一组延期请求ID获取对应席位ID
-	 * @param int|array $ids 一个或一组延期请求ID
-	 */
-	function get_seats_by_backorders($ids)
-	{
-		//仅单个延期请求ID
-		if(is_int($ids) || is_string($ids))
-			$ids = array($ids);
-		
-		$this->db->where_in('id', $ids);
-		
-		$query = $this->db->get('seat_backorder');
-		
-		//如果无结果
-		if($query->num_rows() == 0)
-			return false;
-		
-		//返回ID
-		foreach($query->result_array() as $data)
-		{
-			$array[] = $data['seat'];
-		}
-		$query->free_result();
-		
-		return $array;
-	}
-	
-	/**
-	 * 获取指定席位的所有延期请求
-	 */
-	function get_seat_backorders($seat, $only_valid = true)
-	{
-		if(!$only_valid)
-			return $this->get_backorder_ids('seat', $seat);
-		
-		$non_forever = $this->get_backorder_ids('seat', $seat, 'status', 'pending', 'expire_time >=', time());
-		if(!$non_forever)
-			$non_forever = array();
-		
-		$forever = $this->get_backorder_ids('seat', $seat, 'status', 'pending', 'expire_time', 0);
-		if(!$forever)
-			$forever = array();
-		
-		$all = array_merge($forever, $non_forever);
-		return empty($all) ? false : $all;
-	}
-	
-	/**
-	 * 获取指定代表的所有候补席位
-	 */
-	function get_delegate_backorder($delegate, $only_valid = true)
-	{
-		if(!$only_valid)
-			return $this->get_backorder_ids('delegate', $delegate);
-		
-		$non_forever = $this->get_backorder_ids('delegate', $delegate, 'status', 'pending', 'expire_time >=', time());
-		if(!$non_forever)
-			$non_forever = array();
-		
-		$forever = $this->get_backorder_ids('delegate', $delegate, 'status', 'pending', 'expire_time', 0);
-		if(!$forever)
-			$forever = array();
-		
-		$all = array_merge($forever, $non_forever);
-		return empty($all) ? false : $all;
-	}
-	
-	/**
-	 * 编辑/添加席位延期请求
-	 * @return int 新的延期请求ID
-	 */
-	function edit_backorder($data, $id = '')
-	{
-		//新增延期请求
-		if(empty($id))
-		{
-			$this->db->insert('seat_backorder', $data);
-			return $this->db->insert_id();
-		}
-		
-		//更新延期请求
-		$this->db->where('id', $id);
-		return $this->db->update('seat_backorder', $data);
-	}
-	
-	/**
-	 * 添加席位延期请求
-	 * @return int 新的延期请求ID
-	 */
-	function add_backorder($seat, $delegate, $expire = false)
-	{
-		$data = array(
-			'seat' => $seat,
-			'delegate' => $delegate,
-			'order_time' => time(),
-			'expire_time' => 0,
-			'status' => 'pending'
-		);
-		
-		if($expire)
-			$data['expire_time'] = $expire;
-		
-		//返回新延期请求ID
-		return $this->edit_backorder($data);
-	}
-	
-	/**
-	 * 删除席位延期请求
-	 * @param int|array $id 一个或一组延期请求ID
-	 * @return boolean 是否完成删除
-	 */
-	function delete_backorder($id)
-	{
-		if(is_int($id) || is_string($id))
-			$id = array($id);
-		
-		$this->db->where_in('id', $id);
-		return $this->db->delete('seat_backorder');
-	}
-	
-	/**
-	 * 更改席位延期请求状态
-	 */
-	function change_backorder_status($id, $status)
-	{
-		$available = array(
-			'pending',
-			'accepted',
-			'expired',
-			'cancelled'
-		);
-		
-		if(!in_array($status, $available))
-			return false;
-		
-		return $this->edit_backorder(array('status' => $status), $id);
-	}
-	
-	/**
-	 * 检查席位是否有延期请求
-	 */
-	function is_backordered($id)
-	{
-		if(!$this->get_backorder_ids('seat', $id, 'status', 'pending', 'expire_time >=', time()))
-			if(!$this->get_backorder_ids('seat', $id, 'status', 'pending', 'expire_time', 0))
-				return false;
-		return true;
-	}
-	
-	/**
-	 * 检查席位延期请求是否有效
-	 */
-	function is_backorder_valid($id)
-	{
-		$backorder = $this->get_backorder($id);
-		
-		//延期请求不存在
-		if(!$backorder)
-			return false;
-		
-		//延期请求过期
-		if($backorder['expire_time'] < time() && $backorder['expire_time'] > 0)
-			return false;
-		
-		//延期请求状态不可接受
-		if($backorder['status'] != 'pending')
-			return false;
-		
-		return true;
-	}
-	
-	/**
 	 * 获取席位许可信息
 	 * @param int $id 许可ID
 	 * @param string $part 指定部分
@@ -729,11 +483,9 @@ class Seat_model extends CI_Model
 	/**
 	 * 获取指定代表的所有席位许可
 	 */
-	function get_delegate_selectability($delegate, $only_primary = false, $only_recommended = false, $return = 'selectability')
+	function get_delegate_selectability($delegate, $only_recommended = false, $return = 'selectability')
 	{
 		$this->db->where('delegate', $delegate);
-		if($only_primary)
-			$this->db->where('primary', true);
 		if($only_recommended)
 			$this->db->where('recommended', true);
 		
@@ -765,13 +517,12 @@ class Seat_model extends CI_Model
 	/**
 	 * 授权许可
 	 * @param int|array $seats 一个或一组席位ID
-	 * @param type $delegate 代表ID
-	 * @param type $admin 授权管理员ID
-	 * @param type $primary 是否授权主许可
-	 * @param type $recommended 是否推荐
+	 * @param int $delegate 代表ID
+	 * @param int $admin 授权管理员ID
+	 * @param bool $recommended 是否推荐
 	 * @return int 第一个新许可ID
 	 */
-	function grant_selectability($seats, $delegate, $admin, $primary = true, $recommended = false)
+	function grant_selectability($seats, $delegate, $admin, $recommended = false)
 	{
 		if(is_int($seats) || is_string($seats))
 			$seats = array($seats);
@@ -784,7 +535,6 @@ class Seat_model extends CI_Model
 				'seat' => $seat,
 				'delegate' => $delegate,
 				'admin' => $admin,
-				'primary' => $primary,
 				'recommended' => $recommended,
 				'time' => time()
 			);
@@ -808,14 +558,6 @@ class Seat_model extends CI_Model
 		
 		$this->db->where_in('id', $id);
 		return $this->db->delete('seat_selectability');
-	}
-	
-	/**
-	 * 检查席位许可是否是主许可
-	 */
-	function is_primary_selectability($id)
-	{
-		return $this->get_selectability($id, 'primary') ? true : false;
 	}
 	
 	/**

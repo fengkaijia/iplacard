@@ -1,16 +1,14 @@
 <?php
-$option_primary = array();
-$option_backorder = array();
+$option_available = array();
 $option_highlight = array();
 $option_html = array();
 foreach($selectabilities as $selectability)
 {
 	$groupname = $committees[$selectability['seat']['committee']]['name'];
 	
-	if($selectability['primary'])
-		$option_primary[$groupname][$selectability['seat']['id']] = $selectability['seat']['name'];
+	if(in_array($selectability['seat']['id'], $selectability_available))
+		$option_available[$groupname][$selectability['seat']['id']] = $selectability['seat']['name'];
 	
-	$option_backorder[$groupname][$selectability['seat']['id']] = $selectability['seat']['name'];
 	$option_html[$selectability['seat']['id']] = flag($selectability['seat']['iso'], true, true, false, false).$selectability['seat']['name'];
 	
 	if($selectability['recommended'])
@@ -78,29 +76,6 @@ $this->load->view('header');?>
 				<?php if(!empty($attached_seats)) { ?><p>当前席位为多代席位，您可以查看与您共同代表该席位的代表信息。</p>
 				<a id="seat_change_start" href="#attach" data-toggle="tab" class="btn btn-primary" onclick="$('.nav-menu li').removeClass('active'); $('#attach_tab').addClass('active');">查看席位多代信息</a><?php
 				} ?>
-				
-				<?php if(!empty($backorders)) { ?>
-				<hr />
-				
-				<h3>席位候补</h3>
-				<p>您已请求以下席位为候补，在您锁定现有席位前，您将有可能被调整为以下席位。</p>
-				<table id="backorder_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
-					<thead>
-						<tr>
-							<th>候补席位名称</th>
-							<th>委员会</th>
-							<th>候补请求时间</th>
-						</tr>
-					</thead>
-
-					<tbody>
-						<?php foreach($backorders as $backorder) { ?><tr>
-							<td><?php echo flag($backorder['seat']['iso'], true).$backorder['seat']['name'];?></td>
-							<td><?php echo $backorder['seat']['committee']['name'];?></td>
-							<td><?php echo sprintf('%1$s（%2$s）', date('n月j日', $backorder['order_time']), nicetime($backorder['order_time']));?></td>
-						</tr><?php } ?>
-					</tbody>
-				</table><?php } ?>
 			</div>
 			
 			<div class="col-md-4">
@@ -213,8 +188,7 @@ $this->load->view('header');?>
 		<?php if($seat_mode == 'select') { ?><div class="tab-pane<?php echo empty($seat) ? ' active' : '';?>" id="select">
 			<div class="col-md-8">
 				<h3>席位分配</h3>
-				<p>我们已经向您分配了 <?php echo $selectability_count;?> 个席位，其中包括了 <?php echo $selectability_primary_count;?> 个主分配席位和 <?php echo $selectability_count - $selectability_primary_count;?> 个候补分配席位。如有席位显示为候补分配席位，说明您的面试官无法开放此席位为主分配席位，这通常表示此席位已经被其他代表选中。</p>
-				<p>您可以在主分配席位中选择 1 个席位为您的参会席位，同时在以下所有席位中选择最多 <?php echo $select_backorder_max;?> 个席位为候补。当您候补席位的现有代表因故退会或更换席位导致您候补的席位空出时，您将有机会更换您的席位为此候补席位。因此，通常情况下，您候补的席位难度应当高于您现选中的席位。</p>
+				<p>我们已经向您分配了 <?php echo $selectability_count;?> 个席位，其中包括了 <?php echo $selectability_available_count;?> 个当前可选席位和 <?php echo $selectability_count - $selectability_available_count;?> 个当前不可选席位。不可选席位指虽然面试官开放了此席位选项，但已经被其他代表选中的席位，如果该代表后续因故退会或更换席位时，此席位将再次可选。</p>
 				<p>面试官推荐的席位已被加粗显示。如果您对以下席位感到不满意或不适合，您可以与您的面试官<?php echo anchor('apply/interview', '联系');?>，他将可以向您提供更多席位供选择。</p>
 
 				<table id="selectability_list" class="table table-striped table-bordered table-hover table-responsive flags-16">
@@ -240,13 +214,12 @@ $this->load->view('header');?>
 							<td><?php echo $committees[$one_seat['committee']]['name'];?></td>
 							<td><?php
 							if($selectability['seat']['delegate'] != $delegate['id'])
-								echo $selectability['primary'] ? '<span class="text-success">主分配席位</span>' : '<span class="text-primary">候补分配席位</span>';
+								echo in_array($one_seat['id'], $selectability_available) ? '<span class="text-primary">可选席位</span>' : '<span class="text-muted">不可选席位</span>';
 							else
-								echo '<span class="text-success">已选为主席位</span>';?></td>
+								echo '<span class="text-success">已选席位</span>';?></td>
 							<td><?php printf('%1$s（%2$s）', date('n月j日', $selectability['time']), nicetime($selectability['time']));?></td>
-							<td><?php if($selectability['primary'] && $one_seat['status'] != 'assigned')
-								echo '<a style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].', true);">'.icon('plus-square', false).'席位</a> ';
-							echo '<a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].', false);">'.icon('plus-square-o', false).'候补</a>';?></td>
+							<td><?php if(in_array($one_seat['id'], $selectability_available))
+								echo '<a style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].');">'.icon('plus-square', false).'选择</a>';?></td>
 						</tr><?php } ?>
 					</tbody>
 				</table>
@@ -270,38 +243,20 @@ $this->load->view('header');?>
 
 				<div id="do_select">
 					<?php
-					echo form_open_multipart('apply/seat/select', array('id' => 'seat_form'), array('seat_primary' => empty($seat) ? '' : $seat['id']));?>
-						<p>请在下方下拉框中选择您的参会席位和席位候补。完成选择后请点击提交席位选择按钮。</p>
+					echo form_open_multipart('apply/seat/select', array('id' => 'seat_form'), array('seat_selected' => empty($seat) ? '' : $seat['id']));?>
+						<p>请在下方下拉框中选择您的参会席位。完成选择后请点击提交席位选择按钮。</p>
 
-						<div class="form-group <?php if(form_has_error('primary')) echo 'has-error';?>">
-							<?php echo form_label('席位', 'primary', array('class' => 'control-label'));?>
+						<div class="form-group <?php if(form_has_error('seat')) echo 'has-error';?>">
+							<?php echo form_label('席位', 'seat', array('class' => 'control-label'));?>
 							<div>
-								<?php echo form_dropdown_select('primary', $option_primary, empty($seat) ? array() : $seat['id'], $selectability_primary_count > 10 ? true : false, $option_highlight, array(), $option_html, array(), 'selectpicker flags-16', 'data-width="100%" title="选择主席位"');
-								if(form_has_error('primary'))
-									echo form_error('primary');
+								<?php echo form_dropdown_select('seat', $option_available, empty($seat) ? array() : $seat['id'], $selectability_available_count > 10 ? true : false, $option_highlight, array(), $option_html, array(), 'selectpicker flags-16', 'data-width="100%" title="选择席位"');
+								if(form_has_error('seat'))
+									echo form_error('seat');
 								?>
 							</div>
-							<?php $this->ui->js('footer', "$('select[name=\"primary\"]').change(function () {
-								if($('select[name=\"primary\"]').val() != null) {
-									deselect_primary($('input[name=seat_primary]').val());
-									select_primary($('select[name=\"primary\"]').val());
-								}
-							});");?>
-						</div>
-
-						<div class="form-group <?php if(form_has_error('backorder')) echo 'has-error';?>">
-							<?php echo form_label('席位候补', 'backorder', array('class' => 'control-label'));?>
-							<div>
-								<?php echo form_dropdown_multiselect('backorder[]', $option_backorder, empty($backorders) ? array() : $backordered_seats, $selectability_count > 10 ? true : false, $option_highlight, array(), $option_html, array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="请选择最多 '.$select_backorder_max.' 个席位为候补"');
-								if(form_has_error('backorder'))
-									echo form_error('backorder');
-								?>
-							</div>
-							<?php $this->ui->js('footer', "$('select[name=\"backorder[]\"]').change(function () {
-								if($('select[name=\"backorder[]\"] option:selected').length == $select_backorder_max) {
-									lock_backorder();
-								} else {
-									unlock_backorder();
+							<?php $this->ui->js('footer', "$('select[name=\"seat\"]').change(function () {
+								if($('select[name=\"seat\"]').val() != null) {
+									select_seat($('select[name=\"seat\"]').val());
 								}
 							});");?>
 						</div>
@@ -355,96 +310,30 @@ EOT;
 if($seat_mode == 'select')
 	$this->ui->js('footer', $selectability_js);
 
-//TODO
-$seat_primary_ids = json_encode(array());
-if($selectability_primary)
-	$seat_primary_ids = json_encode($selectability_primary);
+$seat_available_ids = json_encode(array());
+if($selectability_available)
+	$seat_available_ids = json_encode($selectability_available);
 $icon_remove = icon('minus-square', false);
-$icon_add_primary = icon('plus-square', false);
-$icon_add_backorder = icon('plus-square-o', false);
+$icon_add = icon('plus-square', false);
 $select_js = <<<EOT
-function select_seat(id, primary) {
-	if(primary === true) {
-		if($('input[name=seat_primary]').val() != '')
-			deselect_primary($('input[name=seat_primary]').val());
-		select_primary(id);
-	} else {
-		select_backorder(id);
-	}
+function select_seat(id) {
+	if($('input[name=seat_selected]').val() != '')
+		remove_seat($('input[name=seat_selected]').val());
+	
+	$('select[name=seat]').val(id);
+	$('input[name=seat_selected]').val(id);
+	$('.selectpicker').selectpicker('refresh');
+
+	$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="remove_seat(' + id + ');">{$icon_remove}取消</a>');
 }
 
 function remove_seat(id) {
-	deselect_primary(id);
-	deselect_backorder(id);
-}
-
-function select_primary(id) {
-	deselect_backorder(id);
-
-	$('select[name=primary]').val(id);
-	$('select[name="backorder[]"]').find('[value=' + id + ']').attr('disabled', 'disabled');
-	$('input[name=seat_primary]').val(id);
+	$('select[name=seat]').val(null);
+	$('input[name=seat_selected]').val('');
 	$('.selectpicker').selectpicker('refresh');
 
-	select_text(id);
+	$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="select_seat(' + id + ');">{$icon_add}选择</a>');
 }
-
-function deselect_primary(id) {
-	$('select[name="backorder[]"]').find('[value=' + id + ']').removeAttr('disabled');
-	$('.selectpicker').selectpicker('refresh');
-
-	deselect_text(id);
-}
-
-function select_backorder(id) {
-	var added = [];
-	var selected = $('select[name="backorder[]"]').val();
-
-	if(selected === null) {
-		$('select[name="backorder[]"]').val(id);
-	} else {
-		$('select[name="backorder[]"]').selectpicker('deselectAll');
-		$('select[name="backorder[]"]').val([id,selected]);
-	}
-
-	$('.selectpicker').selectpicker('refresh');
-
-	select_text(id);
-}
-
-function deselect_backorder(id) {
-	$('select[name="backorder[]"]').find('[value=' + id + ']').removeAttr('selected');
-	$('.selectpicker').selectpicker('refresh');
-
-	deselect_text(id);
-}
-
-function select_text(id) {
-	$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="remove_seat(' + id + ');">{$icon_remove}移除</a>');
-}
-
-function deselect_text(id) {
-	if($.inArray(id, {$seat_primary_ids}) !== -1) {
-		$('#seat-' + id).children().eq(4).html('<a style="cursor: pointer;" onclick="select_seat(' + id + ', true);">{$icon_add_primary}席位</a> <a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat(' + id + ', false);">{$icon_add_backorder}候补</a>');
-	} else {
-		$('#seat-' + id).children().eq(4).html('<a class="select_backorder_button" style="cursor: pointer;" onclick="select_seat(' + id + ', false);">{$icon_add_backorder}候补</a>');
-	}
-}
-
-function lock_backorder() {
-	$('a[class=select_backorder_button]').hide();
-
-	$('select[name="backorder[]"] option:not(:selected)').attr('disabled', 'disabled');
-	$('.selectpicker').selectpicker('refresh');
-}
-
-function unlock_backorder() {
-	$('a[class=select_backorder_button]').show();
-
-	$('select[name="backorder[]"] option').removeAttr('disabled');
-	$('select[name="backorder[]"]').find('[value=' + $('input[name=seat_primary]').val() + ']').attr('disabled', 'disabled');
-	$('.selectpicker').selectpicker('refresh');
-}	
 EOT;
 if($seat_mode == 'select')
 	$this->ui->js('footer', $select_js);

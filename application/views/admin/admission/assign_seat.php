@@ -33,25 +33,20 @@
 		$('.selectpicker').selectpicker('refresh');
 	}
 	
-	function add_seat(id, primary) {
-		if(primary === true) {
-			$('select[name="recommended_primary[]"]').append($('<option data-subtext="' + $('#seat-' + id).children().eq(2).html() + '"></option>').val($('#seat-' + id).children().eq(0).html()).html($('#seat-' + id).children().eq(1).html()));
-			$('<input>').attr('type','hidden').attr('name', 'seat_primary[]').val(id).appendTo('#seat_form');
-		} else {
-			$('select[name="recommended_backorder[]"]').append($('<option data-subtext="' + $('#seat-' + id).children().eq(2).html() + '"></option>').val($('#seat-' + id).children().eq(0).html()).html($('#seat-' + id).children().eq(1).html()));
-			$('<input>').attr('type','hidden').attr('name', 'seat_backorder[]').val(id).appendTo('#seat_form');		
-		}
+	function add_seat(id) {
+		$('select[name="recommended[]"]').append($('<option data-subtext="' + $('#seat-' + id).children().eq(2).html() + '"></option>').val($('#seat-' + id).children().eq(0).html()).html($('#seat-' + id).children().eq(1).html()));
+		$('<input>').attr('type','hidden').attr('name', 'seat_open[]').val(id).appendTo('#seat_form');
+		
 		$('#seat-' + id).children().eq(6).html('<a style="cursor: pointer;" onclick="remove_seat(' + id + ');"><?php echo icon('minus-square', false);?>移除</a>');
 		
 		$('.selectpicker').selectpicker('refresh');
 	}
 	
 	function remove_seat(id) {
-		$('select[name="recommended_primary[]"]').find('[value=' + id + ']').remove();
-		$('select[name="recommended_backorder[]"]').find('[value=' + id + ']').remove();
+		$('select[name="recommended[]"]').find('[value=' + id + ']').remove();
 		$('input[value=' + id + ']').remove();
 		
-		$('#seat-' + id).children().eq(6).html('<a style="cursor: pointer;" onclick="add_seat(' + id + ', true);"><?php echo icon('plus-square', false);?>主项</a> <a style="cursor: pointer;" onclick="add_seat(' + id + ', false);"><?php echo icon('plus-square-o', false);?>候补</a>');
+		$('#seat-' + id).children().eq(6).html('<a style="cursor: pointer;" onclick="add_seat(' + id + ');"><?php echo icon('plus-square', false);?>开放</a>');
 		
 		$('.selectpicker').selectpicker('refresh');
 	}
@@ -83,7 +78,7 @@ if($interview)
 		if(!$assigned)
 			echo '<p>现在您可以为代表分配席位选择。</p>';
 		else
-			echo "<p>您已经为代表开放了 {$selectability_count} 个席位，其中包括 {$selectability_primary_count} 个主项席位。在申请锁定之前，您仍可以追加分配更多席位。</p>";
+			echo "<p>您已经为代表开放了 {$selectability_count} 个席位。在申请锁定之前，您仍可以追加分配更多席位。</p>";
 	}
 	else
 	{
@@ -102,26 +97,17 @@ if($interview)
 		if($mode == 'select')
 		{ ?><p>下方选择框包含所有将要添加的席位列表，选定某一席位将会设置此席位为推荐席位。设置完成后点击提交分配将向代表开放选择框中所有席位。</p>
 		
-		<div class="form-group <?php if(form_has_error('recommended_primary')) echo 'has-error';?>">
-			<?php echo form_label('主分配席位', 'recommended_primary', array('class' => 'control-label'));?>
+		<div class="form-group <?php if(form_has_error('recommended')) echo 'has-error';?>">
+			<?php echo form_label('分配席位', 'recommended', array('class' => 'control-label'));?>
 			<div>
-				<?php echo form_dropdown_multiselect('recommended_primary[]', array(), array(), false, array(), array(), array(), array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="选择推荐席位"');
-				if(form_has_error('recommended_primary'))
-					echo form_error('recommended_primary');
+				<?php echo form_dropdown_multiselect('recommended[]', array(), array(), false, array(), array(), array(), array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="选择推荐席位"');
+				if(form_has_error('recommended'))
+					echo form_error('recommended');
 				?>
 			</div>
 		</div>
 	
-		<div class="form-group <?php if(form_has_error('recommended_backorder')) echo 'has-error';?>">
-			<?php echo form_label('候补分配席位', 'recommended_backorder', array('class' => 'control-label'));?>
-			<div>
-				<?php echo form_dropdown_multiselect('recommended_backorder[]', array(), array(), false, array(), array(), array(), array(), 'selectpicker flags-16', 'data-selected-text-format="count" data-width="100%" title="选择推荐席位"');
-				if(form_has_error('recommended_backorder'))
-					echo form_error('recommended_backorder');
-				?>
-			</div>
-		</div><?php }
-		else
+		<?php }	else
 		{
 			echo form_hidden('assign_id', $assigned ? $old_id : NULL); ?><p>请在表格中选择席位，点击席位右侧分配后将会显示席位信息。</p>
 		<div class="form-group">
