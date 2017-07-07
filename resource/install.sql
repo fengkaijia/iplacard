@@ -239,7 +239,6 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}note` (
 CREATE TABLE IF NOT EXISTS `{IP_PREFIX}note_category` (
   `id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '分类ID',
   `name` varchar(128) NOT NULL COMMENT '分类名称',
-  `type` varchar(128) COMMENT '分类类型',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='注释笔记分类';
 
