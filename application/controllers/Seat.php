@@ -537,9 +537,9 @@ class Seat extends CI_Controller
 					
 					//席位名称
 					$name_line = flag($seat['iso'], true).'<span class="shorten">'.$seat['name'].'</span>';
-					if(!$this->seat_model->is_single_seat($id))
+					if(isset($seat['double']))
 					{
-						if($this->seat_model->is_double_seat($id))
+						if($seat['double'])
 							$name_line .= ' <span class="label label-primary">多代席位</span>';
 						elseif(!empty($seat['primary']))
 							$name_line .= ' <span class="label label-primary">子席位</span>';
@@ -623,9 +623,9 @@ class Seat extends CI_Controller
 					
 					//席位名称
 					$name_line = flag($seat['iso'], true).'<span class="shorten-select">'.$seat['name'].'</span>';
-					if(!$this->seat_model->is_single_seat($seat['id']))
+					if(isset($seat['double']))
 					{
-						if($this->seat_model->is_double_seat($seat['id']))
+						if($seat['double'])
 							$name_line .= ' <span class="label label-primary">多代席位</span>';
 						elseif(!empty($seat['primary']))
 							$name_line .= ' <span class="label label-primary">子席位</span>';

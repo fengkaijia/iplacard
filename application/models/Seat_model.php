@@ -54,36 +54,56 @@ class Seat_model extends CI_Model
 	 */
 	function get_seats($ids = array())
 	{
-		if(!empty($ids))
-			$this->db->where_in('id', $ids);
 		$query = $this->db->get('seat');
 		
 		//如果无结果
 		if($query->num_rows() == 0)
 			return false;
 		
-		$return = array();
-		
+		//原始数据
+		$all = array();
 		foreach($query->result_array() as $data)
 		{
-			//子席位
-			if(!empty($data['primary']) && $data['primary'] != $data['id'])
-			{
-				$primary = $this->get_seat($data['primary']);
-
-				foreach($data as $key => $value)
-				{
-					if(empty($value) && !in_array($key, array('delegate', 'status', 'time')))
-						$data[$key] = $primary[$key];
-				}
-			}
-			
-			$return[$data['id']] = $data;
+			$all[$data['id']] = $data;
 		}
 		$query->free_result();
 		
+		//补齐子席位空白的数据
+		$primaries = array();
+		foreach($all as $id => $data)
+		{
+			if(!empty($data['primary']) && $data['primary'] != $data['id'])
+			{
+				foreach($data as $key => $value)
+				{
+					if(empty($value) && !in_array($key, array('delegate', 'status', 'time')))
+						$data[$key] = $all[$data['primary']][$key];
+				}
+				
+				$all[$id] = $data;
+				
+				if(isset($primaries[$data['primary']]))
+					$primaries[$data['primary']][] = $id;
+				else
+					$primaries[$data['primary']] = array($data['primary'], $id);
+			}
+		}
+		
+		//计算席位是否为平级多代后的数据
+		foreach($primaries as $primary => $subs)
+		{
+			$double = $this->is_double_seat(array_intersect_key($all, array_flip($subs)));
+			
+			foreach($subs as $id)
+			{
+				$all[$id]['double'] = $double;
+			}
+		}
+		
 		//返回结果
-		return $return;
+		if(!empty($ids))
+			return array_intersect_key($all, array_flip($ids));
+		return $all;
 	}
 	
 	/**
@@ -380,20 +400,23 @@ class Seat_model extends CI_Model
 	
 	/**
 	 * 是否主席位和子席位为同等地位（同名同级同委）
-	 * @param int $id 单个席位ID
+	 * @param array|int $key 席位数组或单个席位ID
 	 * @return boolean
 	 */
-	function is_double_seat($id)
+	function is_double_seat($key)
 	{
-		$primary = $this->get_seat($id, 'primary');
-		
-		$seats = $this->get_seats($this->get_attached_seat_ids(empty($primary) ? $id : $primary, true));
+		if(!is_array($key))
+		{
+			$primary = $this->get_seat($key, 'primary');
+			
+			$key = $this->get_seats($this->get_attached_seat_ids(empty($primary) ? $key : $primary, true));
+		}
 		
 		//单代席位
-		if(count($seats) == 1)
+		if(count($key) == 1)
 			return false;
 		
-		return count(array_count_values(array_column($seats, 'name'))) == 1 && count(array_count_values(array_column($seats, 'committee'))) == 1 && count(array_count_values(array_column($seats, 'level'))) == 1;
+		return count(array_count_values(array_column($key, 'name'))) == 1 && count(array_count_values(array_column($key, 'committee'))) == 1 && count(array_count_values(array_column($key, 'level'))) == 1;
 	}
 	
 	/**
