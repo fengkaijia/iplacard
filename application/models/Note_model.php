@@ -219,11 +219,10 @@ class Note_model extends CI_Model
 	 * 添加注释笔记分类
 	 * @return int 新的注释笔记分类ID
 	 */
-	function add_category($name, $type = '')
+	function add_category($name)
 	{
 		$data = array(
-			'name' => $name,
-			'type' => $type
+			'name' => $name
 		);
 		
 		//返回新分类ID
