@@ -78,12 +78,6 @@ class Api extends CI_Controller
 			exit;
 		}
 		
-		if($post['crypt'] != crypt(sha1($post['data']), '$1$'.substr($post['access_token'], 0, 10).'&'))
-		{
-			$this->_error(99, 'CRYPT data incorrect.');
-			exit;
-		}
-		
 		$this->token_model->update_last_activity($token['id']);
 		$this->token = $token;
 		$this->data = json_decode($post['data'], true);

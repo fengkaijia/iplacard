@@ -41,8 +41,7 @@ class Ciq
 			//向API发送请求
 			$raw = $this->CI->curl->simple_post($url, array(
 					'access_token' => $this->access_token,
-					'data' => $post,
-					'crypt' => crypt(sha1($post), '$1$'.substr($this->access_token, 0, 10).'&')
+					'data' => $post
 			));
 			
 			$data = array();
