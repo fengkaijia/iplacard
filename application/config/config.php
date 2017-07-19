@@ -143,7 +143,7 @@ $config['subclass_prefix'] = 'IP_';
 | Note: This will NOT disable or override the CodeIgniter-specific
 |	autoloading (application/config/autoload.php)
 */
-$config['composer_autoload'] = realpath(APPPATH . 'vendor/autoload.php');
+$config['composer_autoload'] = FALSE;
 
 /*
 |--------------------------------------------------------------------------

@@ -1,11 +1,13 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+require_once realpath(APPPATH.'../vendor/autoload.php');
+
 /**
  * Excel类库
  * @package iPlacard
  * @since 2.0
  */
-class Excel extends PHPExcel
+class Excel extends \PHPExcel
 {
 	function __construct()
 	{
