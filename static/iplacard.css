@@ -361,6 +361,12 @@ body {
 	padding-top: 10px;
 	padding-bottom: 10px;
 }
+.form-signup {
+	max-width: 720px;
+}
+.form-signup .form-control {
+	margin-bottom: 2px;
+}
 
 /* 页面菜单 */
 @media (min-width: 992px) {
