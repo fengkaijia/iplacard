@@ -1,9 +1,7 @@
 /* 
 	Document   : iPlacard
 	Since      : 2.0
-	Website    : iplacard.com
-	Description:
-		CSS File of iPlacard Project
+	Author     : Kaijia Feng
 */
 
 /* 中文化 */
@@ -165,6 +163,7 @@ body {
 }
 
 /* 载入 */
+/* https://codepen.io/janrubio/pen/DusIE */
 .loader {
 	position: relative;
 	margin: auto;

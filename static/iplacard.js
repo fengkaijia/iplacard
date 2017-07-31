@@ -1,5 +1,8 @@
 /*
- * iPlacard Project
+ * iPlacard
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright (c) 2013, Kaijia Feng
+ * @since 2.0
  */
 
 function loader(item, size, background) {
@@ -34,6 +37,9 @@ function loader(item, size, background) {
 	return string;
 }
 
+/**
+ * @link https://stackoverflow.com/questions/2477862/jquery-password-generator
+ */
 function random_string(length, special) {
 	var iteration = 0;
 	var password = "";
