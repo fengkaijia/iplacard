@@ -77,7 +77,7 @@ class Account extends CI_Controller
 			$key = $this->input->post('email');
 			if($key && $this->_is_phone($key))
 			{
-				$this->form_validation->set_rules('email', '电子邮箱地址', 'trim|required|callback__auth_internal');
+				$this->form_validation->set_rules('email', '手机号', 'trim|required|callback__auth_internal');
 			}
 			else
 			{
