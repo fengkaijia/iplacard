@@ -2674,7 +2674,7 @@ class Delegate extends CI_Controller
 				$delegate_seats = array_column($seats, 'id', 'delegate');
 				
 				$group_ids = array_unique(array_column($delegates, 'group'));
-				if(!empty($group_ids))
+				if(!empty($group_ids) && $group_ids != array(0 => NULL))
 				{
 					$groups = $this->group_model->get_groups($group_ids);
 					$head_delegates = array_column($groups, 'head_delegate', 'id');
