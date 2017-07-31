@@ -33,7 +33,7 @@
 
 		#wrap::after {
 			content: '';
-			background: #fff url('<?php echo base_url('public/'.IP_INSTANCE_ID.'/img/'.$background);?>') no-repeat center center fixed;
+			background: #fff url('<?php echo $background;?>') no-repeat center center fixed;
 			-webkit-background-size: cover;
 			   -moz-background-size: cover;
 				 -o-background-size: cover;
