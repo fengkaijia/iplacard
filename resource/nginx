@@ -1,0 +1,53 @@
+server {
+	location /temp/ {
+		location ~ .*\.(php)?$
+		{
+			deny all;
+		}
+	}
+
+	if ($request_uri ~* index/?$)
+	{
+		rewrite ^/(.*)/index/?$ /$1 permanent;
+	}
+
+	if ($request_uri ~* ^/application)
+	{
+		rewrite ^/(.*)$ /index.php?/$1 last;
+		break;
+	}
+
+	if ($request_uri ~* ^/vendor)
+	{
+		rewrite ^/(.*)$ /index.php?/$1 last;
+		break;
+	}
+
+	if ($request_uri ~* ^/data)
+	{
+		rewrite ^/(.*)$ /index.php?/$1 last;
+		break;
+	}
+
+	if ($request_uri ~* ^/resource)
+	{
+		rewrite ^/(.*)$ /index.php?/$1 last;
+		break;
+	}
+
+	location ~ /\. {
+		deny all;
+	}
+
+	location / {
+		try_files $uri $uri/ /index.php;
+	}
+
+	location ~ \.php$ {
+		fastcgi_buffers 16 16k;
+		fastcgi_buffer_size 32k;
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+		fastcgi_read_timeout 300;
+	}
+}
