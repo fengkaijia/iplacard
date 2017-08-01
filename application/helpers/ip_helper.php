@@ -14,7 +14,7 @@ function ip_lookup($ip = '')
 	if(!$data = $CI->cache->get("0_ip_lookup_{$ip}"))
 	{
 		$CI->load->library('curl');
-		$data = json_decode($CI->curl->simple_get('http://ip.api.iplacard.com/?access_token='.IP_INSTANCE_API_ACCESS_KEY.'&ip='.$ip), true);
+		$data = json_decode($CI->curl->simple_get('https://ip.api.iplacard.com/?access_token='.IP_INSTANCE_API_ACCESS_KEY.'&ip='.$ip), true);
 
 		if(!$data || !$data['result'])
 			return false;

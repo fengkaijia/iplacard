@@ -10,7 +10,7 @@ class Sms extends Sms_model
 	/**
 	 * @var string 短信接口
 	 */
-	private $api = 'http://sms.api.iplacard.com/';
+	private $api = 'https://sms.api.iplacard.com/';
 	
 	/**
 	 * @var string 短信发信人
@@ -141,8 +141,7 @@ class Sms extends Sms_model
 		
 		//生成数据
 		$data = array(
-			'access_key' => IP_INSTANCE_API_ACCESS_KEY,
-			'secret_key' => IP_INSTANCE_API_SECRET_KEY,
+			'access_token' => IP_INSTANCE_API_ACCESS_KEY,
 			'message' => $sms['message']."【{$this->identity}】",
 			'receiver' => $sms['phone']
 		);

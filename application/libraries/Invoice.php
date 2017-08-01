@@ -9,7 +9,7 @@ class Invoice
 {
 	private $CI;
 
-	private $pdf_api = 'http://pdf.api.iplacard.com/';
+	private $pdf_api = 'https://pdf.api.iplacard.com/';
 	
 	protected $id = 0;
 	protected $delegate = 0;
@@ -226,6 +226,7 @@ class Invoice
 		
 		//生成数据
 		$data = array(
+			'access_token' => IP_INSTANCE_API_ACCESS_KEY,
 			'html' => $this->display(true)
 		);
 		

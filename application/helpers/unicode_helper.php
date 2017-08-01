@@ -25,7 +25,7 @@ function pinyin($string, $type = 'combine')
 	if(!is_chinsese_character($string))
 		return false;
 	
-	$data = json_decode($CI->curl->simple_get('http://pinyin.api.iplacard.com/?access_token='.IP_INSTANCE_API_ACCESS_KEY.'&word='.urlencode($string)), true);
+	$data = json_decode($CI->curl->simple_get('https://pinyin.api.iplacard.com/?access_token='.IP_INSTANCE_API_ACCESS_KEY.'&word='.urlencode($string)), true);
 	
 	if(!$data || !$data['result'])
 		return false;

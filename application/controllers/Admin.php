@@ -20,7 +20,7 @@ class Admin extends CI_Controller
 	/**
 	 * @var string PDF渲染引擎API
 	 */
-	private $pdf_api = 'http://pdf.api.iplacard.com/';
+	private $pdf_api = 'https://pdf.api.iplacard.com/';
 	
 	function __construct()
 	{
@@ -894,6 +894,7 @@ class Admin extends CI_Controller
 		
 				//生成数据
 				$data = array(
+					'access_token' => IP_INSTANCE_API_ACCESS_KEY,
 					'html' => $content
 				);
 
