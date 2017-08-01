@@ -40,37 +40,27 @@ define('IP_DB_DATABASE', '');
 define('IP_DB_DRIVER', 'mysqli');
 
 /**
- * 默认数据表前缀（多站点模式启用情况下被IP_INSTANCE_NAMESPACE代替）
+ * 默认数据表前缀
  */
 define('IP_DB_PREFIX', 'ip');
 
 /**
- * 缓存前缀（单缓存服务器运行多个单站点实例时必须不同）
+ * 缓存前缀
  */
 define('IP_CACHE_PREFIX', 'ip');
 
 /**
- * 加密密钥（多站点模式启用情况下被IP_INSTANCE_KEY代替）
+ * 加密密钥
  */
 define('IP_ENCRYPTION_KEY', 'iplacard');
 
 /**
- * API Access Key（多站点模式启用情况下被IP_INSTANCE_API_ACCESS_KEY代替）
+ * API Access Key
  */
 define('IP_DEFAULT_API_ACCESS_KEY', '');
 
 /**
- * API Secret Key（多站点模式启用情况下被IP_INSTANCE_API_SECRET_KEY代替）
- */
-define('IP_DEFAULT_API_SECRET_KEY', '');
-
-/**
- * 是否启用多站点模式
- */
-define('IP_MULTISITE', false);
-
-/**
- * 默认域名（多站点模式启用情况下被IP_INSTANCE_DOMAIN代替）
+ * 默认域名
  */
 define('IP_DOMAIN', '');
 
@@ -119,11 +109,6 @@ define('IP_MEMCACHED_SERVER', serialize(array(
 	'port' => 11211,
 	'weight' => 1
 )));
-
-/**
- * 是否启用维护模式
- */
-define('IP_MAINTENANCE', false);
 
 /* End of file config(.example).php */
 /* Location: ./config(.example).php */

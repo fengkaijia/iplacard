@@ -17,17 +17,7 @@ define('IP_VERSION', '2.3Dev');
 //配置文件
 require_once 'config.php';
 
-//维护模式
-if(IP_MAINTENANCE)
-{
-	include_once 'application/views/raw/maintenance.php';
-	exit;
-}
-
-/**
- * 当前访问请求的域名
- * @todo 支持Alias
- */
+//当前访问请求的域名
 define('IP_REQUEST_DOMAIN', (php_sapi_name() != 'cli' && !defined('STDIN')) ? $_SERVER['HTTP_HOST'] : '');
 
 //是否使用访问SSL
@@ -41,96 +31,19 @@ if(isset($_SERVER['HTTPS']))
 if(!defined('IP_SSL'))
 	define('IP_SSL', false);
 
-//选择模式，开发模式可能不使用多站点支持
-if(IP_MULTISITE)
-{
-	//实例JSON数据文件
-	require_once 'instance.php';
+//多站点模式设置（已移除以下代码为向后兼容目的）
+define('IP_INSTANCE_NAMESPACE', IP_DB_PREFIX);
+define('IP_INSTANCE_SMTP', IP_SMTP);
+define('IP_INSTANCE_SMTP_HOST', IP_SMTP_HOST);
+define('IP_INSTANCE_SMTP_USER', IP_SMTP_USER);
+define('IP_INSTANCE_SMTP_PASS', IP_SMTP_PASS);
+define('IP_INSTANCE_SMTP_PORT', IP_SMTP_PORT);
+define('IP_INSTANCE_API_ACCESS_KEY', IP_DEFAULT_API_ACCESS_KEY);
+define('IP_INSTANCE_ID', 0);
+define('IP_INSTANCE_KEY', IP_ENCRYPTION_KEY);
+define('IP_INSTANCE_DOMAIN', IP_DOMAIN);
 
-	foreach($iplacard_instances as $instance_id => $instance)
-	{
-		//存在站点并且启用
-		if($instance['domain'] == IP_REQUEST_DOMAIN && $instance['enabled'])
-		{
-			//如果站点需要HTTPS但通过HTTP访问
-			if($instance['ssl'] == true && !IP_SSL)
-			{
-				header("Location: https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
-				exit;
-			}
-
-			/**
-			 * 实例ID
-			 */
-			define('IP_INSTANCE_ID', $instance_id);
-
-			/**
-			 * 实例名字空间
-			 */
-			define('IP_INSTANCE_NAMESPACE', $instance['namespace']);
-
-			/**
-			 * 加密密钥
-			 */
-			define('IP_INSTANCE_KEY', $instance['encryption_key']);
-
-			/**
-			 * API密钥
-			 */
-			define('IP_INSTANCE_API_ACCESS_KEY', $instance['api_access_key']);
-			define('IP_INSTANCE_API_SECRET_KEY', $instance['api_secret_key']);
-
-			/**
-			 * SMTP
-			 */
-			define('IP_INSTANCE_SMTP', $instance['smtp']);
-			define('IP_INSTANCE_SMTP_HOST', $instance['smtp_host']);
-			define('IP_INSTANCE_SMTP_USER', $instance['smtp_user']);
-			define('IP_INSTANCE_SMTP_PASS', $instance['smtp_pass']);
-			define('IP_INSTANCE_SMTP_PORT', $instance['smtp_port']);
-
-			/**
-			 * 实例主域名
-			 */
-			define('IP_INSTANCE_DOMAIN', $instance['domain']);
-			break;
-		}
-	}
-
-	//如不存在站点
-	if(!defined('IP_INSTANCE_ID'))
-	{
-		include_once 'application/views/raw/nonsite.php';
-		exit;
-	}
-}
-else
-{
-	//不使用多站点模式情况下使用默认名字空间
-	define('IP_INSTANCE_NAMESPACE', IP_DB_PREFIX);
-
-	//不使用多站点模式情况下使用默认加密密钥
-	define('IP_INSTANCE_KEY', IP_ENCRYPTION_KEY);
-
-	//使用默认API密钥
-	define('IP_INSTANCE_API_ACCESS_KEY', IP_DEFAULT_API_ACCESS_KEY);
-	define('IP_INSTANCE_API_SECRET_KEY', IP_DEFAULT_API_SECRET_KEY);
-
-	//使用默认SMTP设置
-	define('IP_INSTANCE_SMTP', IP_SMTP);
-	define('IP_INSTANCE_SMTP_HOST', IP_SMTP_HOST);
-	define('IP_INSTANCE_SMTP_USER', IP_SMTP_USER);
-	define('IP_INSTANCE_SMTP_PASS', IP_SMTP_PASS);
-	define('IP_INSTANCE_SMTP_PORT', IP_SMTP_PORT);
-
-	//不设置ID
-	define('IP_INSTANCE_ID', 0);
-
-	//默认使用访问请求的域名
-	define('IP_INSTANCE_DOMAIN', IP_DOMAIN);
-}
-
-/* End of iPlacard Instances initialization */
+/* End of iPlacard Instance initialization */
 
 /**
  * CodeIgniter
