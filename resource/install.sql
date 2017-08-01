@@ -357,3 +357,206 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}user_option` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户设置';
 
 ALTER TABLE `{IP_PREFIX}knowledgebase` ADD FULLTEXT KEY `knowledgebase_content` (`content`);
+
+INSERT INTO `{IP_PREFIX}option` (`name`, `value`) VALUES
+  ('organization', '\"\"'), -- 组织名称
+  ('site_name', '\"\"'), -- 站点名称
+  ('site_contact_email', '\"\"'), -- 管理员邮箱
+  ('site_announcement', '\"\"'), -- 全局显示的 HTML 系统广播信息
+  ('email_from', '\"\"'), -- 通知邮件来源邮箱
+  ('email_from_name', '\"\"'), -- 通知邮件来源名称
+  ('api_custom_time', 'true'), -- 允许 API 导入代表时自定义报名时间
+  ('auth_imap_enabled', 'false'),  -- 启用 IMAP 登录
+  ('auth_imap_domain', '\"\"'), -- IMAP 登录域名名称
+  ('auth_imap_flags', '\"ssl\"'), -- IMAP 参数
+  ('auth_imap_force', 'false'), -- 强制后台管理员使用 IMAP 登录
+  ('auth_imap_port', '993'), -- IMAP 端口
+  ('auth_imap_server', '\"\"'), -- IMAP 域名
+  ('avatar_max_size', '10485760'), -- 个人头像大小上限
+  ('avatar_public', 'true'), -- 允许不登录访问个人头像（外部应用）
+  ('avatar_resizable', 'true'), -- 允许动态生成个人头像
+  ('batch_application_type', '[\"delegate\"]'), -- 批量模式下生效的申请类型
+  ('chart_application_increment_source', '\"reg\"'), -- 每周代表增量统计的指标
+  ('chart_application_increment_week', '20'), -- 每周代表增量统计显示的时长
+  ('~ciq_cache_life', '86400'), -- 跨实例查询数据缓存有效期
+  ('~ciq_instance', '[]'), -- 跨实例查询
+  ('cron_remind_delegate_interview', 'true'), -- 发送面试提醒
+  ('delegate_delete_lock', '1'), -- 删除代表的缓冲期
+  ('delegate_quit_lock', '7'), -- 代表退会禁止登录的缓冲期
+  ('document_enable_refused', 'false'), -- 允许审核未通过代表下载文件
+  ('document_show_empty', 'false'), -- 系统无任何文件时仍显示文件页面
+  ('easteregg_enabled', 'false'), -- 启用彩蛋
+  ('~email_account_disabled', '\"\"'), -- 停用帐户通知通知邮件
+  ('~email_account_email_change_cancelled', '\"\"'), -- 帐户邮箱变更取消通知邮件
+  ('~email_account_email_changed', '\"\"'), -- 帐户邮箱变更通知邮件
+  ('~email_account_email_setting_changed', '\"\"'), -- 帐户邮件通知设置变更通知邮件
+  ('~email_account_email_verificaiton_cancelled', '\"\"'), -- 帐户邮箱验证取消通知邮件
+  ('~email_account_email_verification_lost', '\"\"'), -- 帐户邮箱绑定取消通知邮件
+  ('~email_account_email_verified', '\"\"'), -- 帐户邮箱验证通过通知邮件
+  ('~email_account_login_notice', '\"\"'), -- 帐户登录通知邮件
+  ('~email_account_login_twostep_disabled_via_panel', '\"\"'), -- 通过设置界面停用登录两步验证通知邮件
+  ('~email_account_login_twostep_disabled_via_sms', '\"\"'), -- 通过短信验证停用登录两步验证通知邮件
+  ('~email_account_login_twostep_enabled', '\"\"'), -- 启用登录两步验证通知邮件
+  ('~email_account_password_changed', '\"\"'), -- 密码修改通知邮件
+  ('~email_account_password_reset', '\"\"'), -- 密码重置通知邮件
+  ('~email_account_phone_changed', '\"\"'), -- 手机号修改通知邮件
+  ('~email_account_pin_changed', '\"\"'), -- PIN 码修改通知邮件
+  ('~email_account_reenabled', '\"\"'), -- 帐户重新起用通知邮件
+  ('~email_account_request_email_confirm', '\"\"'), -- 验证新邮箱通知邮件
+  ('~email_account_request_password_reset', '\"\"'), -- 请求重置密码通知邮件
+  ('~email_admin_account_created', '\"\"'), -- 新建管理员帐户通知邮件
+  ('~email_admin_account_deleted', '\"\"'), -- 删除管理员帐户通知邮件
+  ('~email_admin_account_delete_notice', '\"\"'), -- 管理员帐户删除操作通知邮件
+  ('~email_admin_committee_deleted', '\"\"'), -- 删除委员会通知邮件
+  ('~email_admin_delegate_deleted', '\"\"'), -- 删除代表帐户通知邮件
+  ('~email_admin_delegate_disabled', '\"\"'), -- 停用代表帐户通知邮件
+  ('~email_admin_password_changed', '\"\"'), -- 行政员更改管理员密码通知邮件
+  ('~email_application_locked', '\"\"'), -- 删除委员会通知邮件
+  ('~email_cron_delegate_interview_reminder', '\"\"'), -- 定时代表面试提醒通知邮件
+  ('~email_cron_interview_reminder', '\"\"'), -- 定时面试官面试提醒通知邮件
+  ('~email_delegate_account_created', '\"\"'), -- 申请导入含登录信息通知邮件
+  ('~email_delegate_application_passed_delegate', '\"\"'), -- 代表参会申请审核通过通知邮件
+  ('~email_delegate_application_passed_observer', '\"\"'), -- 观察员参会申请审核通过通知邮件
+  ('~email_delegate_application_passed_volunteer', '\"\"'), -- 志愿者参会申请审核通过通知邮件
+  ('~email_delegate_application_passed_teacher', '\"\"'), -- 指导老师参会申请审核通过通知邮件
+  ('~email_delegate_application_refused', '\"\"'), -- 参会申请审核未通过通知邮件
+  ('~email_delegate_application_refused_no_reason', '\"\"'), -- 参会申请审核未通过（无理由）通知邮件
+  ('~email_delegate_deleted', '\"\"'), -- 删除代表帐号通知邮件
+  ('~email_delegate_interview_arranged', '\"\"'), -- 安排面试通知邮件
+  ('~email_delegate_interview_assigned', '\"\"'), -- 分配面试通知邮件
+  ('~email_delegate_interview_cancelled', '\"\"'), -- 取消面试通知邮件
+  ('~email_delegate_interview_exempted', '\"\"'), -- 免试通知邮件
+  ('~email_delegate_interview_failed', '\"\"'), -- 面试失败通知邮件
+  ('~email_delegate_interview_failed_remark', '\"\"'), -- 面试失败（含反馈）通知邮件
+  ('~email_delegate_interview_failed_2nd', '\"\"'), -- 二次面试失败通知邮件
+  ('~email_delegate_interview_failed_2nd_remark', '\"\"'), -- 二次面试失败（含反馈）通知邮件
+  ('~email_delegate_interview_passed', '\"\"'), -- 面试通过通知邮件
+  ('~email_delegate_interview_passed_remark', '\"\"'), -- 面试通过（含反馈）通知邮件
+  ('~email_delegate_interview_rollbacked', '\"\"'), -- 退回面试通知邮件
+  ('~email_delegate_quitted', '\"\"'), -- 退会通知邮件
+  ('~email_delegate_recovered', '\"\"'), -- 恢复代表帐户通知邮件
+  ('~email_delegate_retest_denied', '\"\"'), -- 拒绝复试请求代表通知邮件
+  ('~email_delegate_seat_added', '\"\"'), -- 分配席位选择通知邮件
+  ('~email_delegate_seat_appended', '\"\"'), -- 追加席位选择通知邮件
+  ('~email_delegate_seat_assigned', '\"\"'), -- 分配席位通知邮件
+  ('~email_delegate_seat_reassigned', '\"\"'), -- 再次分配席位通知邮件
+  ('~email_delegate_type_changed', '\"\"'), -- 变更申请类型通知邮件
+  ('~email_delegate_unquitted', '\"\"'), -- 取消退会通知邮件
+  ('~email_delegate_waitlist_accepted', '\"\"'), -- 等待队列通过通知邮件
+  ('~email_document_added', '\"\"'), -- 新的文件上传通知邮件
+  ('~email_document_updated', '\"\"'), -- 文件更新通知邮件
+  ('~email_group_delegate_changed', '\"\"'), -- 更换代表团通知邮件
+  ('~email_group_delegate_dissolved', '\"\"'), -- 代表团解散通知邮件
+  ('~email_group_delegate_joined', '\"\"'), -- 加入代表团通知邮件
+  ('~email_group_delegate_removed', '\"\"'), -- 离开代表团通知邮件
+  ('~email_group_manage_delegate_changed', '\"\"'), -- 更换领队通知邮件
+  ('~email_group_manage_delegate_granted', '\"\"'), -- 成为领队通知邮件
+  ('~email_group_manage_delegate_joined', '\"\"'), -- 成员加入代表团领队通知邮件
+  ('~email_group_manage_delegate_removed', '\"\"'), -- 成员离开代表团领队通知邮件
+  ('~email_group_manage_group_deleted', '\"\"'), -- 代表团被删除领队通知邮件
+  ('~email_interviewer_interview_assigned', '\"\"'), -- 分配面试面试官通知邮件
+  ('~email_interviewer_interview_exempted', '\"\"'), -- 免试分配席位分配员通知邮件
+  ('~email_interviewer_retest_denied', '\"\"'), -- 拒绝复试请求面试官通知邮件
+  ('~email_interviewer_waitlist_accepted', '\"\"'), -- 等待队列分配席位分配员通知邮件
+  ('~email_invoice_cancelled', '\"\"'), -- 账单取消通知邮件
+  ('~email_invoice_generated', '\"\"'), -- 账单生成通知邮件
+  ('~email_invoice_received', '\"\"'), -- 收到账单通知邮件
+  ('~email_invoice_reminder', '\"\"'), -- 账单缴费提醒通知邮件
+  ('~email_invoice_reminder_overdue', '\"\"'), -- 账单逾期提醒通知邮件
+  ('~email_invoice_updated', '\"\"'), -- 账单更新通知邮件
+  ('~email_note_user_mentioned', '\"\"'), -- 管理员在笔记中被提及通知邮件
+  ('~email_seat_changed', '\"\"'), -- 席位变更通知邮件
+  ('~email_seat_overdue_released', '\"\"'), -- 席位未缴费被释放通知邮件
+  ('~email_seat_released', '\"\"'), -- 席位释放通知邮件
+  ('~email_seat_selected', '\"\"'), -- 席位选择通知邮件
+  ('feed_url', '\"\"'), -- 首页显示的 RSS 订阅
+  ('file_max_size', '10485760'), -- 最大上传文件大小
+  ('interview_enabled', 'true'), -- 启用面试功能
+  ('interview_delegate_enabled', 'true'), -- 启用代表面试功能
+  ('interview_observer_enabled', 'false'), -- 启用观察员面试功能
+  ('interview_volunteer_enabled', 'false'), -- 启用志愿者面试功能
+  ('interview_teacher_enabled', 'false'), -- 启用指导老师面试功能
+  ('interview_feedback_required', 'true'), -- 强制要求填写面试反馈
+  ('interview_feedback_supplement_enabled', 'true'), -- 启用面试内部反馈字段
+  ('interview_interviewer_committe', 'true'), -- 代表面试信息界面显示面试官委员会
+  ('interview_save_enabled', 'false'), -- 自动保存面试评价
+  ('interview_score_standard', '{}'), -- 面试评价体系
+  ('interview_score_total', '5'), -- 面试满分分数
+  ('invoice_amount_delegate', '0'), -- 代表账单金额（0 为不收取会费无收费流程）
+  ('invoice_amount_observer', '0'), -- 观察员账单金额（0 为不收取会费无收费流程）
+  ('invoice_amount_volunteer', '0'), -- 志愿者账单金额（0 为不收取会费无收费流程）
+  ('invoice_amount_teacher', '0'), -- 指导老师账单金额（0 为不收取会费无收费流程）
+  ('invoice_currency_sign', '\"￥\"'), -- 账单货币单位
+  ('invoice_currency_text', '\"RMB\"'), -- 账单货币文字
+  ('invoice_due_fee', '7'), -- 账单缴纳天数期限
+  ('invoice_item_fee', '[]'), -- 账单小项细节
+  ('~invoice_item_fee_delegate', '[]'), -- 代表账单小项细节
+  ('~invoice_item_fee_observer', '[]'), -- 观察员账单小项细节
+  ('~invoice_item_fee_volunteer', '[]'), -- 志愿者账单小项细节
+  ('~invoice_item_fee_teacher', '[]'), -- 指导老师账单小项细节
+  ('invoice_payment_gateway', '[]'), -- 可登记的账单支付渠道
+  ('invoice_payment_offline_info', '\"\"'), -- HTML 账单支付方法
+  ('invoice_title_fee', '\"\"'), -- 账单标题
+  ('~invoice_title_fee_delegate', '\"\"'), -- 代表账单标题
+  ('~invoice_title_fee_observer', '\"\"'), -- 观察员账单标题
+  ('~invoice_title_fee_volunteer', '\"\"'), -- 志愿者账单标题
+  ('~invoice_title_fee_teacher', '\"\"'), -- 指导老师账单标题
+  ('link_rss', '\"\"'), -- 显示在底部的 RSS 链接
+  ('link_facebook', '\"\"'), -- 显示在底部的 Facebook 链接
+  ('link_github', '\"\"'), -- 显示在底部的 GitHub 链接
+  ('link_google', '\"\"'), -- 显示在底部的 Google Plus 链接
+  ('link_instagram', '\"\"'), -- 显示在底部的 Instagram 链接
+  ('link_linkedin', '\"\"'), -- 显示在底部的 LinkedIn 链接
+  ('link_qq', '\"\"'), -- 显示在底部的 QQ 链接
+  ('link_renren', '\"\"'), -- 显示在底部的人人链接
+  ('link_tencent-weibo', '\"\"'), -- 显示在底部的腾讯微博链接
+  ('link_twitter', '\"\"'), -- 显示在底部的 Twitter 链接
+  ('link_wechat', '\"\"'), -- 显示在底部的微信链接
+  ('link_weibo', '\"\"'), -- 显示在底部的微博链接
+  ('link_whatsapp', '\"\"'), -- 显示在底部的 WhatsApp 链接
+  ('link_youtube', '\"\"'), -- 显示在底部的 Youtube 链接
+  ('link_login', '{}'), -- 显示在登录页面的自定义链接
+  ('notice_check_eu_cookie_law_notice', 'false'), -- 启用 Cookies 采集提示
+  ('notice_check_internet_explorer_postback', 'false'), -- 启用 Internet Explorer 不兼容检查提示
+  ('notice_check_status_invoice_issued', 'false'), -- 启用支付账单提示
+  ('notice_check_status_seat_assigned', 'false'), -- 启用选择席位提示
+  ('pin_check_enabled', 'false'), -- 启用检查用户的 PIN 是否已经更改
+  ('pin_default_password', '\"iPlacard\"'), -- 默认 PIN 密码
+  ('profile_addition_general', '{}'), -- 可登记的附加信息
+  ('profile_addition_delegate', '{}'), -- 代表可登记的附加信息
+  ('profile_addition_observer', '{}'), -- 观察员可登记的附加信息
+  ('profile_addition_volunteer', '{}'), -- 志愿者可登记的附加信息
+  ('profile_addition_teacher', '{}'), -- 指导老师可登记的附加信息
+  ('profile_block', '{}'), -- 个人信息页面（在学术、社团、学测外）额外显示的资料列
+  ('profile_list_general', '{}'), -- 个人信息页面默认显示的资料
+  ('profile_list_delegate', '{}'), -- 个人信息页面代表申请附加资料
+  ('profile_list_observer', '{}'), -- 个人信息页面观察员申请附加资料
+  ('profile_list_volunteer', '{}'), -- 个人信息页面志愿者申请附加资料
+  ('profile_list_teacher', '{}'), -- 个人信息页面指导老师申请附加资料
+  ('profile_list_experience', '{}'), -- 个人信息页面参会经历资料
+  ('profile_list_club', '{}'),  -- 个人信息页面社团经历资料
+  ('profile_list_test', '[]'), -- 个人信息页面学测题
+  ('profile_list_manage', '[]'), -- 可被搜索的资料
+  ('profile_list_head_delegate', '{}'), -- 团队页面中额外显示的领队资料
+  ('profile_list_related', '{}'), -- 席位页面中额外显示的多代资料
+  ('profile_show_test_all', 'false'), -- 显示全部学测题（默认隐藏未答学测题）
+  ('profile_special_committee_choice', 'null'), -- 首选委员会特殊资料项
+  ('robots_allow', 'true'), -- 允许爬虫
+  ('seat_enabled', 'true'), -- 启用席位功能
+  ('seat_global_admin', '[1]'), -- 可全局分配席位的管理员 ID 列表
+  ('seat_lock_open', 'true'), -- 允许锁定席位完成申请
+  ('seat_mode', '\"select\"'), -- 席位分配模式（select 或 assign）
+  ('seat_revert_original', 'false'), -- 曾选席位不得再选
+  ('seat_select_open', 'true'), -- 开放席位选择
+  ('server_download_method', '\"php\"'), -- 系统文件下载方式
+  ('signup_enabled', 'true'), -- 启用系统附带的简易报名表（不推荐）
+  ('signup_type', '[\"delegate\", \"observer\", \"volunteer\", \"teacher\"]'), -- 可通过系统附带的简易报名表报名的申请类型
+  ('signup_unique_identifier', '\"email\"'), -- 系统附带的简易报名表中唯一字段的属性
+  ('sms_enabled', 'false'), -- 启用短信
+  ('sms_identity', '\"\"'), -- 短信发送方名称
+  ('sso_name', '\"name\"'), -- 在 Single Sign-On 连接中作为用户名字传送的字段
+  ('twostep_time_range', '60'), -- 两步验证码有效期
+  ('ui_background_global_enabled', 'true'), -- 启用背景
+  ('ui_background_image', '\"https://static.iplacard.com/img/background.png\"'), -- 默认背景
+  ('ui_menu_additional_link', '[]') -- 后台额外的菜单栏
+;
