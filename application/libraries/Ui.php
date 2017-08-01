@@ -574,10 +574,6 @@ class UI
 		
 		$delegate = $this->CI->delegate_model->get_delegate(uid());
 		
-		$editable = option('profile_edit_general', array()) + option("profile_edit_{$delegate['application_type']}", array());
-		if(!empty($editable))
-			$this->add_sub_menu('edit', 'profile', '编辑资料', 'apply/edit');
-		
 		//团队
 		if($this->CI->delegate_model->get_delegate(uid(), 'group'))
 		{
