@@ -100,7 +100,7 @@
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
 					<?php if(!$this->session->userdata('logged_in') && option('signup_enabled', true)) { ?><li><?php echo anchor('account/signup', '报名参会');?></li><?php }
-					if(!$this->session->userdata('logged_in') && option('login_link')) { $login_link = option('login_link'); ?><li><?php echo anchor($login_link['link'], $login_link['text']);?></li><?php } ?>
+					if(!$this->session->userdata('logged_in') && option('link_login')) { $login_link = option('link_login'); ?><li><?php echo anchor($login_link['link'], $login_link['text']);?></li><?php } ?>
 					<li class="dropdown">
 						<?php if($this->session->userdata('logged_in')) { ?>
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" style="position: relative;"><?php

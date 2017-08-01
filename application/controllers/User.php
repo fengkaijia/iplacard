@@ -188,7 +188,7 @@ class User extends CI_Controller
 			if($action == 'add')
 			{
 				$data['type'] = 'admin';
-				$data['pin_password'] = option('default_pin_password', 'iPlacard');
+				$data['pin_password'] = option('pin_default_password', 'iPlacard');
 				$data['reg_time'] = time();
 			}
 			

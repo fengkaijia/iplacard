@@ -2034,7 +2034,7 @@ class Apply extends CI_Controller
 					$intro = "<p style='margin-bottom: 0;'>您已经选择了席位，您可以随时在{$link_seat}中调整您的席位。</p>";
 				break;
 			case 'invoice_issued':
-				$payment_time = option('seat_payment_timeout', 7);
+				$payment_time = option('invoice_due_fee', 15);
 				$link_invoice = anchor('apply/invoice', '账单');
 				
 				$intro = "<p>您的会费{$link_invoice}已经生成，您需要在 {$payment_time} 天内支付您的账单。</p><p style='margin-bottom: 0;'>如果您使用线下方式支付，请在支付完成后访问{$link_invoice}页面填写支付信息，我们将在稍后确认您的汇款。</p>";

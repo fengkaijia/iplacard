@@ -504,7 +504,7 @@ class Invoice
 		
 		if($overdued)
 		{
-			$this->CI->email->html($this->CI->parser->parse_string(option('email_invoice_overdue_reminder', "您的账单 #{id} 已经逾期，账单的信息如下：\n\n"
+			$this->CI->email->html($this->CI->parser->parse_string(option('email_invoice_reminder_overdue', "您的账单 #{id} 已经逾期，账单的信息如下：\n\n"
 				. "\t账单名称：{title}\n\n"
 				. "\t账单生成时间：{generate_time}\n\n"
 				. "\t账单到期时间：{due_time}\n\n"

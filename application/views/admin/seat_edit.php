@@ -67,7 +67,7 @@ $this->load->view('header');?>
 					<div class="col-lg-4">
 						<?php
 						$array = array();
-						$score_total = option('score_total', 5);
+						$score_total = option('interview_score_total', 5);
 						for($i = 1; $i <= $score_total; $i++)
 						{
 							if($i == 1 && $score_total != 1)

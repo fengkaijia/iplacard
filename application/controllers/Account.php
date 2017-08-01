@@ -162,7 +162,7 @@ class Account extends CI_Controller
 		}
 		
 		//IE 10 Postback提示
-		if($this->session->userdata('dismiss_internet_explorer_postback_notice') != true && option('check_internet_explorer_postback', false))
+		if($this->session->userdata('dismiss_internet_explorer_postback_notice') != true && option('notice_check_internet_explorer_postback', false))
 		{
 			if($this->agent->is_browser('Internet Explorer') && $this->agent->version() == '10.0')
 				$this->ui->alert(sprintf('您的浏览器被报告存在一个缺陷可能导致无法登录 iPlacard，如果您长时间无法正常登录请尝试使用其他浏览器，例如 %1$s 和 %2$s。', anchor('https://www.google.com/chrome/', 'Google Chrome'), anchor('http://www.firefox.com/', 'Mozilla Firefox')), 'info');	
@@ -170,7 +170,7 @@ class Account extends CI_Controller
 		$this->session->set_userdata('dismiss_internet_explorer_postback_notice', true);
 		
 		//欧盟Cookie法案提示
-		if($this->session->userdata('dismiss_eu_cookie_law_notice') != true && option('check_eu_cookie_law_notice', false))
+		if($this->session->userdata('dismiss_eu_cookie_law_notice') != true && option('notice_check_eu_cookie_law_notice', false))
 		{
 			$this->ui->alert('Users from the EU: We use cookies to ensure that you can login to iPlacard smoothly. If you continue, we\'ll assume that you are happy to receive all cookies from this website. / 来自欧盟的用户：我们使用 Cookie 以保证您可以正常登录到 iPlacard，如果您继续访问，我们将认为您非常高兴接收本站的 Cookie。', 'success');	
 		}
@@ -237,7 +237,7 @@ class Account extends CI_Controller
 		if(!in_array($unique_id, array('email', 'phone')))
 			$unique_id = "profile_$unique_id";
 		
-		$types = option('signin_type', array('delegate', 'observer', 'volunteer', 'teacher'));
+		$types = option('signup_type', array('delegate', 'observer', 'volunteer', 'teacher'));
 		
 		$vars['type'] = array();
 		foreach($types as $type)
@@ -269,7 +269,7 @@ class Account extends CI_Controller
 				'email' => $this->input->post('email'),
 				'type' => 'delegate',
 				'password' => $password,
-				'pin_password' => option('default_pin_password', 'iPlacard'),
+				'pin_password' => option('pin_default_password', 'iPlacard'),
 				'phone' => $this->input->post('phone'),
 				'reg_time' => time()
 			);
@@ -469,7 +469,7 @@ class Account extends CI_Controller
 
 					$this->email->to($user['email']);
 					$this->email->subject('您的 iPlacard 两步验证已经关闭');
-					$this->email->html($this->parser->parse_string(option('email_account_twostep_disabled_via_sms', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户通过短信验证方式关闭。如非本人操作，请立即访问：\n\n"
+					$this->email->html($this->parser->parse_string(option('email_account_login_twostep_disabled_via_sms', "您的 iPlacard 帐户 {email} 的两步验证保护已经于 {time} 由 IP {ip} 的用户通过短信验证方式关闭。如非本人操作，请立即访问：\n\n"
 							. "\t{url}\n\n"
 							. "修改密码。"), $data, true));
 					
@@ -1450,7 +1450,7 @@ class Account extends CI_Controller
 
 					$this->email->to($user['email']);
 					$this->email->subject('iPlacard 邮件通知设置已经变更');
-					$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的邮件通知设置已经于 {time} 由来自 IP {ip} 的用户变更。本邮件列出了变更列表，\n\n"
+					$this->email->html($this->parser->parse_string(option('email_account_email_setting_changed', "您的 iPlacard 帐户 {email} 的邮件通知设置已经于 {time} 由来自 IP {ip} 的用户变更。本邮件列出了变更列表，\n\n"
 							. "{enabled}"
 							. "{disabled}"
 							. "如非本人操作请立即登录 iPlacard 还原以上更改并考虑修改密码。"), $data, true));
@@ -1590,7 +1590,7 @@ class Account extends CI_Controller
 
 				$this->email->to($user['email']);
 				$this->email->subject('您的 iPlacard 密码已经修改');
-				$this->email->html($this->parser->parse_string(option('email_account_password_change', "您的 iPlacard 帐户 {email} 的密码已经于 {time} 由来自 IP {ip} 的用户修改，如非本人操作请立即访问以下链接重置您的密码：\n\n"
+				$this->email->html($this->parser->parse_string(option('email_account_password_changed', "您的 iPlacard 帐户 {email} 的密码已经于 {time} 由来自 IP {ip} 的用户修改，如非本人操作请立即访问以下链接重置您的密码：\n\n"
 						. "\t{url}"), $data, true));
 				
 				if(!$this->email->send())
@@ -1640,7 +1640,7 @@ class Account extends CI_Controller
 
 				$this->email->to($user['email']);
 				$this->email->subject('您的 iPlacard 安全码已经修改');
-				$this->email->html($this->parser->parse_string(option('email_account_pin_change', "您的 iPlacard 帐户 {email} 的安全码已经于 {time} 由来自 IP {ip} 的用户修改，新的安全码为\n\n"
+				$this->email->html($this->parser->parse_string(option('email_account_pin_changed', "您的 iPlacard 帐户 {email} 的安全码已经于 {time} 由来自 IP {ip} 的用户修改，新的安全码为\n\n"
 						. "\t{pin}\n\n"
 						. "为保证您的 PIN 码安全，如非必要请勿保留此邮件。"), $data, true));
 				
@@ -1997,7 +1997,7 @@ class Account extends CI_Controller
 		$user = $this->user_model->get_user($id);
 
 		//检查是否设置安全码
-		if(option('check_pin', false) && $user['pin_password'] == option('default_pin_password', 'iPlacard'))
+		if(option('pin_check_enabled', false) && $user['pin_password'] == option('pin_default_password', 'iPlacard'))
 			$this->ui->alert(sprintf('您尚未更改您的初始安全码，请在您的<a href="%s" class="alert-link">帐户管理</a>页面设置新的安全码。', base_url('account/pin')), 'info', true);
 
 		//设置Session数据

@@ -72,7 +72,7 @@ $this->load->view('header');?>
 				<?php if(!empty($delegate['experience'])) { ?><h3>参会经历</h3>
 				<table class="table table-bordered table-striped table-hover">
 					<thead>
-						<?php $rules = option('profile_list_experience');
+						<?php $rules = option('profile_list_experience', array());
 						foreach($rules as $rule => $text) { ?><th><?php echo $text;?></th><?php } ?>
 					</thead>
 					<tbody>
@@ -86,7 +86,7 @@ $this->load->view('header');?>
 				<?php if(!empty($delegate['club'])) { ?><h3>社会活动</h3>
 				<table class="table table-bordered table-striped table-hover">
 					<thead>
-						<?php $rules = option('profile_list_club');
+						<?php $rules = option('profile_list_club', array());
 						foreach($rules as $rule => $text) { ?><th><?php echo $text;?></th><?php } ?>
 					</thead>
 					<tbody>
@@ -102,7 +102,7 @@ $this->load->view('header');?>
 					<tbody>
 						<?php
 						$show_empty = option('profile_show_test_all', false);
-						$questions = option('profile_list_test');
+						$questions = option('profile_list_test', array());
 						foreach($questions as $qid => $question)
 						{
 							if($show_empty || !empty($delegate['test'][$qid])) { ?>

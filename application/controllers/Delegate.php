@@ -2451,7 +2451,7 @@ class Delegate extends CI_Controller
 				//通知管理员
 				$this->email->to($this->user_model->get_user(uid(), 'email'));
 				$this->email->subject('您停用了一个 iPlacard 帐户');
-				$this->email->html($this->parser->parse_string(option('email_admin_delegate_deleted', "您已经于 {time} 由 IP {ip} 停用了{delegate}代表的 iPlacard 帐户。停用帐户原因是：\n\n"
+				$this->email->html($this->parser->parse_string(option('email_admin_delegate_disabled', "您已经于 {time} 由 IP {ip} 停用了{delegate}代表的 iPlacard 帐户。停用帐户原因是：\n\n"
 						. "\t{reason}\n\n"
 						. "如为误操作请立即登录 iPlacard 重新启用代表帐户。如非本人操作请立即修改密码。"), $data, true));
 				$this->email->send();

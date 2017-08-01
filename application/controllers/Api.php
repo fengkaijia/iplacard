@@ -168,7 +168,7 @@ class Api extends CI_Controller
 				'email' => trim($this->data['email']),
 				'type' => 'admin',
 				'password' => $password,
-				'pin_password' => option('default_pin_password', 'iPlacard'),
+				'pin_password' => option('pin_default_password', 'iPlacard'),
 				'phone' => trim($this->data['phone']),
 				'reg_time' => time()
 			);
@@ -297,7 +297,7 @@ class Api extends CI_Controller
 				'email' => trim($this->data['email']),
 				'type' => 'delegate',
 				'password' => $password,
-				'pin_password' => option('default_pin_password', 'iPlacard'),
+				'pin_password' => option('pin_default_password', 'iPlacard'),
 				'phone' => trim($this->data['phone']),
 				'reg_time' => $reg_time
 			);

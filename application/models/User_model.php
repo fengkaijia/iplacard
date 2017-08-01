@@ -104,7 +104,7 @@ class User_model extends CI_Model
 			if(isset($data['pin_password']))
 				$pin = $data['pin_password'];
 			elseif(empty($id))
-				$pin = option('default_pin_password', 'iPlacard');
+				$pin = option('pin_default_password', 'iPlacard');
 			else
 				$pin = $this->get_user($id, 'pin_password');
 			

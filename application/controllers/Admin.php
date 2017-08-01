@@ -251,7 +251,7 @@ class Admin extends CI_Controller
 			unset($sidebar['task']);
 		
 		//RSS
-		$feed = option('feed_url', '');
+		$feed = option('feed_url', 'http://iplacard.com/feed/');
 		$feed_enable = false;
 		if(!empty($feed))
 		{
@@ -1294,7 +1294,7 @@ class Admin extends CI_Controller
 						}
 
 						//处理记录
-						for($i = 1; $i <= option('score_total', 5); $i++)
+						for($i = 1; $i <= option('interview_score_total', 5); $i++)
 						{
 							$chart_category[] = "{$i} 级";
 
