@@ -12,6 +12,7 @@
 	"require": {
 		"imunc/iplacard-3rdparty": "2.3.*",
 		"codeigniter/framework": "3.1.*",
+		"codeigniter/translations": "3.1.*",
 		"phpoffice/phpexcel": "1.8.*"
 	},
 	"repositories": [
@@ -26,12 +27,25 @@
 					"reference": "v2.3"
 				}
 			}
+		},
+		{
+			"type":"package",
+			"package": {
+				"name": "codeigniter/translations",
+				"version": "3.1.5",
+				"source": {
+					"url": "https://github.com/bcit-ci/codeigniter3-translations.git",
+					"type": "git",
+					"reference": "3.1.5"
+				}
+			}
 		}
 	],
 	"scripts": {
 		"pre-autoload-dump": [
 			"rm -Rf static/{css,js,fonts,img}",
 			"cp -R vendor/imunc/iplacard-3rdparty/css vendor/imunc/iplacard-3rdparty/js vendor/imunc/iplacard-3rdparty/fonts vendor/imunc/iplacard-3rdparty/img static/",
+			"cp -R vendor/codeigniter/translations/language/simplified-chinese vendor/codeigniter/framework/system/language/",
 			"mkdir -p data/0/avatar/ data/0/delete/ data/0/dir/ data/0/document/ data/0/invoice/ data/0/log/ data/0/maintainance/ temp/0/download/ temp/0/upload/avatar/ temp/0/upload/document/"
 		]
 	}
