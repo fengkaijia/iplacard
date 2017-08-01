@@ -82,7 +82,7 @@ class Apply extends CI_Controller
 		
 		//锁定
 		$lock_open = false;
-		if((($this->delegate['status'] == 'payment_received' || $this->delegate['status'] == 'seat_selected') || ($this->delegate['status'] == 'seat_assigned' && option('seat_mode', 'assign'))) && option('seat_lock_open', true) && $sid)
+		if((($this->delegate['status'] == 'payment_received' || $this->delegate['status'] == 'seat_selected') || ($this->delegate['status'] == 'seat_assigned' && option('seat_mode', 'select'))) && option('seat_lock_open', true) && $sid)
 		{
 			$lock_open = true;
 			
@@ -823,7 +823,7 @@ class Apply extends CI_Controller
 		
 		//是否可以锁定席位
 		$lock_open = false;
-		if((($this->delegate['status'] == 'payment_received' || $this->delegate['status'] == 'seat_selected') || ($this->delegate['status'] == 'seat_assigned' && option('seat_mode', 'assign'))) && option('seat_lock_open', true) && $seat_id)
+		if((($this->delegate['status'] == 'payment_received' || $this->delegate['status'] == 'seat_selected') || ($this->delegate['status'] == 'seat_assigned' && option('seat_mode', 'select'))) && option('seat_lock_open', true) && $seat_id)
 			$lock_open = true;
 		
 		$vars['lock_open'] = $lock_open;
