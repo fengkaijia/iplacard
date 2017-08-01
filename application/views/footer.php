@@ -19,7 +19,7 @@
 		<?php
 		if(!empty(option('site_copyright', '')))
 			echo option('site_copyright', '');
-		else { ?>&copy; 2008-<?php echo date('Y');?> <a href="http://imunc.com/">IMUNC</a>. All rights reserved.<?php } ?>
+		else { ?>Powered by <a href="http://iplacard.com/">iPlacard</a> from <a href="http://imunc.com/">IMUNC</a><?php } ?>
 	</footer>
 	
 	<?php if(!empty($this->ui->js['footer'])) { ?><script language="javascript"><?php echo is_dev() ? $this->ui->js['footer'] : preg_replace("/\s+/", ' ', $this->ui->js['footer']);?></script><?php } ?>
