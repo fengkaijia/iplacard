@@ -28,7 +28,6 @@ iPlacard 标准实例可以运行在标准的 LAMP 环境中，最低需求如�
 * Memcached
 * Cron
 * CURL
-* ImageMagick
 
 ### 获取源代码
 
