@@ -1,6 +1,6 @@
 <?php  if ( ! defined('IPLACARD')) exit('No direct script access allowed');
 
-/** 
+/**
  * iPlacard 配置文件
  * @author Kaijia Feng <fengkaijia@gmail.com>
  * @copyright 2013 Kaijia Feng
