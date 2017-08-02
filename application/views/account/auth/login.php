@@ -10,7 +10,6 @@
  * @since 2.0
  */
 
-
 if($this->session->userdata('dismiss_browser_notice') != true)
 {
 	$this->ui->html('header', '<!--[if lt IE 8]>
