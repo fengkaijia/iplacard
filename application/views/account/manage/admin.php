@@ -1,4 +1,16 @@
-<?php $this->load->view('header');?>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 管理设置视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.1
+ */
+
+$this->load->view('header');?>
 
 <div class="page-header">
 	<h1>管理设置</h1>

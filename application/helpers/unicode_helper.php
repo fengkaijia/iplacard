@@ -1,6 +1,16 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
+ * Unicode辅助函数
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+
+/**
  * 检查是否为汉字
  * @param string $string 需要检查的文字
  * @return boolean

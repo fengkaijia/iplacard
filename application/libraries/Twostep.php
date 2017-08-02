@@ -4,6 +4,10 @@ require_once APPPATH.'/third_party/chregu/GoogleAuthenticator.php';
 
 /**
  * 两步验证类库
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
  * @package iPlacard
  * @since 2.0
  */

@@ -1,6 +1,16 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
+ * IP地址辅助函数
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+
+/**
  * 使用API查询IP地址信息
  */
 function ip_lookup($ip = '')

@@ -1,6 +1,16 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
+ * 字符串辅助函数
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.1
+ */
+
+/**
  * 从提及字符串中获取被提及用户ID
  */
 function extract_mention($text)

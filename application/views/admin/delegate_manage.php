@@ -1,4 +1,15 @@
-<?php
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 代表管理视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+
 $hidden_array = array();
 $table_array = array();
 if(!empty($profile_option))

@@ -1,4 +1,15 @@
-<p>此代表帐户已于<?php echo nicetime($disable_time, true);?>因以下原因停用：</p>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 启用帐号功能视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+?><p>此代表帐户已于<?php echo nicetime($disable_time, true);?>因以下原因停用：</p>
 
 <blockquote><p><?php echo $disable_reason;?></p></blockquote>
 

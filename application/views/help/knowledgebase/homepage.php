@@ -1,4 +1,16 @@
-<?php $this->load->view('header');?>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 知识库首页视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+
+$this->load->view('header');?>
 
 <div class="page-header" style="border-bottom: none; padding-bottom: 0;">
 	<div id="jumbotron-kb" class="jumbotron">

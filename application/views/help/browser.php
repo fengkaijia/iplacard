@@ -1,4 +1,16 @@
-<?php $this->load->view('header');?>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 浏览器不兼容提示视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+
+$this->load->view('header');?>
 
 <div class="page-header">
 	<h1>不支持的浏览器</h1>

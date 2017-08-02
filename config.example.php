@@ -2,9 +2,9 @@
 
 /** 
  * iPlacard 配置文件
- * 下一代模拟联合国会议管理系统
  * @author Kaijia Feng <fengkaijia@gmail.com>
- * @copyright (c) 2013, Kaijia Feng
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
  * @link http://iplacard.com/
  * @since 2.0
  */

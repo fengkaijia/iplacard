@@ -1,4 +1,16 @@
-<?php if(count($invoice_unpaid) > 0) { ?><p>代表当前共有 <?php echo $invoice_count;?> 份账单，其中包含 <?php echo count($invoice_unpaid);?> 份未支付账单。</p><?php }
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 显示账单功能视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+
+if(count($invoice_unpaid) > 0) { ?><p>代表当前共有 <?php echo $invoice_count;?> 份账单，其中包含 <?php echo count($invoice_unpaid);?> 份未支付账单。</p><?php }
 else { ?><p>代表共有 <?php echo $invoice_count;?> 份账单。</p><?php } ?>
 
 <?php if(count($invoice_unpaid) == 1) { ?><div class="btn-group" style="margin-bottom: 10.5px;">

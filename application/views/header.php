@@ -1,4 +1,15 @@
-<!DOCTYPE html>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * Header
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+?><!DOCTYPE html>
 <html lang="zh_CN">
 <head profile="http://gmpg.org/xfn/11">
 	<title><?php echo (empty($this->ui->title)) ? 'iPlacard' : $this->ui->title;?></title>

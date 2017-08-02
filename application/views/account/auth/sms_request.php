@@ -1,4 +1,16 @@
-<?php $this->load->view('header');?>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 短信请求视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+
+$this->load->view('header');?>
 
 <?php echo form_open("account/sms/request", array('class' => 'form-auth'), array('request' => true));?>
 	<h2 class="form-auth-heading">短信验证</h2>

@@ -1,4 +1,15 @@
-<p>如果代表没有收到登录信息，您可以操作重新发送欢迎邮件。</p>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 重发欢迎邮件功能视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.1
+ */
+?><p>如果代表没有收到登录信息，您可以操作重新发送欢迎邮件。</p>
 
 <div class="btn-group" style="margin-bottom: 10.5px;">
 	<a href="#" class="btn btn-warning" data-toggle="modal" data-target="#resend_email" onclick="$('#reset').attr('checked', false);"><?php echo icon('paper-plane');?>重发欢迎邮件</a>

@@ -6,7 +6,13 @@ iPlacard 的设计目标是适配所有常规类型会议的自动化管理系�
 
 iPlacard 同时按照早前会议的需求扩展有与其他系统对接的能力，包括利用 FreeRADIUS 实现会场 WIFI 网络登录（首次于 IMUNC 2013 中使用）；利用 iDocument 系统分发文件（首次于 IMUNC 2015 中使用）；利用 jsConnect 等模式实现 Single Sign-On 等（首次于 IMUNC 2015 中使用）。iPlacard 数据库经扩展亦可作为会期期间利用 NFC 或二维码签到、领餐、打卡等功能的数据后端（首次于 IMUNC 2016 中使用）。
 
-iPlacard 1.0 于 IMUNC 2013 中首次使用，随后进行了重写，并于 IMUNC 2014 开始使用 2.0 版本。
+iPlacard [公开](http://imunc.com/2013/04/announcing-iplacard/)于 2013 年 4 月 1 日。iPlacard 1.0 于 IMUNC 2013 中首次使用，随后进行了重写，并于 IMUNC 2014 开始使用 2.0 版本。
+
+## 许可证信息
+
+iPlacard 是采用双重许可证授权模式的专有软件。
+
+任何与会人数小于或等于 150 人的非商业且不以营利为目的的会议可以在[第三版 GNU 通用公共许可协议](https://www.gnu.org/licenses/gpl-3.0.en.html)（GNU General Public License v3.0）约束且保留合适署名条件下使用、复制、修改、分发 iPlacard。任何商业或以营利为目的的会议需要联系版权所有人（[fengkaijia@gmail.com](mailto:fengkaijia@gmail.com)）取得商业授权。详细的许可信息请见[版权声明及附加协议](LICENSE.txt)。
 
 ## 安装
 

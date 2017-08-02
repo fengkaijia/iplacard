@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * 上传库翻译
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+
 $lang['upload_file_exceeds_limit'] = '上传的文件大小超出了允许范围。';
 $lang['upload_file_exceeds_form_limit'] = '上传的文件大小超出了允许范围。';
 $lang['upload_file_partial'] = '文件只有部分被上传，请重新尝试上传。';

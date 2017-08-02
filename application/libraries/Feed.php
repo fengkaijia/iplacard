@@ -2,6 +2,10 @@
 
 /**
  * 源订阅类库
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
  * @link http://www.techbytes.co.in/blogs/2006/01/15/consuming-rss-with-php-the-simple-way/
  * @package iPlacard
  * @since 2.0

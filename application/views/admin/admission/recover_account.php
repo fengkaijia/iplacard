@@ -1,4 +1,15 @@
-<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.countdown.js' : 'static/js/jquery.countdown.min.js');?>"></script>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 恢复帐号功能视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+?><script src="<?php echo static_url(is_dev() ? 'static/js/jquery.countdown.js' : 'static/js/jquery.countdown.min.js');?>"></script>
 <script>
 	$('#clock_delete').countdown(<?php echo $delete_time;?> * 1000, function(event) {
 		$(this).html(event.strftime('%-D 天 %H:%M:%S'));

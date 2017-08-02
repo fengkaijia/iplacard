@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * 表单验证库翻译
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+
 $lang['form_validation_required'] = '{field}不能为空。';
 $lang['form_validation_isset'] = '{field}必须存在。';
 $lang['form_validation_valid_email'] = '{field}必须包含有效的电子邮箱地址。';

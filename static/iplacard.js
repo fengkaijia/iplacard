@@ -1,7 +1,9 @@
 /*
- * iPlacard
+ * iPlacard JS 代码
  * @author Kaijia Feng <fengkaijia@gmail.com>
- * @copyright (c) 2013, Kaijia Feng
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
  * @since 2.0
  */
 

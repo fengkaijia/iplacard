@@ -1,4 +1,15 @@
-<link href="<?php echo static_url(is_dev() ? 'static/css/jquery.atwho.css' : 'static/css/jquery.atwho.min.css');?>" rel="stylesheet">
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 笔记视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+?><link href="<?php echo static_url(is_dev() ? 'static/css/jquery.atwho.css' : 'static/css/jquery.atwho.min.css');?>" rel="stylesheet">
 <script src="<?php echo static_url(is_dev() ? 'static/js/jquery.cookie.js' : 'static/js/jquery.cookie.min.js');?>"></script>
 <script src="<?php echo static_url(is_dev() ? 'static/js/jquery.sayt.js' : 'static/js/jquery.sayt.min.js');?>"></script>
 <script src="<?php echo static_url(is_dev() ? 'static/js/jquery.caret.js' : 'static/js/jquery.caret.min.js');?>"></script>

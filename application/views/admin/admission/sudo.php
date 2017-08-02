@@ -1,4 +1,15 @@
-<p>开启 SUDO 模式以此代表视角登录 iPlacard。</p>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * SUDO 功能视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+?><p>开启 SUDO 模式以此代表视角登录 iPlacard。</p>
 
 <p><a class="btn btn-primary" href="#" data-toggle="modal" data-target="#sudo"><?php echo icon('user-md');?>SUDO 模式</a></p>
 

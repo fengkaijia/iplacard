@@ -1,4 +1,15 @@
-<?php
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 头像设置视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+
 $this->ui->html('header', '<link href="'.static_url(is_dev() ? 'static/css/jquery.jcrop.css' : 'static/css/jquery.jcrop.min.css').'" rel="stylesheet">');
 $this->ui->html('header', '<script src="'.static_url(is_dev() ? 'static/js/jquery.jcrop.js' : 'static/js/jquery.jcrop.min.js').'"></script>');
 $this->ui->html('header', "<style>

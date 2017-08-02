@@ -1,4 +1,16 @@
-<?php echo form_open("apply/status/lock", array(
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 锁定申请视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+
+echo form_open("apply/status/lock", array(
 	'class' => 'modal fade form-horizontal',
 	'id' => 'lock',
 	'tabindex' => '-1',

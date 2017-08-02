@@ -1,4 +1,15 @@
-<p>必要情况下您可以暂时停用此代表的用户帐户。</p>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 停用帐号功能视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+?><p>必要情况下您可以暂时停用此代表的用户帐户。</p>
 
 <p><a class="btn btn-warning" href="#" data-toggle="modal" data-target="#disable"><?php echo icon('ban');?>停用代表帐户</a></p>
 

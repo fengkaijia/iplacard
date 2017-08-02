@@ -1,4 +1,15 @@
-<p>如果代表申请退会，您可以操作退会并释放代表席位。</p>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 退会功能视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+?><p>如果代表申请退会，您可以操作退会并释放代表席位。</p>
 
 <p><a class="btn btn-warning" href="#" data-toggle="modal" data-target="#quit"><?php echo icon('recycle');?>代表退会</a></p>
 

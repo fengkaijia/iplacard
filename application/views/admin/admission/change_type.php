@@ -1,4 +1,15 @@
-<p>如果代表要求，您可以操作更换代表的申请类型。</p>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 更换申请类型功能视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.1
+ */
+?><p>如果代表要求，您可以操作更换代表的申请类型。</p>
 
 <p><a class="btn btn-warning" href="#" data-toggle="modal" data-target="#change_type"><?php echo icon('exchange');?>更换申请类型</a></p>
 

@@ -1,4 +1,15 @@
-<h3 id="admission_operation">审核申请材料</h3>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 审核步骤视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+?><h3 id="admission_operation">审核申请材料</h3>
 
 <p>审核是否通过此代表的申请，将会通知代表材料审核结果。</p>
 

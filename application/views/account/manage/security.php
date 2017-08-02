@@ -1,4 +1,16 @@
-<?php $this->load->view('header');?>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 帐户安全设置视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+
+$this->load->view('header');?>
 
 <div class="page-header">
 	<h1>帐户安全设置</h1>

@@ -1,4 +1,15 @@
-<p>如果此代表申请为恶意报名等其他情况，您可以操作操作删除此代表的信息。</p>
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * 删除帐号功能视图
+ * @author Kaijia Feng <fengkaijia@gmail.com>
+ * @copyright 2013 Kaijia Feng
+ * @license Dual-licensed proprietary
+ * @link http://iplacard.com/
+ * @package iPlacard
+ * @since 2.0
+ */
+?><p>如果此代表申请为恶意报名等其他情况，您可以操作操作删除此代表的信息。</p>
 
 <p><a class="btn btn-danger" href="#" data-toggle="modal" data-target="#delete"><?php echo icon('trash');?>删除代表帐户</a></p>
 
