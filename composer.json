@@ -2,11 +2,14 @@
 	"name": "imunc/iplacard",
 	"description": "iPlacard by IMUNC",
 	"minimum-stability": "stable",
-	"license": "proprietary",
+	"version": "2.3.0-dev",
+	"homepage": "http://iplacard.com",
+	"license": "Dual-licensed proprietary",
 	"authors": [
 		{
 			"name": "Kaijia Feng",
-			"email": "feng@kaijia.me"
+			"email": "fengkaijia@gmail.com",
+			"homepage": "https://www.kaijia.me"
 		}
 	],
 	"require": {
