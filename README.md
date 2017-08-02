@@ -6,7 +6,7 @@ iPlacard 的设计目标是适配所有常规类型会议的自动化管理系�
 
 iPlacard 同时按照早前会议的需求扩展有与其他系统对接的能力，包括利用 FreeRADIUS 实现会场 WIFI 网络登录（首次于 IMUNC 2013 中使用）；利用 iDocument 系统分发文件（首次于 IMUNC 2015 中使用）；利用 jsConnect 等模式实现 Single Sign-On 等（首次于 IMUNC 2015 中使用）。iPlacard 数据库经扩展亦可作为会期期间利用 NFC 或二维码签到、领餐、打卡等功能的数据后端（首次于 IMUNC 2016 中使用）。
 
-iPlacard [公开](http://imunc.com/2013/04/announcing-iplacard/)于 2013 年 4 月 1 日。iPlacard 1.0 于 IMUNC 2013 中首次使用，随后进行了重写，并于 IMUNC 2014 开始使用 2.0 版本。
+iPlacard [公开](http://imunc.com/2013/04/announcing-iplacard/)于 2013 年 4 月 1 日。iPlacard 1.0 于 IMUNC 2013 中首次使用，随后进行了重写，并于 IMUNC 2014 开始使用 2.0 版本。iPlacard 于 2.3 版本起于 2017 年 8 月 3 日，在有约束条件下公开软件源代码于 [GitHub](https://github.com/fengkaijia/iplacard)。
 
 ## 许可证信息
 
@@ -36,7 +36,7 @@ iPlacard 标准实例可以运行在标准的 LAMP 环境中，最低需求如�
 #### 1、使用 Git 和 Composer
 
 ```bash
-git clone https://dev.kaijia.me/imunc/iplacard.git
+git clone https://github.com/fengkaijia/iplacard.git
 cd iplacard
 wget https://raw.githubusercontent.com/composer/getcomposer.org/master/web/installer -O - -q | php -- --quiet
 php composer.phar install
@@ -44,7 +44,7 @@ php composer.phar install
 
 #### 2、下载预编译的文件
 
-访问 <https://dev.kaijia.me/imunc/iplacard/tags> 下载包含所有代码的源文件并解压缩到文件目录。请注意通过此方法下载的代码无法自动升级，如条件允许请使用前种方法。
+访问 <https://github.com/fengkaijia/iplacard/releases> 下载包含所有代码的源文件并解压缩到文件目录。请注意通过此方法下载的代码无法自动升级，如条件允许请使用前种方法。
 
 ### 创建配置文件
 

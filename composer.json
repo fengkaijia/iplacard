@@ -25,7 +25,7 @@
 				"name": "imunc/iplacard-3rdparty",
 				"version": "2.3.0",
 				"source": {
-					"url": "https://dev.kaijia.me/imunc/iplacard-3rdparty.git",
+					"url": "https://github.com/fengkaijia/iplacard-3rdparty.git",
 					"type": "git",
 					"reference": "v2.3"
 				}
