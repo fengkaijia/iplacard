@@ -1318,17 +1318,19 @@ class Account extends CI_Controller
 					
 					//裁剪图像
 					$crop_config = $config;
-					$crop_config['x_axis'] = $this->input->post('x');
-					$crop_config['y_axis'] = $this->input->post('y');
-					$crop_config['width'] = $this->input->post('w');
-					$crop_config['height'] = $this->input->post('h');
+					$crop_config['x_axis'] = (int) $this->input->post('x');
+					$crop_config['y_axis'] = (int) $this->input->post('y');
+					$crop_config['width'] = (int) $this->input->post('w');
+					$crop_config['height'] = (int) $this->input->post('h');
 					$crop_config['maintain_ratio'] = false;
 					
 					$this->image_lib->initialize($crop_config);
 					
 					if(!$this->image_lib->crop())
 					{
-						echo $this->image_lib->display_errors();
+						$this->ui->alert('生成头像出错。', 'danger', true);
+						redirect('account/settings/home');
+						return;
 					}
 					$this->image_lib->clear();
 					

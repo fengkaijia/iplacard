@@ -20,9 +20,9 @@
  */
 class IP_Image_lib extends CI_Image_lib
 {
-	function MY_Image_lib()
+	function __construct()
 	{
-		parent::CI_Image_lib();
+		parent::__construct();
 	}
 
 	/**
