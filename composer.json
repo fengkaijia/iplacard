@@ -2,7 +2,7 @@
 	"name": "imunc/iplacard",
 	"description": "iPlacard by IMUNC",
 	"minimum-stability": "stable",
-	"version": "2.3.0-dev",
+	"version": "2.3.0",
 	"homepage": "http://iplacard.com",
 	"license": "Dual-licensed proprietary",
 	"authors": [
