@@ -251,15 +251,18 @@ class Apply extends CI_Controller
 		$vars['group'] = $group;
 		
 		//RSS
-		$this->load->library('feed');
-		
-		$this->feed->set_feed_url(option('feed_url', 'http://iplacard.com/feed/'));
-		
+		$feed = option('feed_url', 'http://iplacard.com/feed/');
 		$feed_enable = false;
-		if($this->feed->parse())
+		if(!empty($feed))
 		{
-			$feed_enable = true;
-			$vars['feed'] = $this->feed->get_feed(2);
+			$this->load->library('feed');
+			
+			$this->feed->set_feed_url($feed);
+			if($this->feed->parse())
+			{
+				$feed_enable = true;
+				$vars['feed'] = $this->feed->get_feed(2);
+			}
 		}
 		
 		$vars['feed_enable'] = $feed_enable;
