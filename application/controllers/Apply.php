@@ -2112,6 +2112,9 @@ class Apply extends CI_Controller
 	{
 		$this->load->model('seat_model');
 		
+		if(empty($array))
+			return false;
+		
 		if(is_string($array))
 			$array = array($array);
 		
