@@ -109,7 +109,7 @@ $this->load->view('header');?>
 		<h3>分发范围</h3>
 		<p><?php if($access === true) { ?>此文件全局分发，所有代表均可查看。<?php } else { ?>此文件限定委员会分发，仅绿色标识的委员会代表可查看。<?php } ?></p>
 
-		<div class="row">
+		<?php if($committees) { ?><div class="row">
 			<?php
 			$divide = ceil(count($committees) / 3) - 1;
 			$group = array();
@@ -133,20 +133,23 @@ $this->load->view('header');?>
 			}
 
 			for($i = 0; $i < 3; $i++) { ?><div class="col-md-4"><?php
-				foreach($group[$i] as $committee)
+				if(!empty($group[$i]))
 				{
-					if($access === true || in_array($committee['id'], $access))
+					foreach($group[$i] as $committee)
 					{
-						echo sprintf("<p class='text-success'>%s%s</p>", icon('check'), $committee['name']);
-					}
-					else
-					{
-						echo sprintf("<p class='text-muted'>%s%s</p>", icon('times'), $committee['name']);
+						if($access === true || in_array($committee['id'], $access))
+						{
+							echo sprintf("<p class='text-success'>%s%s</p>", icon('check'), $committee['name']);
+						}
+						else
+						{
+							echo sprintf("<p class='text-muted'>%s%s</p>", icon('times'), $committee['name']);
+						}
 					}
 				}
 				?></div><?php
 			} ?>
-		</div>
+		</div><?php } ?>
 	</div>
 
 	<div class="col-md-4">
