@@ -205,19 +205,22 @@ class Document extends CI_Controller
 					'time' => unix_to_human(time())
 				);
 
+				$users = array();
 				if($access === true)
 				{
-					//排除审核未通过代表下载
+					$this->load->model('delegate_model');
+					
+					//不通知特殊状态代表
 					$excludes = array(0);
 					if(!option('document_enable_refused', false))
-					{
-						$this->load->model('delegate_model');
-
-						$rids = $this->delegate_model->get_delegate_ids('status', 'review_refused');
-
-						if($rids)
+						$exclude_status = array('review_refused', 'waitlist_entered', 'quitted', 'deleted');
+					else
+						$exclude_status = array('quitted', 'deleted');
+					
+					$rids = $this->delegate_model->get_delegate_ids('status', $exclude_status);
+					if($rids)
 							$excludes = $rids;
-					}
+					
 					$users = $this->user_model->get_user_ids('id NOT', $excludes);
 				}
 				else
@@ -920,7 +923,7 @@ class Document extends CI_Controller
 		//审核未通过代表无权访问
 		$this->load->model('delegate_model');
 		
-		if($this->delegate_model->get_delegate($user, 'status') == 'review_refused' && !option('document_enable_refused', false))
+		if(in_array($this->delegate_model->get_delegate($user, 'status'), array('review_refused', 'waitlist_entered')) && !option('document_enable_refused', false))
 			return false;
 		
 		$access = $this->document_model->get_document_accessibility($document);
