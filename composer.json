@@ -2,7 +2,7 @@
 	"name": "imunc/iplacard",
 	"description": "iPlacard by IMUNC",
 	"minimum-stability": "stable",
-	"version": "2.3.0",
+	"version": "2.4.0-dev",
 	"homepage": "http://iplacard.com",
 	"license": "Dual-licensed proprietary",
 	"authors": [
@@ -13,7 +13,7 @@
 		}
 	],
 	"require": {
-		"imunc/iplacard-3rdparty": "2.3.*",
+		"imunc/iplacard-3rdparty": "2.4.*",
 		"codeigniter/framework": "3.1.*",
 		"codeigniter/translations": "3.1.*",
 		"phpoffice/phpexcel": "1.8.*"
@@ -23,11 +23,11 @@
 			"type":"package",
 			"package": {
 				"name": "imunc/iplacard-3rdparty",
-				"version": "2.3.0",
+				"version": "2.4.0-dev",
 				"source": {
 					"url": "https://github.com/fengkaijia/iplacard-3rdparty.git",
 					"type": "git",
-					"reference": "v2.3"
+					"reference": "master"
 				}
 			}
 		},
