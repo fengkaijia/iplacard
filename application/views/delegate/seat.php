@@ -229,7 +229,10 @@ $this->load->view('header');?>
 							else
 								echo '<span class="text-success">已选席位</span>';?></td>
 							<td><?php printf('%1$s（%2$s）', date('n月j日', $selectability['time']), nicetime($selectability['time']));?></td>
-							<td><?php if(in_array($one_seat['id'], $selectability_available))
+							<td><?php
+							if($selectability['seat']['delegate'] == $delegate['id'])
+								echo '<a style="cursor: pointer;" onclick="remove_seat('.$one_seat['id'].');">'.icon('minus-square', false).'取消</a>';
+							elseif(in_array($one_seat['id'], $selectability_available))
 								echo '<a style="cursor: pointer;" onclick="select_seat('.$one_seat['id'].');">'.icon('plus-square', false).'选择</a>';?></td>
 						</tr><?php } ?>
 					</tbody>
