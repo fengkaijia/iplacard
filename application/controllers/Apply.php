@@ -667,8 +667,15 @@ class Apply extends CI_Controller
 				
 				//已有席位
 				$original_seat = $this->seat_model->get_delegate_seat($this->uid);
-				if($original_seat && $original_seat != $select_seat)
+				if($original_seat)
 				{
+					if($original_seat == $select_seat)
+					{
+						$this->ui->alert('席位没有变化。', 'info', true);
+						back_redirect();
+						return;
+					}
+					
 					$original_seat_info = $this->seat_model->get_seat($original_seat);
 
 					//回退原席位
