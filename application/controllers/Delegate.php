@@ -3186,6 +3186,10 @@ class Delegate extends CI_Controller
 			case 'invoice_issued':
 			case 'payment_received':
 				$this->load->model('seat_model');
+				
+				//非代表无席位
+				if($delegate['application_type'] != 'delegate')
+					break;
 			
 				//全局席位分配权限
 				$global_admin = false;
