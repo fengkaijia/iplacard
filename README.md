@@ -14,6 +14,14 @@ iPlacard 是采用双重许可证授权模式的专有软件。
 
 任何与会人数小于或等于 150 人的非商业且不以营利为目的的会议可以在[第三版 GNU 通用公共许可协议](https://www.gnu.org/licenses/gpl-3.0.en.html)（GNU General Public License v3.0）约束且保留合适署名条件下使用、复制、修改、分发 iPlacard。任何商业或以营利为目的的会议需要联系版权所有人（[fengkaijia@gmail.com](mailto:fengkaijia@gmail.com)）取得商业授权。详细的许可信息请见[版权声明及附加协议](LICENSE.txt)。
 
+## 示例
+
+测试用 Demo 提供于 <https://sandbox.kaijia.me/iplacard/>。
+
+后台（组织团队帐号）登录用户名 `admin@iplacard.com`，密码 `iplacardadmin`。
+
+前台（代表报名帐号）登录用户名 `demo@iplacard.com`，密码 `iplacarduser`，亦可由简易报名表提交报名登录。
+
 ## 安装
 
 使用 iPlacard 需要系统管理员具有一定的网站维护知识，建议使用 phpMyAdmin 等软件方便维护。
@@ -22,9 +30,9 @@ iPlacard 是采用双重许可证授权模式的专有软件。
 
 iPlacard 标准实例可以运行在标准的 LAMP 环境中，最低需求如下：
 
-* PHP 7.0
-* MySQL 5.7
-* Nginx 1.0 / Apache 2.2
+* PHP 7.0（包含 `php-curl`、`php-gd`、`php-mbstring`、`php-mcrypt`、`php-memcached`、`php-mysql`、`php-xml`、`php-zip` 扩展）
+* MySQL 5.7（停用 `only_full_group_by`）
+* Nginx 1.0 / Apache 2.2（包含 `mod_rewrite`）
 * Memcached
 * Cron
 * CURL
