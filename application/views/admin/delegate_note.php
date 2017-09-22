@@ -9,12 +9,7 @@
  * @package iPlacard
  * @since 2.0
  */
-?><link href="<?php echo static_url(is_dev() ? 'static/css/jquery.atwho.css' : 'static/css/jquery.atwho.min.css');?>" rel="stylesheet">
-<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.cookie.js' : 'static/js/jquery.cookie.min.js');?>"></script>
-<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.sayt.js' : 'static/js/jquery.sayt.min.js');?>"></script>
-<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.caret.js' : 'static/js/jquery.caret.min.js');?>"></script>
-<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.atwho.js' : 'static/js/jquery.atwho.min.js');?>"></script>
-<script>
+?><script>
 	$('#add_note_<?php echo $uid;?> #note').atwho({
 		at: "@",
 		data: "<?php echo base_url('user/ajax/mention');?>",

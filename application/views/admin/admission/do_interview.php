@@ -15,10 +15,7 @@ foreach($score_standard as $sid => $one)
 {
 	$hiddens["score_$sid"] = 0;
 }
-
-if(option('interview_save_enabled', false)) { ?><script src="<?php echo static_url(is_dev() ? 'static/js/jquery.cookie.js' : 'static/js/jquery.cookie.min.js');?>"></script>
-<script src="<?php echo static_url(is_dev() ? 'static/js/jquery.sayt.js' : 'static/js/jquery.sayt.min.js');?>"></script><?php } ?>
-<script>
+?><script>
 	var scored = false;
 	
 	jQuery(function($){
