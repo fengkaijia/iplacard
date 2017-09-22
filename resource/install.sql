@@ -356,7 +356,7 @@ CREATE TABLE IF NOT EXISTS `{IP_PREFIX}user_option` (
   UNIQUE KEY `option_user` (`user`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户设置';
 
-ALTER TABLE `{IP_PREFIX}knowledgebase` ADD FULLTEXT KEY `knowledgebase_content` (`content`);
+ALTER TABLE `{IP_PREFIX}knowledgebase` ADD FULLTEXT KEY `knowledgebase_content` (`title`,`content`);
 
 INSERT INTO `{IP_PREFIX}option` (`name`, `value`) VALUES
   ('organization', '\"\"'), -- 组织名称
