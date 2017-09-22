@@ -28,10 +28,7 @@ foreach($data as $group => $list)
 		$subtext_title[$one['id']] = $one['title'];
 	}
 }
-?><link href="<?php echo static_url(is_dev() ? 'static/css/bootstrap.select.css' : 'static/css/bootstrap.select.min.css');?>" rel="stylesheet">
-<script src="<?php echo static_url(is_dev() ? 'static/js/bootstrap.select.js' : 'static/js/bootstrap.select.min.js');?>"></script>
-<script src="<?php echo static_url(is_dev() ? 'static/js/locales/bootstrap.select.locale.js' : 'static/js/locales/bootstrap.select.locale.min.js');?>"></script>
-<script>
+?><script>
 	$('.selectpicker').selectpicker();
 </script>
 
