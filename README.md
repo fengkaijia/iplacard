@@ -46,7 +46,7 @@ iPlacard 标准实例可以运行在标准的 LAMP 环境中，最低需求如�
 ```bash
 git clone https://github.com/fengkaijia/iplacard.git
 cd iplacard
-git checkout v2.3
+git checkout release/2.3
 wget https://raw.githubusercontent.com/composer/getcomposer.org/master/web/installer -O - -q | php -- --quiet
 php composer.phar install
 ```
