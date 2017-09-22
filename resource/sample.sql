@@ -39,7 +39,7 @@ UPDATE `{IP_PREFIX}option` SET `value` = '[\"参会费\", \"住宿费\"]' WHERE 
 UPDATE `{IP_PREFIX}option` SET `value` = '[\"席位费\", \"参会费\", \"住宿费\"]' WHERE `name` = 'invoice_item_fee_delegate';
 UPDATE `{IP_PREFIX}option` SET `value` = '[\"支付宝\", \"银行汇款\"]' WHERE `name` = 'invoice_payment_gateway';
 UPDATE `{IP_PREFIX}option` SET `value` = '\"iPlacard 不含席位代表参会会费\"' WHERE `name` = 'invoice_title_fee';
-UPDATE `{IP_PREFIX}option` SET `value` = '\"iPlacard 含席位代表参会会费\"' WHERE `name` = 'invoice_title_fee_delegate';
+UPDATE `{IP_PREFIX}option` SET `value` = '\"iPlacard 含席位代表参会会费\"', `name` = 'invoice_title_fee_delegate' WHERE `name` = '~invoice_title_fee_delegate';
 UPDATE `{IP_PREFIX}option` SET `value` = '{\"link\": \"http://iplacard.com\", \"text\": \"示例自定义链接\"}' WHERE `name` = 'link_login';
 UPDATE `{IP_PREFIX}option` SET `value` = '{\"roommate\": \"示例自定义室友信息资料列\"}' WHERE `name` = 'profile_block';
 UPDATE `{IP_PREFIX}option` SET `value` = '{\"gender\": \"性别\", \"school\": \"学校\", \"grade\": \"年级\", \"idcard\": \"身份证\", \"qq\": \"QQ\", \"wechat\": \"微信\"}' WHERE `name` = 'profile_list_general';
