@@ -209,7 +209,7 @@ class Interview extends CI_Controller
 				$admins = $this->admin_model->get_admins(array_unique(array_column($interviews, 'interviewer')));
 				$delegates = $this->delegate_model->get_delegates(array_unique(array_column($interviews, 'delegate')));
 				
-				foreach($interviews as $id => $interview)
+				foreach($interviews as $interview)
 				{
 					$admin = $admins[$interview['interviewer']];
 					$delegate = $delegates[$interview['delegate']];

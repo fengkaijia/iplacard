@@ -94,7 +94,7 @@ class Seat_model extends CI_Model
 		}
 		
 		//计算席位是否为平级多代后的数据
-		foreach($primaries as $primary => $subs)
+		foreach($primaries as $subs)
 		{
 			$double = $this->is_double_seat(array_intersect_key($all, array_flip($subs)));
 			

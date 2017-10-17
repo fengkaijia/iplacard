@@ -621,7 +621,7 @@ class Seat extends CI_Controller
 				$seats = $this->seat_model->get_seats(array_unique(array_column($selectabilities, 'seat')));
 				$committees = $this->committee_model->get_committees();
 				
-				foreach($selectabilities as $slid => $selectability)
+				foreach($selectabilities as $selectability)
 				{
 					$seat = $seats[$selectability['seat']];
 					

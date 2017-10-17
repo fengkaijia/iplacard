@@ -664,7 +664,7 @@ class Invoice
 	/**
 	 * 释放席位触发器
 	 */
-	private function _trigger_release_seat($args)
+	private function _trigger_release_seat()
 	{
 		$this->CI->load->model('delegate_model');
 		$this->CI->load->model('seat_model');

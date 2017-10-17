@@ -269,7 +269,7 @@ class Billing extends CI_Controller
 				$invoices = $this->invoice_model->get_invoices($ids);
 				$delegates = $this->delegate_model->get_delegates(array_unique(array_column($invoices, 'delegate')));
 				
-				foreach($invoices as $id => $invoice)
+				foreach($invoices as $invoice)
 				{
 					$delegate = $delegates[$invoice['delegate']];
 

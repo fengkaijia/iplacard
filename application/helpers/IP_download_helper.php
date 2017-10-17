@@ -17,7 +17,7 @@ function temp_download($path, $filename = '')
 {
 	$path = realpath($path);
 	
-	if(!@is_file($path) || !($filesize = @filesize($path)))
+	if(!@is_file($path) || !@filesize($path))
 	{
 		return false;
 	}

@@ -715,8 +715,6 @@ class Document extends CI_Controller
 		//导入文件
 		foreach($documents as $document_id)
 		{
-			$document = $this->document_model->get_document($document_id);
-
 			$file_id = $this->document_model->get_document_file($document_id, $id);
 			if(!$file_id)
 				continue;
@@ -903,7 +901,7 @@ class Document extends CI_Controller
 	/**
 	 * 文件上传检查回调虚函数
 	 */
-	function _check_upload_error($str)
+	function _check_upload_error()
 	{
 		return false;
 	}
