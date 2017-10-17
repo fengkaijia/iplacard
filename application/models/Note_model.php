@@ -60,7 +60,7 @@ class Note_model extends CI_Model
 		
 		foreach($query->result_array() as $data)
 		{
-			$data['mention'] = $this->get_note_mentions($id);
+			$data['mention'] = $this->get_note_mentions($data['id']);
 			
 			$return[$data['id']] = $data;
 		}
