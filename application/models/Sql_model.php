@@ -104,7 +104,7 @@ class Sql_model extends CI_Model
 				return false;
 			
 			//输入连接
-			for($i = 1; $i < $table_count; $i = $i += 2)
+			for($i = 1; $i < $table_count; $i += 2)
 			{
 				$this->db->join($table[$i], $table[$i + 1]);
 			}
