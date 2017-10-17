@@ -125,3 +125,19 @@ sed -e 's/{IP_PREFIX}/ip_/g' resource/sample.sql | mysql -u user -p database
 #### 3、配置 Nginx
 
 参照 [`resource/nginx`](resource/nginx) 修改 Nginx 的配置文件可隐藏网址中的 `index.php/` 部分并防止恶意获取文件。
+
+#### 4、删除多余配置项
+
+iPlacard 每次请求均会从数据库的 `option` 表中载入全部配置项，删除采用默认设置的配置项（即导入数据表后未修改过的配置项）可以提高网页打开速度。
+
+## 更新
+
+### 修订更新
+
+修订更新指大版本不变的更新，例如由 2.3.0 更新至 2.3.1。修订更新不包含新功能和数据库变动，仅需通过 Git 更新代码。
+
+```bash
+cd iplacard
+git pull
+php composer.phar update
+```
