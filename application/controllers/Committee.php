@@ -325,5 +325,5 @@ class Committee extends CI_Controller
 	}
 }
 
-/* End of file user.php */
-/* Location: ./application/controllers/user.php */
+/* End of file committee.php */
+/* Location: ./application/controllers/committee.php */
