@@ -23,7 +23,7 @@
 			"type":"package",
 			"package": {
 				"name": "imunc/iplacard-3rdparty",
-				"version": "2.4.0-dev",
+				"version": "master",
 				"source": {
 					"url": "https://github.com/fengkaijia/iplacard-3rdparty.git",
 					"type": "git",
@@ -35,11 +35,11 @@
 			"type":"package",
 			"package": {
 				"name": "codeigniter/translations",
-				"version": "3.1.5",
+				"version": "3.1.10",
 				"source": {
 					"url": "https://github.com/bcit-ci/codeigniter3-translations.git",
 					"type": "git",
-					"reference": "3.1.5"
+					"reference": "3.1.10"
 				}
 			}
 		}
