@@ -583,7 +583,7 @@ class Document extends CI_Controller
 				
 				$flag = array(
 					'file' => realpath("{$this->path}{$file['id']}.{$file['filetype']}"),
-					'identifier' => $file['identifier'],
+					'identifier' => escapeshellarg($file['identifier']),
 					'name' => $user['name'],
 					'email' => $user['email'],
 					'return' => realpath('.').'/'.temp_path().'/'.$filename
