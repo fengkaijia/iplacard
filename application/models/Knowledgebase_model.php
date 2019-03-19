@@ -128,7 +128,7 @@ class Knowledgebase_model extends CI_Model
 		$keyword = $this->db->escape_str($keyword);
 		
 		$this->db->select('id');
-		$this->db->where("MATCH (content) AGAINST (\"{$keyword}\" IN BOOLEAN MODE)", NULL, false);
+		$this->db->where("MATCH (title, content) AGAINST (\"{$keyword}\" IN BOOLEAN MODE)", NULL, false);
 		$this->db->limit($limit);
 		$query = $this->db->get('knowledgebase');
 		
