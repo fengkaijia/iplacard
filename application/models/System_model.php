@@ -24,7 +24,7 @@ class System_model extends CI_Model
 	 * 获取站点设置
 	 * @param string $name 项目
 	 * @param mixed $default 默认值
-	 * @return array|false 值，如不存在返回FALSE
+	 * @return mixed|false 值，如不存在返回FALSE
 	 */
 	function option($name, $default = NULL)
 	{
@@ -67,7 +67,7 @@ class System_model extends CI_Model
 	 * option的同名函数
 	 * @param string $name 项目
 	 * @param mixed $default 默认值
-	 * @return array|false 值，如不存在返回FALSE
+	 * @return mixed|false 值，如不存在返回FALSE
 	 */
 	function get_option($name, $default = NULL)
 	{

@@ -98,7 +98,7 @@ function is_dev()
  * $this->system_model->option 简单路径
  * @param string $name 项目
  * @param mixed $default 默认值
- * @return array|false 值，如不存在返回FALSE
+ * @return mixed|false 值，如不存在返回FALSE
  */
 function option($name, $default = NULL)
 {
@@ -112,7 +112,7 @@ function option($name, $default = NULL)
  * @param string $name 项目
  * @param mixed $default 默认值，如为空将首先尝试调用系统默认设置
  * @param int $user 用户ID
- * @return array|false 值，如不存在返回FALSE
+ * @return mixed|false 值，如不存在返回FALSE
  */
 function user_option($name, $default = NULL, $user = '')
 {
