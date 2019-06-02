@@ -1,0 +1,10 @@
+composer.lock
+composer.phar
+application/logs/
+vendor/
+static/css/
+static/fonts/
+static/img/
+static/js/
+data/
+temp/
