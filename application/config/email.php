@@ -18,6 +18,7 @@
 |	smtp_pass			No Default			None					SMTP Password.
 |	smtp_port			25					None					SMTP Port.
 |	smtp_timeout		5					None					SMTP Timeout (in seconds).
+|	smtp_crypto			No Default			tls or ssl				SMTP Encryption
 |	wordwrap			TRUE				TRUE or FALSE (boolean)	Enable word-wrap.
 |	wrapchars			76											Character count to wrap at.
 |	mailtype			text				text or html			Type of mail. If you send HTML email you must send it as a complete web page. Make sure you don't have any relative links or relative image paths otherwise they will not work.
@@ -39,6 +40,7 @@ if(IP_INSTANCE_SMTP)
 	$config['smtp_user'] = IP_INSTANCE_SMTP_USER;
 	$config['smtp_pass'] = IP_INSTANCE_SMTP_PASS;
 	$config['smtp_port'] = IP_INSTANCE_SMTP_PORT;
+	$config['smtp_crypto'] = IP_INSTANCE_SMTP_SSL;
 }
 
 $config['wordwrap'] = FALSE;

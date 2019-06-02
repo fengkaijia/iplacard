@@ -95,6 +95,11 @@ define('IP_SMTP_PASS', '');
 define('IP_SMTP_PORT', '');
 
 /**
+ * SMTP加密模式（tls、ssl，空为不加密）
+ */
+define('IP_SMTP_SSL', '');
+
+/**
  * 反向代理IP列表
  */
 define('IP_REVERSE_PROXY', join(',', array(
