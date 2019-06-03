@@ -81,6 +81,57 @@ class Apply extends CI_Controller
 			$vars['type'][$type] = $this->delegate_model->application_type_text($type);
 		}
 		
+		$vars['committee'] = array();
+		
+		$test_questions = option('profile_list_test', array());
+		$test_needed = option('signup_test', false) && count($test_questions) > 0;
+		if($test_needed)
+		{
+			$this->load->model('committee_model');
+			
+			$committees = $this->committee_model->get_committees();
+			foreach($committees as $committee)
+			{
+				$vars['committee'][$committee['id']] = $committee['name'];
+			}
+			
+			$committee_tests = array();
+			if(option('signup_test_dynamic', false)) //以动态方式从题库中随机取题
+			{
+				$this->load->library('question');
+				
+				$previous_test = $this->session->userdata('signup_test');
+				if(!is_null($previous_test))
+				{
+					$committee_tests = unserialize($previous_test);
+				}
+				else
+				{
+					$this->question->set_committee_rule(option('signup_test_committee', array())); //规定学测题属于哪些委员会
+					$this->question->set_exclusive_rule(option('signup_test_exclusive', array())); //规定学测题不可与哪些学测题同时出现
+					
+					$test_count = option('signup_test_count', 3); //规定学测题数目
+					foreach($committees as $committee)
+					{
+						$committee_tests[$committee['id']] = $this->question->generate($committee['id'], $test_count);
+					}
+					
+					//缓存题目序列
+					$this->session->set_userdata('signup_test', serialize($committee_tests));
+				}
+			}
+			else //展示全部题目
+			{
+				foreach($committees as $committee) {
+					//将全部题目添加到每个意向委员会展示题目中
+					$committee_tests[$committee['id']] = range(0, count($test_questions) - 1);
+				}
+			}
+			
+			$vars['test_questions'] = $test_questions;
+			$vars['test_selected'] = $committee_tests;
+		}
+		
 		$profiles = option('profile_list_general', array());
 		$vars['profiles'] = $profiles;
 		
@@ -124,6 +175,24 @@ class Apply extends CI_Controller
 			foreach($profiles as $name => $item)
 			{
 				$this->delegate_model->add_profile($uid, $name, trim($this->input->post("profile_$name")));
+			}
+			
+			//导入意向委员会和学术测试
+			if($test_needed)
+			{
+				//TODO: 格式化
+				$committee = intval($this->input->post('committee'));
+				$this->delegate_model->add_profile($uid, 'committee_choice', isset($vars['committee'][$committee]) ? $vars['committee'][$committee] : $committee);
+				
+				$answers = array();
+				for($i = 0; $i < count($test_questions); $i++)
+				{
+					$answers[$i] = '';
+					if(isset($committee_tests[$committee]) && in_array($i, $committee_tests[$committee]))
+						$answers[$i] = trim($this->input->post("test_$i"));
+				}
+				
+				$this->delegate_model->add_profile($uid, 'test', $answers);
 			}
 			
 			//发送邮件
