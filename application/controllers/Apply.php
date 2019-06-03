@@ -26,7 +26,6 @@ class Apply extends CI_Controller
 		parent::__construct();
 		$this->load->library('session');
 		$this->load->library('ui', array('side' => 'delegate'));
-		$this->load->model('admin_model');
 		$this->load->model('delegate_model');
 		$this->load->helper('text');
 		$this->load->helper('date');
@@ -556,6 +555,7 @@ class Apply extends CI_Controller
 	 */
 	function interview()
 	{
+		$this->load->model('admin_model');
 		$this->load->model('interview_model');
 		
 		$interviews = array();
