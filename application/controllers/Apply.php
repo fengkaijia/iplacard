@@ -84,8 +84,8 @@ class Apply extends CI_Controller
 		$vars['committee'] = array();
 		
 		$test_questions = option('profile_list_test', array());
-		$test_needed = option('signup_test', false) && count($test_questions) > 0;
-		if($test_needed)
+		$test_enabled = option('signup_test', false) && count($test_questions) > 0;
+		if($test_enabled)
 		{
 			$this->load->model('committee_model');
 			
@@ -130,6 +130,7 @@ class Apply extends CI_Controller
 			
 			$vars['test_questions'] = $test_questions;
 			$vars['test_selected'] = $committee_tests;
+			$vars['test_needed'] = array_unique(call_user_func_array('array_merge', $committee_tests));
 		}
 		
 		$profiles = option('profile_list_general', array());
@@ -178,7 +179,7 @@ class Apply extends CI_Controller
 			}
 			
 			//导入意向委员会和学术测试
-			if($test_needed)
+			if($test_enabled)
 			{
 				//TODO: 格式化
 				$committee = intval($this->input->post('committee'));

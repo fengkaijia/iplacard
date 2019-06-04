@@ -138,7 +138,10 @@ $this->load->view('header');?>
 
 		<hr />
 			
-		<?php foreach($test_questions as $id => $text) { ?><div id="test_input_<?php echo $id;?>" class="form-group <?php if(form_has_error("test_$id")) echo 'has-error';?> test_question">
+		<?php
+		foreach($test_questions as $id => $text)
+		{
+			if (in_array($id, $test_needed)) { ?><div id="test_input_<?php echo $id;?>" class="form-group <?php if(form_has_error("test_$id")) echo 'has-error';?> test_question">
 			<div class="col-lg-12">
 				<?php echo form_label($text, "test_$id");
 				echo form_textarea(array(
@@ -153,7 +156,7 @@ $this->load->view('header');?>
 					echo form_error("test_$id");
 				?>
 			</div>
-		</div><?php } ?>
+		</div><?php } } ?>
 
 		<div class="form-group">
 			<div class="col-lg-12">
