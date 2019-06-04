@@ -30,7 +30,7 @@ iPlacard 是采用双重许可证授权模式的专有软件。
 
 iPlacard 标准实例可以运行在标准的 LAMP 环境中，最低需求如下：
 
-* PHP 7.0（包含 `php-curl`、`php-gd`、`php-mbstring`、`php-mcrypt`、`php-memcached`、`php-mysql`、`php-xml`、`php-zip` 扩展）
+* PHP 7.0（包含 `php-curl`、`php-gd`、`php-mbstring`、`php-memcached`、`php-mysql`、`php-xml`、`php-zip` 扩展）
 * MySQL 5.7（停用 `only_full_group_by`）
 * Nginx 1.0 / Apache 2.2（包含 `mod_rewrite`）
 * Memcached
