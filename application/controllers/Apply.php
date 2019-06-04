@@ -249,6 +249,7 @@ class Apply extends CI_Controller
 			return;
 		}
 		
+		$this->ui->now('signup');
 		$this->ui->title('报名');
 		$this->ui->background();
 		$this->load->view('delegate/signup', $vars);
