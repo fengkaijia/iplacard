@@ -2197,7 +2197,8 @@ class Account extends CI_Controller
 		if(!$this->user_model->user_exists($email))
 		{
 			$this->form_validation->set_message('_auth_imap', '此邮箱帐户不存在于 iPlacard 中！');
-			$this->ui->alert('稍早前提交的报名将会需要至多 1 小时以导入系统，请稍等并查收您的邮件。通常情况下将您将在 1 小时内收到一封包含登录信息的确认邮件。', 'info');
+			if(!option('signup_enabled', true))
+				$this->ui->alert('稍早前提交的报名将会需要至多 1 小时以导入系统，请稍等并查收您的邮件。通常情况下将您将在 1 小时内收到一封包含登录信息的确认邮件。', 'info');
 			return false;
 		}
 		else
@@ -2254,7 +2255,8 @@ class Account extends CI_Controller
 		if(!$this->user_model->user_exists($email))
 		{
 			$this->form_validation->set_message('_auth_internal', '电子邮箱 / 手机不存在！');
-			$this->ui->alert('稍早前提交的报名将会需要至多 1 小时以导入系统，请稍等并查收您的邮件。通常情况下将您将在 1 小时内收到一封包含登录信息的确认邮件。', 'info');
+			if(!option('signup_enabled', true))
+				$this->ui->alert('稍早前提交的报名将会需要至多 1 小时以导入系统，请稍等并查收您的邮件。通常情况下将您将在 1 小时内收到一封包含登录信息的确认邮件。', 'info');
 			return false;
 		}
 		elseif(!$this->user_model->check_password($email, $password))
@@ -2328,7 +2330,8 @@ class Account extends CI_Controller
 		if(!$user)
 		{
 			$this->form_validation->set_message('_check_password_recover', '电子邮箱地址不存在！');
-			$this->ui->alert('稍早前提交的报名将会需要至多 1 小时以导入系统，请稍等并查收您的邮件。通常情况下将您将在 1 小时内收到一封包含登录信息的确认邮件。', 'info');
+			if(!option('signup_enabled', true))
+				$this->ui->alert('稍早前提交的报名将会需要至多 1 小时以导入系统，请稍等并查收您的邮件。通常情况下将您将在 1 小时内收到一封包含登录信息的确认邮件。', 'info');
 			return false;
 		}
 		elseif(!$user['name'] || empty($user['name']) || $user['name'] != $this->input->post('name'))
