@@ -549,9 +549,14 @@ INSERT INTO `{IP_PREFIX}option` (`name`, `value`) VALUES
   ('seat_revert_original', 'false'), -- 曾选席位不得再选
   ('seat_select_open', 'true'), -- 开放席位选择
   ('server_download_method', '\"php\"'), -- 系统文件下载方式
-  ('signup_enabled', 'true'), -- 启用系统附带的简易报名表（不推荐）
+  ('signup_enabled', 'true'), -- 启用系统附带的简易报名表
   ('signup_type', '[\"delegate\", \"observer\", \"volunteer\", \"teacher\"]'), -- 可通过系统附带的简易报名表报名的申请类型
   ('signup_unique_identifier', '\"email\"'), -- 系统附带的简易报名表中唯一字段的属性
+  ('signup_test', 'false'), -- 在简易报名表中增加学术测试
+  ('signup_test_dynamic', 'false'), -- 从学术测试题库中动态抽取题目
+  ('signup_test_committee', '[]'), -- 学术测试题对应的委员会
+  ('signup_test_exclusive', '[]'), -- 学术测试题间的相互互斥关系
+  ('signup_test_count', '3'), -- 单意向委员会可显示最多学术测试题数量
   ('sms_enabled', 'false'), -- 启用短信
   ('sms_identity', '\"\"'), -- 短信发送方名称
   ('sso_name', '\"name\"'), -- 在 Single Sign-On 连接中作为用户名字传送的字段
