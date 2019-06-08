@@ -88,6 +88,12 @@ $this->load->view('header');?>
 							'application_type_text' => '申请类型',
 							'status_text' => '申请状态',
 						) + $rules_text;
+						
+						$committee_choice = option('profile_special_committee_choice');
+						if($committee_choice && isset($rules_text[$committee_choice]))
+							unset($rules_text[$committee_choice]); //将委员会选择从可编辑项中移除
+						//TODO: 允许以选项形式编辑意向委员会
+						
 						foreach($rules as $rule => $text) { ?><tr>
 							<td><?php echo $text;?></td>
 							<td><?php if($rule == 'name' && $profile['pinyin'])

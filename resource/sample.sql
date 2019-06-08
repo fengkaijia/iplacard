@@ -52,4 +52,6 @@ UPDATE `{IP_PREFIX}option` SET `value` = '{\"qq\": \"QQ\"}' WHERE `name` = 'prof
 UPDATE `{IP_PREFIX}option` SET `value` = '{\"qq\": \"QQ\"}' WHERE `name` = 'profile_list_related';
 UPDATE `{IP_PREFIX}option` SET `value` = '\"idcard\"' WHERE `name` = 'signup_unique_identifier';
 UPDATE `{IP_PREFIX}option` SET `value` = '\"会议模联\"' WHERE `name` = 'sms_identity';
+UPDATE `{IP_PREFIX}option` SET `value` = 'true' WHERE `name` = 'signup_test';
+UPDATE `{IP_PREFIX}option` SET `value` = '1' WHERE `name` = 'signup_test_count';
 INSERT INTO `{IP_PREFIX}option` (`name`, `value`) VALUES ('profile_list_roommate', '{\"roommate_name\": \"室友姓名\", \"roommate_email\": \"室友邮箱\", \"roommate_phone\": \"室友手机\"}');

@@ -563,6 +563,13 @@ class UI
 		$this->CI->load->model('interview_model');
 		$this->CI->load->model('invoice_model');
 		
+		//报名
+		if(!is_logged_in())
+		{
+			$this->add_menu('signup', '报名', 'apply/signup');
+			return;
+		}
+		
 		//SUDO模式提示
 		if(is_sudo())
 		{

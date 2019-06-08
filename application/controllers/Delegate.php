@@ -166,9 +166,19 @@ class Delegate extends CI_Controller
 			{
 				$one = $this->delegate_model->get_profile($pid);
 				
+				//特殊委员会选择项
+				if(option('profile_special_committee_choice') && $one['name'] == option('profile_special_committee_choice') && is_array($one['value']))
+				{
+					$committees = $this->committee_model->get_committees($one['value']);
+					if($committees)
+						$profile[$one['name']] = join('<br />', array_column($committees, 'name'));
+					
+					continue;
+				}
+				
 				//学术测试为空
 				if($one['name'] == 'test' && !array_filter($one['value']))
-						$one['value'] = false;
+					$one['value'] = false;
 				
 				$profile[$one['name']] = $one['value'];
 			}
@@ -2805,6 +2815,10 @@ class Delegate extends CI_Controller
 			if(empty($profile_name))
 				return;
 			
+			//额外不可编辑的格式化数据
+			if(option('profile_special_committee_choice') && $profile_name == option('profile_special_committee_choice'))
+				return;
+			
 			$profile_id = $this->delegate_model->get_profile_id('delegate', $uid, 'name', $profile_name);
 			if(!$profile_id)
 			{
@@ -3094,29 +3108,28 @@ class Delegate extends CI_Controller
 
 					//高亮面试官
 					$primary = array();
-					$choice_committee = array();
-
 					$choice_option = option('profile_special_committee_choice');
 					if($choice_option)
 					{
 						$choice_committee = $this->delegate_model->get_profile_by_name($delegate['id'], $choice_option);
-
 						if(!empty($choice_committee))
 						{
 							foreach($choice_committee as $committee_id)
 							{
 								$primary['committee'][] = $committee_id;
-								foreach($select[$committee_id] as $one)
+								if(isset($select[$committee_id]))
 								{
-									$primary['interviewer'][] = $one['id'];
+									foreach($select[$committee_id] as $one)
+									{
+										$primary['interviewer'][] = $one['id'];
+									}
 								}
-
-								$choice_committee[] = $this->committee_model->get_committee($committee_id, 'abbr');
 							}
+							
+							$vars['choice_committee'] = array_column($this->committee_model->get_committees($choice_committee), 'abbr');
 						}
 					}
 					$vars['primary'] = $primary;
-					$vars['choice_committee'] = $choice_committee;
 
 					//是否为二次面试
 					if(!$this->interview_model->is_secondary($delegate['id'], 'delegate'))

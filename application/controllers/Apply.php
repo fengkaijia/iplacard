@@ -30,6 +30,14 @@ class Apply extends CI_Controller
 		$this->load->helper('text');
 		$this->load->helper('date');
 		
+		//检查非登录页面登录情况
+		if($this->uri->segment(2) == 'signup')
+		{
+			if(is_logged_in())
+				redirect('');
+			return;
+		}
+		
 		//检查登录情况
 		if(!is_logged_in())
 		{
@@ -50,6 +58,199 @@ class Apply extends CI_Controller
 		$this->delegate['application_type_text'] = $this->delegate_model->application_type_text($this->delegate['application_type']);
 		$this->delegate['status_text'] = $this->delegate_model->status_text($this->delegate['status']);
 		$this->delegate['status_code'] = $this->delegate_model->status_code($this->delegate['status']);
+	}
+	
+	/**
+	 * 报名
+	 */
+	function signup()
+	{
+		$this->load->library('form_validation');
+		$this->load->helper('form');
+		
+		$unique_id = option('signup_unique_identifier', 'email');
+		if(!in_array($unique_id, array('email', 'phone')))
+			$unique_id = "profile_$unique_id";
+		
+		$types = option('signup_type', array('delegate', 'observer', 'volunteer', 'teacher'));
+		
+		$vars['type'] = array();
+		foreach($types as $type)
+		{
+			$vars['type'][$type] = $this->delegate_model->application_type_text($type);
+		}
+		
+		$vars['committee'] = array();
+		
+		$test_questions = option('profile_list_test', array());
+		$test_enabled = option('signup_test', false) && count($test_questions) > 0;
+		if($test_enabled)
+		{
+			$this->load->model('committee_model');
+			
+			$committees = $this->committee_model->get_committees();
+			foreach($committees as $committee)
+			{
+				$vars['committee'][$committee['id']] = $committee['name'];
+			}
+			
+			$committee_tests = array();
+			if(option('signup_test_dynamic', false)) //以动态方式从题库中随机取题
+			{
+				$this->load->library('question');
+				
+				$previous_test = $this->session->userdata('signup_test');
+				if(!is_null($previous_test))
+				{
+					$committee_tests = unserialize($previous_test);
+				}
+				else
+				{
+					$this->question->set_committee_rule(option('signup_test_committee', array())); //规定学测题属于哪些委员会
+					$this->question->set_exclusive_rule(option('signup_test_exclusive', array())); //规定学测题不可与哪些学测题同时出现
+					
+					$test_count = option('signup_test_count', 3); //规定学测题数目
+					foreach($committees as $committee)
+					{
+						$committee_tests[$committee['id']] = $this->question->generate($committee['id'], $test_count);
+					}
+					
+					//缓存题目序列
+					$this->session->set_userdata('signup_test', serialize($committee_tests));
+				}
+			}
+			else //展示全部题目
+			{
+				foreach($committees as $committee) {
+					//将全部题目添加到每个意向委员会展示题目中
+					$committee_tests[$committee['id']] = range(0, count($test_questions) - 1);
+				}
+			}
+			
+			$vars['test_questions'] = $test_questions;
+			$vars['test_selected'] = $committee_tests;
+			$vars['test_needed'] = array_unique(call_user_func_array('array_merge', $committee_tests));
+		}
+		
+		$profiles = option('profile_list_general', array());
+		$vars['profiles'] = $profiles;
+		
+		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
+		$this->form_validation->set_rules('name', '姓名', 'trim|required');
+		$this->form_validation->set_rules('email', '电子邮箱地址', 'trim|required|valid_email|is_unique[user.email]'.($unique_id == 'email' ? '|callback__check_unique_id' : ''));
+		$this->form_validation->set_rules('phone', '手机号', 'trim|required|integer|exact_length[11]|is_unique[user.phone]'.($unique_id == 'phone' ? '|callback__check_unique_id' : ''));
+		$this->form_validation->set_rules('type', '申请类型', 'trim|required|in_list['.join(',', $types).']');
+		if(!in_array($unique_id, array('email', 'phone')))
+			$this->form_validation->set_rules($unique_id, '此项注册信息', 'trim|required|callback__check_unique_id');
+		$this->form_validation->set_message('_check_unique_id', "相同的注册信息已经存在。");
+		
+		if($this->form_validation->run() == true)
+		{
+			//生成随机密码
+			$this->load->helper('string');
+			$password = random_string('alnum', 8);
+			
+			//新建用户
+			$user_data = array(
+				'name' => $this->input->post('name'),
+				'email' => $this->input->post('email'),
+				'type' => 'delegate',
+				'password' => $password,
+				'pin_password' => option('pin_default_password', 'iPlacard'),
+				'phone' => $this->input->post('phone'),
+				'reg_time' => time()
+			);
+			$uid = $this->user_model->edit_user($user_data);
+			
+			//增加代表数据
+			$this->delegate_model->add_delegate($uid);
+			$delegate_data = array(
+				'status' => 'application_imported',
+				'application_type' => $this->input->post('type'),
+				'unique_identifier' => $this->input->post($unique_id)
+			);
+			$this->delegate_model->edit_delegate($delegate_data, $uid);
+			
+			//导入资料
+			foreach($profiles as $name => $item)
+			{
+				$this->delegate_model->add_profile($uid, $name, trim($this->input->post("profile_$name")));
+			}
+			
+			//导入意向委员会和学术测试
+			if($test_enabled)
+			{
+				$committee = intval($this->input->post('committee'));
+				$this->delegate_model->add_profile($uid, option('profile_special_committee_choice', 'committee_choice'), array($committee));
+				
+				$answers = array();
+				for($i = 0; $i < count($test_questions); $i++)
+				{
+					$answers[$i] = '';
+					if(isset($committee_tests[$committee]) && in_array($i, $committee_tests[$committee]))
+						$answers[$i] = trim($this->input->post("test_$i"));
+				}
+				
+				$this->delegate_model->add_profile($uid, 'test', $answers);
+			}
+			
+			//发送邮件
+			$this->load->library('email');
+			$this->load->library('parser');
+			$this->load->helper('date');
+			
+			$data = array(
+				'uid' => $uid,
+				'name' => $this->input->post('name'),
+				'email' => $this->input->post('email'),
+				'password' => $password,
+				'time' => unix_to_human(time()),
+				'url' => base_url(),
+			);
+			
+			$this->email->to($this->input->post('email'));
+			$this->email->subject('iPlacard 帐户登录信息');
+			$this->email->html($this->parser->parse_string(option('email_delegate_account_created', "您已成功报名。您的 iPlacard 帐户已经于 {time} 创建。帐户信息如下：\n\n"
+				. "\t登录邮箱：{email}\n"
+				. "\t密码：{password}\n\n"
+				. "请使用以上信息访问：\n\n"
+				. "\t{url}\n\n"
+				. "登录并开始通过 iPlacard 了解您的申请进度。"), $data, true));
+			
+			if(!$this->email->send())
+			{
+				$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'email', 'content' => 'delegate_account_created'));
+			}
+			
+			//发送短信通知
+			if(option('sms_enabled', false))
+			{
+				$this->load->model('sms_model');
+				$this->load->library('sms');
+				
+				$this->sms->to($uid);
+				$this->sms->message('您已成功报名，一封含有登录信息的邮件已经发送到您的电子邮箱，请通过提供的信息登录 iPlacard 了解申请进度。如果未能收到通知邮件，请与我们联系。');
+				
+				if(!$this->sms->queue())
+				{
+					$this->system_model->log('notice_failed', array('id' => $uid, 'type' => 'sms', 'content' => 'delegate_account_created'));
+				}
+			}
+			
+			$this->delegate_model->add_event($uid, 'application_imported');
+			$this->user_model->add_message($uid, '您已成功报名。您的参会申请已经开始审核。');
+			
+			$this->system_model->log('application_imported', array('ip' => $this->input->ip_address(), 'id' => $uid, 'ui' => true), 0);
+			
+			$this->ui->alert('您已成功报名，请使用发送到您刚才登记邮箱中的密码登录 iPlacard。', 'success', true);
+			redirect('account/login');
+			return;
+		}
+		
+		$this->ui->now('signup');
+		$this->ui->title('报名');
+		$this->ui->background();
+		$this->load->view('delegate/signup', $vars);
 	}
 	
 	/**
@@ -449,6 +650,19 @@ class Apply extends CI_Controller
 			foreach($pids as $pid)
 			{
 				$one = $this->delegate_model->get_profile($pid);
+				
+				//特殊委员会选择项
+				if(option('profile_special_committee_choice') && $one['name'] == option('profile_special_committee_choice') && is_array($one['value']))
+				{
+					$this->load->model('committee_model');
+					
+					$committees = $this->committee_model->get_committees($one['value']);
+					if($committees)
+						$delegate[$one['name']] = join('<br />', array_column($committees, 'name'));
+					
+					continue;
+				}
+				
 				$delegate[$one['name']] = $one['value'];
 			}
 		}
@@ -2150,6 +2364,17 @@ class Apply extends CI_Controller
 			return false;
 		
 		return true;
+	}
+	
+	/**
+	 * 检查唯一身份标识符是否已经存在
+	 */
+	function _check_unique_id($str)
+	{
+		if(empty($str))
+			return true;
+		
+		return !$this->delegate_model->get_delegate_id('unique_identifier', $str);
 	}
 }
 
