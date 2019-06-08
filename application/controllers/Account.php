@@ -1094,6 +1094,7 @@ class Account extends CI_Controller
 		
 		$this->load->helper('ip');
 		$this->load->helper('date');
+		$this->load->helper('session');
 		
 		//获取记录
 		$this->db->where('operator', uid());
@@ -1104,11 +1105,19 @@ class Account extends CI_Controller
 		
 		if($query->num_rows() != 0)
 		{
-			$data = array();
+			$sessions = array();
+			
 			foreach($query->result_array() as $data)
 			{
-				//检查是否仍然在线
 				$data['value'] = json_decode($data['value'], true);
+				
+				//自CI 3.0起在同一浏览器上的多次登录可被登记为同一Session
+				if(in_array($data['value']['session'], $sessions))
+					continue;
+				else
+					$sessions[] = $data['value']['session'];
+				
+				//检查是否仍然在线
 				$this->db->where('session', $data['value']['session']);
 				$check = $this->db->get('session');
 				
@@ -1134,8 +1143,8 @@ class Account extends CI_Controller
 							$data['current'] = true;
 						
 						//是否已经关闭
-						$user_data = session_decode($session['data']);
-						if(!isset($user_data['halt']) || !$user_data['halt'])
+						$user_data = session_unserialize($session['data']);
+						if(isset($user_data['logged_in']) && $user_data['logged_in'])
 							$active[] = $data;
 					}
 				}
