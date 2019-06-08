@@ -1094,6 +1094,7 @@ class Account extends CI_Controller
 		
 		$this->load->helper('ip');
 		$this->load->helper('date');
+		$this->load->helper('session');
 		
 		//获取记录
 		$this->db->where('operator', uid());
@@ -1134,7 +1135,7 @@ class Account extends CI_Controller
 							$data['current'] = true;
 						
 						//是否已经关闭
-						$user_data = session_decode($session['data']);
+						$user_data = session_unserialize($session['data']);
 						if(!isset($user_data['halt']) || !$user_data['halt'])
 							$active[] = $data;
 					}
