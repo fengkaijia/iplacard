@@ -12,16 +12,17 @@
 
 /**
  * 文件大小去格式化
- * @param string 形如 2M 的字符串
+ * @param string $val 形如 1g、2M 的字符串
  * @return int 字节数
  */
 function byte_deformat($val)
 {
 	$val = trim($val);
-	
 	$last = strtolower($val[strlen($val)-1]);
 	
-	switch($last) {
+	$val = intval($val);
+	switch($last)
+	{
 		case 'g':
 			$val *= 1024;
 		case 'm':
