@@ -166,9 +166,19 @@ class Delegate extends CI_Controller
 			{
 				$one = $this->delegate_model->get_profile($pid);
 				
+				//特殊委员会选择项
+				if(option('profile_special_committee_choice') && $one['name'] == option('profile_special_committee_choice') && is_array($one['value']))
+				{
+					$committees = $this->committee_model->get_committees($one['value']);
+					if($committees)
+						$profile[$one['name']] = join('<br />', array_column($committees, 'name'));
+					
+					break;
+				}
+				
 				//学术测试为空
 				if($one['name'] == 'test' && !array_filter($one['value']))
-						$one['value'] = false;
+					$one['value'] = false;
 				
 				$profile[$one['name']] = $one['value'];
 			}

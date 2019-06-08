@@ -181,9 +181,8 @@ class Apply extends CI_Controller
 			//导入意向委员会和学术测试
 			if($test_enabled)
 			{
-				//TODO: 格式化
 				$committee = intval($this->input->post('committee'));
-				$this->delegate_model->add_profile($uid, 'committee_choice', isset($vars['committee'][$committee]) ? $vars['committee'][$committee] : $committee);
+				$this->delegate_model->add_profile($uid, option('profile_special_committee_choice', 'committee_choice'), array($committee));
 				
 				$answers = array();
 				for($i = 0; $i < count($test_questions); $i++)
@@ -652,6 +651,19 @@ class Apply extends CI_Controller
 			foreach($pids as $pid)
 			{
 				$one = $this->delegate_model->get_profile($pid);
+				
+				//特殊委员会选择项
+				if(option('profile_special_committee_choice') && $one['name'] == option('profile_special_committee_choice') && is_array($one['value']))
+				{
+					$this->load->model('committee_model');
+					
+					$committees = $this->committee_model->get_committees($one['value']);
+					if($committees)
+						$delegate[$one['name']] = join('<br />', array_column($committees, 'name'));
+					
+					break;
+				}
+				
 				$delegate[$one['name']] = $one['value'];
 			}
 		}
