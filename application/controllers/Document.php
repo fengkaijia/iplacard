@@ -794,23 +794,26 @@ class Document extends CI_Controller
 					$access = $this->document_model->get_document_accessibility($id);
 					if($access)
 					{
-						$count_access = count($access);
-						
 						if($access === true)
 							$access_line = '全局分发';
-						elseif($count_access == 1)
-							$access_line = $committees[$access[0]]['abbr'];
 						else
 						{
-							$access_line = "$count_access 委员会";
+							$count_access = count($access);
 							
-							$access_list = '';
-							foreach($access as $one)
+							if($count_access == 1)
+								$access_line = $committees[$access[0]]['abbr'];
+							else
 							{
-								$access_list .= '<p>'.icon('university').$committees[$one]['name'].'</p>';
+								$access_line = "$count_access 委员会";
+								
+								$access_list = '';
+								foreach($access as $one)
+								{
+									$access_list .= '<p>'.icon('university').$committees[$one]['name'].'</p>';
+								}
+								
+								$access_line .= '<a style="cursor: pointer;" class="committee_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'可访问委员会\' data-toggle="popover" data-content=\''.$access_list.'\'>'.icon('info-circle', false).'</a>';
 							}
-							
-							$access_line .= '<a style="cursor: pointer;" class="committee_list" data-html="1" data-placement="right" data-trigger="click" data-original-title=\'可访问委员会\' data-toggle="popover" data-content=\''.$access_list.'\'>'.icon('info-circle', false).'</a>';
 						}
 					}
 					else
