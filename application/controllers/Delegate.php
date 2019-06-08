@@ -2815,6 +2815,10 @@ class Delegate extends CI_Controller
 			if(empty($profile_name))
 				return;
 			
+			//额外不可编辑的格式化数据
+			if(option('profile_special_committee_choice') && $profile_name == option('profile_special_committee_choice'))
+				return;
+			
 			$profile_id = $this->delegate_model->get_profile_id('delegate', $uid, 'name', $profile_name);
 			if(!$profile_id)
 			{
