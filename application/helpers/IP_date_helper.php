@@ -12,7 +12,8 @@
 
 /**
  * 时间优化函数
- * @link http://php.net/manual/en/function.time.php
+ * @link https://www.php.net/manual/en/function.time.php#89415
+ * @author Yasmary Mora <yasmary@gmail.com>
  * @param int $date UNIX时间戳
  * @param boolean $space 是否在数字和文字前增加空格
  * @return string 经过优化的时间（如几天前）
