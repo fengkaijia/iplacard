@@ -3108,29 +3108,28 @@ class Delegate extends CI_Controller
 
 					//高亮面试官
 					$primary = array();
-					$choice_committee = array();
-
 					$choice_option = option('profile_special_committee_choice');
 					if($choice_option)
 					{
 						$choice_committee = $this->delegate_model->get_profile_by_name($delegate['id'], $choice_option);
-
 						if(!empty($choice_committee))
 						{
 							foreach($choice_committee as $committee_id)
 							{
 								$primary['committee'][] = $committee_id;
-								foreach($select[$committee_id] as $one)
+								if(isset($select[$committee_id]))
 								{
-									$primary['interviewer'][] = $one['id'];
+									foreach($select[$committee_id] as $one)
+									{
+										$primary['interviewer'][] = $one['id'];
+									}
 								}
-
-								$choice_committee[] = $this->committee_model->get_committee($committee_id, 'abbr');
 							}
+							
+							$vars['choice_committee'] = array_column($this->committee_model->get_committees($choice_committee), 'abbr');
 						}
 					}
 					$vars['primary'] = $primary;
-					$vars['choice_committee'] = $choice_committee;
 
 					//是否为二次面试
 					if(!$this->interview_model->is_secondary($delegate['id'], 'delegate'))
