@@ -2315,17 +2315,6 @@ class Account extends CI_Controller
 	}
 	
 	/**
-	 * 检查唯一身份标识符是否已经存在
-	 */
-	function _check_unique_id($str)
-	{
-		if(empty($str))
-			return true;
-		
-		return !$this->delegate_model->get_delegate_id('unique_identifier', $str);
-	}
-	
-	/**
 	 * 转换手机为对应的邮箱
 	 */
 	function _convert_email($email)

@@ -2353,6 +2353,17 @@ class Apply extends CI_Controller
 		
 		return true;
 	}
+	
+	/**
+	 * 检查唯一身份标识符是否已经存在
+	 */
+	function _check_unique_id($str)
+	{
+		if(empty($str))
+			return true;
+		
+		return !$this->delegate_model->get_delegate_id('unique_identifier', $str);
+	}
 }
 
 /* End of file apply.php */
