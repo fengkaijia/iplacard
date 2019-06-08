@@ -661,7 +661,7 @@ class Apply extends CI_Controller
 					if($committees)
 						$delegate[$one['name']] = join('<br />', array_column($committees, 'name'));
 					
-					break;
+					continue;
 				}
 				
 				$delegate[$one['name']] = $one['value'];

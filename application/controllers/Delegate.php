@@ -173,7 +173,7 @@ class Delegate extends CI_Controller
 					if($committees)
 						$profile[$one['name']] = join('<br />', array_column($committees, 'name'));
 					
-					break;
+					continue;
 				}
 				
 				//学术测试为空
