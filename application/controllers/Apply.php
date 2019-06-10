@@ -926,7 +926,7 @@ class Apply extends CI_Controller
 		{
 			$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 
-			$this->form_validation->set_rules('time', '转账时间', 'trim|required|strtotime');
+			$this->form_validation->set_rules('time', '转账时间', 'trim|required|strtotime', array('strtotime' => '转账时间格式有误。'));
 			$this->form_validation->set_rules('gateway', '交易渠道', 'trim|required');
 			$this->form_validation->set_rules('transaction', '交易流水号', 'trim');
 			$this->form_validation->set_rules('amount', '转账金额', 'trim|required|numeric');
