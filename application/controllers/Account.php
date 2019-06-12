@@ -1158,7 +1158,7 @@ class Account extends CI_Controller
 			}
 			elseif($action == 'crop')
 			{
-				if($this->input->post('crop_avatar'))
+				if($this->input->post('submit_avater'))
 				{
 					$upload = user_option('account_avatar_uploaded', false);
 					
@@ -1200,23 +1200,48 @@ class Account extends CI_Controller
 						$config['source_image'] = $config['new_image'];
 					}
 					
-					//裁剪图像
-					$crop_config = $config;
-					$crop_config['x_axis'] = (int) $this->input->post('x');
-					$crop_config['y_axis'] = (int) $this->input->post('y');
-					$crop_config['width'] = (int) $this->input->post('w');
-					$crop_config['height'] = (int) $this->input->post('h');
-					$crop_config['maintain_ratio'] = false;
-					
-					$this->image_lib->initialize($crop_config);
-					
-					if(!$this->image_lib->crop())
+					if($this->input->post('crop_avatar'))
 					{
-						$this->ui->alert('生成头像出错。', 'danger', true);
-						redirect('account/settings/home');
-						return;
+						//裁剪图像
+						$crop_config = $config;
+						$crop_config['x_axis'] = (int) $this->input->post('x');
+						$crop_config['y_axis'] = (int) $this->input->post('y');
+						$crop_config['width'] = (int) $this->input->post('w');
+						$crop_config['height'] = (int) $this->input->post('h');
+						$crop_config['maintain_ratio'] = false;
+	
+						$this->image_lib->initialize($crop_config);
+						
+						if(!$this->image_lib->crop())
+						{
+							$this->ui->alert('生成头像出错，请重试。', 'danger', true);
+							redirect('account/settings/home');
+							return;
+						}
+						$this->image_lib->clear();
 					}
-					$this->image_lib->clear();
+					else
+					{
+						list($width, $height) = getimagesize($config['source_image']);
+						$min_size = intval(min($width, $height));
+						
+						//不裁剪图像，将图像压缩为1:1
+						$resize_config = $config;
+						$resize_config['width'] = $min_size;
+						$resize_config['height'] = $min_size;
+						$resize_config['maintain_ratio'] = false;
+						
+						$this->image_lib->initialize($resize_config);
+						
+						if(!$this->image_lib->resize())
+						{
+							echo $this->image_lib->display_errors();
+							$this->ui->alert('生成头像出错，请重试。', 'danger', true);
+							redirect('account/settings/home');
+							return;
+						}
+						$this->image_lib->clear();
+					}
 					
 					//预生成图像
 					$target = array(20, 26, 40, 80, 160, 320);

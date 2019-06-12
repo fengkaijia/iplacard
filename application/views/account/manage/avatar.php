@@ -31,7 +31,7 @@ $this->load->view('header');?>
 	</div>
 	
 	<div class="col-md-9">
-		<?php echo form_open('account/settings/avatar/crop', array('class' => 'well form-horizontal'), array('x' => NULL, 'y' => NULL, 'w' => NULL, 'h' => NULL, 'crop_avatar' => true));?>
+		<?php echo form_open('account/settings/avatar/crop', array('class' => 'well form-horizontal'), array('x' => NULL, 'y' => NULL, 'w' => NULL, 'h' => NULL, 'submit_avater' => true, 'crop_avatar' => false));?>
 			<?php echo form_fieldset('图像调整'); ?>
 				<p>请根据需要对上传的图像进行裁剪，裁剪完成后点击提交更改按钮保存图像。</p>
 		
@@ -116,6 +116,8 @@ $(function($){
 				marginTop: '-' + Math.round(ry * c.y) + 'px'
 			});
 		}
+		
+		$('input[name="crop_avatar"]').val(1);
 	}
 });
 EOT;
