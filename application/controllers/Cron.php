@@ -594,6 +594,7 @@ class Cron extends CI_Controller
 				{
 					$this->db->where($schema, $id);
 					$this->db->delete($tables);
+					$this->db->reset_query();
 				}
 				
 				$this->system_model->log('delegate_data_removed', array('delegate' => $id, 'data' => $data));
