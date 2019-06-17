@@ -815,10 +815,10 @@ class Admin extends CI_Controller
 					//生成表头
 					foreach($columns as $column)
 					{
-						$this->excel->getActiveSheet()->setCellValueByColumnAndRow($column['order'], 1, $column['name']);
-						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'], 1)->getFont()->setBold(true);
-						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'], 1)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
-						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'], 1)->getFill()->getStartColor()->setRGB('D3D3D3');
+						$this->excel->getActiveSheet()->setCellValueByColumnAndRow($column['order'] + 1, 1, $column['name']);
+						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'] + 1, 1)->getFont()->setBold(true);
+						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'] + 1, 1)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'] + 1, 1)->getFill()->getStartColor()->setRGB('D3D3D3');
 					}
 					
 					//写入数据
@@ -831,10 +831,10 @@ class Admin extends CI_Controller
 							if(isset($column['type']))
 							{
 								if($column['type'] == 'longtext')
-									$this->excel->getActiveSheet()->getCellByColumnAndRow($column['order'], $current_row)->setValueExplicit(isset($list_single[$column_id]) ? $list_single[$column_id] : NULL, PHPExcel_Cell_DataType::TYPE_STRING);
+									$this->excel->getActiveSheet()->getCellByColumnAndRow($column['order'] + 1, $current_row)->setValueExplicit(isset($list_single[$column_id]) ? $list_single[$column_id] : NULL, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
 							}
 							else
-								$this->excel->getActiveSheet()->setCellValueByColumnAndRow($column['order'], $current_row, isset($list_single[$column_id]) ? $list_single[$column_id] : NULL);
+								$this->excel->getActiveSheet()->setCellValueByColumnAndRow($column['order'] + 1, $current_row, isset($list_single[$column_id]) ? $list_single[$column_id] : NULL);
 						}
 					}
 				}
@@ -848,17 +848,17 @@ class Admin extends CI_Controller
 			switch($format)
 			{
 				case 'xls':
-					$io = 'Excel5';
+					$io = 'Xls';
 					break;
 				case 'xlsx':
-					$io = 'Excel2007';
+					$io = 'Xlsx';
 					break;
 				case 'pdf':
 				case 'html':
-					$io = 'HTML';
+					$io = 'Html';
 					break;
 				case 'csv':
-					$io = 'CSV';
+					$io = 'Csv';
 					break;
 				default:
 					$this->ui->alert('导出格式不支持。', 'warning', true);
@@ -881,7 +881,7 @@ class Admin extends CI_Controller
 			//生成内容
 			ob_start();
 			
-			$writer = PHPExcel_IOFactory::createWriter($this->excel, $io);
+			$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($this->excel, $io);
 			
 			if(in_array($format, array('html', 'pdf')))
 				$writer->writeAllSheets();

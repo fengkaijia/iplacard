@@ -11,7 +11,7 @@ require_once realpath(APPPATH.'../vendor/autoload.php');
  * @package iPlacard
  * @since 2.0
  */
-class Excel extends \PHPExcel
+class Excel extends \PhpOffice\PhpSpreadsheet\Spreadsheet
 {
 	function __construct()
 	{
