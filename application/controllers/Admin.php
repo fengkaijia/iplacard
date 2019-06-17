@@ -21,11 +21,6 @@ class Admin extends CI_Controller
 	 */
 	private $has_task = false;
 	
-	/**
-	 * @var string PDF渲染引擎API
-	 */
-	private $pdf_api = 'https://pdf.api.iplacard.com/';
-	
 	function __construct()
 	{
 		parent::__construct();
@@ -815,10 +810,10 @@ class Admin extends CI_Controller
 					//生成表头
 					foreach($columns as $column)
 					{
-						$this->excel->getActiveSheet()->setCellValueByColumnAndRow($column['order'], 1, $column['name']);
-						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'], 1)->getFont()->setBold(true);
-						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'], 1)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
-						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'], 1)->getFill()->getStartColor()->setRGB('D3D3D3');
+						$this->excel->getActiveSheet()->setCellValueByColumnAndRow($column['order'] + 1, 1, $column['name']);
+						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'] + 1, 1)->getFont()->setBold(true);
+						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'] + 1, 1)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+						$this->excel->getActiveSheet()->getStyleByColumnAndRow($column['order'] + 1, 1)->getFill()->getStartColor()->setRGB('D3D3D3');
 					}
 					
 					//写入数据
@@ -831,10 +826,10 @@ class Admin extends CI_Controller
 							if(isset($column['type']))
 							{
 								if($column['type'] == 'longtext')
-									$this->excel->getActiveSheet()->getCellByColumnAndRow($column['order'], $current_row)->setValueExplicit(isset($list_single[$column_id]) ? $list_single[$column_id] : NULL, PHPExcel_Cell_DataType::TYPE_STRING);
+									$this->excel->getActiveSheet()->getCellByColumnAndRow($column['order'] + 1, $current_row)->setValueExplicit(isset($list_single[$column_id]) ? $list_single[$column_id] : NULL, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
 							}
 							else
-								$this->excel->getActiveSheet()->setCellValueByColumnAndRow($column['order'], $current_row, isset($list_single[$column_id]) ? $list_single[$column_id] : NULL);
+								$this->excel->getActiveSheet()->setCellValueByColumnAndRow($column['order'] + 1, $current_row, isset($list_single[$column_id]) ? $list_single[$column_id] : NULL);
 						}
 					}
 				}
@@ -848,17 +843,19 @@ class Admin extends CI_Controller
 			switch($format)
 			{
 				case 'xls':
-					$io = 'Excel5';
+					$io = 'Xls';
 					break;
 				case 'xlsx':
-					$io = 'Excel2007';
+					$io = 'Xlsx';
 					break;
-				case 'pdf':
+				case 'ods':
+					$io = 'Ods';
+					break;
 				case 'html':
-					$io = 'HTML';
+					$io = 'Html';
 					break;
 				case 'csv':
-					$io = 'CSV';
+					$io = 'Csv';
 					break;
 				default:
 					$this->ui->alert('导出格式不支持。', 'warning', true);
@@ -881,37 +878,15 @@ class Admin extends CI_Controller
 			//生成内容
 			ob_start();
 			
-			$writer = PHPExcel_IOFactory::createWriter($this->excel, $io);
+			$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($this->excel, $io);
 			
-			if(in_array($format, array('html', 'pdf')))
+			if($format == 'html')
 				$writer->writeAllSheets();
 			
 			$writer->save('php://output');
 			
 			$content = ob_get_contents();
 			ob_end_clean();
-			
-			//生成PDF
-			if($format == 'pdf')
-			{
-				$this->load->library('curl');
-		
-				//生成数据
-				$data = array(
-					'access_token' => IP_INSTANCE_API_ACCESS_KEY,
-					'html' => $content
-				);
-
-				//获取结果
-				$content = $this->curl->simple_post($this->pdf_api, $data);
-
-				if(empty($content))
-				{
-					$this->ui->alert('渲染 PDF 时发生了一个错误。', 'warning', true);
-					back_redirect();
-					return;
-				}
-			}
 			
 			force_download('iPlacard-'.date('Y-m-d-H-i-s').'.'.$format, $content);
 			
@@ -931,8 +906,8 @@ class Admin extends CI_Controller
 		$vars['format'] = array(
 			'xlsx' => 'Microsoft Excel 2007 文档（.xlsx）',
 			'xls' => 'Microsoft Excel 97-2003 文档（.xls）',
+			'ods' => 'OpenDocument 电子表格（.ods）',
 			'html' => 'HTML Calc 文档（.html）',
-			'pdf' => '便携式文件格式（.pdf）',
 			'csv' => 'CSV 文本（.csv）',
 		);
 		

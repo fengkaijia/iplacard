@@ -16,7 +16,7 @@
 		"imunc/iplacard-3rdparty": "2.4.*",
 		"codeigniter/framework": "3.1.*",
 		"codeigniter/translations": "3.1.*",
-		"phpoffice/phpexcel": "1.8.*"
+		"phpoffice/phpspreadsheet": "1.7.*"
 	},
 	"repositories": [
 		{
