@@ -26,7 +26,7 @@ $this->load->view('header');?>
 			<div class="panel-body">
 				<p>您可以通过此工具导出 iPlacard 数据。iPlacard 数据导出工具支持导出代表的申请资料、所属团队、席位信息、面试记录、账单、笔记和附加信息，同时工具还支持导出管理员信息。</p>
 				<p>导出工具支持通过申请类型、委员会、申请状态等属性筛选代表，当代表满足全部筛选条件时信息将会导出。</p>
-				<p style="margin-bottom: 0;">导出工具支持将导出数据保存为 Microsoft Excel 97-2003/2007、HTML Calc 或 CSV 文件格式。当选定保存为 CSV 格式时仅能保存单一申请类型的代表信息。</p>
+				<p style="margin-bottom: 0;">导出工具支持将导出数据保存为 Microsoft Excel 97-2003/2007、OpenDocument、HTML Calc 或 CSV 文件格式。当选定保存为 CSV 格式时仅能保存单一申请类型的代表信息。</p>
 			</div>
 		</div>
 	</div>

@@ -848,6 +848,9 @@ class Admin extends CI_Controller
 				case 'xlsx':
 					$io = 'Xlsx';
 					break;
+				case 'ods':
+					$io = 'Ods';
+					break;
 				case 'html':
 					$io = 'Html';
 					break;
@@ -903,6 +906,7 @@ class Admin extends CI_Controller
 		$vars['format'] = array(
 			'xlsx' => 'Microsoft Excel 2007 文档（.xlsx）',
 			'xls' => 'Microsoft Excel 97-2003 文档（.xls）',
+			'ods' => 'OpenDocument 电子表格（.ods）',
 			'html' => 'HTML Calc 文档（.html）',
 			'csv' => 'CSV 文本（.csv）',
 		);
