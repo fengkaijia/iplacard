@@ -21,11 +21,6 @@ class Admin extends CI_Controller
 	 */
 	private $has_task = false;
 	
-	/**
-	 * @var string PDF渲染引擎API
-	 */
-	private $pdf_api = 'https://pdf.api.iplacard.com/';
-	
 	function __construct()
 	{
 		parent::__construct();
@@ -853,7 +848,6 @@ class Admin extends CI_Controller
 				case 'xlsx':
 					$io = 'Xlsx';
 					break;
-				case 'pdf':
 				case 'html':
 					$io = 'Html';
 					break;
@@ -883,35 +877,13 @@ class Admin extends CI_Controller
 			
 			$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($this->excel, $io);
 			
-			if(in_array($format, array('html', 'pdf')))
+			if($format == 'html')
 				$writer->writeAllSheets();
 			
 			$writer->save('php://output');
 			
 			$content = ob_get_contents();
 			ob_end_clean();
-			
-			//生成PDF
-			if($format == 'pdf')
-			{
-				$this->load->library('curl');
-		
-				//生成数据
-				$data = array(
-					'access_token' => IP_INSTANCE_API_ACCESS_KEY,
-					'html' => $content
-				);
-
-				//获取结果
-				$content = $this->curl->simple_post($this->pdf_api, $data);
-
-				if(empty($content))
-				{
-					$this->ui->alert('渲染 PDF 时发生了一个错误。', 'warning', true);
-					back_redirect();
-					return;
-				}
-			}
 			
 			force_download('iPlacard-'.date('Y-m-d-H-i-s').'.'.$format, $content);
 			
@@ -932,7 +904,6 @@ class Admin extends CI_Controller
 			'xlsx' => 'Microsoft Excel 2007 文档（.xlsx）',
 			'xls' => 'Microsoft Excel 97-2003 文档（.xls）',
 			'html' => 'HTML Calc 文档（.html）',
-			'pdf' => '便携式文件格式（.pdf）',
 			'csv' => 'CSV 文本（.csv）',
 		);
 		
