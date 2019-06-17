@@ -124,7 +124,7 @@ class Note_model extends CI_Model
 	 * 添加注释笔记
 	 * @return int 新的注释笔记ID
 	 */
-	function add_note($delegate, $text, $category = NULL , $uid = '')
+	function add_note($delegate, $text, $category = NULL, $uid = '')
 	{
 		if(empty($uid))
 			$uid = uid();
