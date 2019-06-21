@@ -13,9 +13,9 @@
 class IP_Upload extends CI_Upload {
 	
 	/**
-	 * @var string 禁用文件类型
+	 * @var array 禁用文件类型
 	 */
-	var $disallowed_types = '';
+	var $disallowed_types = array();
 	
 	/**
 	 * 初始化
@@ -49,10 +49,10 @@ class IP_Upload extends CI_Upload {
 	public function is_allowed_filetype($ignore_mime = FALSE)
 	{
 		//未设定白名单
-		if(count($this->allowed_types) == 0 || !is_array($this->allowed_types))
+		if(empty($this->allowed_types) || !is_array($this->allowed_types))
 		{
 			//未设定黑白名单允许全部
-			if(count($this->disallowed_types) == 0 || !is_array($this->disallowed_types))
+			if(empty($this->disallowed_types) || !is_array($this->disallowed_types))
 				return TRUE;
 
 			//未设定黑名单
@@ -70,7 +70,7 @@ class IP_Upload extends CI_Upload {
 	public function is_disallowed_filetype()
 	{
 		//无后缀
-		if(count($this->disallowed_types) == 0 || !is_array($this->disallowed_types))
+		if(empty($this->disallowed_types) || !is_array($this->disallowed_types))
 			return FALSE;
 		
 		foreach($this->disallowed_types as $val)
