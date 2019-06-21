@@ -1036,11 +1036,11 @@ class Apply extends CI_Controller
 		//去除空格式
 		foreach($formats as $format_id => $format)
 		{
-			$files = $this->document_model->get_file_ids('format', $format_id, 'document', $document_ids, array('group_by' => 'document'));
+			$files = $this->document_model->get_file_ids('format', $format_id, 'document', $document_ids);
 			if(!$files)
 				unset($formats[$format_id]);
 			else
-				$formats[$format_id]['count'] = count($files);
+				$formats[$format_id]['count'] = count(array_unique(array_column($this->document_model->get_files($files), 'document')));
 		}
 		
 		$vars['formats'] = $formats;
