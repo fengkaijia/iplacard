@@ -784,7 +784,7 @@ class Admin extends CI_Controller
 									}
 										
 									if(count($note_ids) > $note_count)
-										$note_count = count($note_count);
+										$note_count = count($note_ids);
 								}
 							}
 						}
