@@ -711,11 +711,23 @@ class Admin extends CI_Controller
 								$profile_items = option('profile_list_general', array()) + option("profile_list_{$list_type}", array());
 								if(!empty($profile_items))
 								{
-									$profiles = $this->delegate_model->get_delegate_profiles($id);
+									$profile_committee = option('profile_special_committee_choice');
 									
+									$profiles = $this->delegate_model->get_delegate_profiles($id);
 									foreach($profile_items as $name => $title)
 									{
-										$single_data["profile_{$name}"] = isset($profiles[$name]) ? $profiles[$name] : NULL;
+										//意向委员会
+										if($profile_committee && !empty($profile_committee) && $name == $profile_committee && isset($profiles[$name]) && !empty($profiles[$name]))
+										{
+											$single_data["profile_{$name}"] = join('/', array_map(function($committee)
+											{
+												return $this->committee_model->get_committee($committee, 'name');
+											}, $profiles[$name]));
+										}
+										else
+										{
+											$single_data["profile_{$name}"] = isset($profiles[$name]) ? $profiles[$name] : NULL;
+										}
 									}
 								}
 							}
