@@ -245,18 +245,22 @@ class Seat extends CI_Controller
 		
 		$this->form_validation->set_error_delimiters('<div class="help-block">', '</div>');
 		
-		$this->form_validation->set_rules('seat_type', '席位类型', 'trim|required');
+		$this->form_validation->set_rules('seat_type', '席位类型', 'trim|required|in_list[single,primary,sub]');
 		
 		$seat_type = $this->input->post('seat_type');
-		if($seat_type != 'sub')
+		switch($seat_type)
 		{
-			$this->form_validation->set_rules('name', '席位名称', 'trim|required');
-			$this->form_validation->set_rules('committee', '委员会', 'required');
-		}
-		else
-		{
-			$this->form_validation->set_rules('primary', '主席位', 'callback__check_primary_seat');
-			$this->form_validation->set_message('_check_primary_seat', '主席位不可选。');
+			case 'primary':
+				$this->form_validation->set_rules('sub_num', '子席位数量', 'required|less_than[100]|is_natural');
+				$this->form_validation->set_message('less_than', '子席位数量超过允许上限。');
+			case 'single':
+				$this->form_validation->set_rules('name', '席位名称', 'trim|required');
+				$this->form_validation->set_rules('committee', '委员会', 'required');
+				break;
+			case 'sub':
+				$this->form_validation->set_rules('primary', '主席位', 'callback__check_primary_seat');
+				$this->form_validation->set_message('_check_primary_seat', '主席位不可选。');
+				break;
 		}
 		
 		if($this->form_validation->run() == true)
