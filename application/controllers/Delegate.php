@@ -3111,22 +3111,28 @@ class Delegate extends CI_Controller
 					$choice_option = option('profile_special_committee_choice');
 					if($choice_option)
 					{
-						$choice_committee = $this->delegate_model->get_profile_by_name($delegate['id'], $choice_option);
-						if(!empty($choice_committee))
+						$committee_choice = $this->delegate_model->get_profile_by_name($delegate['id'], $choice_option);
+						if(!empty($committee_choice))
 						{
-							foreach($choice_committee as $committee_id)
+							$choice_committees = $this->committee_model->get_committees($committee_choice);
+							if($choice_committees)
 							{
-								$primary['committee'][] = $committee_id;
-								if(isset($select[$committee_id]))
+								foreach($choice_committees as $committee)
 								{
-									foreach($select[$committee_id] as $one)
+									$committee_id = $committee['id'];
+									
+									$primary['committee'][] = $committee_id;
+									if(isset($select[$committee_id]) && $committee_id > 0)
 									{
-										$primary['interviewer'][] = $one['id'];
+										foreach($select[$committee_id] as $one)
+										{
+											$primary['interviewer'][] = $one['id'];
+										}
 									}
 								}
+								
+								$vars['choice_committee'] = array_column($choice_committees, 'abbr');
 							}
-							
-							$vars['choice_committee'] = array_column($this->committee_model->get_committees($choice_committee), 'abbr');
 						}
 					}
 					$vars['primary'] = $primary;
