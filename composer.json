@@ -2,7 +2,7 @@
 	"name": "imunc/iplacard",
 	"description": "iPlacard by IMUNC",
 	"minimum-stability": "stable",
-	"version": "2.3.3",
+	"version": "2.3.5",
 	"homepage": "http://iplacard.com",
 	"license": "Dual-licensed proprietary",
 	"authors": [
@@ -23,11 +23,11 @@
 			"type":"package",
 			"package": {
 				"name": "imunc/iplacard-3rdparty",
-				"version": "2.3.4",
+				"version": "2.3.5",
 				"source": {
 					"url": "https://github.com/fengkaijia/iplacard-3rdparty.git",
 					"type": "git",
-					"reference": "v2.3.4"
+					"reference": "v2.3.5"
 				}
 			}
 		},
